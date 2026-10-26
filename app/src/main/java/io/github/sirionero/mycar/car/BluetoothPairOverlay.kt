@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Asks once per car whether to pair it over Bluetooth, then waits while the phone shows its
- * pairing dialog. See [CarBluetooth]. With no pairing to do, says when Bluetooth audio isn't
- * connected (see [BluetoothAudioCheck]), or else when the phone's location is off (see
+ * pairing dialog. See [CarBluetooth]. With no pairing to do, says when the phone isn't connected
+ * to the car over Bluetooth (see [BluetoothAudioCheck]), or else when the phone's location is off (see
  * [LocationCheck]). Unlike the call prompt, a tap outside the card does nothing:
  * the driver picks Pair or Not now.
  */
@@ -44,9 +44,10 @@ internal fun BluetoothPairOverlay() {
             val warn by CarSettings.bluetoothWarning.collectAsState()
             val locationOff by LocationCheck.off.collectAsState()
             val locationDismissed by LocationCheck.carDismissed.collectAsState()
-            if (missing && bluetoothAudio && warn && !dismissed) PairCard(
+            if (missing && warn && !dismissed) PairCard(
                 title = "Bluetooth isn't connected",
-                body = "Music plays over Bluetooth, but your phone isn't connected to the car. " +
+                body = (if (bluetoothAudio) "Calls and music play" else "Calls play") +
+                    " over Bluetooth, but your phone isn't connected to the car. " +
                     "Connect it from the car's Bluetooth menu or your phone's.",
                 secondary = "Don't show again" to BluetoothAudioCheck::neverAgain,
                 primary = "OK" to BluetoothAudioCheck::dismissOnCar,

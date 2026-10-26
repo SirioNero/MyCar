@@ -132,13 +132,12 @@ fun CarSettingsScreen() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (!pipeAudio) {
-            ChoiceRow(
-                "Warn when Bluetooth isn't connected",
-                listOf(false to "Off", true to "On"),
-                bluetoothWarning,
-            ) { CarSettings.setBluetoothWarning(it) }
-        }
+        // Shown with USB audio too: calls reach the car only over Bluetooth either way.
+        ChoiceRow(
+            "Warn when Bluetooth isn't connected",
+            listOf(false to "Off", true to "On"),
+            bluetoothWarning,
+        ) { CarSettings.setBluetoothWarning(it) }
         ChoiceRow(
             "Warn when location is off",
             listOf(false to "Off", true to "On"),

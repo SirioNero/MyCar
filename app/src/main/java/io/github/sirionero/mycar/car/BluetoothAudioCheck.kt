@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothA2dp
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothHeadset
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
@@ -18,10 +19,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * With Bluetooth audio chosen, music only reaches the car if the phone is connected to it over
- * Bluetooth. Twenty seconds after the car shows myCar, long enough for a car to connect on its
- * own, this checks. If the phone isn't connected, the car and the phone's Home screen both say so,
- * until it connects or the drive ends.
+ * Calls only reach the car if the phone is connected to it over Bluetooth, and so does music with
+ * Bluetooth audio chosen. Twenty seconds after the car shows myCar, long enough for a car to
+ * connect on its own, this checks: the hands-free connection with USB audio, where only calls
+ * need Bluetooth, the music one otherwise. If the phone isn't connected, the car and the phone's
+ * Home screen both say so, until it connects or the drive ends.
  *
  * When the car named its Bluetooth address, only that device counts. Otherwise any audio
  * connection does, since there's no telling which device is the car.
@@ -29,7 +31,7 @@ import kotlinx.coroutines.flow.StateFlow
 object BluetoothAudioCheck {
 
     private val _missing = MutableStateFlow(false)
-    /** True while Bluetooth audio is chosen and the phone isn't connected to the car for it. */
+    /** True while the phone isn't connected to the car for calls (USB audio) or music (Bluetooth audio). */
     val missing: StateFlow<Boolean> = _missing
 
     private val _carDismissed = MutableStateFlow(false)
@@ -86,6 +88,7 @@ object BluetoothAudioCheck {
         context.registerReceiver(
             r,
             IntentFilter(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED).apply {
+                addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
                 addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
             },
             Context.RECEIVER_EXPORTED,
@@ -97,10 +100,8 @@ object BluetoothAudioCheck {
     private fun check() {
         if (!armed) return
         val context = appContext ?: return
-        if (CarSettings.pipeAudio.value) {
-            set(false, "USB audio is on")
-            return
-        }
+        // With USB audio the music needs no Bluetooth, but calls still do: they never go over USB.
+        val profile = if (CarSettings.pipeAudio.value) BluetoothProfile.HEADSET else BluetoothProfile.A2DP
         if (!CarSettings.bluetoothWarning.value) {
             set(false, "the warning is turned off")
             return
@@ -126,7 +127,7 @@ object BluetoothAudioCheck {
             }
 
             override fun onServiceDisconnected(profile: Int) {}
-        }, BluetoothProfile.A2DP)
+        }, profile)
     }
 
     private fun set(missing: Boolean, why: String) {
