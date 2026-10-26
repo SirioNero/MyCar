@@ -19,5 +19,12 @@ Gearslip only. myCar is available under the AGPL-3.0 alone.
 
 - `app/src/main/java/com/k2fsa/sherpa/onnx/` and `libsherpa-onnx-jni.so`:
   [sherpa-onnx](https://github.com/k2-fsa/sherpa-onnx), Apache License 2.0.
+- `app/src/main/res/font/inter_*.ttf`: the [Inter](https://github.com/rsms/inter) typeface,
+  Copyright 2016 The Inter Project Authors, SIL Open Font License 1.1
+  ([licenses/Inter-OFL.txt](licenses/Inter-OFL.txt)). Static Regular, Medium, SemiBold and Bold
+  instances made from the variable font in Google Fonts, under the same license.
+- `app/src/main/res/drawable/sym_*.xml`: icons from
+  [Material Symbols](https://github.com/google/material-design-icons) (Rounded), by Google,
+  Apache License 2.0 ([licenses/Material-Symbols-Apache-2.0.txt](licenses/Material-Symbols-Apache-2.0.txt)).
 - Voice models, downloaded on the phone when you choose them: Kroko ASR by Banafo
   (CC BY-SA 4.0), and Parakeet and Canary by NVIDIA (CC BY 4.0).
