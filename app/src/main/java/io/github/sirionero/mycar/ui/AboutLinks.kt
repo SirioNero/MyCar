@@ -36,12 +36,10 @@ import androidx.compose.ui.platform.LocalContext
 
 /** Where MyCar lives outside the app: support, the chat room, and the code. */
 internal object MyCarLinks {
-    const val BUY_ME_A_COFFEE = "https://buymeacoffee.com/seb3thehacker"
-    const val LIBERAPAY = "https://liberapay.com/Seb3thehacker"
     /** A card payment page for giving once, any amount. Its row stays hidden while this is empty. */
     const val PAYMENT_LINK = ""
-    /** MyCar's Monero address. Its row stays hidden while this is empty. */
-    const val MONERO = "44gTVxQJY3cirBJ41J5i1bPUVnSkTMhn9esSp1kg9MHwJ3TUz8tkkigUTKwiok5zA5RZvNxyM4pqkAfPs79pPLfaNG21pCn"
+    /** MyCar's Bitcoin address (native SegWit). */
+    const val BITCOIN = "bc1qu8q2sc5kuccjj3zpzzfpj85xn7szp73nae9xlx"
     const val MATRIX = "https://matrix.to/#/!mf0_mgBd5KqKpc9FfX_wHp1jFCcwAtPrndIn_oGIyMk?via=matrix.org"
     const val SOURCE = "https://github.com/sirionero/mycar"
     const val LICENSE = "$SOURCE/blob/main/LICENSE"
@@ -55,23 +53,23 @@ internal object MyCarLinks {
         }
     }
 
-    /** Opens a Monero wallet app on the address; says so when none is installed. */
-    fun openMoneroWallet(context: Context) {
+    /** Opens a Bitcoin wallet app on the address (a BIP 21 link); says so when none is installed. */
+    fun openBitcoinWallet(context: Context) {
         runCatching {
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("monero:$MONERO")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:$BITCOIN")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }.onFailure {
-            Toast.makeText(context, "No Monero wallet app found. Copy the address instead.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "No Bitcoin wallet app found. Copy the address instead.", Toast.LENGTH_LONG).show()
         }
     }
 
-    fun copyMonero(context: Context) {
+    fun copyBitcoin(context: Context) {
         context.getSystemService(ClipboardManager::class.java)
-            ?.setPrimaryClip(ClipData.newPlainText("Monero address", MONERO))
-        Toast.makeText(context, "Monero address copied", Toast.LENGTH_SHORT).show()
+            ?.setPrimaryClip(ClipData.newPlainText("Bitcoin address", BITCOIN))
+        Toast.makeText(context, "Bitcoin address copied", Toast.LENGTH_SHORT).show()
     }
 }
 
-/** The ways to support MyCar: Liberapay first, Monero last, card once it's set up. */
+/** The ways to support MyCar: Bitcoin, and card once it's set up. */
 @Composable
 internal fun DonateRows() {
     val context = LocalContext.current
@@ -82,21 +80,15 @@ internal fun DonateRows() {
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
+    var bitcoinOpen by remember { mutableStateOf(false) }
     SettingsRow(
-        "Liberapay",
-        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.LIBERAPAY) },
-        subtitle = "Give weekly or monthly",
+        "Bitcoin",
+        Modifier.clickable { bitcoinOpen = true },
+        subtitle = "Open your wallet or copy the address",
         icon = Icons.Filled.Favorite,
         trailing = arrow,
     )
-    SettingsDivider()
-    SettingsRow(
-        "Buy Me a Coffee",
-        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.BUY_ME_A_COFFEE) },
-        subtitle = "Give once or monthly, by card. Buy Me a Coffee keeps 5%",
-        icon = Icons.Filled.Favorite,
-        trailing = arrow,
-    )
+    if (bitcoinOpen) BitcoinDialog { bitcoinOpen = false }
     if (MyCarLinks.PAYMENT_LINK.isNotEmpty()) {
         SettingsDivider()
         SettingsRow(
@@ -107,34 +99,22 @@ internal fun DonateRows() {
             trailing = arrow,
         )
     }
-    if (MyCarLinks.MONERO.isNotEmpty()) {
-        var moneroOpen by remember { mutableStateOf(false) }
-        SettingsDivider()
-        SettingsRow(
-            "Monero",
-            Modifier.clickable { moneroOpen = true },
-            subtitle = "Open your wallet or copy the address",
-            icon = Icons.Filled.Favorite,
-            trailing = arrow,
-        )
-        if (moneroOpen) MoneroDialog { moneroOpen = false }
-    }
 }
 
-/** The Monero address in full, with ways to pay it from this phone or another device. */
+/** The Bitcoin address in full, with ways to pay it from this phone or another device. */
 @Composable
-internal fun MoneroDialog(onDismiss: () -> Unit) {
+internal fun BitcoinDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-        title = { Text("Support with Monero") },
+        title = { Text("Support with Bitcoin") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Send any amount to this address from your Monero wallet.")
+                Text("Send any amount to this address from your Bitcoin wallet.")
                 SelectionContainer {
                     Text(
-                        MyCarLinks.MONERO,
+                        MyCarLinks.BITCOIN,
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -143,10 +123,10 @@ internal fun MoneroDialog(onDismiss: () -> Unit) {
         },
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { MyCarLinks.openMoneroWallet(context) }, Modifier.fillMaxWidth()) {
+                Button(onClick = { MyCarLinks.openBitcoinWallet(context) }, Modifier.fillMaxWidth()) {
                     Text("Open in wallet")
                 }
-                OutlinedButton(onClick = { MyCarLinks.copyMonero(context) }, Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { MyCarLinks.copyBitcoin(context) }, Modifier.fillMaxWidth()) {
                     Text("Copy address")
                 }
                 TextButton(onClick = onDismiss, Modifier.fillMaxWidth()) {
