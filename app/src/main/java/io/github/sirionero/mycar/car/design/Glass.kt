@@ -40,7 +40,7 @@ fun Modifier.glassFinish(shape: Shape = AppIconShape, strength: Float = 1f): Mod
     // The reflection: the bottom of a wide oval, bright at the top and gone by the middle.
     drawOval(
         Brush.verticalGradient(
-            0f to Color.White.copy(alpha = 0.26f * strength),
+            0f to Color.White.copy(alpha = 0.32f * strength),
             1f to Color.White.copy(alpha = 0f),
             startY = 0f,
             endY = size.height * 0.5f,
@@ -55,13 +55,15 @@ fun Modifier.glassFinish(shape: Shape = AppIconShape, strength: Float = 1f): Mod
             1f to Color.Black.copy(alpha = 0.18f * strength),
         ),
     )
-    // The rim: light along the top edge, fading round the sides to almost nothing at the foot.
+    // The rim: light along the top edge, fading round the sides, and caught again at the foot,
+    // as light passing through glass comes out at the far edge.
     drawOutline(
         shape.createOutline(size, layoutDirection, this),
         Brush.verticalGradient(
-            0f to Color.White.copy(alpha = 0.6f * strength),
-            0.45f to Color.White.copy(alpha = 0.14f * strength),
-            1f to Color.White.copy(alpha = 0.08f * strength),
+            0f to Color.White.copy(alpha = 0.7f * strength),
+            0.4f to Color.White.copy(alpha = 0.12f * strength),
+            0.8f to Color.White.copy(alpha = 0.12f * strength),
+            1f to Color.White.copy(alpha = 0.42f * strength),
         ),
         style = Stroke(width = RIM.toPx()),
     )
