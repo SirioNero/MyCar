@@ -43,10 +43,13 @@ Rispondi sempre in **italiano**.
 - Il debug ha `applicationIdSuffix = ".dev"`. Nel debug esiste `CarPreviewActivity`, che
   renderizza la UI auto in PNG senza auto (utile per verificare il restyling).
 - Anteprima in CI: il workflow **Car preview** (`.github/workflows/car-preview.yml` +
-  `.github/car-preview.sh`) parte a ogni push su `design/**`, avvia un emulatore, lancia
+  `.github/car-preview.sh`) parte a ogni push su `design/**` (o a mano), avvia un emulatore, lancia
   `CarPreviewActivity` a 800×480 e 1920×720 (Home, griglia app, dashboard) e pubblica i PNG sul
   branch `ci/car-preview` (`git fetch origin ci/car-preview`): gli artifact di Actions non sono
-  scaricabili dalla sessione cloud.
+  scaricabili dalla sessione cloud. Installa anche, dagli ultimi rilasci, Vela Maps, Plancia
+  (debug) e Xonos, le apre dalla griglia (cartelle `vela/`, `plancia/`, `xonos/`), fotografa
+  telefono e impostazioni, e simula una chiamata in arrivo sul modem dell'emulatore (`call/`).
+  Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script.
 
 ## Rilasci
 
@@ -128,6 +131,17 @@ Tutti i token in un solo posto, `car/design/`:
   (quindi non si installa insieme a Gearslip).
 - Donazioni: solo Bitcoin, `bc1qu8q2sc5kuccjj3zpzzfpj85xn7szp73nae9xlx` (in `ui/AboutLinks.kt` e nel README).
 - Bug chiamate: priorità alle chiamate **in arrivo** (branch `fix/calls`).
+- Audio delle chiamate: arriva in auto **solo via Bluetooth** (vivavoce HFP), come con Android Auto.
+  Un'app non di sistema non può metterlo sul collegamento USB né spostarlo in vivavoce (da
+  Android 12 l'instradamento lo decide chi possiede la chiamata). myCar quindi avvisa:
+  `BluetoothAudioCheck` controlla il vivavoce anche con l'audio USB, e `car/CallVoice.kt` fa dire
+  alla schermata della chiamata quando la voce resta sul telefono (branch `fix/call-audio`).
+- App fatte per Gearslip: Plancia (`it.plancia.ha`, repository `SirioNero/Home-Assistant-on-Gearslip`)
+  e Xonos (`it.xonos.ma`, `SirioNero/Music-Assistant-on-Gearslip`) funzionano con myCar. Xonos
+  accetta qualsiasi app che lo comanda; Plancia **debug** accetta qualsiasi host, la **release** solo
+  Gearslip ufficiale: per usarla con myCar va aggiunta alla sua `hosts_allowlist` la riga
+  `e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar`.
+  Plancia lascia in alto 44dp per la barra di myCar (`CHROME_BAR` in `CarAppStage`): non cambiarla.
 - F-Droid: per ora variante **senza** voce offline (sherpa-onnx).
 - Auto-updater delle build GitHub: rilasci di `sirionero/mycar`; disattivato nella build F-Droid.
 

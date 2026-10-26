@@ -17,6 +17,7 @@ object Changelog {
                 "App icons sit in a rounded square frame, and the car screen uses the Inter typeface.",
                 "Dark by default. Choose light, or follow the phone, in the car's settings.",
                 "Tap the song in the dock for the player. Hold it to put the player beside the map.",
+                "Calls reach the car only over Bluetooth, USB audio or not. myCar now says when the phone isn't connected, and when a call is playing on the phone.",
             ),
         ),
         Release(
