@@ -105,10 +105,15 @@ object PhoneMirror {
         }
 
         _active.value = display != null
-        if (display != null) MyCarLog.i("mirroring the phone into ${width}x$height")
+        if (display != null) {
+            MyCarLog.i("mirroring the phone into ${width}x$height")
+            // The car's screen is wide: the phone turns to match while it's shown there.
+            TouchRelayService.instance?.holdLandscape(true)
+        }
     }
 
     fun end() {
+        TouchRelayService.instance?.holdLandscape(false)
         runCatching { display?.release() }
         runCatching { media?.stop() }
         display = null

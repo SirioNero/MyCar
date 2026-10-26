@@ -2,8 +2,13 @@ package io.github.sirionero.mycar.mirror
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.content.pm.ActivityInfo
+import android.graphics.PixelFormat
 import android.graphics.Path
 import android.graphics.PointF
+import android.view.Gravity
+import android.view.View
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import io.github.sirionero.mycar.MyCarLog
 
@@ -36,12 +41,54 @@ class TouchRelayService : AccessibilityService() {
     override fun onServiceConnected() {
         instance = this
         MyCarLog.i("touch relay connected")
+        // Switched on while the phone was already showing in the car.
+        if (PhoneMirror.active.value) holdLandscape(true)
     }
 
     override fun onDestroy() {
+        holdLandscape(false)
         super.onDestroy()
         instance = null
         reset()
+    }
+
+    /** One transparent pixel that asks Android to keep the phone on its side: see [holdLandscape]. */
+    private var sideways: View? = null
+
+    /**
+     * Turns the phone landscape while [PhoneMirror] shows it in the car, whose screen is wide, so
+     * apps fill it instead of standing upright between two bars. It's a one-pixel window of
+     * nothing that asks for landscape, which Android puts ahead of the app on screen; removing
+     * it lets the phone turn back. Fixed landscape, not the sensor's: turning the phone in its
+     * holder mustn't flip the car's picture. Apps that only work upright stay upright, boxed in
+     * the middle as before.
+     */
+    fun holdLandscape(on: Boolean) {
+        val windows = getSystemService(WindowManager::class.java) ?: return
+        if (!on) {
+            val view = sideways ?: return
+            sideways = null
+            runCatching { windows.removeView(view) }
+            MyCarLog.i("mirror: phone free to turn again")
+            return
+        }
+        if (sideways != null) return
+        val view = View(this)
+        val params = WindowManager.LayoutParams(
+            1, 1,
+            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            PixelFormat.TRANSPARENT,
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        }
+        runCatching { windows.addView(view, params) }
+            .onSuccess {
+                sideways = view
+                MyCarLog.i("mirror: phone held landscape")
+            }
+            .onFailure { MyCarLog.w("mirror: couldn't turn the phone landscape: ${it.message}") }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) = Unit
