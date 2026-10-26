@@ -46,6 +46,8 @@ object CarCalls {
     private var watcher: TelephonyCallback? = null
     private var pendingRespond: ((allow: Boolean) -> Unit)? = null
     private var ringingCaller: Caller? = null
+    /** The phone's last call state, as [TelephonyCallback] reported it. */
+    private var phoneState = TelephonyManager.CALL_STATE_IDLE
 
     fun start(context: Context) {
         if (watcher != null) return
@@ -66,10 +68,12 @@ object CarCalls {
         watcher = null
         pendingRespond = null
         ringingCaller = null
+        phoneState = TelephonyManager.CALL_STATE_IDLE
         _state.value = CallUiState.None
     }
 
     private fun onPhoneState(state: Int) {
+        phoneState = state
         when (state) {
             TelephonyManager.CALL_STATE_IDLE -> {
                 pendingRespond = null
@@ -101,12 +105,31 @@ object CarCalls {
         pendingRespond = null
         val caller = ringingCaller ?: return
         if (_state.value is CallUiState.Ringing) _state.value = CallUiState.Ringing(caller, canDecline = false)
+        expectRinging()
+    }
+
+    /**
+     * A call let through screening starts ringing within moments. One that hasn't by then was hung
+     * up first, and the phone never left idle - so no state change will come to clear its card.
+     */
+    private fun expectRinging() {
+        mainThreadDelay(RING_GRACE_MS) {
+            if (phoneState == TelephonyManager.CALL_STATE_IDLE && pendingRespond == null && _state.value is CallUiState.Ringing) {
+                MyCarLog.i("calls: the call never rang - it was hung up while being screened")
+                ringingCaller = null
+                _state.value = CallUiState.None
+            }
+        }
     }
 
     fun decline() {
         val respond = pendingRespond ?: return
         pendingRespond = null
         runCatching { respond(false) }.onFailure { MyCarLog.w("calls: decline failed: ${it.message}") }
+        // Rejected while screening, the call never rang: the phone stays idle, and nothing else
+        // would take the card away.
+        ringingCaller = null
+        _state.value = CallUiState.None
     }
 
     fun answer(context: Context) {
@@ -127,6 +150,8 @@ object CarCalls {
                 ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
         }.getOrNull()
     }
+
+    private const val RING_GRACE_MS = 3_000L
 }
 
 /** Posts to the main thread after a delay - used to give up on a screening response MyCar never sent. */

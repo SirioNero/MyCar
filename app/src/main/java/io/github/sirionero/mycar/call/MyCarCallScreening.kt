@@ -45,6 +45,9 @@ class MyCarCallScreening : CallScreeningService() {
         // Answer for the system if nobody has by the time its own patience runs out, so a call
         // MyCar is slow to show never gets silently blocked.
         mainThreadDelay(SCREENING_WINDOW_MS) {
+            // Already answered or declined from the car: that call is settled, and the card may
+            // belong to a newer one by now.
+            if (responded) return@mainThreadDelay
             respond(true)
             CarCalls.screeningExpired()
         }
