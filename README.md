@@ -98,6 +98,16 @@ The screenshots below still show Gearslip's look. MyCar is getting a new design.
   Settings.
 - **No usage data.** MyCar sends no usage notes or statistics.
 
+## Support MyCar
+
+MyCar is free, with no ads and no tracking. To support it, send any amount of Bitcoin to:
+
+```
+bc1qu8q2sc5kuccjj3zpzzfpj85xn7szp73nae9xlx
+```
+
+The app shows the same address under Settings, with buttons to open your wallet or copy it.
+
 ## Contributing
 
 Bug reports from real cars help most, and pull requests are welcome.

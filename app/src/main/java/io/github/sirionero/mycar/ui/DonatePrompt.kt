@@ -27,8 +27,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The donation ask on Home, after a drive that worked. A driver sees it first after their third
- * such drive, so MyCar has earned it, and then at most once every three months. Tapping either
- * donate button ends it for good.
+ * such drive, so MyCar has earned it, and then at most once every three months. Picking a way to
+ * give ends it for good.
  */
 object DonatePrompt {
 
@@ -87,10 +87,10 @@ object DonatePrompt {
 internal fun DonateDialog(live: Boolean) {
     val context = LocalContext.current
     val waiting by remember { DonatePrompt.pending(context) }.collectAsStateWithLifecycle()
-    var monero by remember { mutableStateOf(false) }
+    var bitcoin by remember { mutableStateOf(false) }
     if (!waiting || live) return
-    if (monero) {
-        MoneroDialog { DonatePrompt.answer(context, donated = true) }
+    if (bitcoin) {
+        BitcoinDialog { DonatePrompt.answer(context, donated = true) }
         return
     }
     fun give(url: String) {
@@ -109,19 +109,13 @@ internal fun DonateDialog(live: Boolean) {
         },
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { give(MyCarLinks.LIBERAPAY) }, Modifier.fillMaxWidth()) {
-                    Text("Support on Liberapay")
-                }
-                OutlinedButton(onClick = { give(MyCarLinks.BUY_ME_A_COFFEE) }, Modifier.fillMaxWidth()) {
-                    Text("Buy me a coffee")
+                Button(onClick = { bitcoin = true }, Modifier.fillMaxWidth()) {
+                    Text("Support with Bitcoin")
                 }
                 if (MyCarLinks.PAYMENT_LINK.isNotEmpty()) {
                     OutlinedButton(onClick = { give(MyCarLinks.PAYMENT_LINK) }, Modifier.fillMaxWidth()) {
                         Text("Give once by card")
                     }
-                }
-                OutlinedButton(onClick = { monero = true }, Modifier.fillMaxWidth()) {
-                    Text("Monero")
                 }
                 TextButton(onClick = { DonatePrompt.answer(context, donated = false) }, Modifier.fillMaxWidth()) {
                     Text("Not now")
