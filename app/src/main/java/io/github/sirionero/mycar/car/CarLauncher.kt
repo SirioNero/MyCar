@@ -60,6 +60,9 @@ import androidx.compose.ui.unit.min
 import io.github.sirionero.mycar.car.design.AppIcon
 import io.github.sirionero.mycar.car.design.WallpaperBackground
 import io.github.sirionero.mycar.car.design.rememberWallpaper
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.car.design.MyCarMotion
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
@@ -95,6 +98,8 @@ private class Tile(
     val label: String,
     /** Known not to work; drawn with a red X instead of being left off the launcher. */
     val broken: Boolean = false,
+    /** Starts and can be used, but not cleanly ([KnownApps.isPartial]): a yellow mark. */
+    val partial: Boolean = false,
     val onLongClick: (() -> Unit)? = null,
     val onClick: () -> Unit,
 )
@@ -280,6 +285,7 @@ fun CarLauncher() {
         return Tile(
             entry, entry.label,
             broken = pkg != null && (KnownApps.isBroken(context, pkg) || (entry.template != null && KnownApps.screenBroken(pkg))),
+            partial = pkg != null && KnownApps.isPartial(pkg),
             onLongClick = id?.let { { navigator.showAppMenu(it) } },
         ) { openApp(entry, id?.let { running[it] }, navigator, frame) }
     }
@@ -362,6 +368,17 @@ private fun PageDots(count: Int, current: Int, modifier: Modifier = Modifier) {
     }
 }
 
+/** A yellow disc with a "!": marks a tile that works with myCar, but only in part. */
+@Composable
+private fun PartialBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(size).background(MyCarPalette.Warning, CircleShape).semantics { contentDescription = "Works only in part with myCar" },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text("!", color = Color.Black, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+    }
+}
+
 /** A red disc with a white X: marks a tile known not to work with myCar yet. */
 @Composable
 private fun BrokenBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
@@ -410,6 +427,12 @@ private fun AppCell(tile: Tile, iconSize: Dp) {
                 // Pinned to the icon's lower corner, ringed in the background's colour so it
                 // reads as sitting on top of the icon.
                 BrokenBadge(
+                    22.dp,
+                    Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 4.dp)
+                        .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
+                )
+            } else if (tile.partial) {
+                PartialBadge(
                     22.dp,
                     Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 4.dp)
                         .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
