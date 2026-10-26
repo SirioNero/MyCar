@@ -1,12 +1,13 @@
 package io.github.sirionero.mycar.mirror
 
 import android.content.Context
+import android.graphics.Point
 import android.graphics.PointF
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
+import android.view.Display
 import android.view.Surface
-import android.view.WindowManager
 import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -105,10 +106,15 @@ object PhoneMirror {
         }
 
         _active.value = display != null
-        if (display != null) MyCarLog.i("mirroring the phone into ${width}x$height")
+        if (display != null) {
+            MyCarLog.i("mirroring the phone into ${width}x$height")
+            // The car's screen is wide: the phone turns to match while it's shown there.
+            TouchRelayService.instance?.holdLandscape(true)
+        }
     }
 
     fun end() {
+        TouchRelayService.instance?.holdLandscape(false)
         runCatching { display?.release() }
         runCatching { media?.stop() }
         display = null
@@ -128,10 +134,12 @@ object PhoneMirror {
      */
     fun mapToPhone(context: Context, x: Float, y: Float): PointF? {
         if (frameWidth == 0 || frameHeight == 0) return null
-        val bounds = context.getSystemService(WindowManager::class.java)
-            ?.currentWindowMetrics?.bounds ?: return null
-        val phoneW = bounds.width().toFloat()
-        val phoneH = bounds.height().toFloat()
+        // The display's own size, as turned right now. myCar's window is behind the mirrored app
+        // and isn't told when the phone turns, so its metrics would still say upright.
+        val display = context.getSystemService(DisplayManager::class.java)?.getDisplay(Display.DEFAULT_DISPLAY) ?: return null
+        val size = Point().also { @Suppress("DEPRECATION") display.getRealSize(it) }
+        val phoneW = size.x.toFloat()
+        val phoneH = size.y.toFloat()
         if (phoneW <= 0f || phoneH <= 0f) return null
 
         val scale = minOf(frameWidth / phoneW, frameHeight / phoneH)
