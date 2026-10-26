@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.car.design.MyCarCarTheme
 import io.github.sirionero.mycar.car.design.MyCarSize
@@ -34,6 +35,9 @@ import io.github.sirionero.mycar.media.NowPlaying
  */
 @Composable
 internal fun PlayerPreview() {
+    // CarUi starts the car's services before anything reads them; without it, so must this.
+    val context = LocalContext.current.applicationContext
+    remember(context) { CarServices.init(context) }
     val now = remember {
         NowPlaying(
             title = "Midnight Drive",
