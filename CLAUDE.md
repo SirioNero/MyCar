@@ -138,7 +138,7 @@ Tutti i token in un solo posto, `car/design/`:
   brano in riproduzione, app fissate e aperte, assistente; tasto della griglia app in basso);
   Home resta mappa + player; la griglia app (≈4×2 per pagina, a pagine, con indicatori) si apre
   dal tasto del dock; icone reali delle app installate dentro una cornice squircle. Sulla griglia
-  il tasto in fondo al dock diventa "mappa e musica" (`sym_split_view`, nostro) e riporta allo
+  il tasto in fondo al dock diventa "mappa e musica" (`sym_space_dashboard`) e riporta allo
   schermo condiviso (`CarNavigator.homeWithPlayer()`).
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
