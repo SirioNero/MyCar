@@ -12,7 +12,7 @@ import io.github.sirionero.mycar.host.TemplateApp
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.media.MediaCatalog
-import io.github.sirionero.mycar.notify.GearslipNotificationListener
+import io.github.sirionero.mycar.notify.MyCarNotificationListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -212,7 +212,7 @@ object CarServices {
      */
     private fun currentlyPlaying(ctx: Context, catalog: List<MediaApp>): MediaApp? {
         val manager = ctx.getSystemService(MediaSessionManager::class.java)
-        val listener = ComponentName(ctx, GearslipNotificationListener::class.java)
+        val listener = ComponentName(ctx, MyCarNotificationListener::class.java)
         val sessions = try {
             manager.getActiveSessions(listener)
         } catch (e: SecurityException) {
@@ -233,7 +233,7 @@ object CarServices {
     fun pausePhoneMedia(why: String = "the car left") {
         val ctx = context ?: return
         val manager = ctx.getSystemService(MediaSessionManager::class.java)
-        val listener = ComponentName(ctx, GearslipNotificationListener::class.java)
+        val listener = ComponentName(ctx, MyCarNotificationListener::class.java)
         val playing = try {
             manager.getActiveSessions(listener).filter { it.playbackState?.state == PlaybackState.STATE_PLAYING }
         } catch (e: SecurityException) {
@@ -246,7 +246,7 @@ object CarServices {
         }
         playing.forEach { runCatching { it.transportControls.pause() } }
         if (playing.isNotEmpty()) {
-            io.github.sirionero.mycar.GearslipLog.i("media: paused ${playing.joinToString { it.packageName }}: $why")
+            io.github.sirionero.mycar.MyCarLog.i("media: paused ${playing.joinToString { it.packageName }}: $why")
         }
     }
 

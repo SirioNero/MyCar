@@ -14,8 +14,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
 import io.github.sirionero.mycar.BuildConfig
-import io.github.sirionero.mycar.GearslipActivity
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarActivity
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.notify.CarMotion
 import io.github.sirionero.mycar.notify.CarNotification
@@ -152,7 +152,7 @@ object UpdateChecker {
             val release = foundRelease(app) ?: return@Thread
             if (prefs(app).getString(KEY_NOTIFIED, null) == release.version) return@Thread
             if (notify(app, release)) prefs(app).edit().putString(KEY_NOTIFIED, release.version).apply()
-        }, "gearslip-update").start()
+        }, "mycar-update").start()
     }
 
     /**
@@ -174,7 +174,7 @@ object UpdateChecker {
             if (!carConnected || CarMotion.moving) return@Thread
             CarNotifications.post(
                 CarNotification(
-                    key = "gearslip-update",
+                    key = "mycar-update",
                     id = CarNotifications.nextId(),
                     packageName = app.packageName,
                     appLabel = "Gearslip",
@@ -187,8 +187,8 @@ object UpdateChecker {
                 quiet = false,
             )
             prefs(app).edit().putString(KEY_CAR_NOTIFIED, release.version).apply()
-            GearslipLog.i("update: showed ${release.version} on the car screen")
-        }, "gearslip-update").start()
+            MyCarLog.i("update: showed ${release.version} on the car screen")
+        }, "mycar-update").start()
     }
 
     private fun foundRelease(app: Context): Release? = when (val s = flow.value) {
@@ -206,7 +206,7 @@ object UpdateChecker {
         )
         val open = PendingIntent.getActivity(
             context, NOTIFICATION_ID,
-            Intent(context, GearslipActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            Intent(context, MyCarActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
@@ -217,8 +217,8 @@ object UpdateChecker {
             .setAutoCancel(true)
             .build()
         return runCatching { NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification) }
-            .onSuccess { GearslipLog.i("update: told the driver about ${release.version}") }
-            .onFailure { GearslipLog.w("update: could not post the notification (${it.message})") }
+            .onSuccess { MyCarLog.i("update: told the driver about ${release.version}") }
+            .onFailure { MyCarLog.w("update: could not post the notification (${it.message})") }
             .isSuccess
     }
 
@@ -228,14 +228,14 @@ object UpdateChecker {
         if (current is State.Checking || current is State.Downloading) return
         val app = context.applicationContext
         flow.value = State.Checking
-        Thread({ flow.value = checkNow(app) }, "gearslip-update").start()
+        Thread({ flow.value = checkNow(app) }, "mycar-update").start()
     }
 
     private fun checkNow(app: Context): State = runCatching { fetchNewest(channel(app)) }.fold(
         onSuccess = { release ->
             prefs(app).edit().putLong(KEY_CHECKED_AT, System.currentTimeMillis()).apply()
             if (release != null && isNewer(release.version, BuildConfig.VERSION_NAME)) {
-                GearslipLog.i("update: ${release.version} is out (this is ${BuildConfig.VERSION_NAME})")
+                MyCarLog.i("update: ${release.version} is out (this is ${BuildConfig.VERSION_NAME})")
                 save(app, release)
                 State.Available(release)
             } else {
@@ -245,7 +245,7 @@ object UpdateChecker {
             }
         },
         onFailure = {
-            GearslipLog.w("update: could not check: ${it.message}")
+            MyCarLog.w("update: could not check: ${it.message}")
             State.Failed("Couldn't reach GitHub. Check the connection and try again.")
         },
     )
@@ -257,18 +257,18 @@ object UpdateChecker {
         flow.value = State.Downloading(release, 0f)
         Thread({
             val dir = updatesDir(app).apply { deleteRecursively(); mkdirs() }
-            val apk = File(dir, "Gearslip-${release.version}.apk")
+            val apk = File(dir, "MyCar-${release.version}.apk")
             flow.value = runCatching {
                 fetchApk(release, apk)
-                GearslipLog.i("update: downloaded ${release.version}")
+                MyCarLog.i("update: downloaded ${release.version}")
                 State.Ready(release, apk)
             }.getOrElse {
                 apk.delete()
-                GearslipLog.w("update: download failed: ${it.message}")
+                MyCarLog.w("update: download failed: ${it.message}")
                 State.Failed(it.message ?: "The download failed. Try again.", release)
             }
             if (flow.value is State.Ready) install(app)
-        }, "gearslip-update").start()
+        }, "mycar-update").start()
     }
 
     /**

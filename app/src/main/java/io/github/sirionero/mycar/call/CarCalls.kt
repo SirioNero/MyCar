@@ -10,7 +10,7 @@ import android.provider.ContactsContract
 import android.telecom.TelecomManager
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +29,7 @@ sealed interface CallUiState {
 /**
  * Tracks the phone's call state for the car screen, and answers or declines through the two
  * doors a sideloaded app can use: [android.telecom.TelecomManager.acceptRingingCall] to answer,
- * and [GearslipCallScreening]'s response to decline one that is still ringing.
+ * and [MyCarCallScreening]'s response to decline one that is still ringing.
  *
  * Ending a call already answered needs MODIFY_PHONE_STATE, a privileged permission Gearslip
  * cannot hold, so a call taken here is finished the way it would be without Gearslip at all -
@@ -56,7 +56,7 @@ object CarCalls {
         }
         runCatching { manager.registerTelephonyCallback(context.mainExecutor, callback) }
             .onSuccess { telephony = manager; watcher = callback }
-            .onFailure { GearslipLog.w("calls: could not watch call state: ${it.message}") }
+            .onFailure { MyCarLog.w("calls: could not watch call state: ${it.message}") }
     }
 
     fun stop() {
@@ -88,7 +88,7 @@ object CarCalls {
         }
     }
 
-    /** Called by [GearslipCallScreening] the moment a call comes in - the only place with a number. */
+    /** Called by [MyCarCallScreening] the moment a call comes in - the only place with a number. */
     fun incomingCall(context: Context, number: String?, respond: (allow: Boolean) -> Unit) {
         val caller = Caller(number.orEmpty(), number?.let { lookUpName(context, it) })
         ringingCaller = caller
@@ -106,17 +106,17 @@ object CarCalls {
     fun decline() {
         val respond = pendingRespond ?: return
         pendingRespond = null
-        runCatching { respond(false) }.onFailure { GearslipLog.w("calls: decline failed: ${it.message}") }
+        runCatching { respond(false) }.onFailure { MyCarLog.w("calls: decline failed: ${it.message}") }
     }
 
     fun answer(context: Context) {
         if (context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
-            GearslipLog.w("calls: answer needs ANSWER_PHONE_CALLS, which was never granted")
+            MyCarLog.w("calls: answer needs ANSWER_PHONE_CALLS, which was never granted")
             return
         }
         val telecom = context.getSystemService(TelecomManager::class.java) ?: return
         runCatching { telecom.acceptRingingCall() }
-            .onFailure { GearslipLog.w("calls: answer failed: ${it.message}") }
+            .onFailure { MyCarLog.w("calls: answer failed: ${it.message}") }
     }
 
     private fun lookUpName(context: Context, number: String): String? {

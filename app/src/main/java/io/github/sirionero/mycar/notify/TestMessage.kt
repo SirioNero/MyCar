@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Debug builds only: posts a chat message from Gearslip to itself, shaped like Signal's or
@@ -20,7 +20,7 @@ import io.github.sirionero.mycar.GearslipLog
  */
 object TestMessage {
 
-    const val CHANNEL = "gearslip_test_message"
+    const val CHANNEL = "mycar_test_message"
     private const val NOTIFICATION_ID = 77
     private const val KEY_REPLY = "reply"
     private const val ACTION_REPLY = "io.github.sirionero.mycar.TEST_REPLY"
@@ -41,7 +41,7 @@ object TestMessage {
         val style = NotificationCompat.MessagingStyle(me)
             .addMessage(text, System.currentTimeMillis(), sender)
         show(context, style)
-        GearslipLog.i("test message: posted \"$text\" from $name")
+        MyCarLog.i("test message: posted \"$text\" from $name")
     }
 
     private fun show(context: Context, style: NotificationCompat.MessagingStyle) {
@@ -75,7 +75,7 @@ object TestMessage {
             .setAutoCancel(true)
             .build()
         runCatching { NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification) }
-            .onFailure { GearslipLog.w("test message: could not post (${it.message})") }
+            .onFailure { MyCarLog.w("test message: could not post (${it.message})") }
     }
 
     private fun broadcast(context: Context, action: String, mutable: Boolean): PendingIntent =
@@ -90,7 +90,7 @@ object TestMessage {
         when (intent.action) {
             ACTION_REPLY -> {
                 val text = RemoteInput.getResultsFromIntent(intent)?.getCharSequence(KEY_REPLY)?.toString()
-                GearslipLog.i("test message: reply received: \"$text\"")
+                MyCarLog.i("test message: reply received: \"$text\"")
                 // Show the reply in the conversation, the way a chat app confirms it was sent.
                 val active = context.getSystemService(NotificationManager::class.java)
                     .activeNotifications.firstOrNull { it.id == NOTIFICATION_ID }?.notification
@@ -100,7 +100,7 @@ object TestMessage {
                 show(context, style)
             }
             ACTION_READ -> {
-                GearslipLog.i("test message: marked as read")
+                MyCarLog.i("test message: marked as read")
                 NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
             }
         }

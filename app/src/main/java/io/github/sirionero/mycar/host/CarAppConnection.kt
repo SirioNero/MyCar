@@ -37,7 +37,7 @@ import androidx.car.app.navigation.INavigationHost
 import androidx.car.app.navigation.INavigationManager
 import androidx.car.app.serialization.Bundleable
 import androidx.car.app.versioning.CarAppApiLevels
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -157,11 +157,11 @@ class CarAppConnection(private val context: Context) {
                 // flag in case a build of Android refuses it from an unprivileged caller.
                 runCatching { context.bindService(intent, connection, flags or BIND_FOREGROUND_SERVICE) }
                     .getOrElse {
-                        GearslipLog.w("host: foreground binding refused (${it.message}); binding without it")
+                        MyCarLog.w("host: foreground binding refused (${it.message}); binding without it")
                         context.bindService(intent, connection, flags)
                     }
             }.getOrElse {
-                GearslipLog.e("bindService threw for ${app.component}", it)
+                MyCarLog.e("bindService threw for ${app.component}", it)
                 bindError = it
                 false
             }
@@ -169,7 +169,7 @@ class CarAppConnection(private val context: Context) {
                 binding = null
                 fail(Phase.REJECTED, explainBindFailure(app.component, bindError))
             } else {
-                GearslipLog.i("host: binding to ${app.component.flattenToShortString()}")
+                MyCarLog.i("host: binding to ${app.component.flattenToShortString()}")
             }
         }
 
@@ -206,7 +206,7 @@ class CarAppConnection(private val context: Context) {
         val failure = value as? androidx.car.app.FailureResponse
             ?: return "$step failed: ${value ?: "no reason given"}"
         val firstLine = failure.stackTrace.lineSequence().firstOrNull { it.isNotBlank() }.orEmpty()
-        GearslipLog.w("host: $step failed: type=${failure.errorType}\n${failure.stackTrace.lineSequence().take(6).joinToString("\n")}")
+        MyCarLog.w("host: $step failed: type=${failure.errorType}\n${failure.stackTrace.lineSequence().take(6).joinToString("\n")}")
         // The Car App Library's own host check: the app keeps a list of hosts it trusts by signature.
         if (firstLine.contains("Unrecognized host")) {
             return "It only trusts hosts on its own allow-list (Google's Android Auto and a few others), and Gearslip isn't on it."
@@ -258,7 +258,7 @@ class CarAppConnection(private val context: Context) {
         val app = ICarApp.Stub.asInterface(service)
         carApp = app
         update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info") }
-        GearslipLog.i("host: bound; requesting app info")
+        MyCarLog.i("host: bound; requesting app info")
 
         call("getAppInfo", onValue = { value ->
             val info = value as? AppInfo ?: return@call fail(Phase.FAILED, "app info was ${value?.javaClass?.simpleName}")
@@ -272,7 +272,7 @@ class CarAppConnection(private val context: Context) {
      */
     private fun onAppInfo(info: AppInfo) {
         val negotiated = minOf(HOST_API_LEVEL, info.latestCarAppApiLevel)
-        GearslipLog.i(
+        MyCarLog.i(
             "host: app api ${info.minCarAppApiLevel}..${info.latestCarAppApiLevel} " +
                 "(library ${info.libraryDisplayVersion}), host $HOST_API_LEVEL -> $negotiated"
         )
@@ -293,7 +293,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun onHandshakeAccepted() {
         val app = carApp ?: return
-        GearslipLog.i("host: handshake accepted; creating the app")
+        MyCarLog.i("host: handshake accepted; creating the app")
         val intent = pendingDestination?.let { autoRoute.arm(); navigateIntent(it) }
             ?: Intent(Intent.ACTION_MAIN).setComponent(component)
         pendingDestination = null
@@ -356,7 +356,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun onCreated() {
         val app = carApp ?: return
-        GearslipLog.i("host: created; starting")
+        MyCarLog.i("host: created; starting")
         call("onAppStart", onValue = {
             call("onAppResume", onValue = { onRunning() }) { app.onAppResume(it) }
         }) { app.onAppStart(it) }
@@ -365,7 +365,7 @@ class CarAppConnection(private val context: Context) {
     private fun onRunning() {
         val app = carApp ?: return
         update { it.copy(phase = Phase.RUNNING, detail = "connected") }
-        GearslipLog.verdict(
+        MyCarLog.verdict(
             "${component?.packageName} accepted Gearslip as a template host",
             "Handshake completed at car API level ${_status.value.apiLevel}.",
         )
@@ -376,7 +376,7 @@ class CarAppConnection(private val context: Context) {
                 is IBinder -> IAppManager.Stub.asInterface(value)
                 else -> null
             }
-            if (appManager == null) GearslipLog.e("host: app manager was ${value?.javaClass?.name}")
+            if (appManager == null) MyCarLog.e("host: app manager was ${value?.javaClass?.name}")
             requestTemplate()
         }) { app.getManager(CarContext.APP_SERVICE, it) }
 
@@ -407,9 +407,9 @@ class CarAppConnection(private val context: Context) {
      */
     fun stopNavigating() {
         val manager = navigationManager ?: return
-        GearslipLog.i("host: asking the app to stop navigating")
+        MyCarLog.i("host: asking the app to stop navigating")
         runCatching { manager.onStopNavigation(noop("stop navigation")) }
-            .onFailure { GearslipLog.w("host: could not stop navigation: ${it.message}") }
+            .onFailure { MyCarLog.w("host: could not stop navigation: ${it.message}") }
     }
 
     /** The app describes its current screen; this is what the host draws. */
@@ -419,10 +419,10 @@ class CarAppConnection(private val context: Context) {
             // TemplateWrapper carries the template plus the id the host echoes back on refresh.
             val template = (value as? TemplateWrapper)?.template ?: value as? Template
             if (template == null) {
-                GearslipLog.w("host: getTemplate returned ${value?.javaClass?.name}")
+                MyCarLog.w("host: getTemplate returned ${value?.javaClass?.name}")
                 return@call
             }
-            GearslipLog.i("host: template = ${template.javaClass.simpleName}")
+            MyCarLog.i("host: template = ${template.javaClass.simpleName}")
             _template.value = template
             update { it.copy(template = template.javaClass.simpleName) }
             autoRoute.onTemplate(template)
@@ -440,7 +440,7 @@ class CarAppConnection(private val context: Context) {
     fun setPanMode(on: Boolean) {
         if (_panMode.value == on) return
         _panMode.value = on
-        GearslipLog.i("host: pan mode ${if (on) "on" else "off"}")
+        MyCarLog.i("host: pan mode ${if (on) "on" else "off"}")
         (_template.value as? androidx.car.app.navigation.model.NavigationTemplate)
             ?.panModeDelegate.panModeChanged(on)
     }
@@ -451,7 +451,7 @@ class CarAppConnection(private val context: Context) {
      */
     fun backPressed() {
         val manager = appManager ?: return
-        GearslipLog.i("host: back pressed")
+        MyCarLog.i("host: back pressed")
         call("onBackPressed", onValue = { requestTemplate() }) { manager.onBackPressed(it) }
     }
 
@@ -519,7 +519,7 @@ class CarAppConnection(private val context: Context) {
         main.post {
             val current = lent ?: return@post
             if (current.surface.isValid) return@post
-            GearslipLog.w("host: the lent surface died; building a new one")
+            MyCarLog.w("host: the lent surface died; building a new one")
             lent = null
             sendSurfaceDestroyed(current)
             _surfaceEpoch.value = _surfaceEpoch.value + 1
@@ -530,7 +530,7 @@ class CarAppConnection(private val context: Context) {
         val callback = surfaceCallback ?: return
         val surface = lent ?: return
         if (!surface.surface.isValid) {
-            GearslipLog.w("host: not lending an invalid surface")
+            MyCarLog.w("host: not lending an invalid surface")
             return
         }
 
@@ -539,13 +539,13 @@ class CarAppConnection(private val context: Context) {
                 SurfaceContainer(surface.surface, surface.width, surface.height, surface.dpi)
             )
         }.getOrElse {
-            GearslipLog.e("host: could not bundle the surface", it)
+            MyCarLog.e("host: could not bundle the surface", it)
             return
         }
 
         val sent = runCatching { callback.onSurfaceAvailable(container, noop("onSurfaceAvailable")) }
         if (sent.isFailure) {
-            GearslipLog.e("host: onSurfaceAvailable threw", sent.exceptionOrNull())
+            MyCarLog.e("host: onSurfaceAvailable threw", sent.exceptionOrNull())
             return
         }
 
@@ -556,7 +556,7 @@ class CarAppConnection(private val context: Context) {
         val whole = Rect(0, 0, surface.width, surface.height)
         reportAreas(whole, whole)
 
-        GearslipLog.i(
+        MyCarLog.i(
             "host: lent the app a ${surface.width}x${surface.height} @${surface.dpi}dpi surface"
         )
         update { it.copy(surfaceAttached = true) }
@@ -570,7 +570,7 @@ class CarAppConnection(private val context: Context) {
             )
         }.getOrNull() ?: return
         runCatching { callback.onSurfaceDestroyed(container, noop("onSurfaceDestroyed")) }
-        GearslipLog.i("host: took the surface back")
+        MyCarLog.i("host: took the surface back")
     }
 
     /** Tells the app which part of its surface the driver can actually see. */
@@ -599,14 +599,14 @@ class CarAppConnection(private val context: Context) {
 
     private inline fun onSurface(name: String, send: (ISurfaceCallback) -> Unit) {
         val callback = surfaceCallback ?: return
-        runCatching { send(callback) }.onFailure { GearslipLog.w("host: $name failed: ${it.message}") }
+        runCatching { send(callback) }.onFailure { MyCarLog.w("host: $name failed: ${it.message}") }
     }
 
     // --- host interfaces the app calls back into -----------------------------------------
 
     private fun createAppHost(owner: Any) = object : IAppHost.Stub() {
         override fun invalidate() {
-            GearslipLog.i("host: app invalidated its template")
+            MyCarLog.i("host: app invalidated its template")
             main.post { requestTemplate() }
         }
 
@@ -614,7 +614,7 @@ class CarAppConnection(private val context: Context) {
             val message = text?.toString() ?: return
             main.post {
                 if (toastOwner !== owner) return@post
-                GearslipLog.i("host: toast \"$message\"")
+                MyCarLog.i("host: toast \"$message\"")
                 CarToasts.show(owner, message, duration)
             }
         }
@@ -624,7 +624,7 @@ class CarAppConnection(private val context: Context) {
          * is the signal that the app is ready to render into the car's picture.
          */
         override fun setSurfaceCallback(callback: ISurfaceCallback?) {
-            GearslipLog.i("host: app asked for a surface (callback=${callback != null})")
+            MyCarLog.i("host: app asked for a surface (callback=${callback != null})")
             main.post {
                 surfaceCallback = callback
                 update { it.copy(surfaceRequested = callback != null) }
@@ -644,11 +644,11 @@ class CarAppConnection(private val context: Context) {
 
     private val navigationHost = object : INavigationHost.Stub() {
         override fun navigationStarted() {
-            GearslipLog.i("host: navigation started")
+            MyCarLog.i("host: navigation started")
             navigating = true
         }
         override fun navigationEnded() {
-            GearslipLog.i("host: navigation ended")
+            MyCarLog.i("host: navigation ended")
             navigating = false
             _trip.value = null
             main.post { if (reroute != null) { main.removeCallbacks(sendReroute); sendReroute.run() } }
@@ -688,7 +688,7 @@ class CarAppConnection(private val context: Context) {
             val target = result ?: return
             runCatching {
                 target.onCarHardwareResult(type, false, null, noop("carHardwareResult").asBinder())
-            }.onFailure { GearslipLog.w("host: could not answer hardware result $type") }
+            }.onFailure { MyCarLog.w("host: could not answer hardware result $type") }
         }
     }
 
@@ -731,17 +731,17 @@ class CarAppConnection(private val context: Context) {
             CarContext.CONSTRAINT_SERVICE -> constraintHost.asBinder()
             CarContext.SUGGESTION_SERVICE -> suggestionHost.asBinder()
             else -> {
-                GearslipLog.i("host: app asked for an unsupported service \"$type\"")
+                MyCarLog.i("host: app asked for an unsupported service \"$type\"")
                 null
             }
         }
 
         override fun startCarApp(intent: Intent?) {
-            GearslipLog.i("host: app wants to start $intent")
+            MyCarLog.i("host: app wants to start $intent")
         }
 
         override fun finish() {
-            GearslipLog.i("host: app finished")
+            MyCarLog.i("host: app finished")
             main.post { disconnect() }
         }
     }
@@ -770,7 +770,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun noop(name: String) = object : IOnDoneCallback.Stub() {
         override fun onSuccess(response: Bundleable?) = Unit
-        override fun onFailure(response: Bundleable?) = GearslipLog.w("host: $name failed")
+        override fun onFailure(response: Bundleable?) = MyCarLog.w("host: $name failed")
     }
 
     /**
@@ -813,7 +813,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun fail(phase: Phase, detail: String) {
         clearToasts()
-        GearslipLog.e("host: $detail")
+        MyCarLog.e("host: $detail")
         update { it.copy(phase = phase, detail = detail) }
     }
 

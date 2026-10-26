@@ -13,7 +13,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -36,7 +36,7 @@ object BluetoothAudioCheck {
     /** The driver tapped OK on the car's card; it stays away for the rest of this drive. */
     val carDismissed: StateFlow<Boolean> = _carDismissed
 
-    private val log = GearslipLog.tagged("bluetooth")
+    private val log = MyCarLog.tagged("bluetooth")
     private val main = Handler(Looper.getMainLooper())
     private var appContext: Context? = null
     private var armed = false

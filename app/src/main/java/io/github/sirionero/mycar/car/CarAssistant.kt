@@ -65,7 +65,7 @@ object CarAssistant {
     /**
      * Starts listening, or does nothing if the assistant is already busy with the last request.
      * [SpeechRecognizer] must be driven from a thread with a Looper, but this is also called from
-     * the raw wire-protocol worker thread ([GearslipRunner]'s key-event handling for the head
+     * the raw wire-protocol worker thread ([MyCarRunner]'s key-event handling for the head
      * unit's own PTT button) which has none - so this always hops to the main thread itself
      * rather than asking every caller to remember to.
      */
@@ -137,7 +137,7 @@ object CarAssistant {
             }
             override fun onStop(utteranceId: String?, interrupted: Boolean) { VoiceFocus.release() }
         })
-        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "gearslip-assistant")
+        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "mycar-assistant")
     }
 
     /**
@@ -160,7 +160,7 @@ object CarAssistant {
             // Stopped part way: whoever stopped it has already moved on.
             override fun onStop(utteranceId: String?, interrupted: Boolean) { VoiceFocus.release() }
         })
-        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "gearslip-say")
+        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "mycar-say")
     }
 
     fun stopSpeaking() { tts?.stop() }

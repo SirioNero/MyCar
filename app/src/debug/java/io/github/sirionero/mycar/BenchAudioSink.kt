@@ -29,11 +29,11 @@ class BenchAudioSink(override val sampleRate: Int = 48_000, override val channel
         bytes = 0
         peak = 0
         reportedAt = System.currentTimeMillis()
-        GearslipLog.i("bench sink: started - pretending to be a ${sampleRate}Hz x$channels car sink")
+        MyCarLog.i("bench sink: started - pretending to be a ${sampleRate}Hz x$channels car sink")
     }
 
     override fun stop() {
-        GearslipLog.i("bench sink: stopped after $chunks chunks / $bytes bytes")
+        MyCarLog.i("bench sink: stopped after $chunks chunks / $bytes bytes")
     }
 
     override fun write(pcm: ByteArray, size: Int) {
@@ -47,7 +47,7 @@ class BenchAudioSink(override val sampleRate: Int = 48_000, override val channel
         if (now - reportedAt < REPORT_MS) return
         reportedAt = now
         val seconds = bytes / (sampleRate.toDouble() * channels * 2)
-        GearslipLog.i(
+        MyCarLog.i(
             "bench sink: %d chunks / %d bytes (%.1fs of audio), peak %.3f%s".format(
                 chunks, bytes, seconds, peak / 32768f,
                 if (peak == 0) " - SILENT, the app is not letting itself be captured" else "",

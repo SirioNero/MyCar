@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 
 /** Where Gearslip lives outside the app: support, the chat room, and the code. */
-internal object GearslipLinks {
+internal object MyCarLinks {
     const val BUY_ME_A_COFFEE = "https://buymeacoffee.com/seb3thehacker"
     const val LIBERAPAY = "https://liberapay.com/Seb3thehacker"
     /** A card payment page for giving once, any amount. Its row stays hidden while this is empty. */
@@ -80,7 +80,7 @@ internal fun DonateRows() {
     }
     SettingsRow(
         "Liberapay",
-        Modifier.clickable { GearslipLinks.open(context, GearslipLinks.LIBERAPAY) },
+        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.LIBERAPAY) },
         subtitle = "Give weekly or monthly",
         icon = Icons.Filled.Favorite,
         trailing = arrow,
@@ -88,22 +88,22 @@ internal fun DonateRows() {
     SettingsDivider()
     SettingsRow(
         "Buy Me a Coffee",
-        Modifier.clickable { GearslipLinks.open(context, GearslipLinks.BUY_ME_A_COFFEE) },
+        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.BUY_ME_A_COFFEE) },
         subtitle = "Give once or monthly, by card. Buy Me a Coffee keeps 5%",
         icon = Icons.Filled.Favorite,
         trailing = arrow,
     )
-    if (GearslipLinks.PAYMENT_LINK.isNotEmpty()) {
+    if (MyCarLinks.PAYMENT_LINK.isNotEmpty()) {
         SettingsDivider()
         SettingsRow(
             "Give once",
-            Modifier.clickable { GearslipLinks.open(context, GearslipLinks.PAYMENT_LINK) },
+            Modifier.clickable { MyCarLinks.open(context, MyCarLinks.PAYMENT_LINK) },
             subtitle = "Any amount, by card",
             icon = Icons.Filled.Favorite,
             trailing = arrow,
         )
     }
-    if (GearslipLinks.MONERO.isNotEmpty()) {
+    if (MyCarLinks.MONERO.isNotEmpty()) {
         var moneroOpen by remember { mutableStateOf(false) }
         SettingsDivider()
         SettingsRow(
@@ -130,7 +130,7 @@ internal fun MoneroDialog(onDismiss: () -> Unit) {
                 Text("Send any amount to this address from your Monero wallet.")
                 SelectionContainer {
                     Text(
-                        GearslipLinks.MONERO,
+                        MyCarLinks.MONERO,
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -139,10 +139,10 @@ internal fun MoneroDialog(onDismiss: () -> Unit) {
         },
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { GearslipLinks.openMoneroWallet(context) }, Modifier.fillMaxWidth()) {
+                Button(onClick = { MyCarLinks.openMoneroWallet(context) }, Modifier.fillMaxWidth()) {
                     Text("Open in wallet")
                 }
-                OutlinedButton(onClick = { GearslipLinks.copyMonero(context) }, Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { MyCarLinks.copyMonero(context) }, Modifier.fillMaxWidth()) {
                     Text("Copy address")
                 }
                 TextButton(onClick = onDismiss, Modifier.fillMaxWidth()) {
@@ -166,7 +166,7 @@ internal fun AboutLinkRows() {
     }
     SettingsRow(
         "Join the chat on Matrix",
-        Modifier.clickable { GearslipLinks.open(context, GearslipLinks.MATRIX) },
+        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.MATRIX) },
         subtitle = "Talk with other drivers about cars, apps, and Gearslip",
         icon = Icons.AutoMirrored.Filled.Send,
         trailing = arrow,
@@ -174,7 +174,7 @@ internal fun AboutLinkRows() {
     SettingsDivider()
     SettingsRow(
         "Source code",
-        Modifier.clickable { GearslipLinks.open(context, GearslipLinks.SOURCE) },
+        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.SOURCE) },
         subtitle = "Read or change Gearslip's code under the AGPL",
         icon = Icons.Filled.Build,
         trailing = arrow,

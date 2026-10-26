@@ -4,7 +4,7 @@ import android.app.job.JobScheduler
 import android.content.Context
 import android.os.Build
 import io.github.sirionero.mycar.BuildConfig
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.ServiceDiscovery
 import org.json.JSONArray
 import org.json.JSONObject
@@ -136,7 +136,7 @@ object UsageStats {
             } finally {
                 sending.set(false)
             }
-        }, "gearslip-stats").start()
+        }, "mycar-stats").start()
     }
 
     private fun installId(context: Context): String {
@@ -358,14 +358,14 @@ object UsageStats {
                     }
                     edit.apply()
                 }
-                GearslipLog.i("stats: note sent")
+                MyCarLog.i("stats: note sent")
                 true
             } else {
-                GearslipLog.w("stats: the server answered $code")
+                MyCarLog.w("stats: the server answered $code")
                 false
             }
         }.getOrElse {
-            GearslipLog.w("stats: could not send: ${it.message}")
+            MyCarLog.w("stats: could not send: ${it.message}")
             false
         }
     }

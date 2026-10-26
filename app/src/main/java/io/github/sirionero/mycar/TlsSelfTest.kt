@@ -21,7 +21,7 @@ import javax.net.ssl.X509ExtendedTrustManager
  * unit, not about this code.
  */
 object TlsSelfTest {
-    private val log = GearslipLog.tagged("TLS")
+    private val log = MyCarLog.tagged("TLS")
 
     fun run(identity: CertProvider.Identity): Boolean {
         log.i("=== TLS self-test starting ===")
@@ -51,7 +51,7 @@ object TlsSelfTest {
 
             // Data round trip, exercising the same encrypt path the spike uses for
             // ServiceDiscoveryRequest.
-            val plaintext = "gearslip round trip".toByteArray()
+            val plaintext = "mycar round trip".toByteArray()
             val decrypted = client.decrypt(server.encrypt(plaintext))
             if (!decrypted.contentEquals(plaintext)) {
                 log.e("self-test FAILED: round trip mismatch (${decrypted.size} bytes back)")

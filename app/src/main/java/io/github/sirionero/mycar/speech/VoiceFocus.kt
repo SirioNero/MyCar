@@ -6,7 +6,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Pauses the music while Gearslip talks or listens. Without it the microphone heard the song and
@@ -31,7 +31,7 @@ object VoiceFocus {
         request?.let { r ->
             audio?.abandonAudioFocusRequest(r)
             request = null
-            GearslipLog.i("voice: gave audio focus back")
+            MyCarLog.i("voice: gave audio focus back")
         }
         val pending = afterRelease.toList()
         afterRelease.clear()
@@ -68,7 +68,7 @@ object VoiceFocus {
                 .setOnAudioFocusChangeListener { }
                 .build()
             val granted = manager.requestAudioFocus(r) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-            GearslipLog.i("voice: audio focus ${if (granted) "granted, music paused" else "refused"}")
+            MyCarLog.i("voice: audio focus ${if (granted) "granted, music paused" else "refused"}")
             if (granted) {
                 audio = manager
                 request = r

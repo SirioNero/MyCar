@@ -53,7 +53,7 @@ object VehicleProfiles {
         val file = context.getExternalFilesDir(null)?.let { File(it, FILE) } ?: return emptyList()
         if (!file.isFile) runCatching { file.writeText(DEFAULT_JSON) }
         return runCatching { parse(file.readText()) }
-            .onFailure { GearslipLog.e("could not read $FILE - ignoring vehicle profiles", it) }
+            .onFailure { MyCarLog.e("could not read $FILE - ignoring vehicle profiles", it) }
             .getOrDefault(emptyList())
     }
 
@@ -78,7 +78,7 @@ object VehicleProfiles {
             }
             if (found) file.writeText(root.toString(2))
             found
-        }.onFailure { GearslipLog.e("could not save insets to $FILE", it) }.getOrDefault(false)
+        }.onFailure { MyCarLog.e("could not save insets to $FILE", it) }.getOrDefault(false)
     }
 
     fun parse(json: String): List<VehicleProfile> {

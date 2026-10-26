@@ -2,7 +2,7 @@ package io.github.sirionero.mycar.car
 
 import android.content.Context
 import io.github.sirionero.mycar.CertProvider
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.mirror.PhoneApps
 import java.util.concurrent.Executors
 
@@ -19,7 +19,7 @@ object Prefetch {
 
     private const val MIN_GAP_MS = 60_000L
 
-    private val worker = Executors.newSingleThreadExecutor { Thread(it, "gearslip-prefetch").apply { isDaemon = true } }
+    private val worker = Executors.newSingleThreadExecutor { Thread(it, "mycar-prefetch").apply { isDaemon = true } }
     @Volatile private var lastRun = 0L
 
     /** [force] skips the throttle; use it when something changed, such as a permission grant. */
@@ -34,12 +34,12 @@ object Prefetch {
             step("launcher apps") { warmLauncherApps(app) }
             step("phone apps") { PhoneApps.warm(app) }
             step("weather and calendar") { warmDashboard(app) }
-            GearslipLog.i("prefetch done in ${System.currentTimeMillis() - start}ms")
+            MyCarLog.i("prefetch done in ${System.currentTimeMillis() - start}ms")
         }
     }
 
     // One failing loader must not stop the others.
     private fun step(name: String, block: () -> Unit) {
-        runCatching(block).onFailure { GearslipLog.w("prefetch: $name failed: ${it.message}") }
+        runCatching(block).onFailure { MyCarLog.w("prefetch: $name failed: ${it.message}") }
     }
 }

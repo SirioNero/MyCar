@@ -130,7 +130,7 @@ object SessionReport {
     }
 
     fun fail(category: Category, detail: String, t: Throwable, state: String = "") =
-        fail(category, "$detail (${GearslipLog.rootCause(t)})", state, codeOf(t))
+        fail(category, "$detail (${MyCarLog.rootCause(t)})", state, codeOf(t))
 
     /**
      * A short code from an exception, never its whole message: the TLS alert's name, the errno
@@ -188,7 +188,7 @@ object SessionReport {
             append(row("failed in state", lastState))
             append(row("duration", "${seconds}s"))
             append("\n")
-            append(row("gearslip", "$appVersion (code $appCode)"))
+            append(row("mycar", "$appVersion (code $appCode)"))
             append(row("phone", "${Build.MANUFACTURER} ${Build.MODEL}"))
             append(row("android", "${Build.VERSION.RELEASE} (sdk ${Build.VERSION.SDK_INT}, patch ${Build.VERSION.SECURITY_PATCH})"))
             append("\n")
@@ -212,7 +212,7 @@ object SessionReport {
     fun print() {
         if (printed || startedAt == 0L) return
         printed = true
-        render().lines().forEach { GearslipLog.i(it) }
+        render().lines().forEach { MyCarLog.i(it) }
         appContext?.let { context ->
             // Video started means the car showed Gearslip: that's a working car, and unplugging or
             // switching the car off at the end shows up as a USB or ByeBye "failure" that isn't one.
@@ -232,7 +232,7 @@ object SessionReport {
             }
             runCatching { io.github.sirionero.mycar.update.UpdateChecker.onDriveEnded(context) }
         }
-        GearslipLog.flush()
+        MyCarLog.flush()
     }
 
     private fun authName(status: Int) = when (status) {

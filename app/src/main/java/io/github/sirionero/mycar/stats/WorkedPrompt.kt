@@ -1,7 +1,7 @@
 package io.github.sirionero.mycar.stats
 
 import android.content.Context
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.ServiceDiscovery
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -68,7 +68,7 @@ object WorkedPrompt {
             return
         }
         clear(context)
-        GearslipLog.i("worked prompt: not now")
+        MyCarLog.i("worked prompt: not now")
     }
 
     /**
@@ -79,7 +79,7 @@ object WorkedPrompt {
         val car = saved(context) ?: return
         clear(context)
         celebrateFlow.value = true
-        GearslipLog.i("worked prompt: usage notes turned on")
+        MyCarLog.i("worked prompt: usage notes turned on")
         val info = ServiceDiscovery.HeadUnitInfo(
             car.optString("name"), car.optString("car"), car.optString("year"),
             car.optString("make"), car.optString("model"),

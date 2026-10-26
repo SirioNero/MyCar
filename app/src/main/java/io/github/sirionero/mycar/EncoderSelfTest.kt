@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
  * the TLS self-test: make our own failures loud on the bench.
  */
 object EncoderSelfTest {
-    private val log = GearslipLog.tagged("VIDEO")
+    private val log = MyCarLog.tagged("VIDEO")
 
     fun run(width: Int = 800, height: Int = 480, frameRate: Int = 30): Boolean {
         log.i("=== encoder self-test starting (${width}x$height @ ${frameRate}fps) ===")

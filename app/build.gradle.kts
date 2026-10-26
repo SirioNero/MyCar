@@ -39,12 +39,12 @@ android {
         minSdk = 31
         targetSdk = 37
         versionCode = 10
-        // -PgearslipVersionName=0.1.99-test makes a build that thinks it's older, to try the updater.
-        versionName = project.findProperty("gearslipVersionName")?.toString() ?: "0.3.01-alpha"
+        // -PmyCarVersionName=0.1.99-test makes a build that thinks it's older, to try the updater.
+        versionName = project.findProperty("myCarVersionName")?.toString() ?: "0.3.01-alpha"
         manifestPlaceholders["appLabel"] = "MyCar"
         // Where opted-in phones send their daily usage note: the stats-worker/ Worker's address,
-        // set as gearslipStatsUrl in gradle.properties. Left empty, nothing is ever sent.
-        buildConfigField("String", "STATS_URL", "\"${project.findProperty("gearslipStatsUrl") ?: ""}\"")
+        // set as myCarStatsUrl in gradle.properties. Left empty, nothing is ever sent.
+        buildConfigField("String", "STATS_URL", "\"${project.findProperty("myCarStatsUrl") ?: ""}\"")
     }
 
     signingConfigs {
@@ -99,13 +99,13 @@ android {
     }
 
     testOptions {
-        // GearslipLog calls android.util.Log, which is a stub on the local JVM.
+        // MyCarLog calls android.util.Log, which is a stub on the local JVM.
         unitTests.isReturnDefaultValues = true
     }
 
 }
 
-// Renames the produced APK and moves it to the root build/ folder (<root>/build/Gearslip-debug.apk)
+// Renames the produced APK and moves it to the root build/ folder (<root>/build/MyCar-debug.apk)
 // after the fact rather than fighting AGP's variant-output API across versions - simpler and
 // doesn't break when that API moves again.
 tasks.register("renameApk") {
@@ -115,7 +115,7 @@ tasks.register("renameApk") {
             .filter { it.extension == "apk" }
             .toList()
             .forEach { apk ->
-                val renamed = File(rootBuildDir, "Gearslip-${apk.parentFile.name}.apk")
+                val renamed = File(rootBuildDir, "MyCar-${apk.parentFile.name}.apk")
                 apk.copyTo(renamed, overwrite = true)
                 apk.delete()
             }

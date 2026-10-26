@@ -20,9 +20,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.host.KnownApps
-import io.github.sirionero.mycar.notify.GearslipNotificationListener
+import io.github.sirionero.mycar.notify.MyCarNotificationListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -234,7 +234,7 @@ class CarMedia(private val context: Context) {
             MediaControllerCompat(context, MediaSessionCompat.Token.fromToken(c.sessionToken)).also {
                 it.registerCallback(compatCallback, main)
             }
-        }.onFailure { GearslipLog.w("media: no support-library view of the session: ${it.message}") }.getOrNull()
+        }.onFailure { MyCarLog.w("media: no support-library view of the session: ${it.message}") }.getOrNull()
         refreshModes()
     }
 
@@ -242,7 +242,7 @@ class CarMedia(private val context: Context) {
         val c = compat
         val modes = if (c == null) Modes() else Modes(shuffle = c.shuffleMode, repeat = c.repeatMode)
         if (modes.shuffle != _modes.value.shuffle || modes.repeat != _modes.value.repeat) {
-            GearslipLog.i("media: shuffle mode ${modes.shuffle}, repeat mode ${modes.repeat}, rating type ${controller?.ratingType}")
+            MyCarLog.i("media: shuffle mode ${modes.shuffle}, repeat mode ${modes.repeat}, rating type ${controller?.ratingType}")
         }
         _modes.value = modes
     }
@@ -264,25 +264,25 @@ class CarMedia(private val context: Context) {
         val mb = MediaBrowser(context, app.component, object : MediaBrowser.ConnectionCallback() {
             override fun onConnected() = this@CarMedia.onConnected(app)
             override fun onConnectionFailed() {
-                GearslipLog.w("media: ${app.label} refused the connection to its library")
+                MyCarLog.w("media: ${app.label} refused the connection to its library")
                 attachToSession(app)
             }
             override fun onConnectionSuspended() {
-                GearslipLog.w("media: ${app.label} went away")
+                MyCarLog.w("media: ${app.label} went away")
                 _phase.value = Phase.REJECTED
             }
         }, null)
         browser = mb
-        GearslipLog.i("media: connecting to ${app.label}'s library")
+        MyCarLog.i("media: connecting to ${app.label}'s library")
         runCatching { mb.connect() }.onFailure {
-            GearslipLog.e("media: connect threw", it)
+            MyCarLog.e("media: connect threw", it)
             _phase.value = Phase.REJECTED
         }
         // An app that never answers would leave the player spinning, and every later tap on it
         // would only reopen that spinner. Give up on the library and drive its playback instead.
         main.postDelayed({
             if (browser !== mb || _phase.value != Phase.CONNECTING) return@postDelayed
-            GearslipLog.w("media: ${app.label} didn't answer in ${CONNECT_WAIT_MS / 1000} s, using its playback session")
+            MyCarLog.w("media: ${app.label} didn't answer in ${CONNECT_WAIT_MS / 1000} s, using its playback session")
             runCatching { mb.disconnect() }
             browser = null
             attachToSession(app)
@@ -298,11 +298,11 @@ class CarMedia(private val context: Context) {
     private fun attachToSession(app: MediaApp, attempt: Int = 0, launched: Boolean = false) {
         if (connecting != app) return
         val manager = context.getSystemService(MediaSessionManager::class.java)
-        val listener = ComponentName(context, GearslipNotificationListener::class.java)
+        val listener = ComponentName(context, MyCarNotificationListener::class.java)
         val session = try {
             manager.getActiveSessions(listener).firstOrNull { it.packageName == app.component.packageName }
         } catch (e: SecurityException) {
-            GearslipLog.w("media: cannot read ${app.label}'s session without notification access")
+            MyCarLog.w("media: cannot read ${app.label}'s session without notification access")
             _rejection.value = Rejection.NEEDS_NOTIFICATION_ACCESS
             _phase.value = Phase.REJECTED
             return
@@ -318,7 +318,7 @@ class CarMedia(private val context: Context) {
             if (attempt < limit) {
                 main.postDelayed({ attachToSession(app, attempt + 1, launched) }, SESSION_RETRY_MS)
             } else {
-                GearslipLog.w("media: ${app.label} has no active session to control")
+                MyCarLog.w("media: ${app.label} has no active session to control")
                 // A session-only app (Spotify) just isn't running - say so and offer to open it,
                 // rather than calling it unsupported.
                 _rejection.value = if (KnownApps.playerWorks(app.component.packageName)) {
@@ -330,7 +330,7 @@ class CarMedia(private val context: Context) {
             }
             return
         }
-        GearslipLog.i("media: controlling ${app.label} through its session; its library is not shared")
+        MyCarLog.i("media: controlling ${app.label} through its session; its library is not shared")
         attach(session)
         _browse.value = BrowseState(loading = false, unavailable = true)
         _phase.value = Phase.READY
@@ -339,7 +339,7 @@ class CarMedia(private val context: Context) {
     private fun onConnected(app: MediaApp) {
         val mb = browser ?: return
         searchComponent = app.component
-        GearslipLog.i("media: connected to ${app.label}, root=${mb.root}")
+        MyCarLog.i("media: connected to ${app.label}, root=${mb.root}")
         attach(MediaController(context, mb.sessionToken))
         rootId = mb.root
         path.clear()
@@ -412,7 +412,7 @@ class CarMedia(private val context: Context) {
         val text = _now.value.custom.joinToString { a -> "${a.id} \"${a.name}\" icon=${a.iconName.ifEmpty { a.icon.toString() }}" }
         if (text == loggedButtons) return
         loggedButtons = text
-        GearslipLog.i("media: app buttons: ${text.ifEmpty { "none" }}")
+        MyCarLog.i("media: app buttons: ${text.ifEmpty { "none" }}")
     }
 
     // --- browsing ------------------------------------------------------------------------
@@ -435,7 +435,7 @@ class CarMedia(private val context: Context) {
             }
             override fun onError(parentId: String) {
                 if (parentId != subscribed) return
-                GearslipLog.w("media: could not load $parentId")
+                MyCarLog.w("media: could not load $parentId")
                 _browse.value = BrowseState(trail = path.map { it.second }, loading = false, failed = true)
             }
         })
@@ -505,7 +505,7 @@ class CarMedia(private val context: Context) {
         main.removeCallbacks(searchTimeout)
         searchBefore = _now.value
         _search.value = Search(query)
-        GearslipLog.i("media: -> playFromSearch")
+        MyCarLog.i("media: -> playFromSearch")
         c.transportControls.playFromSearch(query, Bundle())
         main.postDelayed(searchTimeout, SEARCH_WAIT_MS)
     }
@@ -543,7 +543,7 @@ class CarMedia(private val context: Context) {
             }
 
             override fun onConnectionFailed() {
-                GearslipLog.w("media: no library connection for search")
+                MyCarLog.w("media: no library connection for search")
                 searchBrowser = null
                 resultsQuery?.let { noLibrarySearch(it) }
             }
@@ -560,7 +560,7 @@ class CarMedia(private val context: Context) {
             sb.search(q, Bundle(), object : MediaBrowserCompat.SearchCallback() {
                 override fun onSearchResult(query: String, extras: Bundle?, items: List<MediaBrowserCompat.MediaItem>) {
                     if (query != resultsQuery) return
-                    GearslipLog.i("media: library search found ${items.size}")
+                    MyCarLog.i("media: library search found ${items.size}")
                     val entries = items.map(::entryOfCompat)
                     if (query == playFirstFor) {
                         playFirstFor = null
@@ -569,7 +569,7 @@ class CarMedia(private val context: Context) {
                             clearResults()
                             search(query)
                         } else {
-                            GearslipLog.i("media: playing the library's best match")
+                            MyCarLog.i("media: playing the library's best match")
                             clearResults()
                             searchBefore = _now.value
                             _search.value = Search(query)
@@ -590,12 +590,12 @@ class CarMedia(private val context: Context) {
                         search(query)
                         return
                     }
-                    GearslipLog.i("media: the app has no library search")
+                    MyCarLog.i("media: the app has no library search")
                     _results.value = Results(query, emptyList(), supported = false)
                 }
             })
         }.onFailure {
-            GearslipLog.w("media: library search failed: ${it.message}")
+            MyCarLog.w("media: library search failed: ${it.message}")
             noLibrarySearch(q)
         }
     }
@@ -664,7 +664,7 @@ class CarMedia(private val context: Context) {
     private val searchTimeout = Runnable {
         val pending = _search.value ?: return@Runnable
         if (pending.ignored) return@Runnable
-        GearslipLog.w("media: nothing new played after a search")
+        MyCarLog.w("media: nothing new played after a search")
         _search.value = Search(pending.query, ignored = true)
         main.postDelayed(clearSearch, SEARCH_NOTICE_MS)
     }
@@ -678,7 +678,7 @@ class CarMedia(private val context: Context) {
         val now = _now.value
         if (pending.ignored || !now.playing) return
         if (now.title != before.title || !before.playing) {
-            GearslipLog.i("media: search started playback")
+            MyCarLog.i("media: search started playback")
             dismissSearch()
         }
     }
@@ -751,10 +751,10 @@ class CarMedia(private val context: Context) {
         val intent = context.packageManager.getLaunchIntentForPackage(app.component.packageName) ?: return false
         return runCatching {
             context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            GearslipLog.i("media: opened ${app.label} to bring up its session")
+            MyCarLog.i("media: opened ${app.label} to bring up its session")
             true
         }.getOrElse {
-            GearslipLog.w("media: could not open ${app.label}: ${it.message}")
+            MyCarLog.w("media: could not open ${app.label}: ${it.message}")
             false
         }
     }

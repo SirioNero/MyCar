@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat
@@ -206,6 +206,6 @@ private fun fetchAgenda(context: Context): List<AgendaEvent> {
                     events.add(AgendaEvent(cursor.getString(0) ?: "(untitled)", cursor.getLong(1), allDay))
                 }
             }
-    }.onFailure { GearslipLog.w("calendar query failed: ${it.message}") }
+    }.onFailure { MyCarLog.w("calendar query failed: ${it.message}") }
     return events
 }

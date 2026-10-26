@@ -2,7 +2,7 @@ package io.github.sirionero.mycar.media
 
 import android.graphics.Bitmap
 import android.media.session.PlaybackState
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 import io.github.sirionero.mycar.car.CarServices
 import java.io.ByteArrayOutputStream
@@ -32,13 +32,13 @@ class CarMediaStatus(
         when (messageId) {
             MSG_CHANNEL_OPEN_RESPONSE -> {
                 val status = Protobuf.readInt32Field(body, 1) ?: 0
-                GearslipLog.i("media status: <- ChannelOpenResponse: status=$status")
+                MyCarLog.i("media status: <- ChannelOpenResponse: status=$status")
                 if (status == 0) start()
             }
             // The car's own buttons for the media source (play, next...). Logged to learn what
             // this car sends; the steering wheel keys already arrive on the input channel.
-            MSG_INPUT -> if (inputsLogged++ < 10) GearslipLog.i("media status: <- input from the car:\n" + Protobuf.describe(body))
-            else -> GearslipLog.i("media status: <- unhandled message id=$messageId (${body.size} bytes)")
+            MSG_INPUT -> if (inputsLogged++ < 10) MyCarLog.i("media status: <- input from the car:\n" + Protobuf.describe(body))
+            else -> MyCarLog.i("media status: <- unhandled message id=$messageId (${body.size} bytes)")
         }
     }
 
@@ -47,10 +47,10 @@ class CarMediaStatus(
         running = true
         Thread({
             while (running) {
-                runCatching { tick() }.onFailure { GearslipLog.w("media status: ${it.message}") }
+                runCatching { tick() }.onFailure { MyCarLog.w("media status: ${it.message}") }
                 Thread.sleep(TICK_MS)
             }
-        }, "gearslip-media-status").start()
+        }, "mycar-media-status").start()
     }
 
     fun stop() {
@@ -80,7 +80,7 @@ class CarMediaStatus(
                 Protobuf.varintField(5, 0L) +
                 Protobuf.varintField(6, 0L),
         )
-        if (state != sentState) GearslipLog.i("media status: -> ${STATE_NAMES[state]} ($source)")
+        if (state != sentState) MyCarLog.i("media status: -> ${STATE_NAMES[state]} ($source)")
         sentState = state
     }
 
@@ -94,7 +94,7 @@ class CarMediaStatus(
         now.art?.let { art -> artBytes(art)?.let { body += Protobuf.bytesField(4, it) } }
         if (now.durationMs > 0) body += Protobuf.varintField(6, now.durationMs / 1000)
         sendOnChannel(MSG_METADATA, body)
-        GearslipLog.i("media status: -> track \"${now.title}\" by ${now.artist.ifBlank { "?" }}")
+        MyCarLog.i("media status: -> track \"${now.title}\" by ${now.artist.ifBlank { "?" }}")
     }
 
     /** Album art as a small PNG: car screens show it at thumbnail size, and the link is shared with video. */

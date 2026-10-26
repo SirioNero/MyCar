@@ -5,7 +5,7 @@ import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.graphics.PointF
 import android.view.accessibility.AccessibilityEvent
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Replays head-unit touches onto the phone while [PhoneMirror] is running.
@@ -35,7 +35,7 @@ class TouchRelayService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
-        GearslipLog.i("touch relay connected")
+        MyCarLog.i("touch relay connected")
     }
 
     override fun onDestroy() {
@@ -83,7 +83,7 @@ class TouchRelayService : AccessibilityService() {
         val next = try {
             previous.continueStroke(path, 0, SEGMENT_MS, !lifted)
         } catch (t: Throwable) {
-            GearslipLog.e("continueStroke rejected", t)
+            MyCarLog.e("continueStroke rejected", t)
             reset()
             return
         }
@@ -108,7 +108,7 @@ class TouchRelayService : AccessibilityService() {
             }
         }, null)
         if (!ok) {
-            GearslipLog.w("dispatchGesture refused - is another gesture in flight?")
+            MyCarLog.w("dispatchGesture refused - is another gesture in flight?")
             dispatching = false
             reset()
         }

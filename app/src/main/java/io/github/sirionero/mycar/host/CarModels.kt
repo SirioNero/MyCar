@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
@@ -55,10 +55,10 @@ fun CarIcon?.image(context: Context): ImageBitmap? {
     val key = icon.cacheKey(context)
     iconCache.get(key)?.let { return it }
     val drawable: Drawable = runCatching { icon.loadDrawable(context) }
-        .onFailure { GearslipLog.w("icon: loadDrawable threw for ${icon.describe()}: ${it.javaClass.simpleName}: ${it.message}") }
+        .onFailure { MyCarLog.w("icon: loadDrawable threw for ${icon.describe()}: ${it.javaClass.simpleName}: ${it.message}") }
         .getOrNull()
         ?: run {
-            GearslipLog.w("icon: loadDrawable returned null for ${icon.describe()}")
+            MyCarLog.w("icon: loadDrawable returned null for ${icon.describe()}")
             return null
         }
     val rawWidth = drawable.intrinsicWidth.takeIf { it > 0 } ?: ICON_FALLBACK_PX
@@ -71,7 +71,7 @@ fun CarIcon?.image(context: Context): ImageBitmap? {
     val width = (rawWidth * scale).toInt()
     val height = (rawHeight * scale).toInt()
     val bitmap = runCatching { drawable.toBitmap(width, height).asImageBitmap() }
-        .onFailure { GearslipLog.w("icon: toBitmap threw for ${icon.describe()}: ${it.javaClass.simpleName}: ${it.message}") }
+        .onFailure { MyCarLog.w("icon: toBitmap threw for ${icon.describe()}: ${it.javaClass.simpleName}: ${it.message}") }
         .getOrNull() ?: return null
     iconCache.put(key, bitmap)
     return bitmap
@@ -197,7 +197,7 @@ fun OnClickDelegate?.click(label: String = "action") {
     val delegate = this ?: return
     if (label != AutoRoute.AUTO_LABEL) AutoRoute.driverTappedAt = android.os.SystemClock.elapsedRealtime()
     runCatching { delegate.sendClick(doneCallback("a $label tap")) }
-        .onFailure { GearslipLog.w("host: could not send a $label tap: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not send a $label tap: ${it.message}") }
 }
 
 /**
@@ -207,67 +207,67 @@ fun OnClickDelegate?.click(label: String = "action") {
 fun SearchCallbackDelegate?.textChanged(text: String) {
     val delegate = this ?: return
     runCatching { delegate.sendSearchTextChanged(text, doneCallback("search text")) }
-        .onFailure { GearslipLog.w("host: could not send search text: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not send search text: ${it.message}") }
 }
 
 fun SearchCallbackDelegate?.submitted(text: String) {
     val delegate = this ?: return
     runCatching { delegate.sendSearchSubmitted(text, doneCallback("search submit")) }
-        .onFailure { GearslipLog.w("host: could not submit a search: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not submit a search: ${it.message}") }
 }
 
 /** Tells the app which tab the driver picked; the app answers with a new template. */
 fun TabCallbackDelegate?.tabSelected(contentId: String) {
     val delegate = this ?: return
     runCatching { delegate.sendTabSelected(contentId, doneCallback("tab")) }
-        .onFailure { GearslipLog.w("host: could not select a tab: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not select a tab: ${it.message}") }
 }
 
 /** Free text typed into a sign-in field, reported the same way search text is. */
 fun InputCallbackDelegate?.inputChanged(text: String) {
     val delegate = this ?: return
     runCatching { delegate.sendInputTextChanged(text, doneCallback("input text")) }
-        .onFailure { GearslipLog.w("host: could not send input text: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not send input text: ${it.message}") }
 }
 
 fun InputCallbackDelegate?.inputSubmitted(text: String) {
     val delegate = this ?: return
     runCatching { delegate.sendInputSubmitted(text, doneCallback("input submit")) }
-        .onFailure { GearslipLog.w("host: could not submit input: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not submit input: ${it.message}") }
 }
 
 /** Tells the app the driver entered or left pan mode, so it can hide its own map controls. */
 fun androidx.car.app.navigation.model.PanModeDelegate?.panModeChanged(active: Boolean) {
     val delegate = this ?: return
     runCatching { delegate.sendPanModeChanged(active, doneCallback("pan mode")) }
-        .onFailure { GearslipLog.w("host: could not send pan mode: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not send pan mode: ${it.message}") }
 }
 
 /** Tells the app a toggle row was switched; it answers with a template showing the new state. */
 fun androidx.car.app.model.OnCheckedChangeDelegate?.checkedChanged(checked: Boolean) {
     val delegate = this ?: return
     runCatching { delegate.sendCheckedChange(checked, doneCallback("toggle")) }
-        .onFailure { GearslipLog.w("host: could not send a toggle: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not send a toggle: ${it.message}") }
 }
 
 /** Tells the app which option of a single-choice list was picked. */
 fun androidx.car.app.model.OnSelectedDelegate?.selected(index: Int) {
     val delegate = this ?: return
     runCatching { delegate.sendSelected(index, doneCallback("selection")) }
-        .onFailure { GearslipLog.w("host: could not send a selection: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not send a selection: ${it.message}") }
 }
 
 /** The driver asked for fresher content, e.g. by pulling a place list. */
 fun OnContentRefreshDelegate?.refresh() {
     val delegate = this ?: return
     runCatching { delegate.sendContentRefreshRequested(doneCallback("refresh")) }
-        .onFailure { GearslipLog.w("host: could not request a refresh: ${it.message}") }
+        .onFailure { MyCarLog.w("host: could not request a refresh: ${it.message}") }
 }
 
 private fun doneCallback(label: String) = object : OnDoneCallback {
     // onSuccess is annotated nullable and onFailure isn't - the asymmetry is real.
     override fun onSuccess(response: Bundleable?) = Unit
-    override fun onFailure(response: Bundleable) = GearslipLog.w("host: the app rejected $label")
+    override fun onFailure(response: Bundleable) = MyCarLog.w("host: the app rejected $label")
 }
 
 /** An action with nothing to show is one the host should skip rather than draw as a blank. */

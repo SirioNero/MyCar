@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.update
  * if wireless adb drops in the car the file is the only surviving record of the run. It
  * lives under getExternalFilesDir, which `adb pull` can reach without root.
  */
-object GearslipLog {
+object MyCarLog {
 
     const val TAG = "Gearslip"
 
@@ -49,7 +49,7 @@ object GearslipLog {
     fun init(context: Context) {
         val dir = context.getExternalFilesDir(null) ?: return
         val name = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-        file = File(dir, "gearslip-$name.log")
+        file = File(dir, "mycar-$name.log")
         i("log file: ${file?.absolutePath}")
         SessionReport.init(context)
     }
@@ -76,7 +76,7 @@ object GearslipLog {
     fun shareableFile(context: Context): android.net.Uri {
         val dir = File(context.cacheDir, "shared").apply { mkdirs() }
         dir.listFiles()?.forEach { it.delete() }
-        val out = File(dir, "gearslip-log.txt")
+        val out = File(dir, "mycar-log.txt")
         out.writeText(SessionReport.render() + "\n\n" + fullText())
         return androidx.core.content.FileProvider.getUriForFile(
             context, "${context.packageName}.logshare", out,
@@ -100,12 +100,12 @@ object GearslipLog {
     fun tagged(tag: String) = Tagged(tag)
 
     class Tagged(private val tag: String) {
-        fun i(message: String) = GearslipLog.i(message, tag)
-        fun w(message: String) = GearslipLog.w(message, tag)
-        fun e(message: String, t: Throwable? = null) = GearslipLog.e(message, t, tag)
-        fun hex(label: String, data: ByteArray, limit: Int = 256) = GearslipLog.hex(label, data, limit, tag)
-        fun verdict(headline: String, detail: String) = GearslipLog.verdict(headline, detail)
-        fun flush() = GearslipLog.flush()
+        fun i(message: String) = MyCarLog.i(message, tag)
+        fun w(message: String) = MyCarLog.w(message, tag)
+        fun e(message: String, t: Throwable? = null) = MyCarLog.e(message, t, tag)
+        fun hex(label: String, data: ByteArray, limit: Int = 256) = MyCarLog.hex(label, data, limit, tag)
+        fun verdict(headline: String, detail: String) = MyCarLog.verdict(headline, detail)
+        fun flush() = MyCarLog.flush()
     }
 
     /** "SSLHandshakeException: Received fatal alert: bad_certificate" - the deepest cause wins. */

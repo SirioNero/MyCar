@@ -41,7 +41,7 @@ private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP
 
 /** Three screens and a back stack of depth one: no navigation library needed. */
 @Composable
-fun GearslipApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
+fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     val context = LocalContext.current
     val needsCertSetup = remember {
         !AppSettings.hasSkippedCertSetup(context) && !CertProvider.hasAnyCert(context)

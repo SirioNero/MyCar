@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.KeyEvent
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -85,7 +85,7 @@ object CarKeys {
             KEYCODE_TEL -> screen(ScreenKey.PHONE)
             else -> return false
         }
-        if (longPress) GearslipLog.i("keys: long press on $keyCode")
+        if (longPress) MyCarLog.i("keys: long press on $keyCode")
         return true
     }
 
@@ -116,7 +116,7 @@ object CarKeys {
 
     private fun endCall() = main.post {
         if (CarCalls.state.value is CallUiState.Ringing) CarCalls.decline()
-        else GearslipLog.i("keys: end call pressed with no ringing call; hanging up needs the dialer")
+        else MyCarLog.i("keys: end call pressed with no ringing call; hanging up needs the dialer")
     }
 
     private fun screen(key: ScreenKey) { _screenKeys.tryEmit(key) }

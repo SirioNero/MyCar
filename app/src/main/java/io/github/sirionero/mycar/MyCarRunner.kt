@@ -33,7 +33,7 @@ import java.util.concurrent.FutureTask
  *   5  phone -> HU  ServiceDiscoveryRequest id 5  ENCRYPTED
  *   6  HU -> phone  ServiceDiscoveryResponse id 6 ENCRYPTED <- the confirmation
  */
-class GearslipRunner(
+class MyCarRunner(
     private val input: InputStream,
     private val output: OutputStream,
     private val identityProvider: () -> CertProvider.Identity,
@@ -42,7 +42,7 @@ class GearslipRunner(
     /** Over Wi-Fi rather than USB: the video is sent smaller so the link keeps up. */
     private val wireless: Boolean = false,
 ) {
-    private val log = GearslipLog.tagged("PROTO")
+    private val log = MyCarLog.tagged("PROTO")
 
     private enum class State { WAIT_VERSION, TLS_HANDSHAKE, WAIT_AUTH, WAIT_SDR, DONE }
 
@@ -53,7 +53,7 @@ class GearslipRunner(
     /** Sends every message, in order, so no other thread ever blocks on the USB link. See [send]. */
     private val writer = java.util.concurrent.Executors.newSingleThreadExecutor {
         // Sound goes out through here too, so it gets audio's priority: late writes are skips.
-        Thread({ android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO); it.run() }, "gearslip-writer")
+        Thread({ android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO); it.run() }, "mycar-writer")
     }
 
     /** Waits for the certificate only when TLS is first needed; see [run]. */
@@ -118,7 +118,7 @@ class GearslipRunner(
             log.i("  issuer  = ${cert.issuerX500Principal}")
             log.i("  serial  = ${cert.serialNumber}  valid ${cert.notBefore}..${cert.notAfter}")
             PhoneTls(identity.keyStore, identity.password)
-        }.also { Thread(it, "gearslip-identity").start() }
+        }.also { Thread(it, "mycar-identity").start() }
 
         startWatchdog()
 

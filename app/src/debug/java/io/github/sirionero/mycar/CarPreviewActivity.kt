@@ -45,7 +45,7 @@ class CarPreviewActivity : ComponentActivity() {
         if (result.resultCode == RESULT_OK && data != null) {
             AudioCaptureService.start(this, result.resultCode, data)
         } else {
-            GearslipLog.w("preview: audio capture consent declined")
+            MyCarLog.w("preview: audio capture consent declined")
             CarAudio.denied()
         }
     }
@@ -53,12 +53,12 @@ class CarPreviewActivity : ComponentActivity() {
     private fun askAudioCapture() {
         val manager = getSystemService(android.media.projection.MediaProjectionManager::class.java)
         runCatching { audioConsent.launch(manager.createScreenCaptureIntent()) }
-            .onFailure { GearslipLog.e("preview: could not ask for audio capture", it); CarAudio.denied() }
+            .onFailure { MyCarLog.e("preview: could not ask for audio capture", it); CarAudio.denied() }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        GearslipLog.init(this)
+        MyCarLog.init(this)
         CarSettings.init(this)
         CarEnvironment.start(this)
 
@@ -99,22 +99,22 @@ class CarPreviewActivity : ComponentActivity() {
             CarAudio.attach(BenchAudioSink())
         }
 
-        GearslipLog.i("preview: displayId=${p.displayId}")
+        MyCarLog.i("preview: displayId=${p.displayId}")
         if (intent.getBooleanExtra("hide", false)) p.setOverlayVisible(false)
 
         intent.getStringExtra("launch")?.let { pkg ->
             main.postDelayed({
                 packageManager.getLaunchIntentForPackage(pkg)?.let { p.launchApp(it) }
-                    ?: GearslipLog.e("preview: no launch intent for $pkg")
+                    ?: MyCarLog.e("preview: no launch intent for $pkg")
             }, 1500)
         }
 
         var step = 0
         fun snap() {
-            val bmp = latest ?: return GearslipLog.e("preview: no frame yet for step $step")
+            val bmp = latest ?: return MyCarLog.e("preview: no frame yet for step $step")
             val out = File(getExternalFilesDir(null), "preview-$step.png")
             FileOutputStream(out).use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            GearslipLog.i("preview: wrote ${out.name}")
+            MyCarLog.i("preview: wrote ${out.name}")
             step++
         }
         // A two-finger pinch: "cx,cy,startGap,endGap" in projected pixels, after "pinchAfter" ms.

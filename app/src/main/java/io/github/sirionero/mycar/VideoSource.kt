@@ -28,7 +28,7 @@ class VideoSource(
     private val onCodecConfig: (ByteArray) -> Unit,
     private val onFrame: (data: ByteArray, presentationTimeUs: Long, keyFrame: Boolean) -> Unit,
 ) {
-    private val log = GearslipLog.tagged("VIDEO")
+    private val log = MyCarLog.tagged("VIDEO")
 
     /**
      * TEST_CARD feeds generated YUV buffers; SURFACE exposes a MediaCodec input Surface for
@@ -108,7 +108,7 @@ class VideoSource(
         worker = Thread {
             runCatching { pump(encoder) }
                 .onFailure { if (running) log.e("encoder loop failed", it) }
-        }.apply { name = "gearslip-encoder"; start() }
+        }.apply { name = "mycar-encoder"; start() }
     }
 
     /**

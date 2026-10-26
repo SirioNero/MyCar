@@ -32,8 +32,8 @@ import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.car.CarUi
 import io.github.sirionero.mycar.car.Prefetch
 import io.github.sirionero.mycar.stats.UsageStats
-import io.github.sirionero.mycar.ui.GearslipApp
-import io.github.sirionero.mycar.ui.GearslipTheme
+import io.github.sirionero.mycar.ui.MyCarApp
+import io.github.sirionero.mycar.ui.MyCarTheme
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
@@ -44,14 +44,14 @@ import java.io.FileOutputStream
  * session lives in this activity, so [android:configChanges] in the manifest keeps a
  * rotation or theme change from recreating it and dropping the connection.
  */
-class GearslipActivity : ComponentActivity(), Projection {
+class MyCarActivity : ComponentActivity(), Projection {
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
 
     private var descriptor: ParcelFileDescriptor? = null
     /** The wireless session's socket, when the car came over Wi-Fi instead of USB. */
     private var wirelessSocket: java.net.Socket? = null
-    private var runner: GearslipRunner? = null
+    private var runner: MyCarRunner? = null
     private var screenProjector: ScreenProjector? = null
     private var worker: Thread? = null
 
@@ -70,7 +70,7 @@ class GearslipActivity : ComponentActivity(), Projection {
         if (result.resultCode == RESULT_OK && data != null) {
             MirrorService.start(this, result.resultCode, data)
         } else {
-            GearslipLog.w("screen capture consent declined")
+            MyCarLog.w("screen capture consent declined")
         }
     }
 
@@ -81,11 +81,11 @@ class GearslipActivity : ComponentActivity(), Projection {
         if (granted) askAudioCapture()
         else if (!shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
             // Refused twice: Android now says no without showing anything, so the phone must.
-            GearslipLog.w("audio: record permission blocked - Android no longer asks")
+            MyCarLog.w("audio: record permission blocked - Android no longer asks")
             CarAudio.micBlocked()
             micBlockedNotice.value = true
         } else {
-            GearslipLog.w("audio: record permission declined")
+            MyCarLog.w("audio: record permission declined")
             CarAudio.denied()
         }
     }
@@ -95,7 +95,7 @@ class GearslipActivity : ComponentActivity(), Projection {
         if (result.resultCode == RESULT_OK && data != null) {
             AudioCaptureService.start(this, result.resultCode, data)
         } else {
-            GearslipLog.w("audio: capture consent declined")
+            MyCarLog.w("audio: capture consent declined")
             CarAudio.denied()
             if (!CarSettings.audioChoiceAsked) offerBluetooth.value = true
         }
@@ -110,7 +110,7 @@ class GearslipActivity : ComponentActivity(), Projection {
     private val detachReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == UsbManager.ACTION_USB_ACCESSORY_DETACHED) {
-                GearslipLog.w("accessory detached")
+                MyCarLog.w("accessory detached")
                 // A wireless session has no accessory to lose; leave it running.
                 if (wirelessSocket == null) closeAccessory()
             }
@@ -119,7 +119,7 @@ class GearslipActivity : ComponentActivity(), Projection {
 
     /** Setting Gearslip as the phone's caller ID and spam app - what lets it decline a ringing call. */
     private val callScreeningRole = registerForActivityResult(StartActivityForResult()) { result ->
-        if (result.resultCode != RESULT_OK) GearslipLog.w("calls: call screening role declined")
+        if (result.resultCode != RESULT_OK) MyCarLog.w("calls: call screening role declined")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,14 +132,14 @@ class GearslipActivity : ComponentActivity(), Projection {
         enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        GearslipLog.init(this)
-        GearslipLog.installCrashHandler()
-        GearslipLog.i("Gearslip ready")
+        MyCarLog.init(this)
+        MyCarLog.installCrashHandler()
+        MyCarLog.i("Gearslip ready")
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = { socket ->
             runOnUiThread { startWireless(socket) }
         }
         CarSettings.init(this)
-        AppSettings.applyGearslipEnabled(this)
+        AppSettings.applyMyCarEnabled(this)
         // A capture that died without tidying up would leave notifications exposed to every
         // later screen share. Nothing is capturing if the service is not running, so undo it.
         if (!io.github.sirionero.mycar.audio.AudioCaptureService.running) {
@@ -149,8 +149,8 @@ class GearslipActivity : ComponentActivity(), Projection {
         CarEnvironment.setPhoneTheme(resources.configuration)
 
         setContent {
-            GearslipTheme {
-                GearslipApp(onDisconnect = { closeAccessory() }, onRequestCallScreening = ::requestCallScreeningRole)
+            MyCarTheme {
+                MyCarApp(onDisconnect = { closeAccessory() }, onRequestCallScreening = ::requestCallScreeningRole)
                 val offer by offerBluetooth.collectAsState()
                 if (offer) {
                     fun close() {
@@ -224,20 +224,20 @@ class GearslipActivity : ComponentActivity(), Projection {
         CarAudio.release()
         PhoneMirror.requestStop()
         closeAccessory()
-        GearslipLog.flush()
+        MyCarLog.flush()
     }
 
     /** Launches the system dialog that offers Gearslip the call-screening role, if it isn't held already. */
     private fun requestCallScreeningRole() {
         val roleManager = getSystemService(android.app.role.RoleManager::class.java)
         if (roleManager == null || !roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
-            GearslipLog.w("calls: call screening role unavailable on this phone")
+            MyCarLog.w("calls: call screening role unavailable on this phone")
             return
         }
         if (roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) return
         runCatching {
             callScreeningRole.launch(roleManager.createRequestRoleIntent(android.app.role.RoleManager.ROLE_CALL_SCREENING))
-        }.onFailure { GearslipLog.e("could not ask for the call screening role", it) }
+        }.onFailure { MyCarLog.e("could not ask for the call screening role", it) }
     }
 
     // --- Media audio --------------------------------------------------------------------
@@ -254,7 +254,7 @@ class GearslipActivity : ComponentActivity(), Projection {
         val manager = getSystemService(MediaProjectionManager::class.java)
         runCatching { audioConsent.launch(manager.createScreenCaptureIntent()) }
             .onFailure {
-                GearslipLog.e("could not ask for audio capture", it)
+                MyCarLog.e("could not ask for audio capture", it)
                 CarAudio.denied()
             }
     }
@@ -264,7 +264,7 @@ class GearslipActivity : ComponentActivity(), Projection {
     private fun requestCapture() {
         val manager = getSystemService(MediaProjectionManager::class.java)
         runCatching { captureConsent.launch(manager.createScreenCaptureIntent()) }
-            .onFailure { GearslipLog.e("could not ask for screen capture", it) }
+            .onFailure { MyCarLog.e("could not ask for screen capture", it) }
     }
 
     /** A Surface has a single producer, so our own display must go before the mirror arrives. */
@@ -307,17 +307,17 @@ class GearslipActivity : ComponentActivity(), Projection {
         if (intent?.action != UsbManager.ACTION_USB_ACCESSORY_ATTACHED) return
         // Switched off in Settings: the system shouldn't route the car here at all, but if it
         // does, leave the accessory alone.
-        if (!AppSettings.gearslipEnabled(this)) {
-            GearslipLog.i("accessory attached, but Gearslip is switched off - not connecting")
+        if (!AppSettings.myCarEnabled(this)) {
+            MyCarLog.i("accessory attached, but Gearslip is switched off - not connecting")
             return
         }
         val accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
         if (accessory == null) {
-            GearslipLog.e("attach intent carried no accessory")
+            MyCarLog.e("attach intent carried no accessory")
             SessionStatus.failed("Accessory missing", "The system reported a USB attach but did not include the accessory.")
             return
         }
-        GearslipLog.i("accessory attached by the system - permission is implicit on this path")
+        MyCarLog.i("accessory attached by the system - permission is implicit on this path")
         start(accessory)
     }
 
@@ -334,13 +334,13 @@ class GearslipActivity : ComponentActivity(), Projection {
         val manager = getSystemService(UsbManager::class.java)
         val pfd = manager.openAccessory(accessory)
         if (pfd == null) {
-            GearslipLog.e("openAccessory returned null - the session was claimed by someone else")
+            MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
             SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before Gearslip could open it.")
             return
         }
         descriptor = pfd
 
-        val runner = GearslipRunner(
+        val runner = MyCarRunner(
             input = FileInputStream(pfd.fileDescriptor),
             output = FileOutputStream(pfd.fileDescriptor),
             identityProvider = { CertProvider.load(this) },
@@ -348,20 +348,20 @@ class GearslipActivity : ComponentActivity(), Projection {
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
         )
         this.runner = runner
-        worker = Thread { runner.run() }.apply { name = "gearslip"; start() }
+        worker = Thread { runner.run() }.apply { name = "mycar"; start() }
     }
 
     /** A wireless session: the same runner, on the socket [WirelessLink] opened to the car. */
     private fun startWireless(socket: java.net.Socket) {
         closeAccessory(stopWireless = false)
-        if (!AppSettings.gearslipEnabled(this)) {
-            GearslipLog.i("wireless: Gearslip is switched off - not connecting")
+        if (!AppSettings.myCarEnabled(this)) {
+            MyCarLog.i("wireless: Gearslip is switched off - not connecting")
             runCatching { socket.close() }
             return
         }
-        GearslipLog.i("wireless: starting a session over Wi-Fi to ${socket.inetAddress?.hostAddress}:${socket.port}")
+        MyCarLog.i("wireless: starting a session over Wi-Fi to ${socket.inetAddress?.hostAddress}:${socket.port}")
         wirelessSocket = socket
-        val runner = GearslipRunner(
+        val runner = MyCarRunner(
             input = socket.getInputStream(),
             output = socket.getOutputStream(),
             identityProvider = { CertProvider.load(this) },
@@ -370,12 +370,12 @@ class GearslipActivity : ComponentActivity(), Projection {
             wireless = true,
         )
         this.runner = runner
-        worker = Thread { runner.run() }.apply { name = "gearslip"; start() }
+        worker = Thread { runner.run() }.apply { name = "mycar"; start() }
     }
 
     private fun describe(accessory: UsbAccessory) {
-        GearslipLog.i("accessory: manufacturer=${accessory.manufacturer} model=${accessory.model}")
-        GearslipLog.i("           version=${accessory.version} description=${accessory.description}")
+        MyCarLog.i("accessory: manufacturer=${accessory.manufacturer} model=${accessory.model}")
+        MyCarLog.i("           version=${accessory.version} description=${accessory.description}")
     }
 
     private fun closeAccessory() = closeAccessory(stopWireless = true)

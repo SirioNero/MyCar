@@ -1,6 +1,6 @@
 package io.github.sirionero.mycar.audio
 
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +50,7 @@ object CarAudio {
 
     fun attach(link: Link) {
         this.link = link
-        GearslipLog.i("audio: the car offered a sink at ${link.sampleRate}Hz x${link.channels}")
+        MyCarLog.i("audio: the car offered a sink at ${link.sampleRate}Hz x${link.channels}")
         when {
             _capture.value == Capture.ON -> link.start()
             wanted -> ask()
@@ -71,7 +71,7 @@ object CarAudio {
         when (_capture.value) {
             Capture.ON, Capture.ASKING, Capture.DENIED -> return
             Capture.OFF -> if (link == null) {
-                GearslipLog.i("audio: waiting for the car to offer an audio sink")
+                MyCarLog.i("audio: waiting for the car to offer an audio sink")
             } else {
                 ask()
             }
@@ -82,7 +82,7 @@ object CarAudio {
         _capture.value = Capture.ASKING
         val request = onConsentRequested
         if (request == null) {
-            GearslipLog.w("audio: nothing on the phone can ask for capture consent")
+            MyCarLog.w("audio: nothing on the phone can ask for capture consent")
             _capture.value = Capture.DENIED
         } else {
             request()

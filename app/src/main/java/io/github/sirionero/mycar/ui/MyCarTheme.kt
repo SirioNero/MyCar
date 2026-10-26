@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 
 /** Material You: the palette comes from the wallpaper (minSdk 35, so dynamic color always exists). */
 @Composable
-fun GearslipTheme(content: @Composable () -> Unit) {
+fun MyCarTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val scheme = if (isSystemInDarkTheme()) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     MaterialTheme(colorScheme = scheme, content = content)

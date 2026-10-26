@@ -13,7 +13,7 @@ import androidx.core.graphics.drawable.toBitmap
  * Gearslip in the phone's settings - the same on-device consent as any notification mirror,
  * and the only one needed. Until then the car UI says so and offers to open that page.
  */
-class GearslipNotificationListener : NotificationListenerService() {
+class MyCarNotificationListener : NotificationListenerService() {
 
     override fun onListenerConnected() {
         CarNotifications.setListening(true)

@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import androidx.car.app.navigation.model.NavigationTemplate
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.host.clockTime
@@ -287,7 +287,7 @@ object VoiceReply {
         CarAssistant.stopListening()
         CarAssistant.stopSpeaking()
         if (CarNotifications.reply(context, n, s.heard.trim())) {
-            GearslipLog.i("voice reply: sent to ${n.appLabel}")
+            MyCarLog.i("voice reply: sent to ${n.appLabel}")
             CarAssistant.say("Message sent.") {}
             CarNotifications.dismissPopup(n.id)
             _state.value = s.copy(phase = Phase.SENT, until = SystemClock.uptimeMillis() + SENT_MS, span = SENT_MS, held = 0f)

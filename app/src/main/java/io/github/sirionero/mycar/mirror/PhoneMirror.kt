@@ -7,7 +7,7 @@ import android.hardware.display.VirtualDisplay
 import android.media.projection.MediaProjection
 import android.view.Surface
 import android.view.WindowManager
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -89,23 +89,23 @@ object PhoneMirror {
 
         token.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
-                GearslipLog.w("media projection stopped (revoked or replaced)")
+                MyCarLog.w("media projection stopped (revoked or replaced)")
                 MirrorService.stop()
             }
         }, null)
 
         display = try {
             token.createVirtualDisplay(
-                "gearslip-mirror", width, height, densityDpi,
+                "mycar-mirror", width, height, densityDpi,
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, surface, null, null,
             )
         } catch (t: Throwable) {
-            GearslipLog.e("mirror display failed", t)
+            MyCarLog.e("mirror display failed", t)
             null
         }
 
         _active.value = display != null
-        if (display != null) GearslipLog.i("mirroring the phone into ${width}x$height")
+        if (display != null) MyCarLog.i("mirroring the phone into ${width}x$height")
     }
 
     fun end() {

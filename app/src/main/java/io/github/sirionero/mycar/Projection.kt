@@ -3,7 +3,7 @@ package io.github.sirionero.mycar
 import android.view.Surface
 
 /**
- * Lets [GearslipRunner] drive on-screen content without owning any Android UI itself.
+ * Lets [MyCarRunner] drive on-screen content without owning any Android UI itself.
  *
  * The protocol side decides *when* a surface is needed and *where* touches landed; the
  * activity decides *what* to render and how to inject events, because both need a UI thread

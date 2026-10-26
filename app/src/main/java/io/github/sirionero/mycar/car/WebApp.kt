@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import org.json.JSONObject
 
 /**
@@ -71,7 +71,7 @@ fun WebApp(content: String) {
                     webViewClient = LoggingClient(ring)
                     addJavascriptInterface(
                         FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
-                        "GearslipField",
+                        "MyCarField",
                     )
                     if (content.startsWith("http://") || content.startsWith("https://")) {
                         loadUrl(content)
@@ -104,7 +104,7 @@ fun WebApp(content: String) {
 
 private class LoggingClient(private val ring: String) : WebViewClient() {
     override fun onPageFinished(view: WebView?, url: String?) {
-        GearslipLog.i("car web page loaded: $url")
+        MyCarLog.i("car web page loaded: $url")
         view?.evaluateJavascript(FOCUS_TRACKING_JS, null)
         view?.evaluateJavascript(focusRingJs(ring), null)
     }
@@ -113,13 +113,13 @@ private class LoggingClient(private val ring: String) : WebViewClient() {
     // INTERNET permission, no network) looks like a successful one.
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         if (request?.isForMainFrame == true) {
-            GearslipLog.e("car web page FAILED: ${request.url} - ${error?.errorCode} ${error?.description}")
+            MyCarLog.e("car web page FAILED: ${request.url} - ${error?.errorCode} ${error?.description}")
         }
     }
 
     override fun onReceivedHttpError(view: WebView?, request: WebResourceRequest?, response: WebResourceResponse?) {
         if (request?.isForMainFrame == true) {
-            GearslipLog.w("car web page HTTP ${response?.statusCode} for ${request.url}")
+            MyCarLog.w("car web page HTTP ${response?.statusCode} for ${request.url}")
         }
     }
 }
@@ -180,9 +180,9 @@ private const val SUBMIT_FIELD_JS = """
  */
 private fun focusRingJs(color: String) = """
     (function() {
-        if (document.getElementById('gearslip-focus-ring')) return;
+        if (document.getElementById('mycar-focus-ring')) return;
         var style = document.createElement('style');
-        style.id = 'gearslip-focus-ring';
+        style.id = 'mycar-focus-ring';
         style.textContent = ':focus-visible { outline: 3px solid $color !important; outline-offset: 2px !important; }';
         (document.head || document.documentElement).appendChild(style);
     })();
@@ -201,10 +201,10 @@ private const val FOCUS_TRACKING_JS = """
             return skip.indexOf((el.type || 'text').toLowerCase()) === -1;
         }
         document.addEventListener('focusin', function(e) {
-            if (isEditable(e.target)) window.GearslipField.focused(e.target.value || '');
+            if (isEditable(e.target)) window.MyCarField.focused(e.target.value || '');
         });
         document.addEventListener('focusout', function(e) {
-            if (isEditable(e.target)) window.GearslipField.blurred();
+            if (isEditable(e.target)) window.MyCarField.blurred();
         });
     })();
 """

@@ -14,7 +14,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiNetworkSpecifier
 import android.provider.Settings
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.Wire
@@ -30,7 +30,7 @@ import java.util.UUID
 /**
  * Wireless Android Auto, phone side: the start-up that hands Gearslip a socket instead of a USB
  * accessory. Everything after it - versions, TLS, the certificate, channels, video - is the same
- * protocol [io.github.sirionero.mycar.GearslipRunner] already speaks over USB.
+ * protocol [io.github.sirionero.mycar.MyCarRunner] already speaks over USB.
  *
  *   1. Bluetooth: open RFCOMM to the car's Android Auto wireless service. The car must already be
  *      paired with the phone, as it usually is for calls.
@@ -49,7 +49,7 @@ import java.util.UUID
  */
 object WirelessLink {
 
-    private val log = GearslipLog.tagged("AAW")
+    private val log = MyCarLog.tagged("AAW")
 
     /** The Android Auto wireless service every head unit publishes over Bluetooth. */
     val AA_UUID: UUID = UUID.fromString("4de17a00-52cb-11e6-bdf4-0800200c9a66")
@@ -109,7 +109,7 @@ object WirelessLink {
                 log.e("wireless start-up failed", e)
                 SessionStatus.failed("Wireless start-up failed", "${e.javaClass.simpleName}: ${e.message}")
             }
-        }, "gearslip-wireless").apply { isDaemon = true; start() }
+        }, "mycar-wireless").apply { isDaemon = true; start() }
     }
 
     /** Closes the Bluetooth channel, the socket and the Wi-Fi request. Safe to call any time. */
@@ -138,7 +138,7 @@ object WirelessLink {
     /** A stable id for this phone as this app sees it, standing in for the serial a real phone sends. */
     @SuppressLint("HardwareIds")
     private fun deviceId(context: Context): String =
-        Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "gearslip"
+        Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "mycar"
 
     @SuppressLint("MissingPermission")
     private fun run(context: Context, device: BluetoothDevice) {
@@ -325,7 +325,7 @@ object WirelessLink {
                     log.i("-> StartResponse (phone at $phoneIp), ConnectionStatus: success")
                 }.onFailure { log.w("Bluetooth: couldn't report the Wi-Fi join (${it.message})") }
                 val run = ++tcpRun
-                Thread({ connectTcp(context, output, name, net, ip, port, run) }, "gearslip-wireless-tcp").start()
+                Thread({ connectTcp(context, output, name, net, ip, port, run) }, "mycar-wireless-tcp").start()
             }
 
             override fun onUnavailable() {

@@ -130,7 +130,7 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
                 )
                 FilledTonalButton(
-                    onClick = { GearslipLinks.open(context, GearslipLinks.CARS) },
+                    onClick = { MyCarLinks.open(context, MyCarLinks.CARS) },
                     modifier = Modifier.padding(16.dp),
                 ) { Text("See the full list") }
             }

@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.ScreenProjector
 import io.github.sirionero.mycar.TouchPoint
 import io.github.sirionero.mycar.car.CarEnvironment
@@ -99,13 +99,13 @@ fun CarPreviewScreen(onBack: () -> Unit) {
             try {
                 bitmap = image.toBitmap(width, height)
             } catch (t: Throwable) {
-                GearslipLog.e("preview: could not copy a frame", t)
+                MyCarLog.e("preview: could not copy a frame", t)
             } finally {
                 image.close()
             }
         }, handler)
 
-        projector.start(reader.surface, width, height, density, name = "gearslip-preview") { CarUi() }
+        projector.start(reader.surface, width, height, density, name = "mycar-preview") { CarUi() }
 
         onDispose {
             projector.stop()

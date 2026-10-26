@@ -9,8 +9,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import io.github.sirionero.mycar.GearslipActivity
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarActivity
+import io.github.sirionero.mycar.MyCarLog
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -93,7 +93,7 @@ object SpeechModels {
     private const val CHANNEL = "voice_download"
     private const val NOTIFICATION_ID = 4_312
 
-    private val worker = Executors.newSingleThreadExecutor { Thread(it, "gearslip-speech-download") }
+    private val worker = Executors.newSingleThreadExecutor { Thread(it, "mycar-speech-download") }
     private val states = Model.entries.associateWith { MutableStateFlow<State>(State.Missing) }
     private val _selected = MutableStateFlow(Model.KROKO)
     val selected: StateFlow<Model> = _selected.asStateFlow()
@@ -117,7 +117,7 @@ object SpeechModels {
         val known = Model.entries.map { it.id }.toSet()
         File(context.filesDir, "speech").listFiles()
             ?.filter { it.isDirectory && it.name.removeSuffix(".partial") !in known }?.forEach {
-            GearslipLog.i("speech: removing ${it.name}, no longer offered")
+            MyCarLog.i("speech: removing ${it.name}, no longer offered")
             it.deleteRecursively()
         }
     }
@@ -168,7 +168,7 @@ object SpeechModels {
         )
         val open = PendingIntent.getActivity(
             context, NOTIFICATION_ID,
-            Intent(context, GearslipActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+            Intent(context, MyCarActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
@@ -243,7 +243,7 @@ object SpeechModels {
                 check(model.files.all { File(partial, it).isFile }) { "some files were missing" }
                 target.deleteRecursively()
                 check(partial.renameTo(target)) { "couldn't store the model" }
-                GearslipLog.i("speech: downloaded ${model.label}")
+                MyCarLog.i("speech: downloaded ${model.label}")
                 state.value = State.Ready
                 updateProgress(app)
             } catch (e: Exception) {
@@ -251,7 +251,7 @@ object SpeechModels {
                 if (cancelled == model) {
                     state.value = State.Missing
                 } else {
-                    GearslipLog.w("speech: download of ${model.label} failed: ${e.message}")
+                    MyCarLog.w("speech: download of ${model.label} failed: ${e.message}")
                     state.value = State.Failed(e.message ?: e.javaClass.simpleName)
                 }
                 updateProgress(app)

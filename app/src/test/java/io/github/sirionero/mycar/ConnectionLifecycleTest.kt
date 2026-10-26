@@ -38,7 +38,7 @@ class ConnectionLifecycleTest {
         )
     }
 
-    private fun runner(input: InputStream) = GearslipRunner(input, ByteArrayOutputStream(), ::identity)
+    private fun runner(input: InputStream) = MyCarRunner(input, ByteArrayOutputStream(), ::identity)
 
     @Test fun `rejected authentication ignores subsequent success and service discovery in the same read`() {
         for (status in listOf(-2, -3)) {
@@ -83,7 +83,7 @@ class ConnectionLifecycleTest {
     }
 
     private fun stopDuringRead(result: (ByteArray) -> Int) {
-        lateinit var runner: GearslipRunner
+        lateinit var runner: MyCarRunner
         val input = object : InputStream() {
             override fun read(): Int = error("bulk reads only")
             override fun read(bytes: ByteArray, offset: Int, length: Int): Int {
@@ -99,7 +99,7 @@ class ConnectionLifecycleTest {
 
     @Test fun `stop while preparing TLS leaves the session disconnected`() {
         val releaseIdentity = CountDownLatch(1)
-        val runner = GearslipRunner(ByteArrayInputStream(version + hello()), ByteArrayOutputStream(), {
+        val runner = MyCarRunner(ByteArrayInputStream(version + hello()), ByteArrayOutputStream(), {
             check(releaseIdentity.await(5, TimeUnit.SECONDS))
             identity()
         })
@@ -129,7 +129,7 @@ class ConnectionLifecycleTest {
         for (input in listOf(ByteArrayInputStream(version), failing)) {
             val runner = runner(input)
             runner.run()
-            val field = GearslipRunner::class.java.getDeclaredField("writer").apply { isAccessible = true }
+            val field = MyCarRunner::class.java.getDeclaredField("writer").apply { isAccessible = true }
             assertTrue((field.get(runner) as ExecutorService).isShutdown)
         }
     }

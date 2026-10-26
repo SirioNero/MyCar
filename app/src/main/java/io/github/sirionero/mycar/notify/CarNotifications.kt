@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -140,7 +140,7 @@ object CarNotifications {
             _history.update { list -> list.map { if (it.key == notification.key) it.copy(read = true, markRead = null) else it } }
             true
         } catch (e: PendingIntent.CanceledException) {
-            GearslipLog.w("notify: ${notification.appLabel} withdrew its mark-as-read")
+            MyCarLog.w("notify: ${notification.appLabel} withdrew its mark-as-read")
             false
         }
     }
@@ -160,7 +160,7 @@ object CarNotifications {
             }
             true
         } catch (e: PendingIntent.CanceledException) {
-            GearslipLog.w("notify: the reply to ${notification.appLabel} was withdrawn by the app")
+            MyCarLog.w("notify: the reply to ${notification.appLabel} was withdrawn by the app")
             false
         }
     }

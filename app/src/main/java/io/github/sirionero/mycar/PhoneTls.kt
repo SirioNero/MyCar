@@ -29,7 +29,7 @@ import javax.net.ssl.X509ExtendedTrustManager
  * the right tool.
  */
 class PhoneTls(keyStore: KeyStore, password: CharArray) {
-    private val log = GearslipLog.tagged("TLS")
+    private val log = MyCarLog.tagged("TLS")
 
     private val engine: SSLEngine
     private var netIn = ByteArray(0)
@@ -193,7 +193,7 @@ class PhoneTls(keyStore: KeyStore, password: CharArray) {
 
     /** Accepts everything and reports what it saw. We want the data, not a verdict. */
     private class LoggingTrustManager : X509ExtendedTrustManager() {
-        private val log = GearslipLog.tagged("TLS")
+        private val log = MyCarLog.tagged("TLS")
 
         override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {
             log.i("peer certificate offered (authType=$authType, chain=${chain?.size ?: 0}) - accepting")

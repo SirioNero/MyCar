@@ -184,13 +184,13 @@ private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Uni
 @Composable
 private fun ConnectionSection() {
     val context = LocalContext.current
-    var enabled by remember { mutableStateOf(AppSettings.gearslipEnabled(context)) }
+    var enabled by remember { mutableStateOf(AppSettings.myCarEnabled(context)) }
     SettingsSection("Connection") {
         SettingsRow(
             "Use Gearslip in the car",
             Modifier.toggleable(enabled, role = Role.Switch) {
                 enabled = it
-                AppSettings.setGearslipEnabled(context, it)
+                AppSettings.setMyCarEnabled(context, it)
             },
             subtitle = if (enabled) "Gearslip answers when you plug into a car" else "Off: Android Auto can take the connection instead",
             icon = Icons.Filled.Settings,

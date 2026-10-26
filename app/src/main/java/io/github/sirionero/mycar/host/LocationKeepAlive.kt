@@ -12,7 +12,7 @@ import android.content.pm.ServiceInfo
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Lets a hosted navigation app keep receiving the phone's location while Gearslip is not on screen.
@@ -46,7 +46,7 @@ class LocationKeepAlive : Service() {
         }.onSuccess {
             settle(State.ON)
         }.onFailure {
-            GearslipLog.w("location keep-alive: could not start the foreground service - ${it.message}")
+            MyCarLog.w("location keep-alive: could not start the foreground service - ${it.message}")
             settle(State.FAILED)
             stopSelf()
         }
@@ -61,7 +61,7 @@ class LocationKeepAlive : Service() {
     enum class State { OFF, STARTING, ON, FAILED }
 
     companion object {
-        private const val CHANNEL = "gearslip_location"
+        private const val CHANNEL = "mycar_location"
         private const val NOTIFICATION_ID = 44
 
         /** Public flag value; the constant itself is hidden from the SDK. */
@@ -94,7 +94,7 @@ class LocationKeepAlive : Service() {
                 val once = { if (!done) { done = true; ready() } }
                 waiting += once
                 main.postDelayed({
-                    if (!done) GearslipLog.w("location keep-alive: still not running after ${timeoutMs}ms, binding anyway")
+                    if (!done) MyCarLog.w("location keep-alive: still not running after ${timeoutMs}ms, binding anyway")
                     waiting.remove(once)
                     once()
                 }, timeoutMs)
@@ -115,14 +115,14 @@ class LocationKeepAlive : Service() {
             val granted = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
             if (!granted) {
-                GearslipLog.w("location keep-alive: no location permission, car maps won't get a fix in the background")
+                MyCarLog.w("location keep-alive: no location permission, car maps won't get a fix in the background")
                 settle(State.FAILED)
                 return
             }
             state = State.STARTING
             runCatching { context.startForegroundService(Intent(context, LocationKeepAlive::class.java)) }
                 .onFailure {
-                    GearslipLog.w("location keep-alive: start refused - ${it.message}")
+                    MyCarLog.w("location keep-alive: start refused - ${it.message}")
                     settle(State.FAILED)
                 }
         }

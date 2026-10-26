@@ -123,7 +123,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:label="${appLabel}"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Gearslip">
+        android:theme="@style/Theme.MyCar">
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -141,7 +141,7 @@
           arrives via onNewIntent rather than a fresh instance.
         -->
         <activity
-            android:name=".GearslipActivity"
+            android:name=".MyCarActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize"
@@ -155,13 +155,13 @@
         </activity>
 
         <!--
-          Answers the car's USB connection on GearslipActivity's behalf. Kept apart from the
-          activity so Settings can switch off just this (AppSettings.setGearslipEnabled) and leave
+          Answers the car's USB connection on MyCarActivity's behalf. Kept apart from the
+          activity so Settings can switch off just this (AppSettings.setMyCarEnabled) and leave
           the head unit to Android Auto, without disabling the screen the switch is on.
         -->
         <activity-alias
-            android:name=".GearslipUsbAccessory"
-            android:targetActivity=".GearslipActivity"
+            android:name=".MyCarUsbAccessory"
+            android:targetActivity=".MyCarActivity"
             android:exported="true">
 
             <intent-filter>
@@ -220,7 +220,7 @@
           user grants Notification access to Gearslip in the phone's settings.
         -->
         <service
-            android:name=".notify.GearslipNotificationListener"
+            android:name=".notify.MyCarNotificationListener"
             android:exported="true"
             android:label="Gearslip notifications"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
@@ -236,7 +236,7 @@
           for, not a privileged one.
         -->
         <service
-            android:name=".call.GearslipCallScreening"
+            android:name=".call.MyCarCallScreening"
             android:exported="true"
             android:label="Gearslip calls"
             android:permission="android.permission.BIND_SCREENING_SERVICE">

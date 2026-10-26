@@ -8,7 +8,7 @@ import androidx.car.app.model.CarText
 import androidx.car.app.model.Distance
 import androidx.car.app.navigation.model.Maneuver
 import androidx.car.app.navigation.model.Step
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.audio.AudioLink
 import java.io.File
 import java.nio.ByteBuffer
@@ -42,7 +42,7 @@ object DirectionsVoice {
 
     @Volatile private var link: AudioLink? = null
     @Volatile private var running = false
-    private val speaker = Executors.newSingleThreadExecutor { Thread(it, "gearslip-directions").apply { isDaemon = true } }
+    private val speaker = Executors.newSingleThreadExecutor { Thread(it, "mycar-directions").apply { isDaemon = true } }
     @Volatile private var latest = 0
 
     private var turnKey: String? = null
@@ -64,16 +64,16 @@ object DirectionsVoice {
     /** The car opened its directions sink: start following the map app's turns. */
     fun attach(link: AudioLink) {
         this.link = link
-        GearslipLog.i("guidance: the car offered a directions sink at ${link.sampleRate}Hz x${link.channels}")
+        MyCarLog.i("guidance: the car offered a directions sink at ${link.sampleRate}Hz x${link.channels}")
         if (running) return
         running = true
         turnKey = null
         Thread({
             while (running) {
-                runCatching { tick() }.onFailure { GearslipLog.w("guidance: ${it.message}") }
+                runCatching { tick() }.onFailure { MyCarLog.w("guidance: ${it.message}") }
                 Thread.sleep(TICK_MS)
             }
-        }, "gearslip-directions-watch").apply { isDaemon = true }.start()
+        }, "mycar-directions-watch").apply { isDaemon = true }.start()
     }
 
     fun detach(link: AudioLink) {
@@ -194,7 +194,7 @@ object DirectionsVoice {
         val id = ++latest
         speaker.execute {
             if (id != latest) return@execute
-            runCatching { play(text, id) }.onFailure { GearslipLog.w("guidance: could not speak a turn: ${it.message}") }
+            runCatching { play(text, id) }.onFailure { MyCarLog.w("guidance: could not speak a turn: ${it.message}") }
         }
     }
 
@@ -203,11 +203,11 @@ object DirectionsVoice {
         val context = appContext ?: return
         val sink = link ?: return
         if (!ttsReady) {
-            GearslipLog.w("guidance: text-to-speech isn't ready, a turn went unspoken")
+            MyCarLog.w("guidance: text-to-speech isn't ready, a turn went unspoken")
             return
         }
         val file = File(context.cacheDir, "directions.wav")
-        val utterance = "gearslip-directions-$id"
+        val utterance = "mycar-directions-$id"
         val done = CountDownLatch(1)
         pending[utterance] = done
         if (engine.synthesizeToFile(text, Bundle(), file, utterance) != TextToSpeech.SUCCESS) {
@@ -216,15 +216,15 @@ object DirectionsVoice {
         }
         if (!done.await(SYNTH_TIMEOUT_S, TimeUnit.SECONDS)) {
             pending.remove(utterance)
-            GearslipLog.w("guidance: text-to-speech took too long, a turn went unspoken")
+            MyCarLog.w("guidance: text-to-speech took too long, a turn went unspoken")
             return
         }
         val pcm = Wav.read(file)?.let { Wav.convert(it, sink.sampleRate, sink.channels) } ?: run {
-            GearslipLog.w("guidance: text-to-speech gave audio Gearslip can't read")
+            MyCarLog.w("guidance: text-to-speech gave audio Gearslip can't read")
             return
         }
         stream(sink, pcm)
-        GearslipLog.i("guidance: spoke a turn (${pcm.size / (2 * sink.channels) * 1000 / sink.sampleRate} ms)")
+        MyCarLog.i("guidance: spoke a turn (${pcm.size / (2 * sink.channels) * 1000 / sink.sampleRate} ms)")
     }
 
     /** Start, the words in 20 ms chunks at about real time, a little silence, Stop. */

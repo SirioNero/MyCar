@@ -4,7 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Keeps the phone's notifications readable while audio is being sent to the car.
@@ -24,7 +24,7 @@ internal object ScreenShareGuard {
 
     /** Settings.Global.DISABLE_SCREEN_SHARE_PROTECTIONS_FOR_APPS_AND_NOTIFICATIONS, hidden API. */
     private const val SETTING = "disable_screen_share_protections_for_apps_and_notifications"
-    private const val PREFS = "gearslip_screen_share_guard"
+    private const val PREFS = "mycar_screen_share_guard"
 
     /** Set while Gearslip has the protection switched off, so a crash can be undone at next launch. */
     private const val KEY_LIFTED = "lifted"
@@ -36,7 +36,7 @@ internal object ScreenShareGuard {
     /** Call before the projection starts: the system decides what to hide at that moment. */
     fun lift(context: Context) {
         if (!canLift(context)) {
-            GearslipLog.i("audio: notifications will be hidden while capturing (no WRITE_SECURE_SETTINGS)")
+            MyCarLog.i("audio: notifications will be hidden while capturing (no WRITE_SECURE_SETTINGS)")
             return
         }
         val resolver = context.contentResolver
@@ -45,8 +45,8 @@ internal object ScreenShareGuard {
         runCatching {
             prefs(context).edit().putBoolean(KEY_LIFTED, true).commit()
             Settings.Global.putInt(resolver, SETTING, 1)
-            GearslipLog.i("audio: screen share protection off for the drive, notifications stay visible")
-        }.onFailure { GearslipLog.w("audio: could not lift screen share protection: ${it.message}") }
+            MyCarLog.i("audio: screen share protection off for the drive, notifications stay visible")
+        }.onFailure { MyCarLog.w("audio: could not lift screen share protection: ${it.message}") }
     }
 
     /** Put the protection back, if Gearslip is the one that took it away. */
@@ -55,8 +55,8 @@ internal object ScreenShareGuard {
         runCatching {
             Settings.Global.putInt(context.contentResolver, SETTING, 0)
             prefs(context).edit().remove(KEY_LIFTED).commit()
-            GearslipLog.i("audio: screen share protection back on")
-        }.onFailure { GearslipLog.w("audio: could not restore screen share protection: ${it.message}") }
+            MyCarLog.i("audio: screen share protection back on")
+        }.onFailure { MyCarLog.w("audio: could not restore screen share protection: ${it.message}") }
     }
 
     private fun prefs(context: Context) =

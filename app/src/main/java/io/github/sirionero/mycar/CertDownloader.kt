@@ -11,7 +11,7 @@ import java.net.URL
  */
 object CertDownloader {
 
-    private val log = GearslipLog.tagged("DOWNL")
+    private val log = MyCarLog.tagged("DOWNL")
 
     private const val BASE = "https://raw.githubusercontent.com/opencardev/aasdk/main/cert"
     private const val CRT = "$BASE/headunit.crt"

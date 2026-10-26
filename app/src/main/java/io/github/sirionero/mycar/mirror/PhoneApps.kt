@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable
 import android.provider.Settings
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /** An app installed on the phone, offered on the car screen as something to mirror. */
 class PhoneApp(val packageName: String, val label: String, val icon: ImageBitmap?)
@@ -62,12 +62,12 @@ object PhoneApps {
         val app = context.applicationContext
         val intent = app.packageManager.getLaunchIntentForPackage(packageName)
         if (intent == null) {
-            GearslipLog.e("no launch intent for $packageName")
+            MyCarLog.e("no launch intent for $packageName")
             return
         }
         runCatching { app.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-            .onSuccess { GearslipLog.i("launched $packageName on the phone") }
-            .onFailure { GearslipLog.e("launching $packageName failed", it) }
+            .onSuccess { MyCarLog.i("launched $packageName on the phone") }
+            .onFailure { MyCarLog.e("launching $packageName failed", it) }
     }
 
     /** Opens the phone's accessibility settings, where the touch relay is switched on. */
@@ -77,7 +77,7 @@ object PhoneApps {
             app.startActivity(
                 Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
-        }.onFailure { GearslipLog.e("could not open accessibility settings", it) }
+        }.onFailure { MyCarLog.e("could not open accessibility settings", it) }
     }
 
     private fun Drawable.toImageBitmap(): ImageBitmap {

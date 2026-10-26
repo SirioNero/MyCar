@@ -30,7 +30,7 @@ import java.security.cert.X509Certificate
  *     SPIKE_FINDINGS.md).
  */
 object CertProvider {
-    private val log = GearslipLog.tagged("CERT")
+    private val log = MyCarLog.tagged("CERT")
 
     private const val P12_NAME = "phone.p12"
     private const val PASS_NAME = "phone.pass"

@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 /**
  * What the phone UI shows about the current car session.
  *
- * [GearslipRunner] reports progress here as it moves through the handshake, so the UI reads
+ * [MyCarRunner] reports progress here as it moves through the handshake, so the UI reads
  * a plain state instead of parsing log lines. A failure stays on screen until the next
  * attach starts, so the reason is still there when the user picks the phone back up.
  */

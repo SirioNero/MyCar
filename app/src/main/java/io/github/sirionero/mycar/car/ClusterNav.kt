@@ -6,7 +6,7 @@ import androidx.car.app.navigation.model.Maneuver
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.RoutingInfo
 import androidx.car.app.navigation.model.Step
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 
 /**
@@ -35,13 +35,13 @@ class ClusterNav(
         when (messageId) {
             MSG_CHANNEL_OPEN_RESPONSE -> {
                 val status = Protobuf.readInt32Field(body, 1) ?: 0
-                GearslipLog.i("cluster: <- ChannelOpenResponse: status=$status")
+                MyCarLog.i("cluster: <- ChannelOpenResponse: status=$status")
                 if (status == 0) start()
             }
             // The car saying when it wants turns. Sending all along is harmless, so these are only logged.
-            MSG_START -> GearslipLog.i("cluster: <- start")
-            MSG_STOP -> GearslipLog.i("cluster: <- stop")
-            else -> GearslipLog.i("cluster: <- unhandled message id=$messageId (${body.size} bytes)")
+            MSG_START -> MyCarLog.i("cluster: <- start")
+            MSG_STOP -> MyCarLog.i("cluster: <- stop")
+            else -> MyCarLog.i("cluster: <- unhandled message id=$messageId (${body.size} bytes)")
         }
     }
 
@@ -50,10 +50,10 @@ class ClusterNav(
         running = true
         Thread({
             while (running) {
-                runCatching { tick() }.onFailure { GearslipLog.w("cluster: ${it.message}") }
+                runCatching { tick() }.onFailure { MyCarLog.w("cluster: ${it.message}") }
                 Thread.sleep(TICK_MS)
             }
-        }, "gearslip-cluster").start()
+        }, "mycar-cluster").start()
     }
 
     fun stop() {
@@ -69,7 +69,7 @@ class ClusterNav(
         }
         if (status != sentStatus) {
             sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
-            GearslipLog.i("cluster: -> ${STATUS_NAMES[status]}")
+            MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
             sentStatus = status
             if (status == STATUS_INACTIVE) { sentTurn = null; sentDistance = null }
         }
@@ -91,7 +91,7 @@ class ClusterNav(
         maneuver?.roundaboutExitNumber?.takeIf { it > 0 }?.let { body += Protobuf.varintField(5, it.toLong()) }
         maneuver?.roundaboutExitAngle?.takeIf { it > 0 }?.let { body += Protobuf.varintField(6, it.toLong()) }
         sendOnChannel(MSG_TURN, body)
-        GearslipLog.i("cluster: -> turn event=$event side=$side road=\"$road\"")
+        MyCarLog.i("cluster: -> turn event=$event side=$side road=\"$road\"")
     }
 
     /**

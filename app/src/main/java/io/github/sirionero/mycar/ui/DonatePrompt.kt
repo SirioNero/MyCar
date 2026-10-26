@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -78,7 +78,7 @@ object DonatePrompt {
             .apply()
         loaded = true
         flow.value = false
-        GearslipLog.i(if (donated) "donate prompt: opened a donation link" else "donate prompt: not now")
+        MyCarLog.i(if (donated) "donate prompt: opened a donation link" else "donate prompt: not now")
     }
 }
 
@@ -95,7 +95,7 @@ internal fun DonateDialog(live: Boolean) {
     }
     fun give(url: String) {
         DonatePrompt.answer(context, donated = true)
-        GearslipLinks.open(context, url)
+        MyCarLinks.open(context, url)
     }
     AlertDialog(
         onDismissRequest = { DonatePrompt.answer(context, donated = false) },
@@ -109,14 +109,14 @@ internal fun DonateDialog(live: Boolean) {
         },
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { give(GearslipLinks.LIBERAPAY) }, Modifier.fillMaxWidth()) {
+                Button(onClick = { give(MyCarLinks.LIBERAPAY) }, Modifier.fillMaxWidth()) {
                     Text("Support on Liberapay")
                 }
-                OutlinedButton(onClick = { give(GearslipLinks.BUY_ME_A_COFFEE) }, Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { give(MyCarLinks.BUY_ME_A_COFFEE) }, Modifier.fillMaxWidth()) {
                     Text("Buy me a coffee")
                 }
-                if (GearslipLinks.PAYMENT_LINK.isNotEmpty()) {
-                    OutlinedButton(onClick = { give(GearslipLinks.PAYMENT_LINK) }, Modifier.fillMaxWidth()) {
+                if (MyCarLinks.PAYMENT_LINK.isNotEmpty()) {
+                    OutlinedButton(onClick = { give(MyCarLinks.PAYMENT_LINK) }, Modifier.fillMaxWidth()) {
                         Text("Give once by card")
                     }
                 }

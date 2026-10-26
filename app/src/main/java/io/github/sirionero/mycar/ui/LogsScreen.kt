@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,8 +52,8 @@ import kotlinx.coroutines.withContext
 fun LogsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val version by GearslipLog.version.collectAsStateWithLifecycle()
-    val lines = remember(version) { GearslipLog.snapshot() }
+    val version by MyCarLog.version.collectAsStateWithLifecycle()
+    val lines = remember(version) { MyCarLog.snapshot() }
 
     val listState = rememberLazyListState()
     val atEnd by remember {
@@ -96,7 +96,7 @@ fun LogsScreen(onBack: () -> Unit) {
                     Button(
                         onClick = {
                             scope.launch {
-                            val uri = withContext(Dispatchers.IO) { GearslipLog.shareableFile(context) }
+                            val uri = withContext(Dispatchers.IO) { MyCarLog.shareableFile(context) }
                             val send = Intent(Intent.ACTION_SEND)
                                 .setType("text/plain")
                                 .putExtra(Intent.EXTRA_SUBJECT, "Gearslip log")
@@ -108,7 +108,7 @@ fun LogsScreen(onBack: () -> Unit) {
                         modifier = Modifier.weight(1f).height(56.dp),
                     ) { Text("Share") }
                     OutlinedButton(
-                        onClick = { GearslipLog.clearLive() },
+                        onClick = { MyCarLog.clearLive() },
                         modifier = Modifier.weight(1f).height(56.dp),
                     ) { Text("Clear") }
                 }

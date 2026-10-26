@@ -1,6 +1,6 @@
 package io.github.sirionero.mycar.audio
 
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 import io.github.sirionero.mycar.ServiceDiscovery
 import io.github.sirionero.mycar.Wire
@@ -45,35 +45,35 @@ class CarMic(
         when (messageId) {
             MSG_CHANNEL_OPEN_RESPONSE -> {
                 val status = Protobuf.readInt32Field(body, 1) ?: 0
-                GearslipLog.i("mic: <- ChannelOpenResponse: status=$status")
+                MyCarLog.i("mic: <- ChannelOpenResponse: status=$status")
                 if (status != 0) return
                 // Setup { type = the codec }, as for audio: 0 got UNEXPECTED_MESSAGE from the VW.
                 sendOnChannel(MSG_SETUP, Protobuf.varintField(1, service.codecType.toLong()))
                 ready = usable
                 if (!usable) {
-                    GearslipLog.w(
+                    MyCarLog.w(
                         "mic: the car records ${service.codecName} ${config.sampleRate}Hz/${config.bits}bit/x${config.channels}, " +
                             "which speech can't use - voice stays on the phone's microphone",
                     )
                 }
             }
 
-            MSG_CONFIG -> GearslipLog.i("mic: <- Config status=${Wire.varint(Wire.fields(body), 1)}")
+            MSG_CONFIG -> MyCarLog.i("mic: <- Config status=${Wire.varint(Wire.fields(body), 1)}")
 
             MSG_MIC_RESPONSE -> {
                 val fields = Wire.fields(body)
                 session = Wire.varint(fields, 2)?.toInt() ?: 0
-                GearslipLog.i("mic: <- MicrophoneResponse status=${Wire.varint(fields, 1)} session=$session")
+                MyCarLog.i("mic: <- MicrophoneResponse status=${Wire.varint(fields, 1)} session=$session")
             }
 
             MSG_DATA -> {
                 sendOnChannel(MSG_ACK, Protobuf.varintField(1, session.toLong()) + Protobuf.varintField(2, 1L))
                 if (!listening || body.size <= TIMESTAMP_BYTES) return
-                if (packets++ == 0) GearslipLog.i("mic: first audio from the car (${body.size - TIMESTAMP_BYTES} bytes)")
+                if (packets++ == 0) MyCarLog.i("mic: first audio from the car (${body.size - TIMESTAMP_BYTES} bytes)")
                 chunks.offer(toSpeechRate(body))
             }
 
-            else -> GearslipLog.i("mic: <- unhandled message id=$messageId (${body.size} bytes)")
+            else -> MyCarLog.i("mic: <- unhandled message id=$messageId (${body.size} bytes)")
         }
     }
 
@@ -104,7 +104,7 @@ class CarMic(
         listening = true
         voiceSession(true)
         sendOnChannel(MSG_MIC_REQUEST, Protobuf.varintField(1, 1L) + Protobuf.varintField(4, 1L))
-        GearslipLog.i("mic: -> MicrophoneRequest(open)")
+        MyCarLog.i("mic: -> MicrophoneRequest(open)")
         return true
     }
 
@@ -116,7 +116,7 @@ class CarMic(
         listening = false
         sendOnChannel(MSG_MIC_REQUEST, Protobuf.varintField(1, 0L))
         voiceSession(false)
-        GearslipLog.i("mic: -> MicrophoneRequest(close) after $packets packets, voice session ended")
+        MyCarLog.i("mic: -> MicrophoneRequest(close) after $packets packets, voice session ended")
     }
 
     companion object {

@@ -1,6 +1,6 @@
 package io.github.sirionero.mycar.audio
 
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 import io.github.sirionero.mycar.ServiceDiscovery
 import io.github.sirionero.mycar.Wire
@@ -59,9 +59,9 @@ class AudioLink(
     val channelId get() = service.serviceId
 
     fun opened(status: Int) {
-        GearslipLog.i("$tag: <- ChannelOpenResponse: status=$status")
+        MyCarLog.i("$tag: <- ChannelOpenResponse: status=$status")
         if (status != 0) {
-            GearslipLog.w("$tag: the head unit refused the $tag channel (status $status)")
+            MyCarLog.w("$tag: the head unit refused the $tag channel (status $status)")
             return
         }
         // Setup { required MediaCodecType type = 1 }: the codec the car advertised for this sink
@@ -69,7 +69,7 @@ class AudioLink(
         // read from an older proto as a config index; 0 is no codec at all, and the 2024 VW
         // answered UNEXPECTED_MESSAGE (id 255), never acked a chunk and played nothing.
         sendOnChannel(MSG_SETUP, Protobuf.varintField(1, service.codecType.toLong()))
-        GearslipLog.i("$tag: -> Setup(codec=${service.codecName}) on channel ${service.serviceId}")
+        MyCarLog.i("$tag: -> Setup(codec=${service.codecName}) on channel ${service.serviceId}")
         armConfigFallback()
     }
 
@@ -91,7 +91,7 @@ class AudioLink(
                 return@Thread
             }
             useAdvertisedSink("no usable Config after ${CONFIG_WAIT_MS}ms")
-        }, "gearslip-audio-config").apply { isDaemon = true }
+        }, "mycar-audio-config").apply { isDaemon = true }
         configTimer = timer
         timer.start()
     }
@@ -100,7 +100,7 @@ class AudioLink(
     private fun useAdvertisedSink(why: String) {
         if (ready) return
         configTimer?.interrupt()
-        GearslipLog.i(
+        MyCarLog.i(
             "$tag: $why - using the sink the head unit advertised " +
                 "(${sampleRate}Hz x$channels, config_index=0, max_unacked=$maxUnacked)",
         )
@@ -118,16 +118,16 @@ class AudioLink(
                 val status = Wire.varint(fields, 1)?.toInt()
                 val window = Wire.varint(fields, 2)?.toInt()
                 val indices = fields.filter { it.number == 3 && it.wireType == 0 }.map { it.varint.toInt() }
-                GearslipLog.i("$tag: <- Config status=$status max_unacked=$window indices=$indices")
+                MyCarLog.i("$tag: <- Config status=$status max_unacked=$window indices=$indices")
                 if (window != null) maxUnacked = maxOf(1, window)
                 configIndex = indices.firstOrNull() ?: 0
                 if (status == STATUS_READY) {
                     configTimer?.interrupt()
                     ready = true
-                    GearslipLog.i("$tag: sink ready - ${sampleRate}Hz x$channels ${config?.bits}bit")
+                    MyCarLog.i("$tag: sink ready - ${sampleRate}Hz x$channels ${config?.bits}bit")
                     onReady(this)
                 } else {
-                    GearslipLog.w(
+                    MyCarLog.w(
                         "$tag: the sink is not ready (status=$status, 1=WAIT 2=READY) - " +
                             "nothing will be sent until it is",
                     )
@@ -147,8 +147,8 @@ class AudioLink(
             else -> if (messageId == MSG_SETUP_ANSWER && body.isEmpty()) {
                 useAdvertisedSink("<- empty Setup answer (id $messageId)")
             } else {
-                GearslipLog.i("$tag: <- unhandled message id=$messageId (${body.size} bytes)")
-                GearslipLog.hex("   audio msg", body, limit = 64)
+                MyCarLog.i("$tag: <- unhandled message id=$messageId (${body.size} bytes)")
+                MyCarLog.hex("   audio msg", body, limit = 64)
             }
         }
     }
@@ -160,7 +160,7 @@ class AudioLink(
      */
     fun onFocus(state: Int) {
         val name = FOCUS_STATES[state] ?: "unknown($state)"
-        GearslipLog.i("$tag: <- AudioFocusResponse state=$name")
+        MyCarLog.i("$tag: <- AudioFocusResponse state=$name")
         val had = focusGranted
         focusGranted = state == FOCUS_STATE_GAIN || state == FOCUS_STATE_GAIN_TRANSIENT ||
             state == FOCUS_STATE_GAIN_MEDIA_ONLY
@@ -174,7 +174,7 @@ class AudioLink(
         if (asksFocus && !focusRequested) {
             focusRequested = true
             sendControl(MSG_FOCUS_REQUEST, Protobuf.varintField(1, FOCUS_GAIN.toLong()))
-            GearslipLog.i("$tag: -> AudioFocusRequest(GAIN); waiting for the head unit to hand the sink over")
+            MyCarLog.i("$tag: -> AudioFocusRequest(GAIN); waiting for the head unit to hand the sink over")
         }
         // Some head units grant the sink silently and never answer. Do not let that be the end of
         // it: start anyway, and let the acks say whether anything is being taken.
@@ -191,12 +191,12 @@ class AudioLink(
         lastAckAt = System.currentTimeMillis()
         if (aacSink && aac == null) {
             aac = runCatching { AacEncoder(sampleRate, channels, adts = service.codecType == ServiceDiscovery.CODEC_AAC_LC_ADTS) }
-                .onSuccess { GearslipLog.i("$tag: the car takes ${service.codecName} only - encoding to AAC") }
-                .onFailure { GearslipLog.e("$tag: couldn't start the AAC encoder", it) }
+                .onSuccess { MyCarLog.i("$tag: the car takes ${service.codecName} only - encoding to AAC") }
+                .onFailure { MyCarLog.e("$tag: couldn't start the AAC encoder", it) }
                 .getOrNull()
         }
         started = true
-        GearslipLog.i("$tag: -> Start(session=$sessionId, config=$configIndex) - streaming ${sampleRate}Hz x$channels")
+        MyCarLog.i("$tag: -> Start(session=$sessionId, config=$configIndex) - streaming ${sampleRate}Hz x$channels")
     }
 
     override fun stop() {
@@ -211,7 +211,7 @@ class AudioLink(
         focusGranted = false
         aac?.release()
         aac = null
-        GearslipLog.i("$tag: -> Stop, AudioFocusRequest(RELEASE) after $chunks chunks / $bytes bytes")
+        MyCarLog.i("$tag: -> Stop, AudioFocusRequest(RELEASE) after $chunks chunks / $bytes bytes")
         chunks = 0
         bytes = 0
     }
@@ -227,7 +227,7 @@ class AudioLink(
             encoder.encode(pcm, size)
         } catch (e: Exception) {
             // A codec that dies mid-drive leaves the car silent, as it was before AAC; log it once.
-            GearslipLog.e("$tag: AAC encoding failed - no more audio this drive", e)
+            MyCarLog.e("$tag: AAC encoding failed - no more audio this drive", e)
             aac = null
             started = false
             return
@@ -247,7 +247,7 @@ class AudioLink(
                     // A car that never acks (the 2024 VW, the Bolt) hits this every chunk: say so
                     // once, then now and then, so the rest of the log stays readable.
                     if (stalls++ % 500 == 0) {
-                        GearslipLog.w("$tag: no ack for ${STALL_MS}ms with $inFlight in flight - reopening the window ($stalls times)")
+                        MyCarLog.w("$tag: no ack for ${STALL_MS}ms with $inFlight in flight - reopening the window ($stalls times)")
                     }
                     inFlight = 0
                     break
@@ -265,7 +265,7 @@ class AudioLink(
         try {
             sendOnChannel(MSG_DATA, timestamp + payload)
         } catch (e: java.io.IOException) {
-            GearslipLog.e("$tag: the link died mid-stream", e)
+            MyCarLog.e("$tag: the link died mid-stream", e)
             started = false
             return
         }
@@ -275,7 +275,7 @@ class AudioLink(
         // The first chunk proves the whole path; after that, an occasional line is enough to show
         // the car is still taking audio and to catch a window that has quietly closed.
         if (chunks == 1 || chunks % CHUNK_LOG_EVERY == 0) {
-            GearslipLog.i(
+            MyCarLog.i(
                 "$tag: -> $chunks chunks / $bytes bytes, inFlight=$inFlight/$maxUnacked, " +
                     "dropped=$dropped, focus=${if (focusGranted) "granted" else "not granted"}",
             )

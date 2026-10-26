@@ -226,14 +226,14 @@ fun IntroScreen(onDone: () -> Unit) {
             IntroStep.THANKS -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, "Thank you.",
                 "Thanks to your usage notes, Gearslip is confirmed to work in cars newer than 2020. " +
                     "Each note shows which cars work and which still fail, so I know what to fix next.", step,
-                action = "See which cars work" to { GearslipLinks.open(context, GearslipLinks.CARS) },
+                action = "See which cars work" to { MyCarLinks.open(context, MyCarLinks.CARS) },
                 outlined = true,
-                secondAction = "Support on Liberapay" to { GearslipLinks.open(context, GearslipLinks.LIBERAPAY) },
+                secondAction = "Support on Liberapay" to { MyCarLinks.open(context, MyCarLinks.LIBERAPAY) },
             ) { HeartIcon(c.onTertiaryC) }
             IntroStep.CHAT -> BadgeStep(c, ::cq, ::cqSp, c.primaryC, "Come say hi.",
                 "Gearslip has a chat room on Matrix. Talk with other drivers about cars, apps, and " +
                     "where Gearslip is headed.", step,
-                action = "Join on Matrix" to { GearslipLinks.open(context, GearslipLinks.MATRIX) },
+                action = "Join on Matrix" to { MyCarLinks.open(context, MyCarLinks.MATRIX) },
                 outlined = true,
             ) { ChatIcon(c.onPrimaryC, c.primaryC) }
             IntroStep.APPS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Good company.",

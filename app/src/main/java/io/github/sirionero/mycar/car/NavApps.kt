@@ -45,7 +45,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathParser
 
 /** What a built-in app's id carries in a pin, so it can't collide with an installed app's component. */
-internal const val BUILT_IN_PREFIX = "gearslip:"
+internal const val BUILT_IN_PREFIX = "mycar:"
 
 /** Material's "directions car", drawn here because only the core icon set is bundled. */
 private val CarGlyph: ImageVector = ImageVector.Builder("Car", 24.dp, 24.dp, 24f, 24f).addPath(

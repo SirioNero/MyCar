@@ -7,11 +7,11 @@ import android.content.pm.PackageManager
 /** User-facing preferences. Read fresh on every session, so changes apply on the next connect. */
 object AppSettings {
 
-    private const val PREFS = "gearslip_settings"
+    private const val PREFS = "mycar_settings"
     private const val KEY_STARTUP_URL = "startup_url"
     private const val KEY_SKIPPED_CERT_SETUP = "skipped_cert_setup"
     private const val KEY_SEEN_PERMISSIONS_SETUP = "seen_permissions_setup"
-    private const val KEY_GEARSLIP_ENABLED = "gearslip_enabled"
+    private const val KEY_MYCAR_ENABLED = "mycar_enabled"
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -49,19 +49,19 @@ object AppSettings {
 
     /**
      * Whether Gearslip is allowed to claim the USB accessory connection. Off leaves the app
-     * installed but disables the GearslipUsbAccessory alias that answers
+     * installed but disables the MyCarUsbAccessory alias that answers
      * USB_ACCESSORY_ATTACHED, so a real Android Auto head unit (or Google's own app) gets the
      * connection instead - the two fight over it otherwise, since only one app can win the
-     * accessory handoff. The alias is separate from GearslipActivity itself - the activity that
+     * accessory handoff. The alias is separate from MyCarActivity itself - the activity that
      * shows this very switch - so turning it off can't disable the screen you're looking at.
      * On by default.
      */
-    fun gearslipEnabled(context: Context): Boolean =
-        prefs(context).getBoolean(KEY_GEARSLIP_ENABLED, true)
+    fun myCarEnabled(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_MYCAR_ENABLED, true)
 
-    fun setGearslipEnabled(context: Context, value: Boolean) {
-        prefs(context).edit().putBoolean(KEY_GEARSLIP_ENABLED, value).apply()
-        applyGearslipEnabled(context)
+    fun setMyCarEnabled(context: Context, value: Boolean) {
+        prefs(context).edit().putBoolean(KEY_MYCAR_ENABLED, value).apply()
+        applyMyCarEnabled(context)
     }
 
     /**
@@ -69,12 +69,12 @@ object AppSettings {
      * saved without the alias following it (an older build crashed right there) heals itself.
      * Only the alias changes: the driver's "always open with Gearslip" choice for the car is kept.
      */
-    fun applyGearslipEnabled(context: Context) {
-        val value = gearslipEnabled(context)
+    fun applyMyCarEnabled(context: Context) {
+        val value = myCarEnabled(context)
         val appContext = context.applicationContext
         // The class name comes from the code's namespace, not the package: a debug build installs
-        // as ".dev", but the alias is still io.github.sirionero.mycar.GearslipUsbAccessory.
-        val component = ComponentName(appContext.packageName, "${GearslipActivity::class.java.`package`!!.name}.GearslipUsbAccessory")
+        // as ".dev", but the alias is still io.github.sirionero.mycar.MyCarUsbAccessory.
+        val component = ComponentName(appContext.packageName, "${MyCarActivity::class.java.`package`!!.name}.MyCarUsbAccessory")
         val state = if (value) {
             PackageManager.COMPONENT_ENABLED_STATE_DEFAULT
         } else {
@@ -83,6 +83,6 @@ object AppSettings {
         val pm = appContext.packageManager
         if (pm.getComponentEnabledSetting(component) == state) return
         runCatching { pm.setComponentEnabledSetting(component, state, PackageManager.DONT_KILL_APP) }
-            .onFailure { GearslipLog.e("could not switch the USB connection ${if (value) "on" else "off"}", it) }
+            .onFailure { MyCarLog.e("could not switch the USB connection ${if (value) "on" else "off"}", it) }
     }
 }

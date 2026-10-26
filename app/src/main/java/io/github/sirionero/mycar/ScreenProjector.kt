@@ -47,15 +47,15 @@ class ScreenProjector(private val context: Context) {
 
     /**
      * [name] names the virtual display so the two callers are told apart from outside the app
-     * (`dumpsys display`): the real car session keeps "gearslip-projection", the on-phone bench
-     * preview passes "gearslip-preview".
+     * (`dumpsys display`): the real car session keeps "mycar-projection", the on-phone bench
+     * preview passes "mycar-preview".
      */
     fun start(
         surface: Surface,
         width: Int,
         height: Int,
         densityDpi: Int,
-        name: String = "gearslip-projection",
+        name: String = "mycar-projection",
         content: @Composable () -> Unit,
     ) {
         stop()
@@ -74,11 +74,11 @@ class ScreenProjector(private val context: Context) {
                     DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY,
             )
         } catch (t: Throwable) {
-            GearslipLog.e("createVirtualDisplay failed", t)
+            MyCarLog.e("createVirtualDisplay failed", t)
             null
         }
         if (display == null) {
-            GearslipLog.e("createVirtualDisplay returned null - cannot project")
+            MyCarLog.e("createVirtualDisplay returned null - cannot project")
             return
         }
         virtualDisplay = display
@@ -103,7 +103,7 @@ class ScreenProjector(private val context: Context) {
         owner = treeOwner
         root = decor
 
-        GearslipLog.i("projecting ${width}x$height @ ${densityDpi}dpi")
+        MyCarLog.i("projecting ${width}x$height @ ${densityDpi}dpi")
     }
 
     /** The projected display's id, for placing other apps' activities on it. */
@@ -139,10 +139,10 @@ class ScreenProjector(private val context: Context) {
             val options = ActivityOptions.makeBasic().setLaunchDisplayId(display.display.displayId)
             presentation?.hide()
             context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), options.toBundle())
-            GearslipLog.i("launched ${intent.component ?: intent.`package`} on display ${display.display.displayId}")
+            MyCarLog.i("launched ${intent.component ?: intent.`package`} on display ${display.display.displayId}")
             true
         } catch (t: Throwable) {
-            GearslipLog.e("launchApp failed", t)
+            MyCarLog.e("launchApp failed", t)
             presentation?.show()
             false
         }
@@ -202,7 +202,7 @@ class ScreenProjector(private val context: Context) {
         // touch mode Compose's buttons refuse focus, so the knob had nothing to move between.
         if (target.isInTouchMode) {
             target.requestFocusFromTouch()
-            GearslipLog.i("keys: left touch mode for the knob/D-pad (now in touch mode: ${target.isInTouchMode})")
+            MyCarLog.i("keys: left touch mode for the knob/D-pad (now in touch mode: ${target.isInTouchMode})")
         }
         // Nothing on the display takes keys until something in it holds focus.
         if (target.findFocus() == null) target.requestFocus()

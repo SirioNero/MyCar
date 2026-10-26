@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -58,7 +58,7 @@ object Weather {
     private val flow = MutableStateFlow<WeatherState>(WeatherState.Loading)
     val state: StateFlow<WeatherState> = flow
 
-    private val io = Executors.newSingleThreadExecutor { Thread(it, "gearslip-weather").apply { isDaemon = true } }
+    private val io = Executors.newSingleThreadExecutor { Thread(it, "mycar-weather").apply { isDaemon = true } }
 
     private var placeCache: Pair<String, String>? = null // rounded "lat,lon" to place name
 
@@ -85,12 +85,12 @@ object Weather {
         }
         val data = runCatching { fetch(context, location) }
             // Only the kind of error: some messages carry the request URL, and that holds the location.
-            .onFailure { GearslipLog.w("weather fetch failed: ${it.javaClass.simpleName}") }
+            .onFailure { MyCarLog.w("weather fetch failed: ${it.javaClass.simpleName}") }
             .getOrNull()
         if (data != null) {
             flow.value = WeatherState.Ready(data)
             // No place name: logs get shared in bug reports.
-            GearslipLog.i("weather: loaded")
+            MyCarLog.i("weather: loaded")
         }
         else if (flow.value !is WeatherState.Ready) flow.value = WeatherState.Unavailable("Could not reach the weather service.")
     }
@@ -117,7 +117,7 @@ object Weather {
         runCatching {
             manager.getCurrentLocation(provider, null, io) { fresh = it; latch.countDown() }
             latch.await(FIX_TIMEOUT_S, TimeUnit.SECONDS)
-        }.onFailure { GearslipLog.w("weather: fresh fix failed: ${it.message}") }
+        }.onFailure { MyCarLog.w("weather: fresh fix failed: ${it.message}") }
         // A stale fix still gives the right city, which is all a forecast needs.
         return fresh ?: known
     }

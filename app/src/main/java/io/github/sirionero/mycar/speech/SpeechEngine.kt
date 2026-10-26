@@ -12,7 +12,7 @@ import android.media.ToneGenerator
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.audio.CarMic
 import com.k2fsa.sherpa.onnx.EndpointConfig
 import com.k2fsa.sherpa.onnx.EndpointRule
@@ -65,12 +65,12 @@ object SpeechEngine {
     /** The car plays what the phone sends a moment late; waiting this out keeps the beep off the recording. */
     private const val CUE_TAIL_MS = 250L
 
-    private val worker = Executors.newSingleThreadExecutor { Thread(it, "gearslip-speech") }
+    private val worker = Executors.newSingleThreadExecutor { Thread(it, "mycar-speech") }
     /**
      * The final model takes seconds to load. On [worker], the first press after connecting
      * waited behind it before listening at all; here it loads while the driver talks.
      */
-    private val finalWorker = Executors.newSingleThreadExecutor { Thread(it, "gearslip-speech-final") }
+    private val finalWorker = Executors.newSingleThreadExecutor { Thread(it, "mycar-speech-final") }
     private val finalLock = Object()
     private val main = Handler(Looper.getMainLooper())
 
@@ -104,7 +104,7 @@ object SpeechEngine {
                 finalRecognizer?.release()
                 finalRecognizer = null
                 loadedFinal = null
-                GearslipLog.i("speech: unloaded ${model.label} $why")
+                MyCarLog.i("speech: unloaded ${model.label} $why")
             }
         }
     }
@@ -164,7 +164,7 @@ object SpeechEngine {
                 post(onListening)
                 stream(app, r, id, onSpeaking = { post(onSpeaking) }, onPartial = { post { onPartial(it) } }, onStopped = { post(onHeard) })
             } catch (t: Throwable) {
-                GearslipLog.e("speech: listening failed", t)
+                MyCarLog.e("speech: listening failed", t)
                 return@execute post { onError("The microphone isn't available right now.") }
             } finally {
                 VoiceFocus.release()
@@ -236,7 +236,7 @@ object SpeechEngine {
             s.release()
         }
         // Under 1.0 keeps up with the driver; over it, the words fall behind the voice.
-        GearslipLog.i(
+        MyCarLog.i(
             "speech: $audioMs ms of audio, decoding took $decodeMs ms " +
                 "(${"%.2f".format(decodeMs.toFloat() / max(1L, audioMs))} of real time)",
         )
@@ -245,7 +245,7 @@ object SpeechEngine {
         // Parakeet's in several seconds.
         val wanted = SpeechModels.final.value
         if (wanted == null || finalRecognizer == null || loadedFinal != wanted) {
-            if (wanted != null) GearslipLog.i("speech: ${wanted.label} isn't loaded yet, keeping the live words")
+            if (wanted != null) MyCarLog.i("speech: ${wanted.label} isn't loaded yet, keeping the live words")
             phrase.fill(0f)
             return last
         }
@@ -265,7 +265,7 @@ object SpeechEngine {
             }
         }
         phrase.fill(0f)
-        GearslipLog.i("speech: the final read took ${SystemClock.uptimeMillis() - started} ms")
+        MyCarLog.i("speech: the final read took ${SystemClock.uptimeMillis() - started} ms")
         if (reread.isEmpty()) return last
         if (reread != last) onPartial(reread)
         return reread
@@ -306,9 +306,9 @@ object SpeechEngine {
         }.onSuccess {
             finalRecognizer = it
             loadedFinal = model
-            GearslipLog.i("speech: loaded ${model.label} in ${SystemClock.uptimeMillis() - started} ms")
+            MyCarLog.i("speech: loaded ${model.label} in ${SystemClock.uptimeMillis() - started} ms")
         }.onFailure {
-            GearslipLog.e("speech: couldn't load ${model.label}", it)
+            MyCarLog.e("speech: couldn't load ${model.label}", it)
         }.getOrNull()
     }
 
@@ -343,9 +343,9 @@ object SpeechEngine {
         }.onSuccess {
             recognizer = it
             loadedModel = model
-            GearslipLog.i("speech: loaded ${model.label} in ${SystemClock.uptimeMillis() - started} ms")
+            MyCarLog.i("speech: loaded ${model.label} in ${SystemClock.uptimeMillis() - started} ms")
         }.onFailure {
-            GearslipLog.e("speech: couldn't load ${model.label}", it)
+            MyCarLog.e("speech: couldn't load ${model.label}", it)
         }.getOrNull()
     }
 
@@ -390,7 +390,7 @@ object SpeechEngine {
         )
         check(recorder.state == AudioRecord.STATE_INITIALIZED) { "AudioRecord didn't initialize" }
         recorder.startRecording()
-        GearslipLog.i("speech: listening through the phone's microphone")
+        MyCarLog.i("speech: listening through the phone's microphone")
         return object : Mic {
             override fun read(frame: ShortArray) = recorder.read(frame, 0, frame.size)
             override fun close() {
@@ -411,10 +411,10 @@ object SpeechEngine {
         val first = car.read(CAR_FIRST_AUDIO_MS)
         if (first == null) {
             car.stop()
-            GearslipLog.w("speech: the car's microphone sent nothing - using the phone's")
+            MyCarLog.w("speech: the car's microphone sent nothing - using the phone's")
             return null
         }
-        GearslipLog.i("speech: listening through the car's microphone")
+        MyCarLog.i("speech: listening through the car's microphone")
         return object : Mic {
             var pending = first
             var at = 0

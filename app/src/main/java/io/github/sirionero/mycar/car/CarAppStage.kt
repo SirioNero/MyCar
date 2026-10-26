@@ -37,7 +37,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.host.CarAppConnection
 
 /**
@@ -166,13 +166,13 @@ private fun SurfaceHost(
                         width: Int,
                         height: Int,
                     ) {
-                        GearslipLog.i("stage: surface ready at ${width}x$height")
+                        MyCarLog.i("stage: surface ready at ${width}x$height")
                         onSize(width to height)
                         connection.attachSurface(holder.surface, width, height, frame.densityDpi)
                     }
 
                     override fun surfaceDestroyed(holder: SurfaceHolder) {
-                        GearslipLog.i("stage: surface destroyed")
+                        MyCarLog.i("stage: surface destroyed")
                         // Only this view's own surface: a replaced view's teardown can land after
                         // its successor has already lent the app a new one.
                         connection.detachSurface(holder.surface)

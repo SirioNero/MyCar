@@ -16,7 +16,7 @@ import androidx.car.app.navigation.model.MapWithContentTemplate
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate
 import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * "Navigate to X" the way Android Auto does it: straight onto a route, no list to pick from.
@@ -27,7 +27,7 @@ import io.github.sirionero.mycar.GearslipLog
  * gives up after [WINDOW_MS], or as soon as the driver taps anything themselves.
  */
 internal class AutoRoute {
-    private val log = GearslipLog.tagged("route")
+    private val log = MyCarLog.tagged("route")
     private var until = 0L
     private var pickedRow = false
 

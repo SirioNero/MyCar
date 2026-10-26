@@ -2,7 +2,7 @@ package io.github.sirionero.mycar.call
 
 import android.telecom.Call
 import android.telecom.CallScreeningService
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Sees every incoming call before it rings, so the car screen can show who is calling and
@@ -15,7 +15,7 @@ import io.github.sirionero.mycar.GearslipLog
  * whichever comes first. Answering a call that has already passed this point still works, since
  * [CarCalls.answer] goes through the ordinary ringing-call API rather than through screening.
  */
-class GearslipCallScreening : CallScreeningService() {
+class MyCarCallScreening : CallScreeningService() {
 
     override fun onScreenCall(callDetails: Call.Details) {
         val number = callDetails.handle?.schemeSpecificPart
@@ -33,7 +33,7 @@ class GearslipCallScreening : CallScreeningService() {
                             .setSkipNotification(false)
                             .build(),
                     )
-                }.onFailure { GearslipLog.w("calls: screening response failed: ${it.message}") }
+                }.onFailure { MyCarLog.w("calls: screening response failed: ${it.message}") }
             }
         }
 

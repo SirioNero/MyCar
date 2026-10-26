@@ -90,7 +90,7 @@ import androidx.compose.ui.unit.sp
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.car.Prefetch
 import io.github.sirionero.mycar.host.AndroidAuto
-import io.github.sirionero.mycar.notify.GearslipNotificationListener
+import io.github.sirionero.mycar.notify.MyCarNotificationListener
 import io.github.sirionero.mycar.stats.UsageStats
 import androidx.compose.runtime.DisposableEffect
 
@@ -142,10 +142,10 @@ private fun hasCallScreeningRole(context: Context): Boolean {
     return runCatching { roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) }.getOrDefault(false)
 }
 
-/** Whether the driver has already granted Gearslip's [GearslipNotificationListener] access. */
+/** Whether the driver has already granted Gearslip's [MyCarNotificationListener] access. */
 private fun hasNotificationAccess(context: Context): Boolean {
     val manager = context.getSystemService(NotificationManager::class.java) ?: return false
-    val component = ComponentName(context, GearslipNotificationListener::class.java)
+    val component = ComponentName(context, MyCarNotificationListener::class.java)
     return runCatching { manager.isNotificationListenerAccessGranted(component) }.getOrDefault(false)
 }
 

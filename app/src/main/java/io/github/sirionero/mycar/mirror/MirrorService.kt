@@ -13,7 +13,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Holds the screen-capture session for [PhoneMirror].
@@ -37,7 +37,7 @@ class MirrorService : Service() {
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
         val data = intent?.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
         if (data == null) {
-            GearslipLog.e("mirror service started without a consent result")
+            MyCarLog.e("mirror service started without a consent result")
             stopSelf()
             return START_NOT_STICKY
         }
@@ -50,7 +50,7 @@ class MirrorService : Service() {
         val media: MediaProjection? = try {
             getSystemService(MediaProjectionManager::class.java).getMediaProjection(resultCode, data)
         } catch (t: Throwable) {
-            GearslipLog.e("getMediaProjection failed", t)
+            MyCarLog.e("getMediaProjection failed", t)
             null
         }
         if (media == null) {
@@ -91,7 +91,7 @@ class MirrorService : Service() {
     }
 
     companion object {
-        private const val CHANNEL = "gearslip_mirror"
+        private const val CHANNEL = "mycar_mirror"
         private const val NOTIFICATION_ID = 42
         private const val ACTION_STOP = "io.github.sirionero.mycar.STOP_MIRROR"
         private const val EXTRA_RESULT_CODE = "resultCode"

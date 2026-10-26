@@ -1,7 +1,7 @@
 package io.github.sirionero.mycar.media
 
 import android.content.Context
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -47,7 +47,7 @@ object Lyrics {
         val result = withContext(Dispatchers.IO) {
             runCatching {
                 exact(title, artist, album, durationMs) ?: search(title, artist)
-            }.onFailure { GearslipLog.w("lyrics: lookup failed: ${it.message}") }.getOrNull()
+            }.onFailure { MyCarLog.w("lyrics: lookup failed: ${it.message}") }.getOrNull()
         }
         synchronized(cache) { cache[key] = result }
         if (result != null) withContext(Dispatchers.IO) { writeDisk(context, key, result) }
@@ -81,7 +81,7 @@ object Lyrics {
             }
             val json = JSONObject().put("synced", result.synced).put("lines", lines)
             cacheFile(context, key).writeText(json.toString())
-        }.onFailure { GearslipLog.w("lyrics: could not write disk cache: ${it.message}") }
+        }.onFailure { MyCarLog.w("lyrics: could not write disk cache: ${it.message}") }
     }
 
     private fun exact(title: String, artist: String, album: String, durationMs: Long): LyricsResult? {

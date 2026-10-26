@@ -14,7 +14,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.car.app.CarToast
 import io.github.sirionero.mycar.AppSettings
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 import io.github.sirionero.mycar.ServiceDiscovery
 import io.github.sirionero.mycar.Wire
@@ -46,7 +46,7 @@ object CarBluetooth {
     private val _prompt = MutableStateFlow(Prompt.NONE)
     val prompt: StateFlow<Prompt> = _prompt
 
-    private val log = GearslipLog.tagged("bluetooth")
+    private val log = MyCarLog.tagged("bluetooth")
     private val main = Handler(Looper.getMainLooper())
     private var appContext: Context? = null
 

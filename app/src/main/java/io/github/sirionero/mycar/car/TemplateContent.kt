@@ -58,7 +58,7 @@ import androidx.car.app.model.signin.SignInTemplate
 import androidx.car.app.media.model.MediaPlaybackTemplate
 import androidx.car.app.OnDoneCallback
 import androidx.car.app.serialization.Bundleable
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.host.isDrawable
 import io.github.sirionero.mycar.host.inputChanged
 import io.github.sirionero.mycar.host.inputSubmitted
@@ -552,7 +552,7 @@ private fun SectionRows(section: Section<*>, cacheKey: String) {
         val delegate = section.itemsDelegate
         val sizeResult = runCatching { delegate.size }
         val size = sizeResult.getOrDefault(0)
-        sizeResult.onFailure { GearslipLog.w("host: section.itemsDelegate.size threw: ${it.javaClass.simpleName}: ${it.message}") }
+        sizeResult.onFailure { MyCarLog.w("host: section.itemsDelegate.size threw: ${it.javaClass.simpleName}: ${it.message}") }
         if (size <= 0) return@LaunchedEffect
         runCatching {
             delegate.requestItemRange(0, size - 1, object : OnDoneCallback {
@@ -565,9 +565,9 @@ private fun SectionRows(section: Section<*>, cacheKey: String) {
                 }
 
                 override fun onFailure(response: Bundleable) =
-                    GearslipLog.w("host: a section refused to hand over its items")
+                    MyCarLog.w("host: a section refused to hand over its items")
             })
-        }.onFailure { GearslipLog.w("host: could not fetch section items: ${it.message}") }
+        }.onFailure { MyCarLog.w("host: could not fetch section items: ${it.message}") }
     }
 
     if (items.isEmpty()) {

@@ -17,7 +17,7 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.os.Process
-import io.github.sirionero.mycar.GearslipLog
+import io.github.sirionero.mycar.MyCarLog
 import kotlin.math.abs
 
 /**
@@ -50,8 +50,8 @@ class AudioCaptureService : Service() {
             getSystemService(android.media.AudioManager::class.java)
                 .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_MUTE, 0)
             mutedPhone = true
-            GearslipLog.i("audio: muted the phone's speaker for the drive")
-        }.onFailure { GearslipLog.w("audio: could not mute the phone: ${it.message}") }
+            MyCarLog.i("audio: muted the phone's speaker for the drive")
+        }.onFailure { MyCarLog.w("audio: could not mute the phone: ${it.message}") }
     }
 
     private fun unmutePhone() {
@@ -60,8 +60,8 @@ class AudioCaptureService : Service() {
         runCatching {
             getSystemService(android.media.AudioManager::class.java)
                 .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
-            GearslipLog.i("audio: gave the phone's speaker back")
-        }.onFailure { GearslipLog.w("audio: could not unmute the phone: ${it.message}") }
+            MyCarLog.i("audio: gave the phone's speaker back")
+        }.onFailure { MyCarLog.w("audio: could not unmute the phone: ${it.message}") }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -79,7 +79,7 @@ class AudioCaptureService : Service() {
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
         val data = intent?.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
         if (data == null) {
-            GearslipLog.e("audio: started without a consent result")
+            MyCarLog.e("audio: started without a consent result")
             CarAudio.denied()
             stopSelf()
             return START_NOT_STICKY
@@ -96,7 +96,7 @@ class AudioCaptureService : Service() {
         projection = try {
             getSystemService(MediaProjectionManager::class.java).getMediaProjection(resultCode, data)
         } catch (t: Throwable) {
-            GearslipLog.e("audio: getMediaProjection failed", t)
+            MyCarLog.e("audio: getMediaProjection failed", t)
             null
         }
         val token = projection
@@ -107,7 +107,7 @@ class AudioCaptureService : Service() {
         }
         token.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
-                GearslipLog.w("audio: projection stopped")
+                MyCarLog.w("audio: projection stopped")
                 stopSelf()
             }
         }, null)
@@ -140,7 +140,7 @@ class AudioCaptureService : Service() {
                 .setBufferSizeInBytes(maxOf(minimum, CHUNK_BYTES * BUFFER_CHUNKS))
                 .build()
         } catch (t: Throwable) {
-            GearslipLog.e("audio: could not set up playback capture", t)
+            MyCarLog.e("audio: could not set up playback capture", t)
             CarAudio.denied()
             stopSelf()
             return
@@ -159,13 +159,13 @@ class AudioCaptureService : Service() {
             var warnedSilent = false
             try {
                 record.startRecording()
-                GearslipLog.i("audio: capturing media playback at ${rate}Hz x$channels")
+                MyCarLog.i("audio: capturing media playback at ${rate}Hz x$channels")
                 mutePhone()
                 CarAudio.captureStarted()
                 while (reading) {
                     val n = record.read(buffer, 0, buffer.size)
                     if (n <= 0) {
-                        GearslipLog.e("audio: AudioRecord.read returned $n - capture has stopped")
+                        MyCarLog.e("audio: AudioRecord.read returned $n - capture has stopped")
                         break
                     }
                     for (i in 0 until n - 1 step 2) {
@@ -176,7 +176,7 @@ class AudioCaptureService : Service() {
                     val now = System.currentTimeMillis()
                     val level = peak / 32768f
                     if (now - heardAt >= LEVEL_LOG_MS) {
-                        GearslipLog.i("audio: peak %.3f".format(level))
+                        MyCarLog.i("audio: peak %.3f".format(level))
                         heardAt = now
                         peak = 0
                     }
@@ -184,7 +184,7 @@ class AudioCaptureService : Service() {
                     // silence. Say so, because the symptom is identical to a broken car link.
                     if (!everHeard && !warnedSilent && now - startedAt >= SILENCE_MS) {
                         warnedSilent = true
-                        GearslipLog.w(
+                        MyCarLog.w(
                             "audio: ${SILENCE_MS / 1000}s of capture and every sample is zero. " +
                                 "Either nothing is playing, or the app does not allow its audio " +
                                 "to be captured.",
@@ -193,14 +193,14 @@ class AudioCaptureService : Service() {
                     CarAudio.deliver(buffer, n, level)
                 }
             } catch (t: Throwable) {
-                GearslipLog.e("audio: capture loop ended", t)
+                MyCarLog.e("audio: capture loop ended", t)
             } finally {
                 runCatching { record.stop() }
                 record.release()
                 unmutePhone()
                 CarAudio.captureStopped()
             }
-        }, "gearslip-audio").apply { isDaemon = true; start() }
+        }, "mycar-audio").apply { isDaemon = true; start() }
     }
 
     override fun onDestroy() {
@@ -236,7 +236,7 @@ class AudioCaptureService : Service() {
     }
 
     companion object {
-        private const val CHANNEL = "gearslip_audio"
+        private const val CHANNEL = "mycar_audio"
         private const val NOTIFICATION_ID = 43
         private const val ACTION_STOP = "io.github.sirionero.mycar.STOP_AUDIO"
         private const val EXTRA_RESULT_CODE = "resultCode"
