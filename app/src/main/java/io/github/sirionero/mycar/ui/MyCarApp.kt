@@ -53,7 +53,7 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             needsCertSetup -> Screen.CERT_SETUP
             needsSetupGuide -> Screen.SETUP_GUIDE
             // Set up before usage notes existed: ask once, on the setup guide's own page.
-            !UsageStats.asked(context) -> Screen.USAGE_NOTES
+            UsageStats.sends && !UsageStats.asked(context) -> Screen.USAGE_NOTES
             else -> Screen.HOME
         }
     }

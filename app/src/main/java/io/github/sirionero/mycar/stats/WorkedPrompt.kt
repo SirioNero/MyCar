@@ -30,7 +30,7 @@ object WorkedPrompt {
     fun pending(context: Context): StateFlow<String?> {
         if (!loaded) {
             loaded = true
-            flow.value = saved(context)?.takeUnless { UsageStats.asked(context) }?.let(::carName)
+            flow.value = saved(context)?.takeUnless { !UsageStats.sends || UsageStats.asked(context) }?.let(::carName)
         }
         return flow
     }

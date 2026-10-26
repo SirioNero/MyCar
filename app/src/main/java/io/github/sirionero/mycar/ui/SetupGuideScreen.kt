@@ -379,7 +379,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
 
     // --- The very end, every time: usage notes. On a replay, the switch shows what was
     // chosen before.
-    add(usageNotesPage(context))
+    if (UsageStats.sends) add(usageNotesPage(context))
 }
 
 /**
