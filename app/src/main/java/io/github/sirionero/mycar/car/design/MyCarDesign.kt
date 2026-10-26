@@ -9,6 +9,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -222,13 +223,14 @@ fun myCarShapes(): Shapes = Shapes(
     extraLarge = RoundedCornerShape(MyCarRadius.Sheet),
 )
 
-/** The car UI's Material theme: myCar's colours (dark unless [dark] is false), Inter, and its shapes. */
+/**
+ * The car UI's Material theme: myCar's colours (dark unless [dark] is false), Inter, and its shapes.
+ * Each is built once and kept, so a recomposition of the root doesn't hand every screen a new one.
+ */
 @Composable
 fun MyCarCarTheme(dark: Boolean, content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = if (dark) myCarDarkColors() else myCarLightColors(),
-        typography = myCarTypography(),
-        shapes = myCarShapes(),
-        content = content,
-    )
+    val colors = remember(dark) { if (dark) myCarDarkColors() else myCarLightColors() }
+    val typography = remember { myCarTypography() }
+    val shapes = remember { myCarShapes() }
+    MaterialTheme(colorScheme = colors, typography = typography, shapes = shapes, content = content)
 }
