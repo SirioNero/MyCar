@@ -15,7 +15,8 @@ shoot() {
     adb shell am force-stop "$PKG"
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
-    adb shell am start -n "$ACT" --ei w "$2" --ei h "$3" --ei dpi "$4" --es taps "$5" --ez skipIntro true
+    # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
+    adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true --es taps '$5'"
     sleep 25
     mkdir -p "previews/$1"
     adb pull "$FILES/." "previews/$1/" || echo "nothing to pull for $1"
@@ -23,7 +24,8 @@ shoot() {
     adb logcat -d -b crash > "previews/$1/crash.txt" 2>&1
 }
 
-# Dock taps: the app grid button at the foot, then the clock at the top (dashboard).
+# Shots: Home, then the app grid (dock's foot), then the dashboard (the clock at its top).
 shoot 800x480 800 480 160 "48,436;48,44"
 shoot 1920x720 1920 720 240 "72,654;72,66"
+# The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews
