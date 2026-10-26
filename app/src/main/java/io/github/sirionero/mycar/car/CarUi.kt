@@ -69,7 +69,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.sirionero.mycar.R
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
 import io.github.sirionero.mycar.car.design.MyCarCarTheme
+import io.github.sirionero.mycar.car.design.MyCarMotion
 import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
 import io.github.sirionero.mycar.car.theme.GsIconButton
@@ -227,12 +231,25 @@ fun CarUi() {
                         // while the nav app redrew on a new one.
                         CarHome()
                         if (screen != CarScreen.Home) {
+                            // Each new screen settles in: a short fade and a slight grow, over an
+                            // opaque background that's there at once, so the map never flashes
+                            // through between two screens.
+                            val enter = remember(screen) { Animatable(0f) }
+                            LaunchedEffect(screen) {
+                                enter.animateTo(1f, tween(MyCarMotion.ScreenMs, easing = MyCarMotion.Decelerate))
+                            }
                             Box(
                                 Modifier
                                     .fillMaxSize()
                                     .background(MaterialTheme.colorScheme.background)
                                     // Keeps touches that miss this screen's controls off the map.
-                                    .pointerInput(Unit) { detectTapGestures { } },
+                                    .pointerInput(Unit) { detectTapGestures { } }
+                                    .graphicsLayer {
+                                        alpha = enter.value
+                                        val grow = SCREEN_ENTER_SCALE + (1f - SCREEN_ENTER_SCALE) * enter.value
+                                        scaleX = grow
+                                        scaleY = grow
+                                    },
                             ) {
                                 when (screen) {
                                     CarScreen.Home -> Unit
@@ -355,6 +372,9 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
 }
 
 private const val APP_START_TIMEOUT_MS = 15_000L
+
+/** How small a screen starts as it settles in, before growing to full size. */
+private const val SCREEN_ENTER_SCALE = 0.97f
 
 /** What a car app that won't run under myCar gets instead of a loading screen that never ends. */
 @Composable
