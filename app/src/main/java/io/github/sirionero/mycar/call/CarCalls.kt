@@ -52,6 +52,8 @@ object CarCalls {
     /** The phone's last call state, as [TelephonyCallback] reported it. */
     private var phoneState = TelephonyManager.CALL_STATE_IDLE
     private var numberWatcher: BroadcastReceiver? = null
+    /** Answer was tapped while the call was still being screened: pick it up once it rings. */
+    private var answerWhenRinging = false
     private var watcherContext: Context? = null
 
     fun start(context: Context) {
@@ -104,6 +106,7 @@ object CarCalls {
         watcher = null
         pendingRespond = null
         ringingCaller = null
+        answerWhenRinging = false
         phoneState = TelephonyManager.CALL_STATE_IDLE
         _state.value = CallUiState.None
     }
@@ -114,10 +117,12 @@ object CarCalls {
             TelephonyManager.CALL_STATE_IDLE -> {
                 pendingRespond = null
                 ringingCaller = null
+                answerWhenRinging = false
                 _state.value = CallUiState.None
             }
             TelephonyManager.CALL_STATE_OFFHOOK -> {
                 pendingRespond = null
+                answerWhenRinging = false
                 _state.value = CallUiState.Active(ringingCaller)
             }
             TelephonyManager.CALL_STATE_RINGING -> {
@@ -125,6 +130,10 @@ object CarCalls {
                 // card now, and the number broadcast fills in who it is.
                 val caller = ringingCaller ?: Caller("", null).also { ringingCaller = it }
                 _state.value = CallUiState.Ringing(caller, pendingRespond != null)
+                if (answerWhenRinging) {
+                    answerWhenRinging = false
+                    watcherContext?.let(::acceptRingingCall)
+                }
             }
         }
     }
@@ -154,6 +163,7 @@ object CarCalls {
             if (phoneState == TelephonyManager.CALL_STATE_IDLE && pendingRespond == null && _state.value is CallUiState.Ringing) {
                 MyCarLog.i("calls: the call never rang - it was hung up while being screened")
                 ringingCaller = null
+                answerWhenRinging = false
                 _state.value = CallUiState.None
             }
         }
@@ -170,6 +180,20 @@ object CarCalls {
     }
 
     fun answer(context: Context) {
+        // Still being screened, the call hasn't rung yet and there is nothing to pick up: let it
+        // through now, and pick it up the moment it rings.
+        val respond = pendingRespond
+        if (respond != null) {
+            pendingRespond = null
+            answerWhenRinging = true
+            runCatching { respond(true) }.onFailure { MyCarLog.w("calls: letting the call through failed: ${it.message}") }
+            expectRinging()
+            return
+        }
+        acceptRingingCall(context)
+    }
+
+    private fun acceptRingingCall(context: Context) {
         if (context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) != PackageManager.PERMISSION_GRANTED) {
             MyCarLog.w("calls: answer needs ANSWER_PHONE_CALLS, which was never granted")
             return
