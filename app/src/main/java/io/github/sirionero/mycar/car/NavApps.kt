@@ -232,9 +232,9 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                 ) {
                     Text(
                         when {
-                            isPinned -> "Unpin from nav bar"
-                            barFull -> "Nav bar is full (${CarSettings.MAX_PINNED} pinned)"
-                            else -> "Pin to nav bar"
+                            isPinned -> "Unpin from the dock"
+                            barFull -> "The dock is full (${CarSettings.MAX_PINNED} pinned)"
+                            else -> "Pin to the dock"
                         },
                         style = MaterialTheme.typography.titleMedium,
                     )

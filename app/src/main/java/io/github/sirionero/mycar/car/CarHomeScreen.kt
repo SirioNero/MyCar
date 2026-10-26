@@ -194,7 +194,7 @@ private fun DockedPlayer(now: NowPlaying, modifier: Modifier) {
                         art?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
                     }
                     GsIconButton(
-                        Icons.Filled.Close, "Back to the nav bar", navigator::closeSidePanel,
+                        Icons.Filled.Close, "Close the player", navigator::closeSidePanel,
                         Modifier.align(Alignment.TopEnd), size = 36.dp, iconSize = 20.dp,
                     )
                 }
