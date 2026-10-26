@@ -47,12 +47,16 @@ object PhoneAssistants {
     class App(val packageName: String, val label: String)
 
     /**
-     * What an assistant answers to, voice first: the hands-free voice search made for cars and
-     * headsets, which starts listening at once, then the voice command and voice assist keys.
-     * Plain ASSIST comes last - Google's and Gemini's open their typed chat for it, not the voice
-     * the driver pressed the button for.
+     * The requests that open an assistant listening: the hands-free voice search made for cars and
+     * headsets, then the voice command and voice assist keys. Plain ASSIST isn't one of them -
+     * Google's and Gemini's open their typed chat for it - so it's only tried once none of these
+     * found a taker.
      */
-    private val VOICE_FIRST = listOf(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE, Intent.ACTION_VOICE_COMMAND, VOICE_ASSIST, Intent.ACTION_ASSIST)
+    private val VOICE = listOf(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE, Intent.ACTION_VOICE_COMMAND, VOICE_ASSIST)
+
+    /** Gemini's app answers only plain ASSIST, with its typed chat; its voice lives in the Google app. */
+    private const val GEMINI = "com.google.android.apps.bard"
+    private const val GOOGLE = "com.google.android.googlequicksearchbox"
 
     /** Long-press-home's voice assistant: not public in the SDK, but sent and answered all the same. */
     private const val VOICE_ASSIST = "android.intent.action.VOICE_ASSIST"
@@ -64,7 +68,7 @@ object PhoneAssistants {
     fun installed(context: Context): List<App> {
         val pm = context.packageManager
         val packages = LinkedHashSet<String>()
-        VOICE_FIRST.forEach { action ->
+        (VOICE + Intent.ACTION_ASSIST).forEach { action ->
             pm.queryIntentActivities(Intent(action), PackageManager.MATCH_DEFAULT_ONLY)
                 .mapTo(packages) { it.activityInfo.packageName }
         }
@@ -89,19 +93,30 @@ object PhoneAssistants {
      * could be started: the app was uninstalled, say, and the caller falls back to myCar's own.
      */
     fun launch(context: Context, choice: String): Boolean {
-        if (choice != PHONE) return start(context, choice)
-        // The phone's own: aimed at the app that holds the assistant role, when Android says which,
-        // so the voice requests reach it rather than whichever app answers them first.
-        val default = defaultAssistant(context)
-        return start(context, default) || (default != null && start(context, null))
+        // The phone's own is aimed at the app that holds the assistant role, when Android says
+        // which, so the requests reach it rather than whichever app answers them first.
+        val target = if (choice == PHONE) defaultAssistant(context) else choice
+        // Voice wherever it can be had first: the assistant's own voice requests, the Google app's
+        // for Gemini, then (for the phone's own) any app's. The typed chat only after that.
+        val voice = buildList {
+            add(target)
+            if (target == GEMINI) add(GOOGLE)
+            if (choice == PHONE && target != null) add(null)
+        }.distinct()
+        if (voice.any { start(context, it, VOICE) }) return true
+        val typed = buildList {
+            add(target)
+            if (choice == PHONE && target != null) add(null)
+        }.distinct()
+        return typed.any { start(context, it, listOf(Intent.ACTION_ASSIST)) }
     }
 
-    /** Sends [app] - or, with null, whichever app answers - the first voice request it takes. */
-    private fun start(context: Context, app: String?): Boolean {
+    /** Sends [app] - or, with null, whichever app answers - the first of [actions] it takes. */
+    private fun start(context: Context, app: String?, actions: List<String>): Boolean {
         val pm = context.packageManager
-        for (action in VOICE_FIRST) {
+        for (action in actions) {
             val intent = Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // Asked for anyway, to say it's voice the driver wants rather than the keyboard.
+            // Asked for all the same, to say it's voice the driver wants rather than the keyboard.
             if (action == Intent.ACTION_ASSIST) intent.putExtra(Intent.EXTRA_ASSIST_INPUT_HINT_KEYBOARD, false)
             app?.let(intent::setPackage)
             val resolved = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) ?: continue
@@ -126,7 +141,7 @@ object PhoneAssistants {
 
 /**
  * The package of the phone's default assistant - the one the corner swipe opens - or null when
- * Android won't say. Gemini answers through the Google app, so that's the one named for it.
+ * Android won't say.
  */
 private fun defaultAssistant(context: Context): String? = listOf("assistant", "voice_interaction_service").firstNotNullOfOrNull { key ->
     runCatching { Settings.Secure.getString(context.contentResolver, key) }.getOrNull()
