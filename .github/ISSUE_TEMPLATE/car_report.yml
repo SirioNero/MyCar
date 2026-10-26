@@ -1,5 +1,5 @@
 name: Car report
-description: Tell us whether Gearslip works in your car, so others know before they install.
+description: Tell us whether MyCar works in your car, so others know before they install.
 labels: ["car report"]
 body:
   - type: markdown
@@ -61,5 +61,5 @@ body:
     attributes:
       label: Log
       description: |
-        Needed if the car doesn't work. On the phone, open Logs from Gearslip's home screen and tap Share log. Drag the file here.
+        Needed if the car doesn't work. On the phone, open Logs from MyCar's home screen and tap Share log. Drag the file here.
       placeholder: Drop the log file here.

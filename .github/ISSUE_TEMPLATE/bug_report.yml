@@ -1,11 +1,11 @@
 name: Bug report
-description: Something in Gearslip broke or behaves wrong.
+description: Something in MyCar broke or behaves wrong.
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. Check the [open issues](https://github.com/twinksoftware/gearslip/issues) first, in case someone has already reported it.
+        Thanks for reporting. Check the [open issues](https://github.com/sirionero/mycar/issues) first, in case someone has already reported it.
 
   - type: input
     id: car
@@ -52,8 +52,8 @@ body:
     attributes:
       label: Log
       description: |
-        On the phone, open Logs from Gearslip's home screen and tap Share log. Drag the file here.
-        The log records your phone, its Android version, the Gearslip version, and why the connection ended.
+        On the phone, open Logs from MyCar's home screen and tap Share log. Drag the file here.
+        The log records your phone, its Android version, the MyCar version, and why the connection ended.
       placeholder: Drop the log file here.
     validations:
       required: true
