@@ -1,7 +1,10 @@
 package io.github.sirionero.mycar.call
 
 import android.Manifest
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Handler
@@ -48,6 +51,8 @@ object CarCalls {
     private var ringingCaller: Caller? = null
     /** The phone's last call state, as [TelephonyCallback] reported it. */
     private var phoneState = TelephonyManager.CALL_STATE_IDLE
+    private var numberWatcher: BroadcastReceiver? = null
+    private var watcherContext: Context? = null
 
     fun start(context: Context) {
         if (watcher != null) return
@@ -57,13 +62,44 @@ object CarCalls {
             override fun onCallStateChanged(state: Int) = onPhoneState(state)
         }
         runCatching { manager.registerTelephonyCallback(context.mainExecutor, callback) }
-            .onSuccess { telephony = manager; watcher = callback }
+            .onSuccess {
+                telephony = manager
+                watcher = callback
+                watchNumbers(context.applicationContext)
+            }
             .onFailure { MyCarLog.w("calls: could not watch call state: ${it.message}") }
+    }
+
+    /**
+     * The screening service only sees calls from numbers outside the contacts, so a contact's
+     * number comes from the phone-state broadcast instead. Android adds the number to it for
+     * apps holding READ_CALL_LOG, which setup asks for with the rest of the phone permissions.
+     */
+    private fun watchNumbers(app: Context) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.getStringExtra(TelephonyManager.EXTRA_STATE) != TelephonyManager.EXTRA_STATE_RINGING) return
+                @Suppress("DEPRECATION")
+                val number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+                if (number.isNullOrBlank() || number == ringingCaller?.number) return
+                val caller = Caller(number, lookUpName(context, number))
+                ringingCaller = caller
+                val shown = _state.value
+                if (shown is CallUiState.Ringing) _state.value = shown.copy(caller = caller)
+            }
+        }
+        // Exported because the telephony stack sends it; as a protected broadcast, no app can fake it.
+        runCatching { app.registerReceiver(receiver, IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED), Context.RECEIVER_EXPORTED) }
+            .onSuccess { numberWatcher = receiver; watcherContext = app }
+            .onFailure { MyCarLog.w("calls: could not watch incoming numbers: ${it.message}") }
     }
 
     fun stop() {
         val callback = watcher ?: return
         runCatching { telephony?.unregisterTelephonyCallback(callback) }
+        numberWatcher?.let { receiver -> runCatching { watcherContext?.unregisterReceiver(receiver) } }
+        numberWatcher = null
+        watcherContext = null
         telephony = null
         watcher = null
         pendingRespond = null
@@ -85,9 +121,10 @@ object CarCalls {
                 _state.value = CallUiState.Active(ringingCaller)
             }
             TelephonyManager.CALL_STATE_RINGING -> {
-                // The number itself only ever arrives through the screening service; if this
-                // fires first, the ringing card appears once incomingCall() catches up.
-                ringingCaller?.let { _state.value = CallUiState.Ringing(it, pendingRespond != null) }
+                // A contact's call skips screening, so its number may not be here yet: show the
+                // card now, and the number broadcast fills in who it is.
+                val caller = ringingCaller ?: Caller("", null).also { ringingCaller = it }
+                _state.value = CallUiState.Ringing(caller, pendingRespond != null)
             }
         }
     }
