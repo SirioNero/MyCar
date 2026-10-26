@@ -85,6 +85,9 @@ installed $XONOS && shoot xonos 1920 720 240 "$GRID_BUTTON;$(at xonos);$WAIT;$WA
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
 
+# The app grid with the wallpaper moving: the same screen shot 2.5s apart, to compare.
+EXTRA="--ez motion true" shoot motion 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT;$WAIT;$WAIT"
+
 # The player docked beside the map, playing a made-up song (the emulator has none of its own).
 EXTRA="--ez player true" shoot player 1920 720 240 "$WAIT"
 EXTRA="--ez player true" shoot player-800x480 800 480 160 "$WAIT"

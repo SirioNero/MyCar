@@ -1,11 +1,15 @@
 package io.github.sirionero.mycar.car.design
 
 import android.content.Context
+import android.os.SystemClock
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,9 +32,13 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalView
 import io.github.sirionero.mycar.AppSettings
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.sin
 
 /*
  * The wallpapers behind the app grid, the dashboard and the dock: soft glows of colour on a dark
@@ -40,6 +48,8 @@ import kotlin.math.max
  *
  * Smooth gradients are what video compression handles worst: on the way to the head unit they
  * break into visible bands. A faint grain over the top breaks the bands up again.
+ *
+ * With motion on, the glows drift and swell slowly, so any of them is a moving wallpaper too.
  */
 
 /** One soft disc of colour: its centre as a fraction of the screen, its radius of the longer side. */
@@ -113,21 +123,31 @@ object Wallpapers {
     fun find(id: String): Wallpaper? = all.find { it.id == id }
 }
 
-/** The driver's wallpaper, kept with the rest of myCar's settings. */
+/** The driver's wallpaper, and whether it moves, kept with the rest of myCar's settings. */
 object WallpaperSetting {
     private const val KEY = "car_wallpaper"
+    private const val KEY_MOTION = "car_wallpaper_motion"
     private var app: Context? = null
     private val flow = MutableStateFlow(Wallpapers.DEFAULT)
     val current: StateFlow<String> = flow
+    private val motionFlow = MutableStateFlow(false)
+    /** The glows drift slowly about, rather than standing still. Off by default: a still picture costs the video nothing. */
+    val animated: StateFlow<Boolean> = motionFlow
 
     fun init(context: Context) {
         val app = context.applicationContext.also { this.app = it }
         flow.value = AppSettings.getString(app, KEY, Wallpapers.DEFAULT)
+        motionFlow.value = AppSettings.getString(app, KEY_MOTION, "false") == "true"
     }
 
     fun set(id: String) {
         flow.value = id
         app?.let { AppSettings.putString(it, KEY, id) }
+    }
+
+    fun setAnimated(on: Boolean) {
+        motionFlow.value = on
+        app?.let { AppSettings.putString(it, KEY_MOTION, on.toString()) }
     }
 }
 
@@ -156,7 +176,11 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
     val lightGround = MaterialTheme.colorScheme.background
     var origin by remember { mutableStateOf(Offset.Zero) }
     val grain = rememberGrain()
+    val animated by WallpaperSetting.animated.collectAsState()
+    val clock = if (animated) rememberMotionClock() else null
     onGloballyPositioned { origin = it.positionInRoot() }.drawBehind {
+        // Read here, the clock only redraws the picture: nothing recomposes as it moves.
+        val seconds = clock?.let { it.value / 1000.0 }
         val screen = if (!wholeScreen) size else Size(
             view.rootView.width.toFloat().takeIf { it > 0f } ?: size.width,
             view.rootView.height.toFloat().takeIf { it > 0f } ?: size.height,
@@ -166,9 +190,10 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
             translate(-shift.x, -shift.y) {
                 drawRect(if (light) lightGround else wallpaper.ground, size = screen)
                 val longest = max(screen.width, screen.height)
-                wallpaper.glows.forEach { glow ->
-                    val center = Offset(glow.x * screen.width, glow.y * screen.height)
-                    val radius = glow.radius * longest
+                wallpaper.glows.forEachIndexed { i, glow ->
+                    val drift = seconds?.let { drift(i, it) } ?: Drift.NONE
+                    val center = Offset((glow.x + drift.dx) * screen.width, (glow.y + drift.dy) * screen.height)
+                    val radius = glow.radius * longest * drift.grow
                     val strength = if (light) glow.strength * 0.45f else glow.strength
                     drawCircle(
                         Brush.radialGradient(
@@ -192,6 +217,45 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
     }
 }
 
+/** How far a glow has wandered from its place: a fraction of the screen each way, and its size. */
+private class Drift(val dx: Float, val dy: Float, val grow: Float) {
+    companion object {
+        val NONE = Drift(0f, 0f, 1f)
+    }
+}
+
+/**
+ * Glow [index]'s drift [seconds] into the phone's uptime: slow loops of a minute or so, each glow
+ * on its own periods and phase, so the picture never quite repeats and nothing moves fast enough
+ * to catch the eye. In doubles, as uptime runs to millions of seconds.
+ */
+private fun drift(index: Int, seconds: Double): Drift {
+    val phase = index * 2.1
+    val turn = 2 * PI
+    return Drift(
+        dx = (sin(seconds * turn / (47 + index * 13) + phase) * 0.10).toFloat(),
+        dy = (cos(seconds * turn / (61 + index * 11) + phase) * 0.08).toFloat(),
+        grow = 1f + (sin(seconds * turn / (37 + index * 7) + phase) * 0.07).toFloat(),
+    )
+}
+
+/**
+ * The phone's uptime in milliseconds, moved on every [MOTION_FRAME_MS]: a few redraws a second
+ * are plenty for glows this slow. Every copy of the wallpaper reads uptime, so the dock and the
+ * screen beside it drift together.
+ */
+@Composable
+private fun rememberMotionClock(): State<Long> {
+    val now = remember { mutableLongStateOf(SystemClock.uptimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(MOTION_FRAME_MS)
+            now.longValue = SystemClock.uptimeMillis()
+        }
+    }
+    return now
+}
+
 /** Grey noise, tiled over the wallpaper to break up banding. The same every time: seeded. */
 @Composable
 private fun rememberGrain(): ImageBitmap = remember {
@@ -205,4 +269,5 @@ private fun rememberGrain(): ImageBitmap = remember {
 }
 
 private const val GRAIN_ALPHA = 0.05f
+private const val MOTION_FRAME_MS = 50L
 private const val BASE_SHADE = 0.15f

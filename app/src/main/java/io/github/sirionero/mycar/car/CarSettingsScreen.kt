@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.car.design.WallpaperSetting
+import io.github.sirionero.mycar.car.design.rememberWallpaper
 import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
 import io.github.sirionero.mycar.car.theme.GsThemes
@@ -58,6 +60,7 @@ fun CarSettingsScreen() {
     val locationWarning by CarSettings.locationWarning.collectAsState()
     val autoplay by CarSettings.autoplay.collectAsState()
     val theme by CarSettings.appTheme.collectAsState()
+    val wallpaperMotion by WallpaperSetting.animated.collectAsState()
     val uiTheme by CarSettings.uiTheme.collectAsState()
     val experimentalFeatures by CarSettings.experimentalFeaturesEnabled.collectAsState()
     val carSensors by CarSettings.carSensorsEnabled.collectAsState()
@@ -97,6 +100,12 @@ fun CarSettingsScreen() {
         ) { CarSettings.setAppTheme(it) }
 
         WallpaperPicker()
+
+        if (rememberWallpaper() != null) ChoiceRow(
+            "Wallpaper motion",
+            listOf(false to "Still", true to "Moving"),
+            wallpaperMotion,
+        ) { WallpaperSetting.setAnimated(it) }
 
         ChoiceRow(
             "Theme",

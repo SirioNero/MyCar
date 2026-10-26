@@ -66,6 +66,8 @@ class CarPreviewActivity : ComponentActivity() {
             CarSettings.markSafetyWarningSeen()
             Changelog.current?.let { CarSettings.closeWhatsNew(it.versionCode) }
         }
+        // --ez motion true: the wallpaper moving. Set every run, so other shots stay still.
+        io.github.sirionero.mycar.car.design.WallpaperSetting.setAnimated(intent.getBooleanExtra("motion", false))
         CarEnvironment.start(this)
 
         val w = intent.getIntExtra("w", 800)
