@@ -144,12 +144,18 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
             }
         }
         Spacer(Modifier.height(MyCarSpace.S))
+        // The dock's foot: the app grid, and from the grid back to the map beside the music.
+        val onGrid = navigator.current == CarScreen.Apps
         DockItem(
-            selected = navigator.current == CarScreen.Apps,
-            onClick = { navigator.apps() },
-            description = "All apps",
+            selected = false,
+            onClick = { if (onGrid) navigator.homeWithPlayer() else navigator.apps() },
+            description = if (onGrid) "Map and music" else "All apps",
         ) {
-            Icon(painterResource(R.drawable.sym_grid_view), contentDescription = null, modifier = Modifier.size(DockGlyph))
+            Icon(
+                painterResource(if (onGrid) R.drawable.sym_split_view else R.drawable.sym_grid_view),
+                contentDescription = null,
+                modifier = Modifier.size(DockGlyph),
+            )
         }
     }
 }

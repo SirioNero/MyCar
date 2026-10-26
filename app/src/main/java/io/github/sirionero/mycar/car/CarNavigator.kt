@@ -102,6 +102,12 @@ class CarNavigator(startId: String) {
         sidePanel = if (sidePanel == SidePanel.CONTROLS) SidePanel.NONE else SidePanel.CONTROLS
     }
 
+    /** Home with the player beside the map: where the dock's foot leads back to from the app grid. */
+    fun homeWithPlayer() {
+        sidePanel = SidePanel.CONTROLS
+        home()
+    }
+
     fun showSideLyrics() { sidePanel = SidePanel.LYRICS }
 
     fun closeSidePanel() { sidePanel = SidePanel.NONE }
