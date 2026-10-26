@@ -1,8 +1,8 @@
 # Cars
 
-Drivers who share usage notes tell us which cars Gearslip works in. This list comes from
-those notes, and from our own testing. A car shows up here once Gearslip has reached its
-screen at least once.
+This list comes from Gearslip, the project MyCar is based on: its drivers' usage notes and its
+own testing. MyCar talks to cars with the same code, so the same cars should work. A car shows
+up here once Gearslip has reached its screen at least once.
 
 The year is the one the car reports. Some cars report the year of the head unit instead,
 and some don't say.
@@ -40,10 +40,10 @@ and some don't say.
 | Honda | 2019 | The connection drops before Gearslip reaches the screen. |
 | Mitsubishi Attrage | 2020 | The connection drops before Gearslip reaches the screen. |
 
-Some cars reject Gearslip's certificate before they say what they are, so they can't appear
+Some cars reject the certificate before they say what they are, so they can't appear
 here by name. Most of these are from around 2020 or later.
 
 ## Add your car
 
-Turn on usage notes in Gearslip's setup or Settings, and drive once. If your car is missing
-or listed wrongly, open an issue.
+Drive once with MyCar, then open a car report on
+[GitHub](https://github.com/sirionero/mycar/issues/new/choose), whether your car works or not.
