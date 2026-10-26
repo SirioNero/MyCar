@@ -407,8 +407,12 @@ private fun AppCell(tile: Tile, iconSize: Dp) {
             }
         }
         Spacer(Modifier.height(MyCarSpace.S))
+        // "YouTube Music · Browse" won't fit on one line under an icon, and cut short it reads
+        // just like the player tile beside it: the name goes on top, the "Browse" part under it.
+        val name = tile.label.substringBefore(" · ")
+        val detail = tile.label.substringAfter(" · ", "")
         Text(
-            tile.label,
+            name,
             modifier = Modifier.widthIn(max = iconSize + MyCarSpace.XXL),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Medium,
@@ -416,5 +420,16 @@ private fun AppCell(tile: Tile, iconSize: Dp) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        if (detail.isNotEmpty()) {
+            Text(
+                detail,
+                modifier = Modifier.widthIn(max = iconSize + MyCarSpace.XXL),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
