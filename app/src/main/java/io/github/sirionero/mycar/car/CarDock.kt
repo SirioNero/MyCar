@@ -301,7 +301,7 @@ private fun DockMap(navigator: CarNavigator, entries: List<Entry>, running: Map<
 
 /**
  * The song playing: its cover (or its app's icon), with a small badge saying whether it plays.
- * Tap for the full player; long press to put the player beside the map instead.
+ * Tap to put the player beside the map, or take it away again; long press for the full player.
  */
 @Composable
 private fun DockNowPlaying(navigator: CarNavigator) {
@@ -311,10 +311,11 @@ private fun DockNowPlaying(navigator: CarNavigator) {
     val art by produceState(now.art, now.art, now.artUri) { value = now.art ?: MediaArt.load(context, now.artUri) }
     val appIcon = remember(mediaApp) { mediaApp?.let { findEntry(it.component.flattenToString())?.icon } }
     DockItem(
-        selected = navigator.current == CarScreen.Media,
-        onClick = { navigator.media() },
+        selected = navigator.current == CarScreen.Media ||
+            (navigator.current == CarScreen.Home && navigator.sidePanel == SidePanel.CONTROLS),
+        onClick = { navigator.togglePlayerDock() },
         description = listOf(now.title, now.artist).filter { it.isNotBlank() }.joinToString(" - ").ifEmpty { "Now playing" },
-        onLongClick = { navigator.togglePlayerDock() },
+        onLongClick = { navigator.media() },
     ) {
         Box(Modifier.size(MyCarSize.DockIcon)) {
             val cover = art
