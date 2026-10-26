@@ -81,17 +81,17 @@ class CarNavigator(startId: String) {
     }
 
     /**
-     * What the column beside the map on Home is showing, if anything. The player lives in one
-     * place at a time: with [SidePanel.CONTROLS] it moves into the column and the nav bar's pill
-     * steps aside; with [SidePanel.LYRICS] the column is all lyrics and the pill comes back.
-     * Every other screen has no room for the column, so there the pill stays in the nav bar.
+     * What the column beside the map on Home is showing while something plays: the player
+     * ([SidePanel.CONTROLS]), the lyrics, or nothing. The player starts out there, so music and
+     * map share the screen as soon as a song plays, as they always did; its X puts it away until
+     * the dock's song brings it back. Every other screen has no room for the column.
      */
-    var sidePanel by mutableStateOf(SidePanel.NONE)
+    var sidePanel by mutableStateOf(SidePanel.CONTROLS)
         private set
 
     /**
-     * The pill's dock button: moves the player beside the map, going Home first if need be. With
-     * lyrics already there it swaps them for the controls; with the controls there it closes.
+     * The dock's song: moves the player beside the map, going Home first if need be. With lyrics
+     * already there it swaps them for the controls; with the controls there it closes.
      */
     fun togglePlayerDock() {
         if (current != CarScreen.Home) {
