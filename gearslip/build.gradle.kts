@@ -35,13 +35,13 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "app.seb3thehacker.gearslip"
+        applicationId = "io.github.sirionero.mycar"
         minSdk = 31
         targetSdk = 37
         versionCode = 10
         // -PgearslipVersionName=0.1.99-test makes a build that thinks it's older, to try the updater.
         versionName = project.findProperty("gearslipVersionName")?.toString() ?: "0.3.01-alpha"
-        manifestPlaceholders["appLabel"] = "Gearslip"
+        manifestPlaceholders["appLabel"] = "MyCar"
         // Where opted-in phones send their daily usage note: the stats-worker/ Worker's address,
         // set as gearslipStatsUrl in gradle.properties. Left empty, nothing is ever sent.
         buildConfigField("String", "STATS_URL", "\"${project.findProperty("gearslipStatsUrl") ?: ""}\"")
@@ -73,7 +73,7 @@ android {
         debug {
             applicationIdSuffix = ".dev"
             signingConfigs.findByName("release")?.let { signingConfig = it }
-            manifestPlaceholders["appLabel"] = "Gearslip Debug"
+            manifestPlaceholders["appLabel"] = "MyCar Debug"
             // -Pr8 shrinks a debug build like a release one, to test R8 in the debug install.
             if (project.hasProperty("r8")) {
                 isMinifyEnabled = true

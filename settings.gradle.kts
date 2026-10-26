@@ -23,7 +23,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Gearslip"
+rootProject.name = "MyCar"
 include(":gearslip")
 // include(":ksdump")
  
