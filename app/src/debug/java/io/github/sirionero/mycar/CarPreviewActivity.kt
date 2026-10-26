@@ -25,7 +25,8 @@ import java.io.FileOutputStream
  *   adb shell am start -n io.github.sirionero.mycar/.CarPreviewActivity \
  *       --ei w 800 --ei h 480 --ei dpi 160 --es taps "400,440;90,440"
  *
- * Writes preview-0.png (before any tap), then one more per tap.
+ * Writes preview-0.png (before any tap), then one more per tap. Add --ez skipIntro true to go
+ * straight to the car UI, past the safety card and the what's-new card.
  */
 class CarPreviewActivity : ComponentActivity() {
 
@@ -60,6 +61,10 @@ class CarPreviewActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         MyCarLog.init(this)
         CarSettings.init(this)
+        if (intent.getBooleanExtra("skipIntro", false)) {
+            CarSettings.markSafetyWarningSeen()
+            Changelog.current?.let { CarSettings.closeWhatsNew(it.versionCode) }
+        }
         CarEnvironment.start(this)
 
         val w = intent.getIntExtra("w", 800)
