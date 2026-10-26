@@ -49,8 +49,11 @@ object PhoneAssistants {
      * assistant, so it leads for [PHONE]; for one app, the hands-free voice search made for cars
      * and headsets does.
      */
-    private val FOR_PHONE = listOf(Intent.ACTION_ASSIST, Intent.ACTION_VOICE_ASSIST, Intent.ACTION_VOICE_COMMAND, RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE)
-    private val FOR_APP = listOf(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE, Intent.ACTION_VOICE_COMMAND, Intent.ACTION_VOICE_ASSIST, Intent.ACTION_ASSIST)
+    private val FOR_PHONE = listOf(Intent.ACTION_ASSIST, VOICE_ASSIST, Intent.ACTION_VOICE_COMMAND, RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE)
+    private val FOR_APP = listOf(RecognizerIntent.ACTION_VOICE_SEARCH_HANDS_FREE, Intent.ACTION_VOICE_COMMAND, VOICE_ASSIST, Intent.ACTION_ASSIST)
+
+    /** Long-press-home's voice assistant: not public in the SDK, but sent and answered all the same. */
+    private const val VOICE_ASSIST = "android.intent.action.VOICE_ASSIST"
 
     /** Android's own "which app?" chooser, which nobody can use from the driver's seat. */
     private val CHOOSERS = setOf("android", "com.android.intentresolver")
