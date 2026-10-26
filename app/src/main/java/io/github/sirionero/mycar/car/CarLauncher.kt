@@ -306,7 +306,12 @@ private fun AppGrid(tiles: List<Tile>) {
         val pages = ((tiles.size + perPage - 1) / perPage).coerceAtLeast(1)
         val cellWidth = maxWidth / columns
         val cellHeight = (maxHeight - dotsHeight) / rows
-        val iconSize = min(MyCarSize.GridIconMax, min(cellWidth * 0.62f, (cellHeight - 44.dp).coerceAtLeast(40.dp)))
+        // Under each icon: the cell's padding, the gap and one line of name.
+        val labelHeight = 44.dp
+        val iconSize = min(MyCarSize.GridIconMax, min(cellWidth * 0.62f, (cellHeight - labelHeight).coerceAtLeast(40.dp)))
+        // Icon and name sit centred in the cell, all at the same height: a second line ("Browse")
+        // hangs below instead of lifting its icon out of line with the rest of the row.
+        val cellTop = ((cellHeight - iconSize - labelHeight) / 2).coerceAtLeast(0.dp)
         val pagerState = rememberPagerState(pageCount = { pages })
         Column(Modifier.fillMaxSize()) {
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f).fillMaxWidth()) { page ->
@@ -315,7 +320,7 @@ private fun AppGrid(tiles: List<Tile>) {
                     repeat(rows) { row ->
                         Row(Modifier.weight(1f).fillMaxWidth()) {
                             repeat(columns) { column ->
-                                Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                Box(Modifier.weight(1f).fillMaxHeight().padding(top = cellTop), contentAlignment = Alignment.TopCenter) {
                                     pageTiles.getOrNull(row * columns + column)?.let { AppCell(it, iconSize) }
                                 }
                             }
