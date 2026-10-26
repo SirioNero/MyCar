@@ -26,7 +26,8 @@ import java.io.FileOutputStream
  *       --ei w 800 --ei h 480 --ei dpi 160 --es taps "400,440;90,440"
  *
  * Writes preview-0.png (before any tap), then one more per tap. Add --ez skipIntro true to go
- * straight to the car UI, past the safety card and the what's-new card.
+ * straight to the car UI, past the safety card and the what's-new card, or --ez player true for
+ * the docked player alone, playing a made-up song.
  */
 class CarPreviewActivity : ComponentActivity() {
 
@@ -86,7 +87,9 @@ class CarPreviewActivity : ComponentActivity() {
         }, main)
 
         val p = ScreenProjector(this).also { projector = it }
-        p.start(imageReader.surface, w, h, dpi) { CarUi() }
+        // --ez player true: the docked player alone, with a made-up song (see PlayerPreview).
+        val playerOnly = intent.getBooleanExtra("player", false)
+        p.start(imageReader.surface, w, h, dpi) { if (playerOnly) io.github.sirionero.mycar.car.PlayerPreview() else CarUi() }
 
         // Stand in for the car's media sink, so the phone half of the audio path runs for real.
         if (intent.getBooleanExtra("audio", false)) {

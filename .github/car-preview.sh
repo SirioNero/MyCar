@@ -50,13 +50,14 @@ GRID_BUTTON="72,654"   # the dock's foot, at 1920x720
 WAIT="-100,-100"       # a tap off the screen: only gives an app time before the next shot
 
 # shoot <name> <width> <height> <dpi> <taps "x,y;x,y" in screen pixels> [command, run 5s in]
+# EXTRA adds intent extras for the preview activity.
 shoot() {
     adb shell am force-stop "$PKG"
     for p in $VELA $PLANCIA $XONOS; do adb shell am force-stop "$p"; done
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
     # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
-    adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true --es taps '$5'"
+    adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true ${EXTRA:-} --es taps '$5'"
     if [ -n "${6:-}" ]; then
         sleep 5
         eval "$6"
@@ -83,6 +84,10 @@ installed $XONOS && shoot xonos 1920 720 240 "$GRID_BUTTON;$(at xonos);$WAIT;$WA
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
+
+# The player docked beside the map, playing a made-up song (the emulator has none of its own).
+EXTRA="--ez player true" shoot player 1920 720 240 "$WAIT"
+EXTRA="--ez player true" shoot player-800x480 800 480 160 "$WAIT"
 
 # An incoming call from an unknown number, rung on the emulator's modem once the car UI is up.
 shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"

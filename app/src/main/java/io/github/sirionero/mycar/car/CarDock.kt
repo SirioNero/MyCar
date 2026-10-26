@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.AppIcon
 import io.github.sirionero.mycar.car.design.AppIconShape
+import io.github.sirionero.mycar.car.design.GlassTile
 import io.github.sirionero.mycar.car.design.MyCarMotion
 import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.car.design.MyCarRadius
@@ -293,12 +294,7 @@ private fun DockMap(navigator: CarNavigator, entries: List<Entry>, running: Map<
         if (navIcon != null) {
             AppIcon(navIcon, null, MyCarSize.DockIcon)
         } else {
-            Box(
-                Modifier.size(MyCarSize.DockIcon).clip(AppIconShape).background(MyCarPalette.Accent),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(painterResource(R.drawable.sym_navigation), contentDescription = null, modifier = Modifier.size(DockGlyph), tint = Color.White)
-            }
+            GlassTile(MyCarPalette.Accent, R.drawable.sym_navigation, MyCarSize.DockIcon, glyphSize = DockGlyph)
         }
     }
 }
