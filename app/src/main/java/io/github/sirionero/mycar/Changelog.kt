@@ -11,6 +11,15 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            12, "0.4.00-alpha",
+            listOf(
+                "A new look: a dock down the left with the clock and your apps, and the app grid in pages.",
+                "App icons sit in a rounded square frame, and the car screen uses the Inter typeface.",
+                "Dark by default. Choose light, or follow the phone, in the car's settings.",
+                "Tap the song in the dock for the player. Hold it to put the player beside the map.",
+            ),
+        ),
+        Release(
             11, "0.3.02-alpha",
             listOf(
                 "Gearslip is now myCar, with a new name and icon. Updates come from github.com/sirionero/mycar.",
