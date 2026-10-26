@@ -63,7 +63,7 @@ object CarServices {
     fun init(appContext: Context) {
         context = appContext.applicationContext
         io.github.sirionero.mycar.notify.CarMotion.start(appContext)
-        io.github.sirionero.mycar.call.CarCalls.start(appContext)
+        io.github.sirionero.mycar.call.CarCalls.start(appContext, inCar = true)
         CarAssistant.init(appContext)
         DirectionsVoice.init(appContext)
         CarBluetooth.init(appContext)

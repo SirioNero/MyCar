@@ -21,6 +21,13 @@ class MyCarCallScreening : CallScreeningService() {
         // Calls the driver places to a number outside the contacts come through here too. They
         // need no answer, and showing them would cover the car screen with "Incoming call".
         if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) return
+        // Away from the car there is no screen to show the call on: let it ring at once, instead of
+        // holding every unknown caller for the whole screening window.
+        if (!CarCalls.inCar) {
+            runCatching { respondToCall(callDetails, CallResponse.Builder().build()) }
+                .onFailure { MyCarLog.w("calls: screening response failed: ${it.message}") }
+            return
+        }
         val number = callDetails.handle?.schemeSpecificPart
         var responded = false
 

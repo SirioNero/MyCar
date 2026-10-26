@@ -45,6 +45,10 @@ object CarCalls {
     private val _state = MutableStateFlow<CallUiState>(CallUiState.None)
     val state: StateFlow<CallUiState> = _state.asStateFlow()
 
+    /** True while the car screen is up. Away from the car, screening lets calls ring at once. */
+    var inCar = false
+        private set
+
     private var telephony: TelephonyManager? = null
     private var watcher: TelephonyCallback? = null
     private var pendingRespond: ((allow: Boolean) -> Unit)? = null
@@ -56,7 +60,9 @@ object CarCalls {
     private var answerWhenRinging = false
     private var watcherContext: Context? = null
 
-    fun start(context: Context) {
+    /** [inCar] is true from the car screen, false from the phone's setup guide. */
+    fun start(context: Context, inCar: Boolean = false) {
+        if (inCar) this.inCar = true
         if (watcher != null) return
         if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) return
         val manager = context.getSystemService(TelephonyManager::class.java) ?: return
@@ -97,6 +103,7 @@ object CarCalls {
     }
 
     fun stop() {
+        inCar = false
         val callback = watcher ?: return
         runCatching { telephony?.unregisterTelephonyCallback(callback) }
         numberWatcher?.let { receiver -> runCatching { watcherContext?.unregisterReceiver(receiver) } }
