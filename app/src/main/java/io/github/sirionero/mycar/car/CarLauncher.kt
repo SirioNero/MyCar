@@ -281,7 +281,7 @@ private fun BrokenBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = 
         modifier.size(size).background(Color(0xFFD32F2F), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(Icons.Filled.Close, contentDescription = "Doesn't work with Gearslip", tint = Color.White, modifier = Modifier.size(size * 0.66f))
+        Icon(Icons.Filled.Close, contentDescription = "Doesn't work with MyCar", tint = Color.White, modifier = Modifier.size(size * 0.66f))
     }
 }
 

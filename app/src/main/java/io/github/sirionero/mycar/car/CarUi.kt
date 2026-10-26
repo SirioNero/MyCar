@@ -307,7 +307,7 @@ private fun CarSafetyWizard(onDone: () -> Unit) {
                 Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Drive safely", style = ChromeType.headline, fontWeight = FontWeight.Bold)
                     Text(
-                        "Gearslip is unofficial software: it is not made or reviewed by any " +
+                        "MyCar is unofficial software: it is not made or reviewed by any " +
                             "carmaker, and it can fail without warning.",
                         style = ChromeType.body,
                     )
@@ -367,7 +367,7 @@ private fun AppWontStart(app: String, onBack: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("$app doesn't work with Gearslip yet.", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+        Text("$app doesn't work with MyCar yet.", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text(
             "It didn't start. Some apps only run on Google's Android Auto.",
             style = MaterialTheme.typography.bodyLarge,

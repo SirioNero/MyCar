@@ -34,7 +34,7 @@ class LocationKeepAlive : Service() {
         )
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("Gearslip is sharing location with the car map")
+            .setContentTitle("MyCar is sharing location with the car map")
             .setOngoing(true)
             .build()
         // The system can refuse a location-type foreground service if MyCar is no longer in

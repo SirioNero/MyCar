@@ -103,7 +103,7 @@ internal fun DonateDialog(live: Boolean) {
         title = { Text("Glad that drive worked") },
         text = {
             Text(
-                "Gearslip is free, with no ads and no tracking. If it gets you on the road, your " +
+                "MyCar is free, with no ads and no tracking. If it gets you on the road, your " +
                     "support keeps it going.",
             )
         },

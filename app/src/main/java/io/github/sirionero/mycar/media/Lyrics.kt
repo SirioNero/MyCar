@@ -128,7 +128,7 @@ object Lyrics {
         val connection = (URL(url).openConnection() as HttpURLConnection).apply {
             connectTimeout = 5_000
             readTimeout = 8_000
-            setRequestProperty("User-Agent", "Gearslip (car media host)")
+            setRequestProperty("User-Agent", "MyCar (car media host)")
         }
         return try {
             if (connection.responseCode != 200) null else connection.inputStream.bufferedReader().readText()

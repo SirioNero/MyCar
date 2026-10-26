@@ -301,7 +301,7 @@ object AssistantCommands {
                 ?: return null
             ).replace(Regex(" (?:on|at) (?:their |his |her )?(?:mobile|cell|phone|home|work)$"), "").trim()
         if (name.isBlank()) return "Who should I call?"
-        if (!hasCallPermissions(context)) return "Gearslip needs the phone and contacts permissions first, from the phone screen."
+        if (!hasCallPermissions(context)) return "MyCar needs the phone and contacts permissions first, from the phone screen."
 
         val match = withContext(Dispatchers.IO) {
             loadContacts(context).firstOrNull { it.name.lowercase().contains(name) }
@@ -330,7 +330,7 @@ object AssistantCommands {
         return "Opening ${match.label}."
     }
 
-    private val EXIT_WORDS = setOf("exit", "exit gearslip", "close gearslip", "quit", "quit gearslip", "open exit")
+    private val EXIT_WORDS = setOf("exit", "exit my car", "close my car", "quit", "quit my car", "open exit")
 
     /** Other names people use for MyCar's own apps. */
     private val APP_NICKNAMES = mapOf(
@@ -366,7 +366,7 @@ object AssistantCommands {
 
     /** Padding stripped from the front of a command, longest first where they overlap. */
     private val LEAD_FILLERS = listOf(
-        "hey gearslip", "ok gearslip", "okay gearslip", "gearslip", "hey", "ok", "okay", "um", "uh", "so",
+        "hey my car", "ok my car", "okay my car", "my car", "hey", "ok", "okay", "um", "uh", "so",
         "please", "can you please", "can you", "could you", "would you", "will you", "can i", "could i",
         "i want you to", "i want to", "i'd like to", "i would like to", "i wanna", "i need to", "i need you to",
         "let's", "lets", "go ahead and", "just", "now", "quickly",

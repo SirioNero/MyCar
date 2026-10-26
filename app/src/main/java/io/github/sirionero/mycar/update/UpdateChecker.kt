@@ -177,9 +177,9 @@ object UpdateChecker {
                     key = "mycar-update",
                     id = CarNotifications.nextId(),
                     packageName = app.packageName,
-                    appLabel = "Gearslip",
-                    title = "Gearslip ${release.version} is out",
-                    text = "Update in the Gearslip app or from GitHub",
+                    appLabel = "MyCar",
+                    title = "MyCar ${release.version} is out",
+                    text = "Update in the MyCar app or from GitHub",
                     postedAt = System.currentTimeMillis(),
                     icon = runCatching { app.packageManager.getApplicationIcon(app.packageName).toBitmap(96, 96) }.getOrNull(),
                     reply = null,
@@ -211,7 +211,7 @@ object UpdateChecker {
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("Gearslip ${release.version} is out")
+            .setContentTitle("MyCar ${release.version} is out")
             .setContentText("Tap to update.")
             .setContentIntent(open)
             .setAutoCancel(true)
@@ -304,7 +304,7 @@ object UpdateChecker {
             connectTimeout = 15_000
             readTimeout = 15_000
             setRequestProperty("Accept", "application/vnd.github+json")
-            setRequestProperty("User-Agent", "Gearslip/${BuildConfig.VERSION_NAME}")
+            setRequestProperty("User-Agent", "MyCar/${BuildConfig.VERSION_NAME}")
         }
         try {
             if (conn.responseCode == 404) return null // no stable release yet
@@ -344,7 +344,7 @@ object UpdateChecker {
         val conn = (URL(release.apkUrl).openConnection() as HttpURLConnection).apply {
             connectTimeout = 15_000
             readTimeout = 30_000
-            setRequestProperty("User-Agent", "Gearslip/${BuildConfig.VERSION_NAME}")
+            setRequestProperty("User-Agent", "MyCar/${BuildConfig.VERSION_NAME}")
         }
         try {
             if (conn.responseCode !in 200..299) error("GitHub answered ${conn.responseCode}")

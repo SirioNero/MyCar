@@ -298,7 +298,7 @@ class MyCarRunner(
         log.i(
             "-> VersionResponse: ${claim.first}.${claim.second} status=0 (STATUS_SUCCESS)" +
                 if (CLAIM_VERSION != null && claim != (major to minor)) {
-                    " - intended: Gearslip always answers ${claim.first}.${claim.second}, which cars " +
+                    " - intended: MyCar always answers ${claim.first}.${claim.second}, which cars " +
                         "offering $major.$minor accept too"
                 } else "",
         )
@@ -400,7 +400,7 @@ class MyCarRunner(
     }
 
     private fun sendServiceDiscoveryRequest() {
-        val body = Protobuf.stringField(4, "Gearslip") + // label_text
+        val body = Protobuf.stringField(4, "MyCar") + // label_text
             Protobuf.stringField(5, Build.MODEL)        // device_name
         send(MSG_SERVICE_DISCOVERY_REQUEST, body, encrypted = true)
         log.i("-> ServiceDiscoveryRequest (encrypted)")
@@ -1240,7 +1240,7 @@ class MyCarRunner(
             State.DONE -> SessionStatus.disconnected()
             State.WAIT_VERSION -> SessionStatus.failed(
                 "Head unit never started talking",
-                "The connection opened but the head unit sent nothing. Check the phone is set to use Gearslip for this USB accessory.",
+                "The connection opened but the head unit sent nothing. Check the phone is set to use MyCar for this USB accessory.",
             )
             State.TLS_HANDSHAKE, State.WAIT_AUTH -> SessionStatus.failed(
                 "Connection dropped during setup",

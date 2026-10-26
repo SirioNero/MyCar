@@ -99,7 +99,7 @@ fun LogsScreen(onBack: () -> Unit) {
                             val uri = withContext(Dispatchers.IO) { MyCarLog.shareableFile(context) }
                             val send = Intent(Intent.ACTION_SEND)
                                 .setType("text/plain")
-                                .putExtra(Intent.EXTRA_SUBJECT, "Gearslip log")
+                                .putExtra(Intent.EXTRA_SUBJECT, "MyCar log")
                                 .putExtra(Intent.EXTRA_STREAM, uri)
                                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             context.startActivity(Intent.createChooser(send, "Share log"))

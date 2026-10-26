@@ -134,7 +134,7 @@ class MyCarActivity : ComponentActivity(), Projection {
 
         MyCarLog.init(this)
         MyCarLog.installCrashHandler()
-        MyCarLog.i("Gearslip ready")
+        MyCarLog.i("MyCar ready")
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = { socket ->
             runOnUiThread { startWireless(socket) }
         }
@@ -308,7 +308,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         // Switched off in Settings: the system shouldn't route the car here at all, but if it
         // does, leave the accessory alone.
         if (!AppSettings.myCarEnabled(this)) {
-            MyCarLog.i("accessory attached, but Gearslip is switched off - not connecting")
+            MyCarLog.i("accessory attached, but MyCar is switched off - not connecting")
             return
         }
         val accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
@@ -335,7 +335,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val pfd = manager.openAccessory(accessory)
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
-            SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before Gearslip could open it.")
+            SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before MyCar could open it.")
             return
         }
         descriptor = pfd
@@ -355,7 +355,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     private fun startWireless(socket: java.net.Socket) {
         closeAccessory(stopWireless = false)
         if (!AppSettings.myCarEnabled(this)) {
-            MyCarLog.i("wireless: Gearslip is switched off - not connecting")
+            MyCarLog.i("wireless: MyCar is switched off - not connecting")
             runCatching { socket.close() }
             return
         }

@@ -120,8 +120,8 @@ fun SettingsScreen(
         ) {
             Spacer(Modifier.height(0.dp))
             SettingsSection(
-                "Support Gearslip",
-                footer = "Gearslip is free, with no ads and no tracking. Your support keeps it going.",
+                "Support MyCar",
+                footer = "MyCar is free, with no ads and no tracking. Your support keeps it going.",
             ) { DonateRows() }
             ConnectionSection()
             HelpSection(onOpenHelp, onOpenCarPreview, onOpenLogs)
@@ -187,12 +187,12 @@ private fun ConnectionSection() {
     var enabled by remember { mutableStateOf(AppSettings.myCarEnabled(context)) }
     SettingsSection("Connection") {
         SettingsRow(
-            "Use Gearslip in the car",
+            "Use MyCar in the car",
             Modifier.toggleable(enabled, role = Role.Switch) {
                 enabled = it
                 AppSettings.setMyCarEnabled(context, it)
             },
-            subtitle = if (enabled) "Gearslip answers when you plug into a car" else "Off: Android Auto can take the connection instead",
+            subtitle = if (enabled) "MyCar answers when you plug into a car" else "Off: Android Auto can take the connection instead",
             icon = Icons.Filled.Settings,
             trailing = { Switch(checked = enabled, onCheckedChange = null) },
         )
@@ -228,7 +228,7 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
         SettingsRow(
             "Live logs",
             Modifier.clickable(onClick = onOpenLogs),
-            subtitle = "What Gearslip and the car are saying to each other",
+            subtitle = "What MyCar and the car are saying to each other",
             icon = Icons.AutoMirrored.Filled.List,
             trailing = { Arrow() },
         )
@@ -344,7 +344,7 @@ private fun CertificateSection() {
                     }
                 }
             },
-            subtitle = "The certificate the open-source aasdk project publishes on GitHub. Gearslip doesn't include one",
+            subtitle = "The certificate the open-source aasdk project publishes on GitHub. MyCar doesn't include one",
             icon = Icons.Filled.Refresh,
         )
         SettingsDivider()

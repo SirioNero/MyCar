@@ -94,7 +94,7 @@ private fun TouchRelayWarning() {
         ) {
             Icon(Icons.Filled.Warning, contentDescription = null)
             Text(
-                "Touch is off. Enable Gearslip under Settings > Accessibility on the phone.",
+                "Touch is off. Enable MyCar under Settings > Accessibility on the phone.",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )

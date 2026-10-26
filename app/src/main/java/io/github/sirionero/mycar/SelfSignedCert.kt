@@ -40,7 +40,7 @@ object SelfSignedCert {
 
     class Result(val keyStore: KeyStore, val certificate: X509Certificate)
 
-    fun generate(commonName: String = "Gearslip", organisation: String = "Gearslip"): Result {
+    fun generate(commonName: String = "MyCar", organisation: String = "MyCar"): Result {
         val keyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
 
         val now = System.currentTimeMillis()
