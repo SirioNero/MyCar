@@ -48,6 +48,6 @@ jobs:
           # The hand-written notes go first; GitHub adds the full changelog link under them.
           body_path: .github/release-notes.md
           generate_release_notes: true
-          # Every release starts as a pre-release: only phones on the Alpha update channel get it.
-          # Once it's tested, untick pre-release on GitHub and everyone gets it.
-          prerelease: true
+          # A normal release, so Obtainium and the app's Stable update channel find it without
+          # extra settings. Tick pre-release on GitHub by hand for a build that needs testing first.
+          prerelease: false
