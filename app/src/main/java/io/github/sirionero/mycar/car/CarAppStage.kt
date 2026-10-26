@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
@@ -202,24 +201,26 @@ private fun ChromeBar(
         modifier = modifier.fillMaxWidth().height(CHROME_BAR),
     ) {
         Row(Modifier.padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                status.app ?: "Car app",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-            // Once the app draws, its own screen says the rest.
-            if (!status.surfaceAttached) {
+            // Everything but Stop, which keeps the right end.
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    " · waiting for the app",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = scheme.onSurfaceVariant,
+                    status.app ?: "Car app",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
+                // Once the app draws, its own screen says the rest.
+                if (!status.surfaceAttached) {
+                    Text(
+                        " · waiting for the app",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.onSurfaceVariant,
+                        maxLines = 1,
+                    )
+                }
             }
-            Spacer(Modifier.weight(1f))
             // The bar's whole height to hit, and wider than the pill it shows.
             Box(
                 Modifier.fillMaxHeight().clickable(onClick = onDisconnect).padding(horizontal = 12.dp),
