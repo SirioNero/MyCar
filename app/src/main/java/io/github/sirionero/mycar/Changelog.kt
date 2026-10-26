@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            15, "0.5.02-alpha",
+            listOf(
+                "Two smaller sizes for the car screen: Small (90%) and Extra small (83%), in the car's settings.",
+                "The phone's assistant opens listening, as from the corner of the phone's screen, not in its typed chat.",
+                "Screen sharing turns the phone sideways, so apps fill the car's wide screen. It turns back when you stop.",
+            ),
+        ),
+        Release(
             14, "0.5.01-alpha",
             listOf(
                 "Music and map share the screen again: the player sits beside the map as soon as something plays.",

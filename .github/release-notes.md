@@ -1,6 +1,13 @@
-myCar 0.5.01-alpha: music and map share the screen again.
+myCar 0.5.02-alpha: smaller sizes, the assistant in voice mode, and screen sharing in landscape.
+
+## New
+- Two smaller sizes for the car screen, under the car's Settings > Size: Small (90%) and Extra small (83%), beside Normal, Large and Extra large.
+- Screen sharing turns the phone sideways while it shows in the car, so apps fill the car's wide screen instead of standing upright between two bars. When sharing stops, the phone is free to turn back. Apps that only work upright stay upright. It needs myCar's touch relay switched on under Accessibility, as touch on the shared screen already does.
 
 ## Fixed
+- With the phone's assistant (or another assistant app) chosen, the dock's microphone and the steering wheel's voice button now open it listening, as the swipe from the corner of the phone's screen does, rather than in its typed chat.
+
+## Also in 0.5.01-alpha
 - With the dock, the player beside the map opened only by holding the song in the dock, so with music playing the map was on its own. Now the player sits beside the map as soon as something plays, as it always did. Its X puts it away for the drive; tap the song in the dock to bring it back, or hold it for the full player.
 
 ## Also in 0.5.00-alpha

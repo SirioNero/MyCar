@@ -137,6 +137,8 @@ Tutti i token in un solo posto, `car/design/`:
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
   il player a tutto schermo. Non nasconderlo dietro gesti poco scopribili.
+- **Dimensioni**: Extra small 83%, Small 90%, Normal, Large 125%, Extra large 150% (scala la
+  densità di tutta la UI dell'auto, `CarSettings.scale`).
 
 ## Decisioni prese
 
@@ -162,7 +164,15 @@ Tutti i token in un solo posto, `car/design/`:
 - Assistente vocale a scelta (`AssistantChoice`, chiave `car_assistant`): myCar (default),
   l'assistente del telefono o un'app assistente installata. Gli esterni si aprono sul telefono
   (ASSIST / VOICE_ASSIST / VOICE_COMMAND / VOICE_SEARCH_HANDS_FREE, in `<queries>`): Android non
-  permette di disegnarli sull'auto; la loro voce arriva in auto solo via Bluetooth.
+  permette di disegnarli sull'auto; la loro voce arriva in auto solo via Bluetooth. Si aprono in
+  modalità voce: prima VOICE_SEARCH_HANDS_FREE, poi VOICE_COMMAND / VOICE_ASSIST, ASSIST per
+  ultimo (su Google e Gemini apre la chat scritta); "l'assistente del telefono" va all'app letta da
+  `Settings.Secure` "assistant" (Gemini risponde tramite l'app Google).
+- Condivisione schermo (`mirror/`): mentre il telefono è copiato in auto, `TouchRelayService`
+  (accessibilità, già usato per i tocchi) aggiunge un pixel trasparente
+  `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
+  telefono in orizzontale; lo toglie a fine condivisione. I tocchi si mappano sulle dimensioni
+  reali del display (`Display.getRealSize`), non sulla finestra di myCar, che non riceve la rotazione.
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.
 - F-Droid: per ora variante **senza** voce offline (sherpa-onnx).
 - Auto-updater delle build GitHub: rilasci di `sirionero/mycar`; disattivato nella build F-Droid.
