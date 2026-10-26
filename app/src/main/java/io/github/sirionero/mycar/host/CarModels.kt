@@ -53,7 +53,7 @@ private val iconCache = android.util.LruCache<String, ImageBitmap>(200)
 fun CarIcon?.image(context: Context): ImageBitmap? {
     val icon = this?.icon ?: return null
     val key = icon.cacheKey(context)
-    iconCache.get(key)?.let { return it }
+    key?.let { iconCache.get(it) }?.let { return it }
     val drawable: Drawable = runCatching { icon.loadDrawable(context) }
         .onFailure { MyCarLog.w("icon: loadDrawable threw for ${icon.describe()}: ${it.javaClass.simpleName}: ${it.message}") }
         .getOrNull()
@@ -73,7 +73,7 @@ fun CarIcon?.image(context: Context): ImageBitmap? {
     val bitmap = runCatching { drawable.toBitmap(width, height).asImageBitmap() }
         .onFailure { MyCarLog.w("icon: toBitmap threw for ${icon.describe()}: ${it.javaClass.simpleName}: ${it.message}") }
         .getOrNull() ?: return null
-    iconCache.put(key, bitmap)
+    key?.let { iconCache.put(it, bitmap) }
     return bitmap
 }
 
@@ -82,11 +82,21 @@ fun CarIcon?.image(context: Context): ImageBitmap? {
  * numbers inside one build of the app: an update that adds a drawable renumbers the ones after it,
  * so a cache keyed on the bare id kept drawing the old build's picture on the wrong button (Vela's
  * new Saved button came up as its search glyph).
+ *
+ * Null, so not cached at all, for an icon that carries its picture inside it - a bitmap or raw
+ * bytes. Nothing outside the picture tells two of those apart: [describe] calls every bitmap
+ * "type=1", so the first one loaded stood in for all the rest, from any app (Plancia's menu button
+ * came up as Vela's map pin). They arrive already in memory, so loading them again costs little.
  */
-private fun androidx.core.graphics.drawable.IconCompat.cacheKey(context: Context): String {
-    if (type != androidx.core.graphics.drawable.IconCompat.TYPE_RESOURCE) return describe()
-    val installed = runCatching { context.packageManager.getPackageInfo(resPackage, 0).lastUpdateTime }.getOrDefault(0L)
-    return "${describe()}@$installed"
+private fun androidx.core.graphics.drawable.IconCompat.cacheKey(context: Context): String? = when (type) {
+    androidx.core.graphics.drawable.IconCompat.TYPE_RESOURCE -> {
+        val installed = runCatching { context.packageManager.getPackageInfo(resPackage, 0).lastUpdateTime }.getOrDefault(0L)
+        "${describe()}@$installed"
+    }
+    androidx.core.graphics.drawable.IconCompat.TYPE_URI,
+    androidx.core.graphics.drawable.IconCompat.TYPE_URI_ADAPTIVE_BITMAP,
+    -> describe()
+    else -> null
 }
 
 /** Enough of an [androidx.core.graphics.drawable.IconCompat] to tell log lines apart without dumping the whole object. */
