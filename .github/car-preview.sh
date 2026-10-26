@@ -1,31 +1,92 @@
 #!/usr/bin/env bash
 # Run by .github/workflows/car-preview.yml on the emulator: renders the car UI through the
-# debug-only CarPreviewActivity at a few car screen sizes, tapping the dock between shots, and
-# collects the PNGs it writes (plus the app's log and any crash) into previews/.
+# debug-only CarPreviewActivity at a few car screen sizes, tapping between shots, and collects
+# the PNGs it writes (plus the app's log and any crash) into previews/. Car apps the workflow
+# downloaded into third-party/ are installed first and opened from the app grid.
 set -u
 PKG=io.github.sirionero.mycar.dev
 ACT=$PKG/io.github.sirionero.mycar.CarPreviewActivity
 FILES=/sdcard/Android/data/$PKG/files
+VELA=app.vela
+PLANCIA=it.plancia.ha
+XONOS=it.xonos.ma
 
-adb install -r build/myCar-debug.apk
+# -g grants the runtime permissions up front, as onboarding would: phone, contacts, location.
+adb install -r -g build/myCar-debug.apk
+for apk in third-party/*.apk; do
+    [ -f "$apk" ] || continue
+    adb install -r -g "$apk" || echo "could not install $apk"
+done
+# Somewhere to be, for the maps and the weather: Milan.
+adb emu geo fix 9.19 45.464
 mkdir -p previews
 
-# shoot <name> <width> <height> <dpi> <taps "x,y;x,y" in screen pixels>
+installed() { adb shell pm list packages "$1" | tr -d '\r' | grep -qx "package:$1"; }
+
+# The 1920x720 app grid, in the launcher's order (phone, maps, music, messaging, web, screen
+# sharing, others, settings, exit), as many as are installed.
+grid=(phone)
+installed $VELA && grid+=(vela)
+installed $XONOS && grid+=(xonos)
+grid+=(ytmusic ytmusic-browse messages browser screen)
+installed $PLANCIA && grid+=(plancia)
+grid+=(settings exit)
+echo "1920x720 grid: ${grid[*]}"
+
+# Where an app's icon is on that grid, as "x,y": 7 columns 247px apart, 2 rows 324px apart.
+at() {
+    local i
+    for i in "${!grid[@]}"; do
+        if [ "${grid[$i]}" = "$1" ]; then
+            echo "$((291 + 247 * (i % 7))),$((159 + 324 * (i / 7)))"
+            return
+        fi
+    done
+    echo "no $1 on the grid" >&2
+    echo "-100,-100"
+}
+
+GRID_BUTTON="72,654"   # the dock's foot, at 1920x720
+WAIT="-100,-100"       # a tap off the screen: only gives an app time before the next shot
+
+# shoot <name> <width> <height> <dpi> <taps "x,y;x,y" in screen pixels> [command, run 5s in]
 shoot() {
     adb shell am force-stop "$PKG"
+    for p in $VELA $PLANCIA $XONOS; do adb shell am force-stop "$p"; done
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
     # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
     adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true --es taps '$5'"
-    sleep 25
+    if [ -n "${6:-}" ]; then
+        sleep 5
+        eval "$6"
+    fi
+    # The activity shoots 2s in, then taps every 2.5s and shoots 1.5s after each tap.
+    local taps
+    taps=$(($(tr -cd ';' <<< "$5" | wc -c) + 1))
+    sleep $((12 + 3 * taps))
     mkdir -p "previews/$1"
     adb pull "$FILES/." "previews/$1/" || echo "nothing to pull for $1"
     adb logcat -d -s myCar > "previews/$1/log.txt" 2>&1
     adb logcat -d -b crash > "previews/$1/crash.txt" 2>&1
 }
 
-# Shots: Home, then the app grid (dock's foot), then the dashboard (the clock at its top).
+# Home, then the app grid (dock's foot), then the dashboard (the clock at its top).
 shoot 800x480 800 480 160 "48,436;48,44"
-shoot 1920x720 1920 720 240 "72,654;72,66"
+shoot 1920x720 1920 720 240 "$GRID_BUTTON;72,66"
+
+# Each car app, opened from the grid and given a few seconds to draw.
+installed $VELA && shoot vela 1920 720 240 "$GRID_BUTTON;$(at vela);$WAIT;$WAIT;$WAIT;$WAIT"
+installed $PLANCIA && shoot plancia 1920 720 240 "$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT"
+installed $XONOS && shoot xonos 1920 720 240 "$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;$WAIT"
+
+# myCar's own screens: the phone and the car settings.
+shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
+shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
+
+# An incoming call from an unknown number, rung on the emulator's modem once the car UI is up.
+shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"
+adb emu gsm cancel 3331234567
+
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews

@@ -111,13 +111,16 @@ fun myCarDarkColors(): ColorScheme = with(MyCarPalette) {
     darkColorScheme(
         primary = Accent,
         onPrimary = White,
-        primaryContainer = Color(0xFF15345F),
-        onPrimaryContainer = Color(0xFFD7E6FF),
+        // What's selected (a tab, a choice): solid blue, not a dim navy, so it reads at a glance.
+        // Deep enough for white text.
+        primaryContainer = Color(0xFF2B6BE6),
+        onPrimaryContainer = White,
         inversePrimary = AccentOnLight,
         secondary = Color(0xFFB8B8BE),
         onSecondary = Black,
-        secondaryContainer = Color(0xFF243A5E),
-        onSecondaryContainer = Color(0xFFDCE8FF),
+        // Secondary buttons are grey, which leaves blue to mean "primary" or "selected".
+        secondaryContainer = DarkSurface4,
+        onSecondaryContainer = White,
         tertiary = Positive,
         onTertiary = Black,
         tertiaryContainer = Color(0xFF173F27),
@@ -152,13 +155,13 @@ fun myCarLightColors(): ColorScheme = with(MyCarPalette) {
     lightColorScheme(
         primary = AccentOnLight,
         onPrimary = White,
-        primaryContainer = Color(0xFFD6E5FF),
-        onPrimaryContainer = Color(0xFF002A66),
+        primaryContainer = AccentOnLight,
+        onPrimaryContainer = White,
         inversePrimary = Accent,
         secondary = Color(0xFF55555B),
         onSecondary = White,
-        secondaryContainer = Color(0xFFDCE7FA),
-        onSecondaryContainer = Color(0xFF0B2A55),
+        secondaryContainer = LightSurface3,
+        onSecondaryContainer = Black,
         tertiary = Color(0xFF1FA653),
         onTertiary = White,
         tertiaryContainer = Color(0xFFCDF3DA),

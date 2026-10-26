@@ -1,6 +1,5 @@
 package io.github.sirionero.mycar.car
 
-import io.github.sirionero.mycar.car.theme.*
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -11,7 +10,6 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import kotlin.math.hypot
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,11 +30,17 @@ import androidx.car.app.model.Template
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.style.TextOverflow
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.host.CarAppConnection
 
@@ -189,28 +193,47 @@ private fun ChromeBar(
     onDisconnect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scheme = MaterialTheme.colorScheme
+    // Solid, in the dock's colour, so the two frame the app together; and exactly CHROME_BAR tall,
+    // so the app's own controls start right under it rather than under a taller bar.
     Surface(
-        color = Color.Black.copy(alpha = 0.55f),
-        contentColor = Color.White,
-        modifier = modifier.fillMaxWidth(),
+        color = scheme.surfaceContainerLow,
+        contentColor = scheme.onSurface,
+        modifier = modifier.fillMaxWidth().height(CHROME_BAR),
     ) {
-        Row(
-            Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
+        Row(Modifier.padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                status.app ?: "Car app",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
+            // Once the app draws, its own screen says the rest.
+            if (!status.surfaceAttached) {
                 Text(
-                    status.app ?: "Car app",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    " · waiting for the app",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = scheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
-                val detail = buildList {
-                    status.template?.let { add(it) }
-                    add(if (status.surfaceAttached) "drawing" else "waiting for the app")
-                }.joinToString(" - ")
-                Text(detail, style = MaterialTheme.typography.bodySmall)
             }
-            GsButton(onClick = onDisconnect, tone = GsTone.Tonal) { Text("Stop") }
+            Spacer(Modifier.weight(1f))
+            // The bar's whole height to hit, and wider than the pill it shows.
+            Box(
+                Modifier.fillMaxHeight().clickable(onClick = onDisconnect).padding(horizontal = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    "Stop",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier
+                        .background(scheme.surfaceContainerHighest, CircleShape)
+                        .padding(horizontal = 18.dp, vertical = 6.dp),
+                )
+            }
         }
     }
 }
