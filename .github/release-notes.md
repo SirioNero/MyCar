@@ -1,4 +1,4 @@
-MyCar's first release: Gearslip 0.3.01-alpha under a new name, as an independent app.
+MyCar 0.3.02-alpha, its first release: Gearslip 0.3.01-alpha under a new name, as an independent app, with phone calls fixed.
 
 ## Changed
 - MyCar is a fork of Gearslip by Twink Software LLC, with its own name, package name, and repository. It can't be installed next to Gearslip.

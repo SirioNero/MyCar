@@ -11,6 +11,15 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            11, "0.3.02-alpha",
+            listOf(
+                "Gearslip is now MyCar, with a new name and icon. Updates come from github.com/sirionero/mycar.",
+                "Calls from your contacts show on the car screen, and you can answer or decline them there.",
+                "A call card no longer stays on the screen after you decline, or when the caller hangs up.",
+                "End a call from the car screen or the steering wheel.",
+            ),
+        ),
+        Release(
             9, "0.3.00-alpha",
             listOf(
                 "Wireless Android Auto: pair the phone with the car once, and leave the cable at home.",
