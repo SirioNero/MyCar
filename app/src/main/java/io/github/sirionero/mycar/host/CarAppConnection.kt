@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Speaks the Car App Library's host half, so a templated app can be rendered by MyCar.
+ * Speaks the Car App Library's host half, so a templated app can be rendered by myCar.
  *
  * This is the opposite end of the interface an app implements: the app exports a
  * CarAppService and describes a screen as a template, and whichever host it is bound to
@@ -51,7 +51,7 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * Whether an app will talk to us at all is decided by its HostValidator, which accepts a host
  * that either holds android.car.permission.TEMPLATE_RENDERER or is signed by a key on its
- * allow-list. MyCar declares that permission in its manifest, which is the whole reason
+ * allow-list. myCar declares that permission in its manifest, which is the whole reason
  * this can work from an ordinary app - see AndroidManifest.xml.
  *
  * Every binder callback lands on a binder thread and is hopped to the main thread, because
@@ -144,16 +144,16 @@ class CarAppConnection(private val context: Context) {
             if (binding !== connection) return@bind
             var bindError: Throwable? = null
             // BIND_ALLOW_ACTIVITY_STARTS lets the app start its own location service while
-            // MyCar's car window is showing. Since Android 14 a bound app only inherits that
+            // myCar's car window is showing. Since Android 14 a bound app only inherits that
             // from a visible host that opts in, and MapQuest crashes as navigation starts without it.
             val flags = Context.BIND_AUTO_CREATE or LocationKeepAlive.BIND_INCLUDE_CAPABILITIES or
                 (if (Build.VERSION.SDK_INT >= 34) Context.BIND_ALLOW_ACTIVITY_STARTS else 0)
             val bound = runCatching {
                 // Without BIND_FOREGROUND_SERVICE, an app bound by a foreground service (which is
-                // all MyCar is once the phone screen leaves it) only reaches "important
+                // all myCar is once the phone screen leaves it) only reaches "important
                 // foreground", and that state loses network under Doze and background network
                 // restrictions: the map and GPS keep working while search and routing go dead.
-                // In the preview MyCar is the top app, which hides this. Retried without the
+                // In the preview myCar is the top app, which hides this. Retried without the
                 // flag in case a build of Android refuses it from an unprivileged caller.
                 runCatching { context.bindService(intent, connection, flags or BIND_FOREGROUND_SERVICE) }
                     .getOrElse {
@@ -173,7 +173,7 @@ class CarAppConnection(private val context: Context) {
             }
         }
 
-        // BIND_INCLUDE_CAPABILITIES only lends the location capability MyCar holds at bind
+        // BIND_INCLUDE_CAPABILITIES only lends the location capability myCar holds at bind
         // time, so the keep-alive has to be running first - a nav app that starts its own
         // location service before then is refused, and MapQuest crashes on that.
         if (holdsLocation) {
@@ -192,10 +192,10 @@ class CarAppConnection(private val context: Context) {
      * name one that only Google's own Android Auto host holds, and no other app can be granted.
      */
     private fun explainBindFailure(component: ComponentName, error: Throwable?): String {
-        if (error !is SecurityException) return "the app would not let MyCar connect"
+        if (error !is SecurityException) return "the app would not let myCar connect"
         val needed = runCatching { context.packageManager.getServiceInfo(component, 0).permission }.getOrNull()
         return if (needed != null) {
-            "It only accepts Google's own Android Auto: its service requires the permission $needed, which MyCar can't hold."
+            "It only accepts Google's own Android Auto: its service requires the permission $needed, which myCar can't hold."
         } else {
             "It only accepts Google's own Android Auto host."
         }
@@ -209,10 +209,10 @@ class CarAppConnection(private val context: Context) {
         MyCarLog.w("host: $step failed: type=${failure.errorType}\n${failure.stackTrace.lineSequence().take(6).joinToString("\n")}")
         // The Car App Library's own host check: the app keeps a list of hosts it trusts by signature.
         if (firstLine.contains("Unrecognized host")) {
-            return "It only trusts hosts on its own allow-list (Google's Android Auto and a few others), and MyCar isn't on it."
+            return "It only trusts hosts on its own allow-list (Google's Android Auto and a few others), and myCar isn't on it."
         }
         val kind = when (failure.errorType) {
-            androidx.car.app.FailureResponse.SECURITY_EXCEPTION -> "It rejected MyCar as a host"
+            androidx.car.app.FailureResponse.SECURITY_EXCEPTION -> "It rejected myCar as a host"
             androidx.car.app.FailureResponse.ILLEGAL_STATE_EXCEPTION -> "It reported a state error"
             androidx.car.app.FailureResponse.INVALID_PARAMETER_EXCEPTION -> "It reported an invalid parameter"
             else -> "It failed"
@@ -366,7 +366,7 @@ class CarAppConnection(private val context: Context) {
         val app = carApp ?: return
         update { it.copy(phase = Phase.RUNNING, detail = "connected") }
         MyCarLog.verdict(
-            "${component?.packageName} accepted MyCar as a template host",
+            "${component?.packageName} accepted myCar as a template host",
             "Handshake completed at car API level ${_status.value.apiLevel}.",
         )
 
@@ -461,7 +461,7 @@ class CarAppConnection(private val context: Context) {
      * Lends the app a Surface to draw into.
      *
      * Navigation apps render their own map rather than describing it as a template, so the host
-     * has to give them somewhere to draw. MyCar's car UI already lives in a Presentation on a
+     * has to give them somewhere to draw. myCar's car UI already lives in a Presentation on a
      * VirtualDisplay backed by the encoder, so the Surface handed over here belongs to a
      * SurfaceView in that Presentation: the app draws straight into the car's picture and
      * SurfaceFlinger composites it under our chrome, with no readback or GL on our side.
@@ -696,7 +696,7 @@ class CarAppConnection(private val context: Context) {
      * Tells apps how much content this screen can take.
      *
      * These are safety limits in a real car - how many rows a driver may be shown at once -
-     * and the app trims its own lists to them. MyCar's numbers match what the Car App
+     * and the app trims its own lists to them. myCar's numbers match what the Car App
      * Library documents for a projected head unit; they are about the screen, not about us.
      */
     private val constraintHost = object : IConstraintHost.Stub() {
@@ -714,7 +714,7 @@ class CarAppConnection(private val context: Context) {
     /**
      * Accepts the shortcuts an app offers for a car launcher.
      *
-     * MyCar has nowhere to show these yet, but accepting and dropping them is right: an app
+     * myCar has nowhere to show these yet, but accepting and dropping them is right: an app
      * that pushes suggestions shouldn't fail because its host doesn't surface them.
      */
     private val suggestionHost = object : ISuggestionHost.Stub() {

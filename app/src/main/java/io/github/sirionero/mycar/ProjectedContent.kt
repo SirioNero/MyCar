@@ -49,7 +49,7 @@ object ProjectedContent {
              font-size:26px;border-radius:12px;background:#243043}
           .hit{background:#2e7d32}
         </style></head><body>
-        <h1>MyCar &mdash; projected from the phone</h1>
+        <h1>myCar &mdash; projected from the phone</h1>
         <div id="t">starting&hellip;</div>
         <div class="row">
           <div class="b" id="a">TAP A</div><div class="b" id="b">TAP B</div>

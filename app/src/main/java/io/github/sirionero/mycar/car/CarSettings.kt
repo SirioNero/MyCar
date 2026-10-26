@@ -159,7 +159,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
      */
     val pipeAudio: StateFlow<Boolean> = pipeAudioFlow
 
-    /** MyCar reads the map app's turns aloud on the car's directions channel; see DirectionsVoice. */
+    /** myCar reads the map app's turns aloud on the car's directions channel; see DirectionsVoice. */
     val speakDirections: StateFlow<Boolean> = speakDirectionsFlow
 
     /** With Bluetooth audio, warn when the phone isn't connected to the car; see BluetoothAudioCheck. */
@@ -187,7 +187,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
      */
     val experimentalFeaturesEnabled: StateFlow<Boolean> = experimentalFeaturesFlow
 
-    /** Listen with the phone's own speech service instead of MyCar's on-device model. */
+    /** Listen with the phone's own speech service instead of myCar's on-device model. */
     val systemSpeech: StateFlow<Boolean> = systemSpeechFlow
 
     /**

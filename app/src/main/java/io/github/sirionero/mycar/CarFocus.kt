@@ -4,9 +4,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Who has the car's screen: MyCar, or the car's own interface. Android Auto's "Exit" hands the
+ * Who has the car's screen: myCar, or the car's own interface. Android Auto's "Exit" hands the
  * screen back to the car with the session still running, so music keeps playing; the car's own
- * Android Auto button brings MyCar back. [MyCarRunner] fills in [request] while connected.
+ * Android Auto button brings myCar back. [MyCarRunner] fills in [request] while connected.
  */
 object CarFocus {
 

@@ -42,7 +42,7 @@ import kotlinx.coroutines.withContext
  * Starts a phone app on the car screen.
  *
  * Picking one hands the whole frame over to the mirror, so this screen is the last thing
- * MyCar draws until mirroring stops - either from the notification on the phone, or by
+ * myCar draws until mirroring stops - either from the notification on the phone, or by
  * tapping the black bars beside the mirrored picture.
  */
 @Composable
@@ -94,7 +94,7 @@ private fun TouchRelayWarning() {
         ) {
             Icon(Icons.Filled.Warning, contentDescription = null)
             Text(
-                "Touch is off. Enable MyCar under Settings > Accessibility on the phone.",
+                "Touch is off. Enable myCar under Settings > Accessibility on the phone.",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )

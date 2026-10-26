@@ -46,7 +46,7 @@ import io.github.sirionero.mycar.host.CarAppConnection
  * The surface is a plain SurfaceView. Because the whole car UI is a Presentation on a
  * VirtualDisplay wired to the encoder, a SurfaceView here is composited by SurfaceFlinger into
  * that display like any other layer - so the app's map reaches the head unit down the existing
- * H.264 pipe without MyCar ever touching a pixel of it.
+ * H.264 pipe without myCar ever touching a pixel of it.
  */
 @Composable
 fun CarAppStage(

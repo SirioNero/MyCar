@@ -78,7 +78,7 @@ object Weather {
             if (flow.value !is WeatherState.Ready) {
                 val allowed = hasLocationPermission(context)
                 flow.value = WeatherState.Unavailable(
-                    if (allowed) "Waiting for a location fix." else "Allow location for MyCar on the phone to see the weather.",
+                    if (allowed) "Waiting for a location fix." else "Allow location for myCar on the phone to see the weather.",
                 )
             }
             return

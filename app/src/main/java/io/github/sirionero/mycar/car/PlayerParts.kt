@@ -140,7 +140,7 @@ internal fun PlayModeRow(
     Row(modifier, horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
         // An app's own like, shuffle or repeat button shows whether it's on only through its icon,
         // so that icon is drawn, as Android Auto does, and lit when its name says it's on.
-        // MyCar's own stand in for apps that report a heart rating or shuffle and repeat modes.
+        // myCar's own stand in for apps that report a heart rating or shuffle and repeat modes.
         val likeAction = now.likeAction
         if (likeAction != null) {
             CustomActionButton(likeAction, media, size, toggle = true)
@@ -186,7 +186,7 @@ internal fun PlayModeRow(
 
 /**
  * One of the app's own buttons, drawn with the app's own icon - it lives in the app's package,
- * not MyCar's, so it's loaded from there. Its name stands in if the icon won't load.
+ * not myCar's, so it's loaded from there. Its name stands in if the icon won't load.
  */
 @Composable
 private fun CustomActionButton(action: CustomAction, media: CarMedia, size: Dp, toggle: Boolean = false) {

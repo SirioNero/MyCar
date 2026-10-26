@@ -30,7 +30,7 @@ import java.net.URL
 import java.security.MessageDigest
 
 /**
- * Looks for a newer MyCar on GitHub and installs it through Android's own installer.
+ * Looks for a newer myCar on GitHub and installs it through Android's own installer.
  *
  * Which releases count depends on the driver's channel. Stable takes only GitHub's "latest"
  * release, which leaves out pre-releases and drafts. Beta adds pre-releases tagged "beta", and
@@ -81,13 +81,13 @@ object UpdateChecker {
     /** Newest first, pre-releases included. Ten covers any run of betas between two releases. */
     private const val ALL = "https://api.github.com/repos/sirionero/mycar/releases?per_page=10"
 
-    /** Set when the driver tapped Install but first had to allow installs from MyCar. */
+    /** Set when the driver tapped Install but first had to allow installs from myCar. */
     @Volatile private var installWhenAllowed = false
 
     private fun prefs(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     /**
-     * Whether MyCar checks on its own, and tells the driver what it finds on the phone and the
+     * Whether myCar checks on its own, and tells the driver what it finds on the phone and the
      * car screen. On by default: the check sends nothing about the phone.
      */
     fun autoCheckEnabled(context: Context): Boolean = prefs(context).getBoolean(KEY_AUTO, true)
@@ -122,7 +122,7 @@ object UpdateChecker {
     private fun dueForCheck(context: Context) =
         !BuildConfig.DEBUG && autoCheckEnabled(context) && System.currentTimeMillis() - prefs(context).getLong(KEY_CHECKED_AT, 0) >= DAY_MS
 
-    /** MyCar came to the front: check if a day has passed, and finish an install that waited on permission. */
+    /** myCar came to the front: check if a day has passed, and finish an install that waited on permission. */
     fun onAppOpened(context: Context) {
         val current = flow.value
         if (installWhenAllowed && current is State.Ready && context.packageManager.canRequestPackageInstalls()) {
@@ -177,9 +177,9 @@ object UpdateChecker {
                     key = "mycar-update",
                     id = CarNotifications.nextId(),
                     packageName = app.packageName,
-                    appLabel = "MyCar",
-                    title = "MyCar ${release.version} is out",
-                    text = "Update in the MyCar app or from GitHub",
+                    appLabel = "myCar",
+                    title = "myCar ${release.version} is out",
+                    text = "Update in the myCar app or from GitHub",
                     postedAt = System.currentTimeMillis(),
                     icon = runCatching { app.packageManager.getApplicationIcon(app.packageName).toBitmap(96, 96) }.getOrNull(),
                     reply = null,
@@ -198,7 +198,7 @@ object UpdateChecker {
         else -> savedRelease(app)
     }
 
-    /** Posts "MyCar X is out"; tapping it opens the app, where the Home card has the button. */
+    /** Posts "myCar X is out"; tapping it opens the app, where the Home card has the button. */
     private fun notify(context: Context, release: Release): Boolean {
         if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return false
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(
@@ -211,7 +211,7 @@ object UpdateChecker {
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("MyCar ${release.version} is out")
+            .setContentTitle("myCar ${release.version} is out")
             .setContentText("Tap to update.")
             .setContentIntent(open)
             .setAutoCancel(true)
@@ -257,7 +257,7 @@ object UpdateChecker {
         flow.value = State.Downloading(release, 0f)
         Thread({
             val dir = updatesDir(app).apply { deleteRecursively(); mkdirs() }
-            val apk = File(dir, "MyCar-${release.version}.apk")
+            val apk = File(dir, "myCar-${release.version}.apk")
             flow.value = runCatching {
                 fetchApk(release, apk)
                 MyCarLog.i("update: downloaded ${release.version}")
@@ -273,12 +273,12 @@ object UpdateChecker {
 
     /**
      * Hands the downloaded APK to Android's installer. The first time, Android wants the driver to
-     * allow installs from MyCar; that opens its settings page, and the install carries on when
+     * allow installs from myCar; that opens its settings page, and the install carries on when
      * they come back.
      */
     fun install(context: Context) {
         val ready = flow.value as? State.Ready ?: return
-        // Installing closes MyCar, which would drop the car screen mid-drive.
+        // Installing closes myCar, which would drop the car screen mid-drive.
         if (carConnected) return
         val pm = context.packageManager
         if (!pm.canRequestPackageInstalls()) {
@@ -304,7 +304,7 @@ object UpdateChecker {
             connectTimeout = 15_000
             readTimeout = 15_000
             setRequestProperty("Accept", "application/vnd.github+json")
-            setRequestProperty("User-Agent", "MyCar/${BuildConfig.VERSION_NAME}")
+            setRequestProperty("User-Agent", "myCar/${BuildConfig.VERSION_NAME}")
         }
         try {
             if (conn.responseCode == 404) return null // no stable release yet
@@ -344,7 +344,7 @@ object UpdateChecker {
         val conn = (URL(release.apkUrl).openConnection() as HttpURLConnection).apply {
             connectTimeout = 15_000
             readTimeout = 30_000
-            setRequestProperty("User-Agent", "MyCar/${BuildConfig.VERSION_NAME}")
+            setRequestProperty("User-Agent", "myCar/${BuildConfig.VERSION_NAME}")
         }
         try {
             if (conn.responseCode !in 200..299) error("GitHub answered ${conn.responseCode}")

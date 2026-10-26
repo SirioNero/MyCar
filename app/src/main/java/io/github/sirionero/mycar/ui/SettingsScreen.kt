@@ -120,8 +120,8 @@ fun SettingsScreen(
         ) {
             Spacer(Modifier.height(0.dp))
             SettingsSection(
-                "Support MyCar",
-                footer = "MyCar is free, with no ads and no tracking. Your support keeps it going.",
+                "Support myCar",
+                footer = "myCar is free, with no ads and no tracking. Your support keeps it going.",
             ) { DonateRows() }
             ConnectionSection()
             HelpSection(onOpenHelp, onOpenCarPreview, onOpenLogs)
@@ -148,7 +148,7 @@ private fun Arrow() = Icon(
     tint = MaterialTheme.colorScheme.onSurfaceVariant,
 )
 
-/** What's new, the replays, and where MyCar lives outside the app. */
+/** What's new, the replays, and where myCar lives outside the app. */
 @Composable
 private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Unit, onReplayIntro: () -> Unit) {
     SettingsSection("About") {
@@ -180,26 +180,26 @@ private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Uni
     }
 }
 
-/** Off, a stock Android Auto app or head unit answers the USB connection instead of MyCar. */
+/** Off, a stock Android Auto app or head unit answers the USB connection instead of myCar. */
 @Composable
 private fun ConnectionSection() {
     val context = LocalContext.current
     var enabled by remember { mutableStateOf(AppSettings.myCarEnabled(context)) }
     SettingsSection("Connection") {
         SettingsRow(
-            "Use MyCar in the car",
+            "Use myCar in the car",
             Modifier.toggleable(enabled, role = Role.Switch) {
                 enabled = it
                 AppSettings.setMyCarEnabled(context, it)
             },
-            subtitle = if (enabled) "MyCar answers when you plug into a car" else "Off: Android Auto can take the connection instead",
+            subtitle = if (enabled) "myCar answers when you plug into a car" else "Off: Android Auto can take the connection instead",
             icon = Icons.Filled.Settings,
             trailing = { Switch(checked = enabled, onCheckedChange = null) },
         )
     }
 }
 
-/** Connection help, and the tools for checking what MyCar does. */
+/** Connection help, and the tools for checking what myCar does. */
 @Composable
 private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, onOpenLogs: () -> Unit) {
     val context = LocalContext.current
@@ -228,7 +228,7 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
         SettingsRow(
             "Live logs",
             Modifier.clickable(onClick = onOpenLogs),
-            subtitle = "What MyCar and the car are saying to each other",
+            subtitle = "What myCar and the car are saying to each other",
             icon = Icons.AutoMirrored.Filled.List,
             trailing = { Arrow() },
         )
@@ -244,7 +244,7 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
     }
 }
 
-/** How music reaches the car: by Bluetooth as usual, or through MyCar over USB. Same choice as setup. */
+/** How music reaches the car: by Bluetooth as usual, or through myCar over USB. Same choice as setup. */
 @Composable
 private fun CarAudioSection() {
     val usb by CarSettings.pipeAudio.collectAsState()
@@ -344,7 +344,7 @@ private fun CertificateSection() {
                     }
                 }
             },
-            subtitle = "The certificate the open-source aasdk project publishes on GitHub. MyCar doesn't include one",
+            subtitle = "The certificate the open-source aasdk project publishes on GitHub. myCar doesn't include one",
             icon = Icons.Filled.Refresh,
         )
         SettingsDivider()

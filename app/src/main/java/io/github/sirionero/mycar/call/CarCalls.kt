@@ -253,7 +253,7 @@ object CarCalls {
     private const val RING_GRACE_MS = 3_000L
 }
 
-/** Posts to the main thread after a delay - used to give up on a screening response MyCar never sent. */
+/** Posts to the main thread after a delay - used to give up on a screening response myCar never sent. */
 internal fun mainThreadDelay(ms: Long, action: () -> Unit) {
     Handler(Looper.getMainLooper()).postDelayed(action, ms)
 }

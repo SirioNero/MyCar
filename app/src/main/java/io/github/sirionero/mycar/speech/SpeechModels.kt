@@ -20,11 +20,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * The speech models MyCar listens with, in two roles: a streaming one that writes the words
+ * The speech models myCar listens with, in two roles: a streaming one that writes the words
  * while the driver talks, and an optional final one that reads the whole phrase again once they
  * stop, for a more accurate result. None ships in the APK: each is fetched once and kept in the
  * app's own storage. sherpa-onnx's author publishes them twice: as .tar.bz2 archives on GitHub and
- * as plain files on Hugging Face. MyCar takes the plain files: unpacking bzip2 on the phone
+ * as plain files on Hugging Face. myCar takes the plain files: unpacking bzip2 on the phone
  * pinned a core and held a download to 150 KB/s on Wi-Fi that does 19 MB/s.
  */
 object SpeechModels {
@@ -60,7 +60,7 @@ object SpeechModels {
             filesAt = "punitd/sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8/resolve/66a4fa70643dc7ce25c9b38b2f87e1b35ddad33d",
         ),
         CANARY(
-            Role.FINAL, "canary-180m-en", "Canary", "Recommended. Quick, and hears names and places well. Knows English, Spanish, German and French; MyCar listens in English for now. NVIDIA NeMo, CC BY 4.0", 198,
+            Role.FINAL, "canary-180m-en", "Canary", "Recommended. Quick, and hears names and places well. Knows English, Spanish, German and French; myCar listens in English for now. NVIDIA NeMo, CC BY 4.0", 198,
             "sherpa-onnx-nemo-canary-180m-flash-en-es-de-fr-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "", modelType = "canary",
         ),

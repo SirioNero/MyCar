@@ -21,7 +21,7 @@ import io.github.sirionero.mycar.MyCarLog
 /**
  * "Navigate to X" the way Android Auto does it: straight onto a route, no list to pick from.
  *
- * Android Auto looks the place up on Google's servers first. MyCar stays on the phone, so it
+ * Android Auto looks the place up on Google's servers first. myCar stays on the phone, so it
  * asks the map app to search, then taps the nearest result in the app's list for the driver.
  * It stops at the app's start screen, so the driver sees where it's going and taps Start. It
  * gives up after [WINDOW_MS], or as soon as the driver taps anything themselves.

@@ -127,7 +127,7 @@ private fun glyph(icon: ImageVector): @Composable (Color) -> Unit = { tint ->
 private fun granted(context: Context, permissions: Array<String>): Boolean =
     permissions.all { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
 
-/** Whether MyCar already holds the hidden `PROJECT_MEDIA` app-op an adb command grants -
+/** Whether myCar already holds the hidden `PROJECT_MEDIA` app-op an adb command grants -
  * checked the same way the platform checks it, since there is no public permission for it. */
 private fun hasProjectMediaOp(context: Context): Boolean {
     val ops = context.getSystemService(AppOpsManager::class.java) ?: return false
@@ -142,7 +142,7 @@ private fun hasCallScreeningRole(context: Context): Boolean {
     return runCatching { roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) }.getOrDefault(false)
 }
 
-/** Whether the driver has already granted MyCar's [MyCarNotificationListener] access. */
+/** Whether the driver has already granted myCar's [MyCarNotificationListener] access. */
 private fun hasNotificationAccess(context: Context): Boolean {
     val manager = context.getSystemService(NotificationManager::class.java) ?: return false
     val component = ComponentName(context, MyCarNotificationListener::class.java)
@@ -170,7 +170,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     add(
         GuidePage(
             title = "Drive safely.",
-            explanation = "MyCar is unofficial. No carmaker made or checked it, and it can fail " +
+            explanation = "myCar is unofficial. No carmaker made or checked it, and it can fail " +
                 "without warning. Set it up before you go, then keep your eyes on the road.",
             icon = glyph(Icons.Filled.Warning),
         ),
@@ -182,7 +182,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
         add(
             GuidePage(
                 title = "Microphone.",
-                explanation = "MyCar uses it to send your music to the car and to hear you when you " +
+                explanation = "myCar uses it to send your music to the car and to hear you when you " +
                     "ask for something or reply to a message. What you say stays on the phone.",
                 icon = { MicIcon(it) },
                 permissions = arrayOf(Manifest.permission.RECORD_AUDIO),
@@ -204,7 +204,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
         add(
             GuidePage(
                 title = "Calendar.",
-                explanation = "The car screen shows your next event. MyCar only reads your calendar.",
+                explanation = "The car screen shows your next event. myCar only reads your calendar.",
                 icon = glyph(Icons.Filled.DateRange),
                 permissions = arrayOf(Manifest.permission.READ_CALENDAR),
             ),
@@ -222,7 +222,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
             GuidePage(
                 title = "Calls and contacts.",
                 explanation = "The car shows who's calling by name, and its Phone app can dial a " +
-                    "number or call one of your contacts. MyCar only reads them.",
+                    "number or call one of your contacts. myCar only reads them.",
                 icon = glyph(Icons.Filled.Phone),
                 permissions = callPermissions,
             ),
@@ -232,7 +232,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
         add(
             GuidePage(
                 title = "Bluetooth.",
-                explanation = "The first time you plug in, MyCar offers to pair your phone with the " +
+                explanation = "The first time you plug in, myCar offers to pair your phone with the " +
                     "car, so calls play through its speakers.",
                 icon = glyph(Icons.Filled.Call),
                 permissions = arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
@@ -244,7 +244,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
         add(
             GuidePage(
                 title = "Notifications.",
-                explanation = "While MyCar is connected, it shows a notification with a button " +
+                explanation = "While myCar is connected, it shows a notification with a button " +
                     "to stop. Without this, Android hides it.",
                 icon = glyph(Icons.Filled.Notifications),
                 permissions = arrayOf(Manifest.permission.POST_NOTIFICATIONS),
@@ -256,7 +256,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
             GuidePage(
                 title = "Messages.",
                 explanation = "The car shows your messages, reads them aloud and lets you reply. " +
-                    "Turn MyCar on in the list this opens.",
+                    "Turn myCar on in the list this opens.",
                 icon = glyph(Icons.Filled.Email),
                 actionLabel = "Open notification access",
                 onAction = {
@@ -273,7 +273,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
         add(
             GuidePage(
                 title = "Turn off Android Auto.",
-                explanation = "Android Auto is still installed, and it fights MyCar for the car's " +
+                explanation = "Android Auto is still installed, and it fights myCar for the car's " +
                     "USB connection. Disable or uninstall it on the screen this opens.",
                 icon = glyph(Icons.Filled.Close),
                 actionLabel = "Open Android Auto's app info",
@@ -289,9 +289,9 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     // --- Default handler ---------------------------------------------------------------
     add(
         GuidePage(
-            title = "Choose MyCar.",
+            title = "Choose myCar.",
             explanation = "If your phone asks which app to open when you plug into the car, pick " +
-                "MyCar and tap Always.",
+                "myCar and tap Always.",
             icon = glyph(Icons.Filled.Check),
         ),
     )
@@ -329,7 +329,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
             GuidePage(
                 title = "No audio prompt.",
                 explanation = "Run this from a computer with USB debugging on, and Android trusts " +
-                    "MyCar with your audio for good. Without it, you tap Start once each drive.",
+                    "myCar with your audio for good. Without it, you tap Start once each drive.",
                 icon = glyph(Icons.Filled.Build),
                 optional = true,
                 usbOnly = true,
@@ -342,7 +342,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
             GuidePage(
                 title = "Readable notifications.",
                 explanation = "While audio goes to the car, Android hides what notifications say, " +
-                    "as if you were sharing your screen. This lets MyCar show them during a " +
+                    "as if you were sharing your screen. This lets myCar show them during a " +
                     "drive and hide them again after.",
                 icon = glyph(Icons.Filled.Build),
                 optional = true,
@@ -355,7 +355,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
         add(
             GuidePage(
                 title = "Screen unknown callers.",
-                explanation = "Make MyCar your caller ID app, and the car can turn down a call from " +
+                explanation = "Make myCar your caller ID app, and the car can turn down a call from " +
                     "outside your contacts before it rings. Without it, the car still shows every " +
                     "call, and you answer or decline it there.",
                 icon = glyph(Icons.Filled.Call),

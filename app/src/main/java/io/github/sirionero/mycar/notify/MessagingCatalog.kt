@@ -13,7 +13,7 @@ class MessagingApp(val packageName: String, val label: String)
  * Finds messaging apps that opted in to Android Auto: those whose car descriptor lists
  * `notification` (Signal, Molly, WhatsApp, Telegram, Google Messages). Android Auto has no
  * screen of their own to open; it shows their conversations from the notifications they post,
- * and so does MyCar.
+ * and so does myCar.
  */
 object MessagingCatalog {
 

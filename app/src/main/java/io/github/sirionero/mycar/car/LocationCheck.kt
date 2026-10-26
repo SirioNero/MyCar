@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Map apps can't find the car with the phone's location turned off. Ten seconds after the car
- * shows MyCar, this checks, and the car says so until location comes on or the drive ends.
+ * shows myCar, this checks, and the car says so until location comes on or the drive ends.
  */
 object LocationCheck {
 
@@ -35,7 +35,7 @@ object LocationCheck {
         appContext = context.applicationContext
     }
 
-    /** The car shows MyCar. Called again whenever the video restarts, so it arms once per drive. */
+    /** The car shows myCar. Called again whenever the video restarts, so it arms once per drive. */
     fun onProjecting() = main.post {
         if (armed) return@post
         armed = true

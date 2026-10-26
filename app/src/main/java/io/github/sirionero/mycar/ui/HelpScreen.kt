@@ -48,11 +48,11 @@ private class Step(
 )
 
 private val FIRST_DRIVE = listOf(
-    Step("Turn off Android Auto.", "Disable or uninstall the Android Auto app, so the car talks to MyCar instead."),
+    Step("Turn off Android Auto.", "Disable or uninstall the Android Auto app, so the car talks to myCar instead."),
     Step("Load a certificate.", "In Settings, download one or import your own."),
     Step(
         "Allow the microphone.",
-        "Android won't let an app pass music to the car without it. MyCar listens only when " +
+        "Android won't let an app pass music to the car without it. myCar listens only when " +
             "you tap the mic or press the talk button on your wheel.",
     ),
 )
@@ -60,17 +60,17 @@ private val FIRST_DRIVE = listOf(
 private fun inTheCar(onRequestCallScreening: () -> Unit) = listOf(
     Step(
         "Plug in, or connect wirelessly.",
-        "MyCar opens by itself when the car connects. For wireless, pair the phone with the " +
+        "myCar opens by itself when the car connects. For wireless, pair the phone with the " +
             "car first, then tap Connect wirelessly on Home.",
     ),
     Step(
         "Pair over Bluetooth for calls.",
-        "Calls play through the car once your phone and the car are paired. MyCar offers to " +
+        "Calls play through the car once your phone and the car are paired. myCar offers to " +
             "pair the first time you plug in.",
     ),
     Step(
         "Turn down unknown callers before they ring.",
-        "Set MyCar as your caller ID and spam app. Without it, the car still shows every call, " +
+        "Set myCar as your caller ID and spam app. Without it, the car still shows every call, " +
             "and you answer or decline it there.",
         buttonLabel = "Set up",
         onClick = onRequestCallScreening,
@@ -86,7 +86,7 @@ private val USB_AUDIO = listOf(
     ),
     Step(
         "Keep notifications readable.",
-        "Android hides what notifications say while it shares audio. Run this too, and MyCar " +
+        "Android hides what notifications say while it shares audio. Run this too, and myCar " +
             "lifts that only while music goes to the car.",
         command = "adb shell pm grant ${BuildConfig.APPLICATION_ID} android.permission.WRITE_SECURE_SETTINGS",
     ),
@@ -125,7 +125,7 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
             SettingsSection("Which cars work") {
                 Text(
                     "Most cars work. Starting around 2020, some cars added newer security " +
-                        "standards that reject MyCar's certificate, and MyCar can't run in those cars.",
+                        "standards that reject myCar's certificate, and myCar can't run in those cars.",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
                 )

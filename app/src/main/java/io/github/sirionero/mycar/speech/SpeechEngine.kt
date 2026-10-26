@@ -31,7 +31,7 @@ import java.util.concurrent.Executors
 import kotlin.math.max
 
 /**
- * MyCar's own speech-to-text, so voice works on phones with no speech service (GrapheneOS ships
+ * myCar's own speech-to-text, so voice works on phones with no speech service (GrapheneOS ships
  * none). sherpa-onnx runs a streaming model ([SpeechModels]) on the phone: words come out while
  * the driver is still talking, and the model itself decides when they've finished. A larger model
  * then reads the whole phrase once more for the final words, since a model that waits for the end
@@ -47,7 +47,7 @@ object SpeechEngine {
     const val NOT_LOADED = "The speech model didn't load."
 
     /** Said when the chosen model hasn't been downloaded yet. */
-    const val NOT_DOWNLOADED = "Download a voice model in MyCar's settings on the phone first."
+    const val NOT_DOWNLOADED = "Download a voice model in myCar's settings on the phone first."
 
     private const val RATE = 16_000
     private const val CHUNK = 1_600 // 100 ms

@@ -5,7 +5,7 @@
       wallpaper on Android 12+, and falls back to Material3's static baseline scheme on
       older versions or when DynamicColors.applyToActivityIfAvailable() is skipped.
     -->
-    <style name="Theme.MyCar" parent="Theme.Material3.DynamicColors.DayNight">
+    <style name="Theme.myCar" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
     </style>

@@ -34,16 +34,16 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 
-/** Where MyCar lives outside the app: support, the chat room, and the code. */
+/** Where myCar lives outside the app: support, the chat room, and the code. */
 internal object MyCarLinks {
     /** A card payment page for giving once, any amount. Its row stays hidden while this is empty. */
     const val PAYMENT_LINK = ""
-    /** MyCar's Bitcoin address (native SegWit). */
+    /** myCar's Bitcoin address (native SegWit). */
     const val BITCOIN = "bc1qu8q2sc5kuccjj3zpzzfpj85xn7szp73nae9xlx"
     const val MATRIX = "https://matrix.to/#/!mf0_mgBd5KqKpc9FfX_wHp1jFCcwAtPrndIn_oGIyMk?via=matrix.org"
     const val SOURCE = "https://github.com/sirionero/mycar"
     const val LICENSE = "$SOURCE/blob/main/LICENSE"
-    /** Gearslip, the project MyCar is a modified version of. */
+    /** Gearslip, the project myCar is a modified version of. */
     const val UPSTREAM = "https://github.com/twinksoftware/gearslip"
     const val CARS = "$SOURCE/blob/main/CARS.md"
 
@@ -69,7 +69,7 @@ internal object MyCarLinks {
     }
 }
 
-/** The ways to support MyCar: Bitcoin, and card once it's set up. */
+/** The ways to support myCar: Bitcoin, and card once it's set up. */
 @Composable
 internal fun DonateRows() {
     val context = LocalContext.current
@@ -151,7 +151,7 @@ internal fun AboutLinkRows() {
     SettingsRow(
         "Gearslip chat on Matrix",
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.MATRIX) },
-        subtitle = "The community of Gearslip, the project MyCar is based on",
+        subtitle = "The community of Gearslip, the project myCar is based on",
         icon = Icons.AutoMirrored.Filled.Send,
         trailing = arrow,
     )
@@ -159,7 +159,7 @@ internal fun AboutLinkRows() {
     SettingsRow(
         "Source code",
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.SOURCE) },
-        subtitle = "Read or change MyCar's code under the AGPL",
+        subtitle = "Read or change myCar's code under the AGPL",
         icon = Icons.Filled.Build,
         trailing = arrow,
     )
@@ -167,7 +167,7 @@ internal fun AboutLinkRows() {
     SettingsRow(
         "Based on Gearslip",
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.UPSTREAM) },
-        subtitle = "MyCar is a modified version of Gearslip, © 2026 Twink Software LLC and contributors",
+        subtitle = "myCar is a modified version of Gearslip, © 2026 Twink Software LLC and contributors",
         icon = Icons.Filled.Info,
         trailing = arrow,
     )

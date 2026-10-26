@@ -44,6 +44,6 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MyCar-debug-${{ github.sha }}
-          path: build/MyCar-debug.apk
+          name: myCar-debug-${{ github.sha }}
+          path: build/myCar-debug.apk
           if-no-files-found: error

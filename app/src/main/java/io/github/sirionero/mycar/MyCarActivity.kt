@@ -117,7 +117,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
-    /** Setting MyCar as the phone's caller ID and spam app - what lets it decline a ringing call. */
+    /** Setting myCar as the phone's caller ID and spam app - what lets it decline a ringing call. */
     private val callScreeningRole = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode != RESULT_OK) MyCarLog.w("calls: call screening role declined")
     }
@@ -134,7 +134,7 @@ class MyCarActivity : ComponentActivity(), Projection {
 
         MyCarLog.init(this)
         MyCarLog.installCrashHandler()
-        MyCarLog.i("MyCar ready")
+        MyCarLog.i("myCar ready")
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = { socket ->
             runOnUiThread { startWireless(socket) }
         }
@@ -227,7 +227,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         MyCarLog.flush()
     }
 
-    /** Launches the system dialog that offers MyCar the call-screening role, if it isn't held already. */
+    /** Launches the system dialog that offers myCar the call-screening role, if it isn't held already. */
     private fun requestCallScreeningRole() {
         val roleManager = getSystemService(android.app.role.RoleManager::class.java)
         if (roleManager == null || !roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
@@ -291,7 +291,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val point = PhoneMirror.mapToPhone(this, x, y)
         if (point == null) {
             // The letterbox bars belong to no window, which makes them a safe way back: a tap
-            // on the padding leaves the mirror and returns the car to MyCar's own UI.
+            // on the padding leaves the mirror and returns the car to myCar's own UI.
             if (action == MotionEvent.ACTION_UP) PhoneMirror.requestStop()
             return
         }
@@ -308,7 +308,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         // Switched off in Settings: the system shouldn't route the car here at all, but if it
         // does, leave the accessory alone.
         if (!AppSettings.myCarEnabled(this)) {
-            MyCarLog.i("accessory attached, but MyCar is switched off - not connecting")
+            MyCarLog.i("accessory attached, but myCar is switched off - not connecting")
             return
         }
         val accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
@@ -335,7 +335,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val pfd = manager.openAccessory(accessory)
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
-            SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before MyCar could open it.")
+            SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before myCar could open it.")
             return
         }
         descriptor = pfd
@@ -355,7 +355,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     private fun startWireless(socket: java.net.Socket) {
         closeAccessory(stopWireless = false)
         if (!AppSettings.myCarEnabled(this)) {
-            MyCarLog.i("wireless: MyCar is switched off - not connecting")
+            MyCarLog.i("wireless: myCar is switched off - not connecting")
             runCatching { socket.close() }
             return
         }

@@ -10,7 +10,7 @@ import androidx.core.graphics.drawable.toBitmap
  * Feeds the phone's notifications to the car.
  *
  * Reading other apps' notifications is gated by the user granting "Notification access" to
- * MyCar in the phone's settings - the same on-device consent as any notification mirror,
+ * myCar in the phone's settings - the same on-device consent as any notification mirror,
  * and the only one needed. Until then the car UI says so and offers to open that page.
  */
 class MyCarNotificationListener : NotificationListenerService() {
@@ -30,7 +30,7 @@ class MyCarNotificationListener : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification) = CarNotifications.gone(sbn.key)
 
     private fun ingest(sbn: StatusBarNotification, quiet: Boolean) {
-        // MyCar's own notifications are skipped, except a debug build's test message.
+        // myCar's own notifications are skipped, except a debug build's test message.
         if (sbn.packageName == packageName &&
             !(io.github.sirionero.mycar.BuildConfig.DEBUG && sbn.notification.channelId == TestMessage.CHANNEL)
         ) return

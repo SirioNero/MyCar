@@ -28,7 +28,7 @@ import java.net.Socket
 import java.util.UUID
 
 /**
- * Wireless Android Auto, phone side: the start-up that hands MyCar a socket instead of a USB
+ * Wireless Android Auto, phone side: the start-up that hands myCar a socket instead of a USB
  * accessory. Everything after it - versions, TLS, the certificate, channels, video - is the same
  * protocol [io.github.sirionero.mycar.MyCarRunner] already speaks over USB.
  *
@@ -147,14 +147,14 @@ object WirelessLink {
         SessionStatus.connecting("Bluetooth: reaching $name")
         val socket = try {
             // A running scan slows the connect, but stopping one needs BLUETOOTH_SCAN on Android
-            // 12+, which MyCar doesn't ask for. MyCar never scans, so skipping it is fine.
+            // 12+, which myCar doesn't ask for. myCar never scans, so skipping it is fine.
             runCatching { context.getSystemService(BluetoothManager::class.java)?.adapter?.cancelDiscovery() }
             device.createRfcommSocketToServiceRecord(AA_UUID).also { it.connect() }
         } catch (e: SecurityException) {
             log.e("Bluetooth: permission refused while opening the channel on $name", e)
             SessionStatus.failed(
                 "Bluetooth permission missing",
-                "MyCar needs the Nearby devices permission to reach $name. Allow it in the app's " +
+                "myCar needs the Nearby devices permission to reach $name. Allow it in the app's " +
                     "settings, then try again.",
             )
             return
@@ -341,7 +341,7 @@ object WirelessLink {
             // Android can hold an app's traffic back on a network it has joined (battery or data
             // limits, local-network rules); the packets are then dropped without an error.
             override fun onBlockedStatusChanged(net: Network, blocked: Boolean) {
-                log.i("Wi-Fi: Android ${if (blocked) "BLOCKS" else "allows"} MyCar's traffic on \"$ssid\"")
+                log.i("Wi-Fi: Android ${if (blocked) "BLOCKS" else "allows"} myCar's traffic on \"$ssid\"")
             }
 
             private var capsLogged = false
@@ -439,7 +439,7 @@ object WirelessLink {
                 // car's Wi-Fi by hand, the phone's ordinary route reaches it, so use that instead.
                 // The phone's main Wi-Fi on the car's network wins: that is how Android Auto itself
                 // connects, and a Pixel 6 passed pings but no TCP over the side connection Android
-                // opens for MyCar's request.
+                // opens for myCar's request.
                 val main = mainOnCarNetwork(context, ip, net)
                 if (main != null && attempt == 0) log.i("TCP: the phone's main Wi-Fi is on the car's network, using it")
                 val socket = when {
@@ -464,7 +464,7 @@ object WirelessLink {
                 log.w("TCP: try ${attempt + 1} to $ip:$port failed: ${e.message}")
                 if (!bindRefused && e.message?.contains("EPERM") == true) {
                     bindRefused = true
-                    log.i("TCP: Android won't let MyCar use the car's network directly; trying the phone's ordinary route")
+                    log.i("TCP: Android won't let myCar use the car's network directly; trying the phone's ordinary route")
                 }
                 if (attempt == 0) probe(context, net, ip, port)
                 Thread.sleep(1_000)
@@ -474,14 +474,14 @@ object WirelessLink {
         if (vpnActive(context)) {
             SessionStatus.failed(
                 "A VPN is blocking the car",
-                "MyCar joined $name's network, but a VPN on this phone won't let it reach the car. " +
-                    "Turn the VPN off, or exclude MyCar in its settings, then try again.",
+                "myCar joined $name's network, but a VPN on this phone won't let it reach the car. " +
+                    "Turn the VPN off, or exclude myCar in its settings, then try again.",
             )
             return
         }
         SessionStatus.failed(
             "Car's Wi-Fi joined, but no connection",
-            "MyCar joined $name's network but couldn't reach Android Auto at $ip:$port.",
+            "myCar joined $name's network but couldn't reach Android Auto at $ip:$port.",
         )
     }
 }

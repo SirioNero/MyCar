@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 
 /**
- * Google's own Android Auto, in whatever guise it appears. MyCar replaces it, so its entries
+ * Google's own Android Auto, in whatever guise it appears. myCar replaces it, so its entries
  * (there are many: one per screen it registers) are noise in every list of apps to open.
  */
 object AndroidAuto {
@@ -32,7 +32,7 @@ object AndroidAuto {
     }
 
     /**
-     * Whether [packageName] can still fight MyCar for the USB connection: installed, and not
+     * Whether [packageName] can still fight myCar for the USB connection: installed, and not
      * already disabled for this user. `ApplicationInfo.enabled` only reflects the manifest's
      * static default, not a driver's own Settings toggle, so this reads the actual runtime
      * setting instead - a driver who disabled it instead of uninstalling it (the app info screen

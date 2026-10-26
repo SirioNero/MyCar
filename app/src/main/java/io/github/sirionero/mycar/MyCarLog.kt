@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.update
  */
 object MyCarLog {
 
-    const val TAG = "MyCar"
+    const val TAG = "myCar"
 
     private val stamp = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
     private val io = Executors.newSingleThreadExecutor()

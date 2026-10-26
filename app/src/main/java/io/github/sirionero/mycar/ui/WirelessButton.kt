@@ -47,7 +47,7 @@ private val WIRELESS_PERMISSIONS = buildList {
 }.toTypedArray()
 
 /**
- * Wireless Android Auto, in Home's status card: pick the paired car, and MyCar connects to
+ * Wireless Android Auto, in Home's status card: pick the paired car, and myCar connects to
  * it over Bluetooth and Wi-Fi.
  */
 @Composable
@@ -64,7 +64,7 @@ internal fun WirelessButton() {
 
     if (denied) {
         Text(
-            "MyCar needs Bluetooth and nearby Wi-Fi access for this.",
+            "myCar needs Bluetooth and nearby Wi-Fi access for this.",
             style = MaterialTheme.typography.bodyMedium,
         )
         // Once Android stops asking, the only way back is the app's own permission settings.

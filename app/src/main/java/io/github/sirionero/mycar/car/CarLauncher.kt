@@ -128,13 +128,13 @@ internal object LauncherCache {
         val mediaPackages = mediaApps.map { it.component.packageName }.toSet()
 
         val messagingApps = MessagingCatalog.installed(context)
-        // Google Messages ships its own car app, which won't start under MyCar. MyCar's
+        // Google Messages ships its own car app, which won't start under myCar. myCar's
         // own Messages screen does the same job, so a messenger gets only that tile.
         val messagingPackages = messagingApps.map { it.packageName }.toSet()
 
         val nav = navApps
             .filter { it.component.packageName !in messagingPackages }
-            // An app whose template screen is rejected but whose player works through MyCar
+            // An app whose template screen is rejected but whose player works through myCar
             // (Spotify) shows only its player tile - a "· Browse" tile beside it would just report
             // that the car screen isn't supported.
             .filter { !(KnownApps.screenBroken(it.component.packageName) && KnownApps.playerWorks(it.component.packageName)) }
@@ -151,7 +151,7 @@ internal object LauncherCache {
     }
 }
 
-/** Every app the launcher knows: MyCar's own and the installed ones, rescans included. */
+/** Every app the launcher knows: myCar's own and the installed ones, rescans included. */
 @Composable
 internal fun rememberAllEntries(): List<Entry> {
     val context = LocalContext.current
@@ -250,7 +250,7 @@ fun CarLauncher() {
 
     fun tileOf(entry: Entry): Tile {
         // Only apps that don't work get a mark. The X rates an app's own car screens; a messenger
-        // shown on MyCar's own Messages screen has none, so it never gets one.
+        // shown on myCar's own Messages screen has none, so it never gets one.
         val pkg = entry.packageName?.takeIf { entry.messaging == null }
         val id = entry.componentId
         return Tile(
@@ -274,14 +274,14 @@ fun CarLauncher() {
     }
 }
 
-/** A red disc with a white X: marks a tile known not to work with MyCar yet. */
+/** A red disc with a white X: marks a tile known not to work with myCar yet. */
 @Composable
 private fun BrokenBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
     Box(
         modifier.size(size).background(Color(0xFFD32F2F), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(Icons.Filled.Close, contentDescription = "Doesn't work with MyCar", tint = Color.White, modifier = Modifier.size(size * 0.66f))
+        Icon(Icons.Filled.Close, contentDescription = "Doesn't work with myCar", tint = Color.White, modifier = Modifier.size(size * 0.66f))
     }
 }
 

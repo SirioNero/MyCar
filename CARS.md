@@ -1,7 +1,7 @@
 # Cars
 
-This list comes from Gearslip, the project MyCar is based on: its drivers' usage notes and its
-own testing. MyCar talks to cars with the same code, so the same cars should work. A car shows
+This list comes from Gearslip, the project myCar is based on: its drivers' usage notes and its
+own testing. myCar talks to cars with the same code, so the same cars should work. A car shows
 up here once Gearslip has reached its screen at least once.
 
 The year is the one the car reports. Some cars report the year of the head unit instead,
@@ -45,5 +45,5 @@ here by name. Most of these are from around 2020 or later.
 
 ## Add your car
 
-Drive once with MyCar, then open a car report on
+Drive once with myCar, then open a car report on
 [GitHub](https://github.com/sirionero/mycar/issues/new/choose), whether your car works or not.

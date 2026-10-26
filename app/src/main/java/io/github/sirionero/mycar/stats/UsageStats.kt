@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicBoolean
  * is one of the driver's [Choices]. A random install ID counts a phone once; nothing ties it to a
  * person, and the Worker keeps no IP addresses.
  *
- * Notes go out only while MyCar is in use: the first time the app is opened each day, and
- * after every car session. Nothing runs in the background, so a phone that stops using MyCar
+ * Notes go out only while myCar is in use: the first time the app is opened each day, and
+ * after every car session. Nothing runs in the background, so a phone that stops using myCar
  * goes quiet. A note that fails waits for the next one. With no [BuildConfig.STATS_URL] set at
  * build time, nothing is sent.
  */
@@ -107,7 +107,7 @@ object UsageStats {
     }
 
     /**
-     * MyCar was opened: send today's note unless one already went out, or sooner if a session
+     * myCar was opened: send today's note unless one already went out, or sooner if a session
      * is still waiting, like one that ended in a crash before its note could go.
      */
     fun onAppOpened(context: Context) {

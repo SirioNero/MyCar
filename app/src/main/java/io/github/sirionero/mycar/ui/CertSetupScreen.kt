@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Shown when MyCar has no certificate loaded. Download is the one clear path; importing your
+ * Shown when myCar has no certificate loaded. Download is the one clear path; importing your
  * own file is offered as a smaller, secondary option underneath it.
  *
  * The app ships no certificates. Skipping generates a self-signed one, which a real head unit
@@ -90,7 +90,7 @@ fun CertSetupScreen(onDone: () -> Unit) {
                 if (installed) {
                     "Cars accept only Google-issued certificates, and you have one loaded."
                 } else {
-                    "Cars accept only Google-issued certificates. MyCar doesn't include one, so choose where yours comes from."
+                    "Cars accept only Google-issued certificates. myCar doesn't include one, so choose where yours comes from."
                 },
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,

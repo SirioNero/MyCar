@@ -284,7 +284,7 @@ class MyCarRunner(
         log.i("<- VersionRequest: head unit speaks $major.$minor")
         SessionReport.protocolVersion(major, minor)
 
-        // Always 1.3, on purpose. Every car that accepts MyCar was tested this way, 1.5 units
+        // Always 1.3, on purpose. Every car that accepts myCar was tested this way, 1.5 units
         // included. Echoing the car's own version was tried too: a 4.3 unit rejected the
         // certificate either way, so the version doesn't decide acceptance. The log says so, since
         // a car offering 1.5 and getting 1.3 back looks like a bug to anyone reading it.
@@ -298,7 +298,7 @@ class MyCarRunner(
         log.i(
             "-> VersionResponse: ${claim.first}.${claim.second} status=0 (STATUS_SUCCESS)" +
                 if (CLAIM_VERSION != null && claim != (major to minor)) {
-                    " - intended: MyCar always answers ${claim.first}.${claim.second}, which cars " +
+                    " - intended: myCar always answers ${claim.first}.${claim.second}, which cars " +
                         "offering $major.$minor accept too"
                 } else "",
         )
@@ -400,7 +400,7 @@ class MyCarRunner(
     }
 
     private fun sendServiceDiscoveryRequest() {
-        val body = Protobuf.stringField(4, "MyCar") + // label_text
+        val body = Protobuf.stringField(4, "myCar") + // label_text
             Protobuf.stringField(5, Build.MODEL)        // device_name
         send(MSG_SERVICE_DISCOVERY_REQUEST, body, encrypted = true)
         log.i("-> ServiceDiscoveryRequest (encrypted)")
@@ -585,7 +585,7 @@ class MyCarRunner(
     /**
      * GM's own channel ("com.gm.vip"), opened in GM cars only. Issue #18: a 2021 Bolt ends every
      * session about 25 s in, and of the channels it offers, this is the one a Dacia that stays
-     * connected doesn't have. What GM sends on it is private, so MyCar only opens it and logs
+     * connected doesn't have. What GM sends on it is private, so myCar only opens it and logs
      * what arrives, by message id and size.
      */
     private fun startVendorChannel(serviceDiscoveryResponse: ByteArray) {
@@ -632,7 +632,7 @@ class MyCarRunner(
      * Every sensor type the head unit advertised, subscribed to at once - there is no screen
      * to pick and choose yet, this is meant to show everything reachable. [CarSensors] answers
      * every request with "unsupported" today per BUILDING_APPS.md's line to third-party apps, but
-     * that's a promise made to apps MyCar hosts, not to what MyCar itself may ask a real
+     * that's a promise made to apps myCar hosts, not to what myCar itself may ask a real
      * head unit for over this same channel.
      */
     private fun startSensorChannel(serviceDiscoveryResponse: ByteArray) {
@@ -1078,7 +1078,7 @@ class MyCarRunner(
         }
     }
 
-    /** Whether the car is showing MyCar; false while it shows its own interface. */
+    /** Whether the car is showing myCar; false while it shows its own interface. */
     @Volatile private var videoProjected = true
     /** The encoder's SPS/PPS, resent when the car hands its screen back. */
     @Volatile private var lastCodecConfig: ByteArray? = null
@@ -1240,7 +1240,7 @@ class MyCarRunner(
             State.DONE -> SessionStatus.disconnected()
             State.WAIT_VERSION -> SessionStatus.failed(
                 "Head unit never started talking",
-                "The connection opened but the head unit sent nothing. Check the phone is set to use MyCar for this USB accessory.",
+                "The connection opened but the head unit sent nothing. Check the phone is set to use myCar for this USB accessory.",
             )
             State.TLS_HANDSHAKE, State.WAIT_AUTH -> SessionStatus.failed(
                 "Connection dropped during setup",
@@ -1320,7 +1320,7 @@ class MyCarRunner(
 
     private companion object {
         /**
-         * The protocol version MyCar answers every car with, as (major, minor), or null to echo
+         * The protocol version myCar answers every car with, as (major, minor), or null to echo
          * the head unit's. Kept at 1.3 because every working car was tested with it; see
          * onVersionRequest.
          */

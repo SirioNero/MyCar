@@ -22,7 +22,7 @@
 
     <!--
         Wireless Android Auto: Bluetooth reaches the paired car's Android Auto service, which
-        hands over its Wi-Fi details; MyCar then joins that network to reach the car.
+        hands over its Wi-Fi details; myCar then joins that network to reach the car.
     -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
@@ -51,7 +51,7 @@
     <!--
         Audio capture counts as a screen share, and Android hides notifications during one. The
         protection can be switched off for the drive, but only with this, granted once over adb
-        (pm grant). Without it MyCar works the same and notifications stay hidden.
+        (pm grant). Without it myCar works the same and notifications stay hidden.
     -->
     <uses-permission
         android:name="android.permission.WRITE_SECURE_SETTINGS"
@@ -61,7 +61,7 @@
         Phone calls on the car screen. READ_PHONE_STATE and READ_CALL_LOG together are what a
         call's own state (ringing, in progress) and the incoming number need; READ_CONTACTS
         turns that number into a name; ANSWER_PHONE_CALLS lets the driver pick up from here.
-        Declining a call, and the caller ID itself, need MyCar set as the phone's caller ID
+        Declining a call, and the caller ID itself, need myCar set as the phone's caller ID
         and spam app too - an on-device consent, not a permission declared here.
     -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -77,7 +77,7 @@
       whether it holds this permission (HostValidator.isValidHost checks it before falling back
       to a signature allow-list containing Android Auto's). It is defined by the car framework
       on Android Automotive, which does not exist on a phone, so nothing else defines it here
-      and MyCar has to define it to be able to hold it.
+      and myCar has to define it to be able to hold it.
     -->
     <permission
         android:name="android.car.permission.TEMPLATE_RENDERER"
@@ -123,7 +123,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:label="${appLabel}"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MyCar">
+        android:theme="@style/Theme.myCar">
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -200,12 +200,12 @@
         <!--
           Touch on the car screen is replayed onto the phone through this service.
           dispatchGesture is the only public way for an app to inject input into another app,
-          and it is unavailable until the user enables MyCar under Settings > Accessibility.
+          and it is unavailable until the user enables myCar under Settings > Accessibility.
         -->
         <service
             android:name=".mirror.TouchRelayService"
             android:exported="true"
-            android:label="MyCar touch"
+            android:label="myCar touch"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -217,12 +217,12 @@
 
         <!--
           Reads the phone's notifications so the car can show and answer them. Inert until the
-          user grants Notification access to MyCar in the phone's settings.
+          user grants Notification access to myCar in the phone's settings.
         -->
         <service
             android:name=".notify.MyCarNotificationListener"
             android:exported="true"
-            android:label="MyCar notifications"
+            android:label="myCar notifications"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
@@ -231,14 +231,14 @@
 
         <!--
           Sees incoming calls before they ring, so the car screen can show the caller and
-          decline it. Inert until the driver sets MyCar as the phone's caller ID and spam
+          decline it. Inert until the driver sets myCar as the phone's caller ID and spam
           app, under Settings > Apps > Default apps - the same consent a call-blocking app asks
           for, not a privileged one.
         -->
         <service
             android:name=".call.MyCarCallScreening"
             android:exported="true"
-            android:label="MyCar calls"
+            android:label="myCar calls"
             android:permission="android.permission.BIND_SCREENING_SERVICE">
             <intent-filter>
                 <action android:name="android.telecom.CallScreeningService" />

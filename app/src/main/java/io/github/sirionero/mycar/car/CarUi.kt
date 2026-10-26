@@ -307,7 +307,7 @@ private fun CarSafetyWizard(onDone: () -> Unit) {
                 Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Drive safely", style = ChromeType.headline, fontWeight = FontWeight.Bold)
                     Text(
-                        "MyCar is unofficial software: it is not made or reviewed by any " +
+                        "myCar is unofficial software: it is not made or reviewed by any " +
                             "carmaker, and it can fail without warning.",
                         style = ChromeType.body,
                     )
@@ -359,7 +359,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
 
 private const val APP_START_TIMEOUT_MS = 15_000L
 
-/** What a car app that won't run under MyCar gets instead of a loading screen that never ends. */
+/** What a car app that won't run under myCar gets instead of a loading screen that never ends. */
 @Composable
 private fun AppWontStart(app: String, onBack: () -> Unit) {
     Column(
@@ -367,7 +367,7 @@ private fun AppWontStart(app: String, onBack: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("$app doesn't work with MyCar yet.", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+        Text("$app doesn't work with myCar yet.", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text(
             "It didn't start. Some apps only run on Google's Android Auto.",
             style = MaterialTheme.typography.bodyLarge,

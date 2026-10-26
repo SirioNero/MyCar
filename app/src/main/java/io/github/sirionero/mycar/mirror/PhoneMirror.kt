@@ -29,7 +29,7 @@ object PhoneMirror {
 
     private val _active = MutableStateFlow(false)
 
-    /** True while the car is showing the phone rather than MyCar's own car UI. */
+    /** True while the car is showing the phone rather than myCar's own car UI. */
     val active: StateFlow<Boolean> = _active.asStateFlow()
 
     private var display: VirtualDisplay? = null
@@ -58,7 +58,7 @@ object PhoneMirror {
      * Shows [packageName] on the car screen.
      *
      * When mirroring has not started yet the app is remembered rather than launched, because
-     * consent has to be granted while MyCar is still the foreground app - starting the
+     * consent has to be granted while myCar is still the foreground app - starting the
      * other app first would push us into the background, where no dialog can be shown.
      */
     fun open(context: Context, packageName: String) {

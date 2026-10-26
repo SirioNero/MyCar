@@ -604,7 +604,7 @@ private fun SectionRows(section: Section<*>, cacheKey: String) {
  * The template itself carries only a header - real Android Auto hosts draw this screen from the
  * app's MediaSession instead, which is exactly what [CarServices.media] already does for the
  * media-app launcher and the bottom bar. Reusing [NowPlayingPage] here rather than a "not
- * supported" placeholder means an app whose own now-playing template MyCar lands on (like
+ * supported" placeholder means an app whose own now-playing template myCar lands on (like
  * Spotify's "Liked Songs" screen) still gets working transport controls.
  */
 @Composable

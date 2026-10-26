@@ -100,7 +100,7 @@ object ServiceDiscovery {
     }
 
     /**
-     * The media sink to stream to. MyCar sends raw PCM, so a PCM sink wins: the 2022 Dacia
+     * The media sink to stream to. myCar sends raw PCM, so a PCM sink wins: the 2022 Dacia
      * Jogger (LGE ULC 4.5) lists an AAC media sink on channel 3 before a PCM one on channel 5,
      * and PCM pushed into the AAC sink was acked but played as silence. With no PCM sink, the
      * first media sink is the best there is.
@@ -231,7 +231,7 @@ object ServiceDiscovery {
     )
 
     /**
-     * The input for the screen MyCar projects to ([displayId]). A head unit with two screens
+     * The input for the screen myCar projects to ([displayId]). A head unit with two screens
      * offers an input service for each: LIVI lists an empty one for its second screen first,
      * and taking that one left every touch on the real touchscreen ignored.
      */

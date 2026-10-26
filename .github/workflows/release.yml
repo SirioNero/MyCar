@@ -36,8 +36,8 @@ jobs:
       - name: Locate APK
         id: apk
         run: |
-          # The build moves its APKs to <root>/build/MyCar-<variant>.apk (see renameApk).
-          apk=build/MyCar-release.apk
+          # The build moves its APKs to <root>/build/myCar-<variant>.apk (see renameApk).
+          apk=build/myCar-release.apk
           test -f "$apk" || { echo "no APK at $apk"; ls -R build | head -50; exit 1; }
           echo "path=$apk" >> "$GITHUB_OUTPUT"
 

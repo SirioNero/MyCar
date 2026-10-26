@@ -13,10 +13,10 @@ import androidx.core.app.RemoteInput
 import io.github.sirionero.mycar.MyCarLog
 
 /**
- * Debug builds only: posts a chat message from MyCar to itself, shaped like Signal's or
+ * Debug builds only: posts a chat message from myCar to itself, shaped like Signal's or
  * WhatsApp's (MessagingStyle, a Reply action, a Mark as read action), so popups and voice reply
  * can be tried without asking someone to text you. The listener lets these through only in a
- * debug build; everything else MyCar posts is still ignored.
+ * debug build; everything else myCar posts is still ignored.
  */
 object TestMessage {
 

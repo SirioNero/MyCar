@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 
-/** A free app that runs on MyCar's car screen, and where to get it. */
+/** A free app that runs on myCar's car screen, and where to get it. */
 private class RecommendedApp(val name: String, val packageName: String, val url: String, val about: String)
 
 private val recommended = listOf(
@@ -99,7 +99,7 @@ fun RecommendedAppsScreen(onBack: () -> Unit) {
 internal const val SHOW_RECOMMENDED_APPS = false
 
 internal const val RECOMMENDED_INTRO =
-    "These free apps run on MyCar's car screen. Each button opens the app's page on GitHub."
+    "These free apps run on myCar's car screen. Each button opens the app's page on GitHub."
 
 /** The same green as the launcher's "works" check. */
 private val INSTALLED_GREEN = Color(0xFF43A047)

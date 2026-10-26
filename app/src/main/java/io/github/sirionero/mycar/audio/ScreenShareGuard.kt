@@ -12,7 +12,7 @@ import io.github.sirionero.mycar.MyCarLog
  * Playback capture hangs off a MediaProjection, and since Android 15 any full-screen projection
  * makes SystemUI hide notification contents, on the assumption that someone is watching the
  * screen. Nobody is: the audio projection never makes a display. The one exemption an ordinary app
- * can reach is the developer setting that switches the protection off, so MyCar turns it off for
+ * can reach is the developer setting that switches the protection off, so myCar turns it off for
  * the length of the capture and back on afterwards.
  *
  * Writing it needs WRITE_SECURE_SETTINGS, granted once over adb. Without the grant this does
@@ -26,7 +26,7 @@ internal object ScreenShareGuard {
     private const val SETTING = "disable_screen_share_protections_for_apps_and_notifications"
     private const val PREFS = "mycar_screen_share_guard"
 
-    /** Set while MyCar has the protection switched off, so a crash can be undone at next launch. */
+    /** Set while myCar has the protection switched off, so a crash can be undone at next launch. */
     private const val KEY_LIFTED = "lifted"
 
     fun canLift(context: Context): Boolean =
@@ -49,7 +49,7 @@ internal object ScreenShareGuard {
         }.onFailure { MyCarLog.w("audio: could not lift screen share protection: ${it.message}") }
     }
 
-    /** Put the protection back, if MyCar is the one that took it away. */
+    /** Put the protection back, if myCar is the one that took it away. */
     fun restore(context: Context) {
         if (!prefs(context).getBoolean(KEY_LIFTED, false)) return
         runCatching {

@@ -1,9 +1,9 @@
-# CLAUDE.md — MyCar
+# CLAUDE.md — myCar
 
-MyCar è un fork **indipendente** di [Gearslip](https://github.com/twinksoftware/gearslip)
+myCar è un fork **indipendente** di [Gearslip](https://github.com/twinksoftware/gearslip)
 (AGPL-3.0, © Twink Software LLC e contributori): client Android Auto lato telefono, alternativo
-all'app Android Auto di Google. MyCar non integra più gli aggiornamenti di Gearslip: si installa
-e funziona da sola. Obiettivi: rinomina in MyCar, restyling stile "infotainment iOS" (senza
+all'app Android Auto di Google. myCar non integra più gli aggiornamenti di Gearslip: si installa
+e funziona da sola. Obiettivi: rinomina in myCar, restyling stile "infotainment iOS" (senza
 asset Apple), correzione bug, compatibilità 100% F-Droid.
 
 Rispondi sempre in **italiano**.
@@ -31,9 +31,9 @@ Rispondi sempre in **italiano**.
   installato, Gradle lo scarica da `api.foojay.io`.
 - Servono Android SDK (`ANDROID_HOME` o `local.properties`) e accesso a `dl.google.com`
   (repository Maven Google).
-- Output: `build/MyCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
+- Output: `build/myCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
 - Firma release opzionale via `keystore.properties` (gitignored).
-- Chiave di firma di MyCar: alias `mycar`, PKCS12, certificato SHA-256
+- Chiave di firma di myCar: alias `mycar`, PKCS12, certificato SHA-256
   `E4:77:A4:79:4B:98:49:27:36:0E:9A:E4:A3:1E:87:CB:08:A2:6C:54:E0:E2:7E:43:34:11:6D:1C:7C:DC:CC:31`.
   Sta solo nei secret di GitHub (`KEYSTORE_BASE64`, `KEYSTORE_STORE_PASSWORD`, `KEYSTORE_KEY_ALIAS`,
   `KEYSTORE_KEY_PASSWORD`) e nel backup dell'utente; mai nel repository.
@@ -66,7 +66,7 @@ Tema/colori/font oggi:
 - Le schermate usano già `MaterialTheme.colorScheme` (~225 usi) e `.typography` (~165 usi) →
   sostituire tema e tipografia alla radice ristila gran parte della UI con un diff piccolo.
 
-## Design system MyCar (PROPOSTA, da approvare)
+## Design system myCar (PROPOSTA, da approvare)
 
 Obiettivo: layout e comportamento il più vicini possibile a un sistema infotainment in stile iOS,
 **ma in modo legale**.
@@ -97,8 +97,10 @@ Tutti i token in un solo posto (proposta: `car/design/`, file nuovi).
 ## Decisioni prese
 
 - Fork indipendente: niente più merge da Gearslip.
-- applicationId e package Kotlin: `io.github.sirionero.mycar` (debug: `.dev`). Nome: "MyCar".
-- MyCar è autonoma: continua a **definire** il permesso `android.car.permission.TEMPLATE_RENDERER`
+- applicationId e package Kotlin: `io.github.sirionero.mycar` (debug: `.dev`). Nome visibile: **myCar**
+  (scritto esattamente così, m minuscola e C maiuscola) in app, README e documenti; i nomi nel
+  codice restano `MyCar…` (es. `MyCarActivity`).
+- myCar è autonoma: continua a **definire** il permesso `android.car.permission.TEMPLATE_RENDERER`
   (quindi non si installa insieme a Gearslip).
 - Donazioni: solo Bitcoin, `bc1qu8q2sc5kuccjj3zpzzfpj85xn7szp73nae9xlx` (in `ui/AboutLinks.kt` e nel README).
 - Bug chiamate: priorità alle chiamate **in arrivo** (branch `fix/calls`).

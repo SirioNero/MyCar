@@ -1,19 +1,19 @@
 # License
 
-MyCar is licensed under the GNU Affero General Public License v3.0. The full text is in
+myCar is licensed under the GNU Affero General Public License v3.0. The full text is in
 `LICENSE`.
 
-You may use, run, and modify MyCar freely. If you distribute a modified version, or let others
+You may use, run, and modify myCar freely. If you distribute a modified version, or let others
 use one over a network, you must publish your changes under the same license.
 
 ## Based on Gearslip
 
-MyCar is a modified version of [Gearslip](https://github.com/twinksoftware/gearslip),
-Copyright (C) 2026 Twink Software LLC and contributors, licensed under the AGPL-3.0. MyCar's
-own changes are Copyright (C) 2026 sirionero and MyCar contributors, under the same license.
+myCar is a modified version of [Gearslip](https://github.com/twinksoftware/gearslip),
+Copyright (C) 2026 Twink Software LLC and contributors, licensed under the AGPL-3.0. myCar's
+own changes are Copyright (C) 2026 sirionero and myCar contributors, under the same license.
 
 Twink Software LLC sells a separate commercial license for Gearslip. That license covers
-Gearslip only. MyCar is available under the AGPL-3.0 alone.
+Gearslip only. myCar is available under the AGPL-3.0 alone.
 
 ## Third-party code
 

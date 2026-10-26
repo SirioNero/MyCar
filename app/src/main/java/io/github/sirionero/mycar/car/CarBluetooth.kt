@@ -25,16 +25,16 @@ import java.security.MessageDigest
 /**
  * Pairs the phone with the car over Bluetooth the first time they meet, so calls (and music, when
  * the driver chose Bluetooth audio) reach the car's speakers. Android Auto does this on its own;
- * MyCar asks first, on the car screen.
+ * myCar asks first, on the car screen.
  *
- * The car names its Bluetooth address in its service list. When the driver taps Pair, MyCar
+ * The car names its Bluetooth address in its service list. When the driver taps Pair, myCar
  * opens the car's Bluetooth channel and sends what Android Auto sends:
  *
  *   -> CHANNEL_OPEN_REQUEST                 <- CHANNEL_OPEN_RESPONSE
  *   -> PairingRequest { phone_address, method }
  *   <- PairingResponse { status, already_paired }
  *
- * then starts pairing from the phone. Two things Android Auto has that MyCar can't: the
+ * then starts pairing from the phone. Two things Android Auto has that myCar can't: the
  * phone's own Bluetooth address (apps get a placeholder), and confirming the pairing code without
  * asking. So a car may turn the request down, and the phone always shows its pairing dialog. The
  * channel stays closed unless the driver taps Pair: every new channel is a risk to cars that work.
@@ -207,7 +207,7 @@ object CarBluetooth {
         runCatching { appContext?.unregisterReceiver(r) }
     }
 
-    /** The car as a Bluetooth device, or null (and logged) when MyCar can't reach Bluetooth. */
+    /** The car as a Bluetooth device, or null (and logged) when myCar can't reach Bluetooth. */
     private fun device(): BluetoothDevice? {
         val context = appContext ?: return null
         val address = car?.service?.carAddress ?: return null

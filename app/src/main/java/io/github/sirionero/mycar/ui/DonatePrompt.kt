@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The donation ask on Home, after a drive that worked. A driver sees it first after their third
- * such drive, so MyCar has earned it, and then at most once every three months. Picking a way to
+ * such drive, so myCar has earned it, and then at most once every three months. Picking a way to
  * give ends it for good.
  */
 object DonatePrompt {
@@ -103,7 +103,7 @@ internal fun DonateDialog(live: Boolean) {
         title = { Text("Glad that drive worked") },
         text = {
             Text(
-                "MyCar is free, with no ads and no tracking. If it gets you on the road, your " +
+                "myCar is free, with no ads and no tracking. If it gets you on the road, your " +
                     "support keeps it going.",
             )
         },

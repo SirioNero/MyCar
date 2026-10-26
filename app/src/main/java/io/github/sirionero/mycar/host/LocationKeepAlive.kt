@@ -15,7 +15,7 @@ import android.os.Looper
 import io.github.sirionero.mycar.MyCarLog
 
 /**
- * Lets a hosted navigation app keep receiving the phone's location while MyCar is not on screen.
+ * Lets a hosted navigation app keep receiving the phone's location while myCar is not on screen.
  *
  * Android only gives an app location in the background if something visible to the user is
  * running for it. A nav app bound as a car app has nothing of its own showing, so it goes
@@ -34,10 +34,10 @@ class LocationKeepAlive : Service() {
         )
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("MyCar is sharing location with the car map")
+            .setContentTitle("myCar is sharing location with the car map")
             .setOngoing(true)
             .build()
-        // The system can refuse a location-type foreground service if MyCar is no longer in
+        // The system can refuse a location-type foreground service if myCar is no longer in
         // an eligible state by the time this runs - the phone screen locking mid-session is the
         // common case. That refusal throws, and left uncaught it takes the whole app down with
         // it; a nav app losing its background location fix is a small loss next to that.

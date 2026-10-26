@@ -1,5 +1,5 @@
 """
-Builds MyCar's launcher icon from the logo art (docs/icon/mycar-logo.jpg):
+Builds myCar's launcher icon from the logo art (docs/icon/mycar-logo.jpg):
 
     python3 docs/icon/make_icons.py docs/icon/mycar-logo.jpg .
 

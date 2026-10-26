@@ -112,7 +112,7 @@ object Intro {
     val release: String = BuildConfig.VERSION_NAME.split('.').take(2).joinToString(".")
 
     /**
-     * True once per release for people who used MyCar before. A new install, or one with its
+     * True once per release for people who used myCar before. A new install, or one with its
      * data cleared, gets the setup guide instead: there's nothing "new" yet, so this release
      * counts as seen and the next one shows. Install dates can't tell those apart, since
      * clearing data keeps them, so this goes by what setup left behind; 0.2 saved the same.
@@ -209,11 +209,11 @@ fun IntroScreen(onDone: () -> Unit) {
             IntroStep.WIRELESS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Wireless.",
                 "If your car does wireless Android Auto, pair once and leave the cable at home.", step) { WifiIcon(c.onSecondaryC) }
             IntroStep.KNOBS -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, "Knobs work.",
-                "Turn, push, done. No touchscreen? MyCar doesn't need one anymore.", step) { DialIcon(c.onTertiaryC) }
+                "Turn, push, done. No touchscreen? myCar doesn't need one anymore.", step) { DialIcon(c.onTertiaryC) }
             IntroStep.VOICE -> VoiceStep(c, ::cq, ::cqSp, step)
             IntroStep.GRAPHENE -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Protections back on.",
-                "On GrapheneOS, MyCar no longer needs exploit protection compatibility mode. If you " +
-                    "turned it on for MyCar, turn it off to get full protection back.", step,
+                "On GrapheneOS, myCar no longer needs exploit protection compatibility mode. If you " +
+                    "turned it on for myCar, turn it off to get full protection back.", step,
                 action = "Open app settings" to {
                     runCatching {
                         context.startActivity(
