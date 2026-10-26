@@ -40,7 +40,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
+import androidx.compose.ui.unit.min
+import io.github.sirionero.mycar.car.design.AppIcon
+import io.github.sirionero.mycar.car.design.MyCarMotion
+import io.github.sirionero.mycar.car.design.MyCarRadius
+import io.github.sirionero.mycar.car.design.MyCarSize
+import io.github.sirionero.mycar.car.design.MyCarSpace
+import io.github.sirionero.mycar.car.design.squareAppIcon
 import android.content.Context
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.ui.graphics.Color
@@ -65,11 +87,10 @@ import io.github.sirionero.mycar.notify.MessagingCatalog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** One tile on the launcher: either a phone app's own icon or a built-in glyph. */
+/** One app on the launcher grid, with what tapping and holding it do. */
 private class Tile(
+    val entry: Entry,
     val label: String,
-    val icon: ImageBitmap? = null,
-    val glyph: ImageVector? = null,
     /** Known not to work; drawn with a red X instead of being left off the launcher. */
     val broken: Boolean = false,
     val onLongClick: (() -> Unit)? = null,
@@ -115,8 +136,9 @@ internal object LauncherCache {
     @Synchronized
     fun load(context: Context, force: Boolean = false): List<Entry> {
         if (!force) entries?.let { return it }
+        // Square and edge to edge, for the squircle frame every icon in the car UI sits in.
         fun iconOf(pkg: String) = runCatching {
-            context.packageManager.getApplicationIcon(pkg).toBitmap(128, 128).asImageBitmap()
+            squareAppIcon(context.packageManager.getApplicationIcon(pkg), ICON_PX).asImageBitmap()
         }.getOrNull()
 
         val navApps = CarAppCatalog.installed(context)
@@ -236,7 +258,7 @@ internal fun launchEntry(entry: Entry, navigator: CarNavigator, frame: CarEnviro
     entry.messaging?.let { navigator.messages(it.packageName, it.label) }
 }
 
-/** The app launcher: every app as an icon grid, grouped Phone, Maps, Music, Messaging, Web, Screen sharing, Settings. */
+/** The app launcher: every app as pages of icons, grouped Phone, Maps, Music, Messaging, Web, Screen sharing, Settings. */
 @Composable
 fun CarLauncher() {
     val context = LocalContext.current
@@ -254,7 +276,7 @@ fun CarLauncher() {
         val pkg = entry.packageName?.takeIf { entry.messaging == null }
         val id = entry.componentId
         return Tile(
-            entry.label, entry.icon, entry.builtIn?.glyph,
+            entry, entry.label,
             broken = pkg != null && (KnownApps.isBroken(context, pkg) || (entry.template != null && KnownApps.screenBroken(pkg))),
             onLongClick = id?.let { { navigator.showAppMenu(it) } },
         ) { openApp(entry, id?.let { running[it] }, navigator, frame) }
@@ -263,14 +285,70 @@ fun CarLauncher() {
     val appOrder by CarSettings.appOrder.collectAsState()
     val tiles = launcherOrder(all, showVehicleData, appOrder).map(::tileOf)
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 108.dp),
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    AppGrid(tiles)
+}
+
+/** Pixel size the launcher decodes app icons at: sharp at the grid's largest, on a dense screen. */
+private const val ICON_PX = 192
+
+/**
+ * The launcher's pages: as many columns and rows of icons as the screen holds, swiped sideways,
+ * with a dot per page underneath. Icons grow to [MyCarSize.GridIconMax] where there's room.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun AppGrid(tiles: List<Tile>) {
+    BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.M)) {
+        val dotsHeight = 24.dp
+        val columns = (maxWidth / MyCarSize.GridCellMinWidth).toInt().coerceIn(3, 8)
+        val rows = ((maxHeight - dotsHeight) / MyCarSize.GridCellMinHeight).toInt().coerceIn(1, 4)
+        val perPage = columns * rows
+        val pages = ((tiles.size + perPage - 1) / perPage).coerceAtLeast(1)
+        val cellWidth = maxWidth / columns
+        val cellHeight = (maxHeight - dotsHeight) / rows
+        val iconSize = min(MyCarSize.GridIconMax, min(cellWidth * 0.62f, (cellHeight - 44.dp).coerceAtLeast(40.dp)))
+        val pagerState = rememberPagerState(pageCount = { pages })
+        Column(Modifier.fillMaxSize()) {
+            HorizontalPager(state = pagerState, modifier = Modifier.weight(1f).fillMaxWidth()) { page ->
+                val pageTiles = tiles.drop(page * perPage).take(perPage)
+                Column(Modifier.fillMaxSize()) {
+                    repeat(rows) { row ->
+                        Row(Modifier.weight(1f).fillMaxWidth()) {
+                            repeat(columns) { column ->
+                                Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                    pageTiles.getOrNull(row * columns + column)?.let { AppCell(it, iconSize) }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            PageDots(pages, pagerState.currentPage, Modifier.height(dotsHeight).fillMaxWidth())
+        }
+    }
+}
+
+/** A dot per page, the current one solid. Nothing at all for a single page. */
+@Composable
+private fun PageDots(count: Int, current: Int, modifier: Modifier = Modifier) {
+    if (count <= 1) {
+        Spacer(modifier)
+        return
+    }
+    val color = MaterialTheme.colorScheme.onSurface
+    Row(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        items(tiles) { AppTile(it) }
+        repeat(count) { i ->
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(if (i == current) color else color.copy(alpha = 0.3f)),
+            )
+        }
     }
 }
 
@@ -285,61 +363,58 @@ private fun BrokenBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = 
     }
 }
 
+/**
+ * One app on the grid: its icon in the squircle frame with its name underneath. Tap opens it, a long
+ * press opens its menu (pin to the dock, move, close), and it shrinks a touch under the finger.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppTile(tile: Tile) {
-    val shape = MaterialTheme.shapes.extraLarge
-    // A long press opens the app's menu (pin, close) - the same gesture everywhere apps are
-    // shown, here and on the nav bar. GsIconBox marks it in the theme's style.
-    GsIconBox(
-        onClick = tile.onClick,
-        onLongClick = tile.onLongClick,
-        modifier = Modifier.height(120.dp),
-        colors = GsColors(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant),
-        shape = shape,
+private fun AppCell(tile: Tile, iconSize: Dp) {
+    val source = remember { MutableInteractionSource() }
+    val pressed by source.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        if (pressed) MyCarMotion.PressedScale else 1f,
+        tween(MyCarMotion.PressMs, easing = MyCarMotion.Decelerate),
+        label = "appPress",
+    )
+    Column(
+        Modifier
+            .widthIn(min = MyCarSize.TouchTarget)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clip(RoundedCornerShape(MyCarRadius.Card))
+            .combinedClickable(
+                interactionSource = source,
+                indication = LocalIndication.current,
+                onLongClick = tile.onLongClick,
+                onClick = tile.onClick,
+            )
+            .padding(MyCarSpace.S),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(Modifier.fillMaxSize()) {
-            Column(
-                Modifier.fillMaxSize().padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Box {
-                    TileIcon(tile)
-                    if (tile.broken) {
-                        // Pinned to the icon's lower corner, ringed in the tile's colour so it
-                        // reads as sitting on top of the icon.
-                        BrokenBadge(
-                            22.dp,
-                            Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 4.dp)
-                                .border(2.dp, MaterialTheme.colorScheme.surfaceVariant, CircleShape),
-                        )
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-                TileLabel(tile)
+        Box {
+            AppIcon(tile.entry.icon, tile.entry.builtIn?.id, iconSize)
+            if (tile.broken) {
+                // Pinned to the icon's lower corner, ringed in the background's colour so it
+                // reads as sitting on top of the icon.
+                BrokenBadge(
+                    22.dp,
+                    Modifier.align(Alignment.BottomEnd).offset(x = 6.dp, y = 4.dp)
+                        .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
+                )
             }
         }
+        Spacer(Modifier.height(MyCarSpace.S))
+        Text(
+            tile.label,
+            modifier = Modifier.widthIn(max = iconSize + MyCarSpace.XXL),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
-}
-
-@Composable
-private fun TileIcon(tile: Tile) {
-    when {
-        tile.icon != null -> Image(tile.icon, contentDescription = null, modifier = Modifier.size(52.dp))
-        tile.glyph != null -> Icon(tile.glyph, contentDescription = null, modifier = Modifier.size(52.dp))
-    }
-}
-
-@Composable
-private fun TileLabel(tile: Tile, maxLines: Int = 2, modifier: Modifier = Modifier) {
-    Text(
-        tile.label,
-        modifier = modifier,
-        style = MaterialTheme.typography.labelLarge,
-        fontWeight = FontWeight.SemiBold,
-        textAlign = TextAlign.Center,
-        maxLines = maxLines,
-        overflow = TextOverflow.Ellipsis,
-    )
 }
