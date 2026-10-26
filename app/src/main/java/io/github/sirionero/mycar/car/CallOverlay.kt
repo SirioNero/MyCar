@@ -32,7 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.vectorResource
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.call.CallUiState
+import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.call.CarCalls
 
 /**
@@ -68,10 +71,10 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                Icons.Filled.Call,
+                ImageVector.vectorResource(R.drawable.sym_call),
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MyCarPalette.Positive,
             )
             Spacer(Modifier.height(16.dp))
             Text(
@@ -88,8 +91,8 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
             )
             Spacer(Modifier.height(56.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(48.dp)) {
-                CallButton(Icons.Filled.Close, "Decline", MaterialTheme.colorScheme.error, enabled = s.canDecline, onClick = onDecline)
-                CallButton(Icons.Filled.Call, "Answer", MaterialTheme.colorScheme.primary, enabled = true, onClick = onAnswer)
+                CallButton(ImageVector.vectorResource(R.drawable.sym_call_end), "Decline", MyCarPalette.Negative, enabled = s.canDecline, onClick = onDecline)
+                CallButton(ImageVector.vectorResource(R.drawable.sym_call), "Answer", MyCarPalette.Positive, enabled = true, onClick = onAnswer)
             }
             if (!s.canDecline) {
                 Spacer(Modifier.height(20.dp))
@@ -127,15 +130,15 @@ private fun ActiveCallBanner(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
             Modifier.padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(20.dp))
+            Icon(ImageVector.vectorResource(R.drawable.sym_call), contentDescription = null, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
             Text(
                 "On a call" + (s.caller?.let { " with ${it.label}" } ?: ""),
