@@ -115,8 +115,12 @@ object CarKeys {
     }
 
     private fun endCall() = main.post {
-        if (CarCalls.state.value is CallUiState.Ringing) CarCalls.decline()
-        else MyCarLog.i("keys: end call pressed with no ringing call; hanging up needs the dialer")
+        val context = appContext ?: return@post
+        when (CarCalls.state.value) {
+            is CallUiState.Ringing -> CarCalls.decline()
+            is CallUiState.Active -> CarCalls.hangUp(context)
+            CallUiState.None -> MyCarLog.i("keys: end call pressed with no call")
+        }
     }
 
     private fun screen(key: ScreenKey) { _screenKeys.tryEmit(key) }

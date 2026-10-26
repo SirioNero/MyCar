@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Close
@@ -28,14 +30,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 
 /**
  * Sits above whatever the car is showing while a call is ringing or under way. Ringing takes the
- * whole screen, because nothing else matters more right now; an active call is a thin band along
- * the top, since from here the driver can only see who it is, not end it - see [CarCalls].
+ * whole screen, because nothing else matters more right now; an active call is a band along the
+ * top, with who it is and a button to end it.
  */
 @Composable
 fun CallOverlay(modifier: Modifier = Modifier) {
@@ -46,7 +49,12 @@ fun CallOverlay(modifier: Modifier = Modifier) {
         // Covers the box regardless of where the caller aligned it, so the alignment below is
         // only ever felt by the active-call banner, which is the one that isn't full-screen.
         is CallUiState.Ringing -> IncomingCall(s, onAnswer = { CarCalls.answer(context) }, onDecline = CarCalls::decline)
-        is CallUiState.Active -> ActiveCallBanner(s, modifier)
+        is CallUiState.Active -> ActiveCallBanner(
+            s,
+            canHangUp = CarCalls.canEndCalls(context),
+            onHangUp = { CarCalls.hangUp(context) },
+            modifier = modifier,
+        )
         CallUiState.None -> {}
     }
 }
@@ -112,23 +120,37 @@ private fun CallButton(icon: ImageVector, label: String, color: Color, enabled: 
 }
 
 @Composable
-private fun ActiveCallBanner(s: CallUiState.Active, modifier: Modifier = Modifier) {
+private fun ActiveCallBanner(
+    s: CallUiState.Active,
+    canHangUp: Boolean,
+    onHangUp: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
-            Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.Center,
+            Modifier.padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.height(0.dp))
+            Spacer(Modifier.width(8.dp))
             Text(
-                "  On a call" + (s.caller?.let { " with ${it.label}" } ?: ""),
+                "On a call" + (s.caller?.let { " with ${it.label}" } ?: ""),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
             )
+            if (canHangUp) {
+                Spacer(Modifier.width(12.dp))
+                GsButton(onClick = onHangUp, tone = GsTone.Danger, modifier = Modifier.heightIn(min = 64.dp)) {
+                    Text("End call")
+                }
+            }
         }
     }
 }

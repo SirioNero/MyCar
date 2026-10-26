@@ -30,15 +30,13 @@ sealed interface CallUiState {
 }
 
 /**
- * Tracks the phone's call state for the car screen, and answers or declines through the two
- * doors a sideloaded app can use: [android.telecom.TelecomManager.acceptRingingCall] to answer,
- * and [MyCarCallScreening]'s response to decline one that is still ringing.
+ * Tracks the phone's call state for the car screen, and answers, declines and ends calls through
+ * the doors a sideloaded app can use: [MyCarCallScreening]'s response for a call still being
+ * screened, and [TelecomManager.acceptRingingCall] and [TelecomManager.endCall] - which need only
+ * ANSWER_PHONE_CALLS - for one that rings or is under way.
  *
- * Ending a call already answered needs MODIFY_PHONE_STATE, a privileged permission MyCar
- * cannot hold, so a call taken here is finished the way it would be without MyCar at all -
- * from the phone itself, a paired headset, or the car's own Bluetooth if it has any. Call audio
- * stays on the phone's normal voice path too; nothing here sends it over the USB link, which
- * only ever carries media playback.
+ * Call audio stays on the phone's normal voice path; nothing here sends it over the USB link,
+ * which only ever carries media playback. It reaches the car's speakers over Bluetooth.
  */
 object CarCalls {
 
@@ -119,6 +117,7 @@ object CarCalls {
     }
 
     private fun onPhoneState(state: Int) {
+        val previous = phoneState
         phoneState = state
         when (state) {
             TelephonyManager.CALL_STATE_IDLE -> {
@@ -136,7 +135,10 @@ object CarCalls {
                 // A contact's call skips screening, so its number may not be here yet: show the
                 // card now, and the number broadcast fills in who it is.
                 val caller = ringingCaller ?: Caller("", null).also { ringingCaller = it }
-                _state.value = CallUiState.Ringing(caller, pendingRespond != null)
+                // Telecom rejects a ringing call on request - unless another call is under way,
+                // which it would end instead.
+                val canEnd = previous != TelephonyManager.CALL_STATE_OFFHOOK && watcherContext?.let(::canEndCalls) == true
+                _state.value = CallUiState.Ringing(caller, pendingRespond != null || canEnd)
                 if (answerWhenRinging) {
                     answerWhenRinging = false
                     watcherContext?.let(::acceptRingingCall)
@@ -153,7 +155,7 @@ object CarCalls {
         _state.value = CallUiState.Ringing(caller, canDecline = true)
     }
 
-    /** The screening window closed by itself - the call rings normally now, and can't be declined from here. */
+    /** The screening window closed by itself: the call rings normally now. */
     fun screeningExpired() {
         pendingRespond = null
         val caller = ringingCaller ?: return
@@ -177,7 +179,13 @@ object CarCalls {
     }
 
     fun decline() {
-        val respond = pendingRespond ?: return
+        val respond = pendingRespond
+        if (respond == null) {
+            // Past screening, the call rings like any other, and Telecom rejects it.
+            val ringing = _state.value as? CallUiState.Ringing ?: return
+            if (ringing.canDecline) watcherContext?.let(::endCall)
+            return
+        }
         pendingRespond = null
         runCatching { respond(false) }.onFailure { MyCarLog.w("calls: decline failed: ${it.message}") }
         // Rejected while screening, the call never rang: the phone stays idle, and nothing else
@@ -208,6 +216,27 @@ object CarCalls {
         val telecom = context.getSystemService(TelecomManager::class.java) ?: return
         runCatching { telecom.acceptRingingCall() }
             .onFailure { MyCarLog.w("calls: answer failed: ${it.message}") }
+    }
+
+    /** Ends the call under way, as the phone's own red button would. */
+    fun hangUp(context: Context) {
+        if (_state.value is CallUiState.Active) endCall(context)
+    }
+
+    fun canEndCalls(context: Context): Boolean =
+        context.checkSelfPermission(Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED
+
+    /** Rejects the ringing call, or ends the one under way. Emergency calls are left alone by Telecom. */
+    @Suppress("DEPRECATION")
+    private fun endCall(context: Context) {
+        if (!canEndCalls(context)) {
+            MyCarLog.w("calls: ending a call needs ANSWER_PHONE_CALLS, which was never granted")
+            return
+        }
+        val telecom = context.getSystemService(TelecomManager::class.java) ?: return
+        runCatching { telecom.endCall() }
+            .onSuccess { ended -> if (!ended) MyCarLog.w("calls: there was no call to end") }
+            .onFailure { MyCarLog.w("calls: ending the call failed: ${it.message}") }
     }
 
     private fun lookUpName(context: Context, number: String): String? {
