@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.min
 import io.github.sirionero.mycar.car.design.AppIcon
+import io.github.sirionero.mycar.car.design.WallpaperBackground
+import io.github.sirionero.mycar.car.design.rememberWallpaper
 import io.github.sirionero.mycar.car.design.MyCarMotion
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
@@ -285,7 +287,10 @@ fun CarLauncher() {
     val appOrder by CarSettings.appOrder.collectAsState()
     val tiles = launcherOrder(all, showVehicleData, appOrder).map(::tileOf)
 
-    AppGrid(tiles)
+    Box(Modifier.fillMaxSize()) {
+        rememberWallpaper()?.let { WallpaperBackground(it, Modifier.matchParentSize()) }
+        AppGrid(tiles)
+    }
 }
 
 /** Pixel size the launcher decodes app icons at: sharp at the grid's largest, on a dense screen. */

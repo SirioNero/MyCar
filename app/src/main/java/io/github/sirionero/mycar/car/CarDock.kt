@@ -64,6 +64,10 @@ import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
 import io.github.sirionero.mycar.car.design.MyCarSpace
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawBehind
+import io.github.sirionero.mycar.car.design.wallpaperBackground
+import io.github.sirionero.mycar.car.design.rememberWallpaper
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.host.display
 import io.github.sirionero.mycar.host.text
@@ -102,11 +106,19 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
         .filter { it !in pinnedIds && running[it] != RunningSlot.NAV && running[it] != RunningSlot.MEDIA }
         .mapNotNull { id -> entries.find { it.componentId == id } }
 
+    // Over a wallpaper the dock is glass: the wallpaper behind it, darkened, and a hairline of
+    // light down its edge. Without one, it's a plain dark column.
+    val wallpaper = rememberWallpaper()
     Column(
         modifier
             .fillMaxHeight()
             .width(MyCarSize.DockWidth)
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .then(
+                if (wallpaper == null) Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow)
+                else Modifier.wallpaperBackground(wallpaper, dim = DOCK_GLASS_DIM).drawBehind {
+                    drawLine(Color.White.copy(alpha = 0.10f), Offset(size.width - 0.5f, 0f), Offset(size.width - 0.5f, size.height))
+                },
+            )
             .padding(vertical = MyCarSpace.M),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -451,3 +463,6 @@ internal fun rememberNow(): State<Long> = produceState(System.currentTimeMillis(
         kotlinx.coroutines.delay(60_000 - value % 60_000)
     }
 }
+
+/** How much darker the wallpaper is behind the dock's glass than on the screen beside it. */
+private const val DOCK_GLASS_DIM = 0.55f

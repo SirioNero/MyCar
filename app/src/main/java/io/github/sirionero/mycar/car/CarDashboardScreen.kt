@@ -1,5 +1,7 @@
 package io.github.sirionero.mycar.car
 
+import io.github.sirionero.mycar.car.design.rememberWallpaper
+import io.github.sirionero.mycar.car.design.wallpaperBackground
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -56,6 +58,7 @@ fun CarDashboardScreen() {
     Column(
         Modifier
             .fillMaxSize()
+            .then(rememberWallpaper()?.let { Modifier.wallpaperBackground(it) } ?: Modifier)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),

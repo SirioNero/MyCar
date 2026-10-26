@@ -96,6 +96,8 @@ fun CarSettingsScreen() {
             theme,
         ) { CarSettings.setAppTheme(it) }
 
+        WallpaperPicker()
+
         ChoiceRow(
             "Theme",
             GsThemes.builtIn.map { it.id to it.name },
