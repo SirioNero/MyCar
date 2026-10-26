@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            14, "0.5.01-alpha",
+            listOf(
+                "Music and map share the screen again: the player sits beside the map as soon as something plays.",
+                "Tap the song in the dock to put the player away or bring it back. Hold it for the full player.",
+            ),
+        ),
+        Release(
             13, "0.5.00-alpha",
             listOf(
                 "Wallpapers behind the app grid and the dashboard, with the dock in glass over them. Pick one, or none, in the car's settings.",
@@ -26,7 +33,7 @@ object Changelog {
                 "A new look: a dock down the left with the clock and your apps, and the app grid in pages.",
                 "App icons sit in a rounded square frame, and the car screen uses the Inter typeface.",
                 "Dark by default. Choose light, or follow the phone, in the car's settings.",
-                "Tap the song in the dock for the player. Hold it to put the player beside the map.",
+                "Tap the song in the dock to put the player beside the map. Hold it for the full player.",
                 "Calls reach the car only over Bluetooth, USB audio or not. myCar now says when the phone isn't connected, and when a call is playing on the phone.",
                 "Car apps show their own icons again, instead of another app's.",
             ),

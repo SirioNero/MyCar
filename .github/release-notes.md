@@ -1,6 +1,9 @@
-myCar 0.5.00-alpha: wallpapers, glass, a new player beside the map, and your choice of voice assistant.
+myCar 0.5.01-alpha: music and map share the screen again.
 
-## New
+## Fixed
+- With the dock, the player beside the map opened only by holding the song in the dock, so with music playing the map was on its own. Now the player sits beside the map as soon as something plays, as it always did. Its X puts it away for the drive; tap the song in the dock to bring it back, or hold it for the full player.
+
+## Also in 0.5.00-alpha
 - Wallpapers: seven of myCar's own (Aurora, Sunset, Ocean, Nebula, Ember, Forest, Graphite), behind the app grid and the dashboard, with the dock in glass over them. Pick one, or none, under the car's Settings > Wallpaper. They're drawn by myCar itself, with a fine grain so the video to the car doesn't break them into bands.
 - Glass icons: myCar's own apps and every installed app's icon catch the light along their edges, with a soft shine on top.
 - The player beside the map: the cover fills the whole side, and the song, progress and controls sit on frosted glass over it. Tap the cover for the full player.

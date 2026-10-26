@@ -133,6 +133,10 @@ Tutti i token in un solo posto, `car/design/`:
   brano in riproduzione, app fissate e aperte, assistente; tasto della griglia app in basso);
   Home resta mappa + player; la griglia app (≈4×2 per pagina, a pagine, con indicatori) si apre
   dal tasto del dock; icone reali delle app installate dentro una cornice squircle.
+- **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
+  (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
+  chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
+  il player a tutto schermo. Non nasconderlo dietro gesti poco scopribili.
 
 ## Decisioni prese
 
