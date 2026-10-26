@@ -42,6 +42,20 @@ Rispondi sempre in **italiano**.
   `docs/icon/mycar-icon.png`. La sagoma a tema è il vettoriale `drawable/ic_launcher_monochrome.xml`.
 - Il debug ha `applicationIdSuffix = ".dev"`. Nel debug esiste `CarPreviewActivity`, che
   renderizza la UI auto in PNG senza auto (utile per verificare il restyling).
+- Anteprima in CI: il workflow **Car preview** (`.github/workflows/car-preview.yml` +
+  `.github/car-preview.sh`) parte a ogni push su `design/**`, avvia un emulatore, lancia
+  `CarPreviewActivity` a 800×480 e 1920×720 (Home, griglia app, dashboard) e pubblica i PNG sul
+  branch `ci/car-preview` (`git fetch origin ci/car-preview`): gli artifact di Actions non sono
+  scaricabili dalla sessione cloud.
+
+## Rilasci
+
+- Versione in `app/build.gradle.kts` (`versionCode`, `versionName` di default), novità in
+  `Changelog.kt` (schermata "Novità" sull'auto) e in `.github/release-notes.md` (testo del rilascio).
+- Il workflow **Release** parte dai tag `v*`, firma l'APK con i secret e lo allega al rilascio
+  (non pre-release, così Obtainium lo trova).
+- Dalla sessione cloud di Claude il push dei tag è rifiutato (403): il rilascio lo crea l'utente su
+  GitHub (Releases → nuovo tag `v<versionName>` → branch di destinazione → Publish).
 
 ## Architettura
 
@@ -94,14 +108,15 @@ Tutti i token in un solo posto, `car/design/`:
   il video verso l'auto li comprime male (banding).
 - **Raggi**: icone app squircle ≈ 22% del lato; card 16dp; bottoni 14dp; pill = metà altezza.
 - **Spaziature**: 4 / 8 / 12 / 16 / 24 / 32dp.
-- **Tipografia (Inter)**: display 34 Bold, titolo 22 SemiBold, corpo 17 Regular,
-  etichetta 13 Medium.
+- **Tipografia (Inter)**: tutta la scala Material in Inter, con le dimensioni di Material (le
+  schermate ereditate sono impaginate su quelle) e spaziatura tra lettere un po' più stretta.
 - **Tocco**: target minimo 64dp.
 - **Movimento**: pressione 120–150ms, transizioni 200–250ms, easing decelerato; niente
   animazioni lunghe.
-- **Layout**: dock laterale fisso a sinistra (orologio in alto, app recenti/principali,
-  tasto della griglia app in basso); Home = griglia di icone (≈4×2 per pagina, paginata, con indicatori);
-  icone reali delle app installate dentro una cornice squircle.
+- **Layout**: dock laterale fisso a sinistra (`CarDock`: orologio in alto → dashboard, mappa,
+  brano in riproduzione, app fissate e aperte, assistente; tasto della griglia app in basso);
+  Home resta mappa + player; la griglia app (≈4×2 per pagina, a pagine, con indicatori) si apre
+  dal tasto del dock; icone reali delle app installate dentro una cornice squircle.
 
 ## Decisioni prese
 
