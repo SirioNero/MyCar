@@ -24,6 +24,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MyCar"
-include(":gearslip")
+include(":app")
 // include(":ksdump")
  

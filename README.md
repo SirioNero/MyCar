@@ -149,14 +149,14 @@ on, and the one-time agreement you sign before your first pull request merges.
 ## Building
 
 ```
-./gradlew :gearslip:assembleDebug
+./gradlew :app:assembleDebug
 ```
 
 The APK lands at `build/Gearslip-debug.apk`.
 
 A release build needs a signing key. Copy `keystore.properties.example` to
 `keystore.properties`, fill in your own values, and run
-`./gradlew :gearslip:assembleRelease`. Git ignores both the properties file and the
+`./gradlew :app:assembleRelease`. Git ignores both the properties file and the
 keystore. Without them, the debug build still works.
 
 ## Writing apps for Gearslip

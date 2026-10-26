@@ -43,7 +43,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - if: matrix.build-mode == 'manual'
-        run: ./gradlew :gearslip:assembleDebug --no-daemon
+        run: ./gradlew :app:assembleDebug --no-daemon
 
       - uses: github/codeql-action/analyze@v4
         with:

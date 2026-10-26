@@ -1,4 +1,4 @@
-# Build output is redirected to <root>/build/gearslip/ (see build.gradle.kts), already
+# Build output is redirected to <root>/build/app/ (see build.gradle.kts), already
 # covered by the root .gitignore's /build - this is just a safety net in case that ever
 # changes back.
 build/

@@ -24,11 +24,11 @@ val keystoreProperties = Properties().apply {
     ).firstOrNull { it.exists() }?.inputStream()?.use { load(it) }
 }
 
-// Keeps build output out of the module folder: <root>/build/gearslip/... instead of
-// <root>/gearslip/build/..., so everything this project produces lands under one
+// Keeps build output out of the module folder: <root>/build/app/... instead of
+// <root>/app/build/..., so everything this project produces lands under one
 // root-level build/ directory. Set before android {}, which works out the path to R8's default
 // rules from it.
-layout.buildDirectory.set(rootProject.layout.buildDirectory.dir("gearslip"))
+layout.buildDirectory.set(rootProject.layout.buildDirectory.dir("app"))
 
 android {
     namespace = "io.github.sirionero.mycar"

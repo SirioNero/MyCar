@@ -31,7 +31,7 @@ jobs:
           EOF
 
       - name: Build release APK
-        run: ./gradlew :gearslip:assembleRelease
+        run: ./gradlew :app:assembleRelease
 
       - name: Locate APK
         id: apk

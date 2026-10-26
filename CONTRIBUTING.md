@@ -20,7 +20,7 @@ You need Android Studio, or the Android SDK with JDK 21. Gradle downloads the ND
 and the speech library on the first build.
 
 ```
-./gradlew :gearslip:assembleDebug
+./gradlew :app:assembleDebug
 ```
 
 The APK lands at `build/Gearslip-debug.apk`. It installs as Gearslip Dev, next to the
