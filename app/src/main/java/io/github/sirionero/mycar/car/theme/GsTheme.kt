@@ -112,8 +112,23 @@ object GsThemes {
         control = ControlLook(holdMarker = HoldMarkerStyle.DOT),
     )
 
-    val default = Flat
-    val builtIn = listOf(Tactile, Keycap, Flat)
+    /**
+     * myCar's own look, the default: flat, softly rounded, and shrinking a touch under the finger,
+     * which reads through the car's video lag better than a colour change alone.
+     */
+    val MyCar = GsTheme(
+        id = "mycar",
+        name = "myCar",
+        control = ControlLook(
+            corner = io.github.sirionero.mycar.car.design.MyCarRadius.Button,
+            pressedDim = 0.16f,
+            pressedScale = io.github.sirionero.mycar.car.design.MyCarMotion.PressedScale,
+            holdMarker = HoldMarkerStyle.DOT,
+        ),
+    )
+
+    val default = MyCar
+    val builtIn = listOf(MyCar, Tactile, Keycap, Flat)
 
     fun byId(id: String?): GsTheme = builtIn.firstOrNull { it.id == id } ?: default
 }

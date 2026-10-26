@@ -68,7 +68,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
     private val lastMediaFlow = MutableStateFlow<String?>(null)
     private val autoplayFlow = MutableStateFlow(false)
     private val playerTitleFlow = MutableStateFlow(false)
-    private val themeFlow = MutableStateFlow(AppTheme.PHONE)
+    private val themeFlow = MutableStateFlow(AppTheme.DARK)
     val appTheme: StateFlow<AppTheme> = themeFlow
     private val uiThemeFlow = MutableStateFlow(GsThemes.default.id)
 
@@ -218,8 +218,8 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         lastNavFlow.value = AppSettings.getString(app, KEY_LAST_NAV, "").ifEmpty { null }
         lastMediaFlow.value = AppSettings.getString(app, KEY_LAST_MEDIA, "").ifEmpty { null }
         themeFlow.value = runCatching {
-            AppTheme.valueOf(AppSettings.getString(app, KEY_THEME, AppTheme.PHONE.name))
-        }.getOrDefault(AppTheme.PHONE)
+            AppTheme.valueOf(AppSettings.getString(app, KEY_THEME, AppTheme.DARK.name))
+        }.getOrDefault(AppTheme.DARK)
         uiThemeFlow.value = AppSettings.getString(app, KEY_UI_THEME, GsThemes.default.id)
         autoplayFlow.value = AppSettings.getString(app, KEY_AUTOPLAY, "false") == "true"
         playerTitleFlow.value = AppSettings.getString(app, KEY_PLAYER_TITLE, "false") == "true"

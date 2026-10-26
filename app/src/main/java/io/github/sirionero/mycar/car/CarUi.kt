@@ -40,8 +40,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.hapticfeedback.HapticFeedback
@@ -71,6 +69,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.car.design.MyCarCarTheme
 import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
 import io.github.sirionero.mycar.car.theme.GsIconButton
@@ -97,7 +96,8 @@ import java.util.Date
 /**
  * The whole car screen: the current screen on top, the nav bar along the bottom.
  *
- * Colours follow the phone's theme (Material You). The size setting scales everything by
+ * Colours, type and shapes are myCar's own (see car/design), dark unless the driver picks light
+ * or "follow phone" in the car's settings. The size setting scales everything by
  * changing the density, so text, icons and touch targets grow together.
  */
 @Composable
@@ -114,7 +114,6 @@ fun CarUi() {
         AppTheme.LIGHT -> false
         AppTheme.DARK -> true
     }
-    val colors = if (dark) dynamicDarkColorScheme(appContext) else dynamicLightColorScheme(appContext)
     val base = LocalDensity.current
     val insets by CarEnvironment.insets.collectAsState()
     val navigator = remember { CarNavigator(CarSettings.openOnConnect.value) }
@@ -186,7 +185,7 @@ fun CarUi() {
         LocalMapControlsWake provides controlsWake,
         LocalGsTheme provides GsThemes.byId(uiThemeId),
     ) {
-        MaterialTheme(colorScheme = colors) {
+        MyCarCarTheme(dark) {
           CompositionLocalProvider(LocalIndication provides FocusRingIndication(MaterialTheme.colorScheme.primary)) {
             Surface(
                 Modifier

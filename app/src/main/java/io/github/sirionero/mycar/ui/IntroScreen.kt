@@ -577,8 +577,8 @@ private fun AppPicks(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUni
 private fun ThemePicker(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, key: IntroStep) {
     val chosenId by CarSettings.uiTheme.collectAsState()
     val chosen = GsThemes.byId(chosenId)
-    // Flat first: it's the default.
-    val themes = listOf(GsThemes.Flat) + GsThemes.builtIn.filter { it != GsThemes.Flat }
+    // The default first.
+    val themes = listOf(GsThemes.default) + GsThemes.builtIn.filter { it != GsThemes.default }
     Column(
         Modifier.padding(top = cq(7f)).fillMaxWidth().up(entrance(key, 500, 700), cq(7f)),
         verticalArrangement = Arrangement.spacedBy(cq(6f)),
