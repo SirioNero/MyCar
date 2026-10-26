@@ -245,6 +245,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         }.getOrDefault(Units.AUTO)
         whatsNewFlow.value = AppSettings.getString(app, KEY_WHATS_NEW, "true") == "true"
         whatsNewSeenFlow.value = AppSettings.getString(app, KEY_WHATS_NEW_SEEN, "0").toIntOrNull() ?: 0
+        AssistantChoice.init(app)
     }
 
     fun setScale(value: Float) {
