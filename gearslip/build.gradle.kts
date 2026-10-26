@@ -31,7 +31,7 @@ val keystoreProperties = Properties().apply {
 layout.buildDirectory.set(rootProject.layout.buildDirectory.dir("gearslip"))
 
 android {
-    namespace = "app.seb3thehacker.gearslip"
+    namespace = "io.github.sirionero.mycar"
     compileSdk = 37
 
     defaultConfig {
