@@ -22,6 +22,23 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # With the signing key in the repository's secrets, the debug app is signed with it too, so
+      # each new build installs over the last one. Without it (a fork, say), the debug key signs.
+      - name: Signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
+          KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
+          KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "No signing key in the secrets: the debug key signs this build."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > mycar-release.jks
+          printf 'storeFile=mycar-release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_STORE_PASSWORD" "$KEYSTORE_KEY_ALIAS" "$KEYSTORE_KEY_PASSWORD" > keystore.properties
+
       - name: Build and test
         run: ./gradlew :app:assembleDebug :app:testDebugUnitTest --no-daemon --stacktrace
 

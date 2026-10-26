@@ -39,7 +39,7 @@ entry:
 ```xml
 <!-- res/values/arrays.xml -->
 <array name="hosts_allowlist">
-    <item>MYCAR_CERTIFICATE_SHA256,io.github.sirionero.mycar</item>
+    <item>e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar</item>
 </array>
 ```
 
@@ -52,10 +52,9 @@ public HostValidator createHostValidator() {
 }
 ```
 
-Replace `MYCAR_CERTIFICATE_SHA256` with the digest of MyCar's release signing certificate,
-which the README lists from the first signed release on. A MyCar you built yourself carries your
-own debug key and a different digest, so read the fingerprint off the APK you actually installed
-when an allowlist entry fails to match.
+That digest belongs to MyCar's release signing certificate. A MyCar you built yourself
+carries your own debug key and a different digest, so read the fingerprint off the APK you
+actually installed when an allowlist entry fails to match.
 
 Write each entry as the digest first, then a comma, then the package name. The digest is the
 SHA-256 of the host's signing certificate as 64 lowercase hex characters, with no colons and no

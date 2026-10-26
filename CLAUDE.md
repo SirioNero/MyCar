@@ -33,6 +33,10 @@ Rispondi sempre in **italiano**.
   (repository Maven Google).
 - Output: `build/MyCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
 - Firma release opzionale via `keystore.properties` (gitignored).
+- Chiave di firma di MyCar: alias `mycar`, PKCS12, certificato SHA-256
+  `E4:77:A4:79:4B:98:49:27:36:0E:9A:E4:A3:1E:87:CB:08:A2:6C:54:E0:E2:7E:43:34:11:6D:1C:7C:DC:CC:31`.
+  Sta solo nei secret di GitHub (`KEYSTORE_BASE64`, `KEYSTORE_STORE_PASSWORD`, `KEYSTORE_KEY_ALIAS`,
+  `KEYSTORE_KEY_PASSWORD`) e nel backup dell'utente; mai nel repository.
 - Icona: logo in `docs/icon/mycar-logo.jpg`; `python3 docs/icon/make_icons.py docs/icon/mycar-logo.jpg .`
   rigenera i PNG `mipmap-*/ic_launcher_foreground.png` (main: arco blu, debug: arco ambra) e
   `docs/icon/mycar-icon.png`. La sagoma a tema è il vettoriale `drawable/ic_launcher_monochrome.xml`.
@@ -105,8 +109,6 @@ Tutti i token in un solo posto (proposta: `car/design/`, file nuovi).
 
 - Voce offline nella build F-Droid: compilare sherpa-onnx (+ onnxruntime) da sorgente nella
   ricetta F-Droid invece del `.so` precompilato.
-- Lista "pacchetto + certificato" in `docs/BUILDING_APPS.md`: inserire l'hash del certificato di
-  firma di MyCar quando esiste la chiave.
 
 ## Note F-Droid
 
