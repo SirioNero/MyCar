@@ -18,6 +18,9 @@ import io.github.sirionero.mycar.MyCarLog
 class MyCarCallScreening : CallScreeningService() {
 
     override fun onScreenCall(callDetails: Call.Details) {
+        // Calls the driver places to a number outside the contacts come through here too. They
+        // need no answer, and showing them would cover the car screen with "Incoming call".
+        if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) return
         val number = callDetails.handle?.schemeSpecificPart
         var responded = false
 
