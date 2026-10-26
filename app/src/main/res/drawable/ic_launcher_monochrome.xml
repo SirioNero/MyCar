@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Themed-icon silhouette of the logo (Android 13+): the padlock's shackle, its body with the
+     keyhole cut out, and the two wheels, each wheel set apart from the body by a thin gap.
+     Laid out on the same grid as the art in mipmap-*/ic_launcher_foreground.png. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M 66.69,49.48 L 80.91,52.61 L 82.31,42.81 L 66.92,47.91 Z"
-        android:fillColor="#FF000000"
-        android:fillAlpha="0.35"/>
+        android:pathData="M43.6,48 V39.35 A10.25,10.25 0 0 1 64.1,39.35 V48"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="4"/>
     <path
-        android:pathData="M 54.00,36.18 L 58.64,30.70 L 67.20,34.24 L 66.60,41.40 L 71.82,54.00 L 77.30,58.64 L 73.76,67.20 L 66.60,66.60 L 66.60,66.60 L 67.20,73.76 L 58.64,77.30 L 54.00,71.82 L 54.00,71.82 L 49.36,77.30 L 40.80,73.76 L 41.40,66.60 L 41.40,66.60 L 34.24,67.20 L 30.70,58.64 L 36.18,54.00 L 36.18,54.00 L 30.70,49.36 L 34.24,40.80 L 41.40,41.40 L 41.40,41.40 L 40.80,34.24 L 49.36,30.70 L 54.00,36.18 Z M54,46.08 A7.92,7.92 0 1,1 53.99,46.08 Z"
+        android:pathData="M39.9,46.7 H68.1 A2.5,2.5 0 0 1 70.6,49.2 V68.84 A5.7,5.7 0 0 0 63.1,72 H44.9 A5.7,5.7 0 0 0 37.4,68.84 V49.2 A2.5,2.5 0 0 1 39.9,46.7 Z M52.6,60.51 A3.3,3.3 0 1 1 54.8,60.51 L55.6,67.4 L51.8,67.4 Z"
         android:fillType="evenOdd"
         android:fillColor="#FF000000"/>
     <path
-        android:pathData="M 78.61,40.70 L 85.31,43.29 L 84.74,52.55 L 77.78,54.31 Z"
+        android:pathData="M35.1,74.1 A4.5,4.5 0 1 0 44.1,74.1 A4.5,4.5 0 1 0 35.1,74.1 Z M38.2,74.1 A1.4,1.4 0 1 0 41,74.1 A1.4,1.4 0 1 0 38.2,74.1 Z M63.9,74.1 A4.5,4.5 0 1 0 72.9,74.1 A4.5,4.5 0 1 0 63.9,74.1 Z M67,74.1 A1.4,1.4 0 1 0 69.8,74.1 A1.4,1.4 0 1 0 67,74.1 Z"
+        android:fillType="evenOdd"
         android:fillColor="#FF000000"/>
 </vector>
