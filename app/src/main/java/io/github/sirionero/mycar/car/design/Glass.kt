@@ -94,4 +94,31 @@ fun GlassTile(
     }
 }
 
+/**
+ * A pane of frosted glass behind this element's content: [tint] over whatever is drawn beneath
+ * it (the caller puts a blurred copy of the picture there), a faint sheen at the top and the same
+ * rim of light as the icons.
+ */
+fun Modifier.glassPanel(shape: Shape, tint: Color = Color.Black.copy(alpha = 0.4f)): Modifier = drawWithContent {
+    val outline = shape.createOutline(size, layoutDirection, this)
+    drawOutline(outline, tint)
+    drawOutline(
+        outline,
+        Brush.verticalGradient(
+            0f to Color.White.copy(alpha = 0.12f),
+            0.5f to Color.White.copy(alpha = 0f),
+        ),
+    )
+    drawContent()
+    drawOutline(
+        outline,
+        Brush.verticalGradient(
+            0f to Color.White.copy(alpha = 0.45f),
+            0.5f to Color.White.copy(alpha = 0.12f),
+            1f to Color.White.copy(alpha = 0.06f),
+        ),
+        style = Stroke(width = 1.dp.toPx()),
+    )
+}
+
 private val RIM = 1.5.dp

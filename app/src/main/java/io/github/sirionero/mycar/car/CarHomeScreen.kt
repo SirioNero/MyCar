@@ -17,22 +17,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import android.support.v4.media.session.PlaybackStateCompat
-import io.github.sirionero.mycar.R
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import android.media.session.PlaybackState
 import io.github.sirionero.mycar.media.MediaArt
@@ -109,7 +98,7 @@ fun CarHome() {
         }
         if (splitScreen) {
             val side = Modifier.weight(1f).fillMaxHeight()
-            if (panel == SidePanel.LYRICS) SideLyrics(now, side) else DockedPlayer(now, side)
+            if (panel == SidePanel.LYRICS) SideLyrics(now, side) else GlassDockedPlayer(now, side)
         }
     }
 }
@@ -157,69 +146,6 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
             } else {
                 // Autostart is still picking one - a navigation app is installed, so this resolves
                 // to a "Starting..." state itself, in the next frame or two.
-            }
-        }
-    }
-}
-
-/**
- * The player, docked beside the map: art, title, progress, transport, then like, shuffle, repeat
- * and lyrics. While it's here the nav bar's pill steps aside on Home, so the controls never show
- * twice. The X sends it back to the nav bar.
- */
-@Composable
-private fun DockedPlayer(now: NowPlaying, modifier: Modifier) {
-    val navigator = LocalCarNavigator.current
-    val media = CarServices.media
-    val context = LocalContext.current
-    val scheme = MaterialTheme.colorScheme
-    val art by produceState(now.art, now.art, now.artUri) { value = now.art ?: MediaArt.load(context, now.artUri) }
-
-    Surface(modifier = modifier, color = rememberArtColor(art, MaterialTheme.colorScheme.surfaceVariant)) {
-        BoxWithConstraints(Modifier.fillMaxSize().padding(12.dp)) {
-            // Whatever height the controls below leave over, so the art grows on a taller
-            // screen and shrinks rather than pushing the buttons off a short one.
-            val artSize = minOf(maxWidth - 44.dp, maxHeight - 250.dp).coerceIn(56.dp, 200.dp)
-            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.fillMaxWidth()) {
-                    // Art opens the full media screen, same as on the pill.
-                    Box(
-                        Modifier
-                            .align(Alignment.TopCenter)
-                            .size(artSize)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(scheme.surface)
-                            .clickable { navigator.media() },
-                    ) {
-                        art?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
-                    }
-                    GsIconButton(
-                        Icons.Filled.Close, "Close the player", navigator::closeSidePanel,
-                        Modifier.align(Alignment.TopEnd), size = 36.dp, iconSize = 20.dp,
-                    )
-                }
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    now.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    now.artist, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis,
-                )
-                if (now.durationMs > 0) {
-                    PlayerProgress(now, media, Modifier.fillMaxWidth().padding(vertical = 2.dp), showTimes = false)
-                } else {
-                    Spacer(Modifier.height(10.dp))
-                }
-                TransportRow(now, media, skip = 48.dp, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(10.dp))
-                PlayModeRow(now, media, size = 42.dp, modifier = Modifier.fillMaxWidth()) {
-                    GsIconButton(
-                        ImageVector.vectorResource(R.drawable.lyrics_24), "Lyrics", navigator::showSideLyrics,
-                        size = 42.dp, iconSize = 22.dp,
-                    )
-                }
             }
         }
     }
