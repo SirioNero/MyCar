@@ -167,8 +167,8 @@ internal fun introColors(): IntroColors {
     )
 }
 
-/** In the order shown: what's new, what to pick, housekeeping, then the people behind it. */
-private enum class IntroStep { WELCOME, WIRELESS, KNOBS, VOICE, THEME, APPS, GRAPHENE, CHAT, THANKS }
+/** In the order shown: what's new, what to pick, then housekeeping. */
+private enum class IntroStep { WELCOME, WIRELESS, KNOBS, VOICE, THEME, APPS, GRAPHENE }
 
 private val Pop = CubicBezierEasing(0.3f, 1.6f, 0.5f, 1f)
 private val Rise = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
@@ -223,19 +223,6 @@ fun IntroScreen(onDone: () -> Unit) {
                 },
                 outlined = true,
             ) { ShieldIcon(c.onSecondaryC, c.secondaryC) }
-            IntroStep.THANKS -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, "Thank you.",
-                "Thanks to your usage notes, Gearslip is confirmed to work in cars newer than 2020. " +
-                    "Each note shows which cars work and which still fail, so I know what to fix next.", step,
-                action = "See which cars work" to { MyCarLinks.open(context, MyCarLinks.CARS) },
-                outlined = true,
-                secondAction = "Support on Liberapay" to { MyCarLinks.open(context, MyCarLinks.LIBERAPAY) },
-            ) { HeartIcon(c.onTertiaryC) }
-            IntroStep.CHAT -> BadgeStep(c, ::cq, ::cqSp, c.primaryC, "Come say hi.",
-                "Gearslip has a chat room on Matrix. Talk with other drivers about cars, apps, and " +
-                    "where Gearslip is headed.", step,
-                action = "Join on Matrix" to { MyCarLinks.open(context, MyCarLinks.MATRIX) },
-                outlined = true,
-            ) { ChatIcon(c.onPrimaryC, c.primaryC) }
             IntroStep.APPS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Good company.",
                 "Free, open-source apps that work well in the car. The first in each row works best. Tap one to see it on GitHub.", step,
                 extra = { AppPicks(c, ::cq, ::cqSp, step) }) { StarIcon(c.onSecondaryC) }
@@ -789,27 +776,6 @@ internal fun ShieldIcon(color: Color, tick: Color) {
             }
             drawPath(shield, color)
             drawPartialStroke(listOf(Offset(16f, 24f), Offset(22f, 30f), Offset(33f, 18f)), p, tick, 4.5f)
-        }
-    }
-}
-
-/** A speech bubble with three dots that pulse, like someone typing. */
-@Composable
-private fun ChatIcon(color: Color, dots: Color) {
-    val t = rememberInfiniteTransition(label = "typing")
-    val pulse = (0..2).map { i ->
-        t.animateFloat(
-            0.35f, 1f,
-            infiniteRepeatable(tween(500, easing = FastOutSlowInEasing), RepeatMode.Reverse,
-                initialStartOffset = androidx.compose.animation.core.StartOffset(i * 170)),
-            label = "dot$i",
-        )
-    }
-    Canvas(Modifier.fillMaxSize()) {
-        inIconBox {
-            drawRoundRect(color, Offset(4f, 7f), Size(40f, 28f), CornerRadius(10f, 10f))
-            drawPath(Path().apply { moveTo(12f, 33f); lineTo(10f, 43f); lineTo(22f, 33f); close() }, color)
-            pulse.forEachIndexed { i, a -> drawCircle(dots.copy(alpha = a.value), 3.2f, Offset(15f + i * 9f, 21f)) }
         }
     }
 }

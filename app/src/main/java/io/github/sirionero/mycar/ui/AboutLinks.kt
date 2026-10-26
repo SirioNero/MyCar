@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +43,10 @@ internal object MyCarLinks {
     /** MyCar's Monero address. Its row stays hidden while this is empty. */
     const val MONERO = "44gTVxQJY3cirBJ41J5i1bPUVnSkTMhn9esSp1kg9MHwJ3TUz8tkkigUTKwiok5zA5RZvNxyM4pqkAfPs79pPLfaNG21pCn"
     const val MATRIX = "https://matrix.to/#/!mf0_mgBd5KqKpc9FfX_wHp1jFCcwAtPrndIn_oGIyMk?via=matrix.org"
-    const val SOURCE = "https://github.com/twinksoftware/gearslip"
+    const val SOURCE = "https://github.com/sirionero/mycar"
+    const val LICENSE = "$SOURCE/blob/main/LICENSE"
+    /** Gearslip, the project MyCar is a modified version of. */
+    const val UPSTREAM = "https://github.com/twinksoftware/gearslip"
     const val CARS = "$SOURCE/blob/main/CARS.md"
 
     fun open(context: Context, url: String) {
@@ -153,7 +157,7 @@ internal fun MoneroDialog(onDismiss: () -> Unit) {
     )
 }
 
-/** The About section's links: the chat room, the source code, and credits. */
+/** The About section's links: the chat room, the source code, the license, and credits. */
 @Composable
 internal fun AboutLinkRows() {
     val context = LocalContext.current
@@ -165,9 +169,9 @@ internal fun AboutLinkRows() {
         )
     }
     SettingsRow(
-        "Join the chat on Matrix",
+        "Gearslip chat on Matrix",
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.MATRIX) },
-        subtitle = "Talk with other drivers about cars, apps, and Gearslip",
+        subtitle = "The community of Gearslip, the project MyCar is based on",
         icon = Icons.AutoMirrored.Filled.Send,
         trailing = arrow,
     )
@@ -175,8 +179,24 @@ internal fun AboutLinkRows() {
     SettingsRow(
         "Source code",
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.SOURCE) },
-        subtitle = "Read or change Gearslip's code under the AGPL",
+        subtitle = "Read or change MyCar's code under the AGPL",
         icon = Icons.Filled.Build,
+        trailing = arrow,
+    )
+    SettingsDivider()
+    SettingsRow(
+        "Based on Gearslip",
+        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.UPSTREAM) },
+        subtitle = "MyCar is a modified version of Gearslip, © 2026 Twink Software LLC and contributors",
+        icon = Icons.Filled.Info,
+        trailing = arrow,
+    )
+    SettingsDivider()
+    SettingsRow(
+        "License",
+        Modifier.clickable { MyCarLinks.open(context, MyCarLinks.LICENSE) },
+        subtitle = "Free software under the GNU AGPL v3, with no warranty",
+        icon = Icons.Filled.Info,
         trailing = arrow,
     )
     SettingsDivider()
