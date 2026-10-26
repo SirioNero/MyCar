@@ -26,6 +26,26 @@ jobs:
       - name: Build the debug app
         run: ./gradlew :app:assembleDebug --no-daemon
 
+      # Car apps to try myCar with, from their latest releases: Vela Maps (navigation), Plancia
+      # (Home Assistant; its debug build, the one that accepts any car screen) and Xonos (Music
+      # Assistant). One that fails to download is just left out of the shots.
+      - name: Download car apps to try
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p third-party
+          get() { curl -fsSL -o "third-party/$1" "$2" || { echo "could not download $1"; rm -f "third-party/$1"; }; }
+          get plancia.apk https://github.com/SirioNero/Home-Assistant-on-Gearslip/releases/latest/download/Plancia-debug.apk
+          get xonos.apk https://github.com/SirioNero/Music-Assistant-on-Gearslip/releases/latest/download/Xonos.apk
+          # Vela's APK names change between releases: take the newest release that has one, and
+          # among its APKs an x86_64 or universal build if there is one.
+          apks=$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/PimpinPumpkin/Vela/releases?per_page=10" |
+            jq -r '[.[] | select(any(.assets[]; .name | endswith(".apk")))][0].assets[] | select(.name | endswith(".apk")) | .browser_download_url' || true)
+          echo "Vela APKs: $apks"
+          vela=$(grep -i -m1 'x86_64' <<< "$apks" || grep -i -m1 'universal' <<< "$apks" || head -n1 <<< "$apks")
+          [ -n "$vela" ] && get vela.apk "$vela"
+          ls -l third-party
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
