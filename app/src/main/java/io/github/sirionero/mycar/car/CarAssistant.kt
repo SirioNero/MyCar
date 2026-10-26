@@ -76,6 +76,8 @@ object CarAssistant {
     private fun startOnMainThread() {
         val context = appContext ?: return
         if (_state.value.phase == Phase.LISTENING || _state.value.phase == Phase.THINKING) return
+        // The driver may have picked another assistant, which then takes the button instead.
+        if (AssistantChoice.startOther(context)) return
 
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) !=
             PackageManager.PERMISSION_GRANTED

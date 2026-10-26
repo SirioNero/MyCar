@@ -158,6 +158,8 @@ fun CarSettingsScreen() {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
+        AssistantPicker()
+
         ExperimentalFeatureRow(
             title = "Use the phone's speech recognition",
             description = "Listens through the phone's own speech service instead of myCar's. On " +

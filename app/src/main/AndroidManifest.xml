@@ -115,6 +115,19 @@
     <intent>
         <action android:name="android.intent.action.TTS_SERVICE" />
     </intent>
+    <!-- Voice assistants the driver can pick instead of myCar's own (PhoneAssistants). -->
+    <intent>
+        <action android:name="android.intent.action.ASSIST" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VOICE_ASSIST" />
+    </intent>
+    <intent>
+        <action android:name="android.intent.action.VOICE_COMMAND" />
+    </intent>
+    <intent>
+        <action android:name="android.speech.action.VOICE_SEARCH_HANDS_FREE" />
+    </intent>
 </queries>
 
 <application
