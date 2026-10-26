@@ -49,7 +49,10 @@ Rispondi sempre in **italiano**.
   scaricabili dalla sessione cloud. Installa anche, dagli ultimi rilasci, Vela Maps, Plancia
   (debug) e Xonos, le apre dalla griglia (cartelle `vela/`, `plancia/`, `xonos/`), fotografa
   telefono e impostazioni, e simula una chiamata in arrivo sul modem dell'emulatore (`call/`).
-  Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script.
+  Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script. Con
+  `--ez player true` l'anteprima mostra solo il player accanto alla mappa con un brano finto
+  (`app/src/debug/.../car/PlayerPreview.kt`, cartelle `player/`): nell'emulatore non suona niente.
+  Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 
 ## Rilasci
 
@@ -59,6 +62,8 @@ Rispondi sempre in **italiano**.
   (non pre-release, così Obtainium lo trova).
 - Dalla sessione cloud di Claude il push dei tag è rifiutato (403): il rilascio lo crea l'utente su
   GitHub (Releases → nuovo tag `v<versionName>` → branch di destinazione → Publish).
+- Una versione verificata ma non ancora pubblicata quando `main` va avanti resta su
+  `release/v<versione>` (es. `release/v0.4.00-alpha`), da usare come destinazione del rilascio.
 
 ## Architettura
 
@@ -68,7 +73,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `CarLauncher` (griglia app a pagine), `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
@@ -102,13 +107,21 @@ Tutti i token in un solo posto, `car/design/`:
 - `SquircleShape.kt`: cornice delle icone (superellisse, `AppIconShape`).
 - `AppIcons.kt`: `AppIcon` (icona di un'app nella cornice), `squareAppIcon` (icona adattiva
   disegnata dai livelli, senza la maschera del telefono), colori e glifi delle app integrate.
+- `Glass.kt`: l'effetto vetro: `glassFinish` (riflesso, ombra in fondo, bordo di luce sopra
+  un'icona), `GlassTile` (icone di myCar: colore a gradiente + simbolo bianco), `glassPanel`
+  (pannello di vetro smerigliato, es. comandi del player sopra la copertina sfocata).
+- `Wallpapers.kt`: sfondi nostri (Aurora default, Sunset, Ocean, Nebula, Ember, Forest, Graphite,
+  o nessuno) disegnati dal codice con una grana anti-banding; `WallpaperSetting` (chiave
+  `car_wallpaper`); `wallpaperBackground` li disegna allineati all'intero schermo, così dock e
+  schermata sono un'unica immagine. Dietro griglia app e dashboard; il dock ci fa da vetro.
 - Font: `res/font/inter_*.ttf` (OFL); icone: `res/drawable/sym_*.xml` (Material Symbols
   Rounded, Apache 2.0). Licenze in `licenses/` e `NOTICE.md`.
 
 - **Colori** (scuro di default): sfondo `#000000`; superfici `#1C1C1E` / `#2A2A2D`;
   separatori `#3A3A3C`; testo `#FFFFFF` / secondario `#9A9AA0`; accento `#3D8BFF`;
-  positivo `#32D46B`; negativo `#FF4D45`; avviso `#FFB020`. Niente gradienti sottili o blur:
-  il video verso l'auto li comprime male (banding).
+  positivo `#32D46B`; negativo `#FF4D45`; avviso `#FFB020`. Selezione: blu pieno `#2B6BE6`;
+  bottoni secondari grigi `#3A3A3C`. Gradienti ampi solo con grana (il video verso l'auto li
+  spezza in bande); sfocatura solo dove serve (vetro del player, sulla copertina).
 - **Raggi**: icone app squircle ≈ 22% del lato; card 16dp; bottoni 14dp; pill = metà altezza.
 - **Spaziature**: 4 / 8 / 12 / 16 / 24 / 32dp.
 - **Tipografia (Inter)**: tutta la scala Material in Inter, con le dimensioni di Material (le
@@ -142,6 +155,11 @@ Tutti i token in un solo posto, `car/design/`:
   Gearslip ufficiale: per usarla con myCar va aggiunta alla sua `hosts_allowlist` la riga
   `e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar`.
   Plancia lascia in alto 44dp per la barra di myCar (`CHROME_BAR` in `CarAppStage`): non cambiarla.
+- Assistente vocale a scelta (`AssistantChoice`, chiave `car_assistant`): myCar (default),
+  l'assistente del telefono o un'app assistente installata. Gli esterni si aprono sul telefono
+  (ASSIST / VOICE_ASSIST / VOICE_COMMAND / VOICE_SEARCH_HANDS_FREE, in `<queries>`): Android non
+  permette di disegnarli sull'auto; la loro voce arriva in auto solo via Bluetooth.
+- Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.
 - F-Droid: per ora variante **senza** voce offline (sherpa-onnx).
 - Auto-updater delle build GitHub: rilasci di `sirionero/mycar`; disattivato nella build F-Droid.
 

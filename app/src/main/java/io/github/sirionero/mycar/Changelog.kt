@@ -11,6 +11,16 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            13, "0.5.00-alpha",
+            listOf(
+                "Wallpapers behind the app grid and the dashboard, with the dock in glass over them. Pick one, or none, in the car's settings.",
+                "Icons in glass: light along the edges and a soft shine.",
+                "The player beside the map fills its side with the cover, its controls on frosted glass.",
+                "Choose the voice assistant: myCar's own, the phone's, or another assistant app.",
+                "Apps that work only in part with myCar have a yellow mark.",
+            ),
+        ),
+        Release(
             12, "0.4.00-alpha",
             listOf(
                 "A new look: a dock down the left with the clock and your apps, and the app grid in pages.",
