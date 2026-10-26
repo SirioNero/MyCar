@@ -1,3 +1,5 @@
+<img src="docs/icon/mycar-icon.png" alt="MyCar icon" width="96" height="96">
+
 # MyCar
 
 An Android Auto alternative for your phone, with no Google software in the path.

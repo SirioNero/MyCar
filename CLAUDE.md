@@ -33,6 +33,9 @@ Rispondi sempre in **italiano**.
   (repository Maven Google).
 - Output: `build/MyCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
 - Firma release opzionale via `keystore.properties` (gitignored).
+- Icona: logo in `docs/icon/mycar-logo.jpg`; `python3 docs/icon/make_icons.py docs/icon/mycar-logo.jpg .`
+  rigenera i PNG `mipmap-*/ic_launcher_foreground.png` (main: arco blu, debug: arco ambra) e
+  `docs/icon/mycar-icon.png`. La sagoma a tema è il vettoriale `drawable/ic_launcher_monochrome.xml`.
 - Il debug ha `applicationIdSuffix = ".dev"`. Nel debug esiste `CarPreviewActivity`, che
   renderizza la UI auto in PNG senza auto (utile per verificare il restyling).
 
@@ -102,7 +105,6 @@ Tutti i token in un solo posto (proposta: `car/design/`, file nuovi).
 
 - Voce offline nella build F-Droid: compilare sherpa-onnx (+ onnxruntime) da sorgente nella
   ricetta F-Droid invece del `.so` precompilato.
-- Icona e logo MyCar (oggi è ancora l'icona di Gearslip).
 - Lista "pacchetto + certificato" in `docs/BUILDING_APPS.md`: inserire l'hash del certificato di
   firma di MyCar quando esiste la chiave.
 
