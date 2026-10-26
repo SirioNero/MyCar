@@ -51,7 +51,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, nav bar in basso), `CarHomeScreen` (mappa + player), `CarLauncher` (griglia app), `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `CarLauncher` (griglia app a pagine), `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
@@ -59,14 +59,16 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
 | `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
 
-Tema/colori/font oggi:
-- Colori: Material You dinamico (`dynamicDark/LightColorScheme`) in `CarUi.kt` e `ui/MyCarTheme.kt`.
-- Tipografia: `MaterialTheme.typography` + `ChromeType` (in `car/TemplateParts.kt`); nessun font custom.
-- Forme/spaziature: valori `dp` sparsi (~620 in `car/`, ~190 in `ui/`).
-- Le schermate usano già `MaterialTheme.colorScheme` (~225 usi) e `.typography` (~165 usi) →
-  sostituire tema e tipografia alla radice ristila gran parte della UI con un diff piccolo.
+Tema/colori/font:
+- UI dell'auto: `MyCarCarTheme` (in `car/design/MyCarDesign.kt`) alla radice di `CarUi`: colori
+  myCar (scuri di default), tipografia Material in Inter, forme. Le schermate leggono
+  `MaterialTheme.colorScheme` / `.typography` / `.shapes`, quindi seguono il tema senza modifiche.
+- Controlli (`GsButton`, `GsIconButton`…): stile `GsThemes.MyCar` di default (piatto, 14dp, si
+  stringe alla pressione); Tactile, Keycap e Flat restano selezionabili.
+- UI del telefono (`ui/`): ancora Material You (`ui/MyCarTheme.kt`).
+- Restano valori `dp` sparsi nelle schermate ereditate: il codice nuovo usa i token.
 
-## Design system myCar (PROPOSTA, da approvare)
+## Design system myCar (implementato in `car/design/`)
 
 Obiettivo: layout e comportamento il più vicini possibile a un sistema infotainment in stile iOS,
 **ma in modo legale**.
@@ -77,7 +79,14 @@ Obiettivo: layout e comportamento il più vicini possibile a un sistema infotain
 - Vietato: i nomi "CarPlay"/"Apple"/"iOS" in app, icona, store, screenshot; font SF Pro e
   SF Symbols; icone, sfondi, suoni o screenshot Apple; copie delle icone delle app Apple.
 - Niente font scaricabili via Google Play Services.
-Tutti i token in un solo posto (proposta: `car/design/`, file nuovi).
+Tutti i token in un solo posto, `car/design/`:
+- `MyCarDesign.kt`: `MyCarPalette`, `MyCarRadius`, `MyCarSpace`, `MyCarSize`, `MyCarMotion`,
+  `InterFamily`, schemi colori scuro/chiaro, tipografia, forme, `MyCarCarTheme`.
+- `SquircleShape.kt`: cornice delle icone (superellisse, `AppIconShape`).
+- `AppIcons.kt`: `AppIcon` (icona di un'app nella cornice), `squareAppIcon` (icona adattiva
+  disegnata dai livelli, senza la maschera del telefono), colori e glifi delle app integrate.
+- Font: `res/font/inter_*.ttf` (OFL); icone: `res/drawable/sym_*.xml` (Material Symbols
+  Rounded, Apache 2.0). Licenze in `licenses/` e `NOTICE.md`.
 
 - **Colori** (scuro di default): sfondo `#000000`; superfici `#1C1C1E` / `#2A2A2D`;
   separatori `#3A3A3C`; testo `#FFFFFF` / secondario `#9A9AA0`; accento `#3D8BFF`;
@@ -91,7 +100,7 @@ Tutti i token in un solo posto (proposta: `car/design/`, file nuovi).
 - **Movimento**: pressione 120–150ms, transizioni 200–250ms, easing decelerato; niente
   animazioni lunghe.
 - **Layout**: dock laterale fisso a sinistra (orologio in alto, app recenti/principali,
-  tasto Home in basso); Home = griglia di icone (≈4×2 per pagina, paginata, con indicatori);
+  tasto della griglia app in basso); Home = griglia di icone (≈4×2 per pagina, paginata, con indicatori);
   icone reali delle app installate dentro una cornice squircle.
 
 ## Decisioni prese
