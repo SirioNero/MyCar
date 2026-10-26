@@ -152,7 +152,7 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
             description = if (onGrid) "Map and music" else "All apps",
         ) {
             Icon(
-                painterResource(if (onGrid) R.drawable.sym_split_view else R.drawable.sym_grid_view),
+                painterResource(if (onGrid) R.drawable.sym_space_dashboard else R.drawable.sym_grid_view),
                 contentDescription = null,
                 modifier = Modifier.size(DockGlyph),
             )
