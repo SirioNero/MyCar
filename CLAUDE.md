@@ -16,7 +16,9 @@ Rispondi sempre in **italiano**.
 - Non riformattare righe che non si stanno cambiando; codice nuovo in file nuovi quando possibile.
 - Licenza AGPL-3.0: mantenere `LICENSE`, il copyright di Twink Software LLC e l'attribuzione a
   Gearslip (README, schermata Informazioni); il sorgente di ogni versione distribuita è pubblico.
-- Dopo ogni modifica: `./gradlew assembleDebug` (e `./gradlew test` se si tocca logica).
+- Dopo ogni modifica: `./gradlew assembleDebug` (e `./gradlew test` se si tocca logica). Nell'ambiente
+  cloud di Claude la rete non raggiunge `dl.google.com`: la verifica si fa con il workflow **Build**
+  di GitHub Actions (`.github/workflows/build.yml`), che parte a ogni push e allega l'APK di debug.
 - Chiedere conferma prima di aggiungere dipendenze (anche font/asset con licenza propria).
 - Niente dipendenze Google Play Services / proprietarie: il fork deve restare compatibile F-Droid.
 - Tenere aggiornato questo file.
@@ -91,7 +93,7 @@ Tutti i token in un solo posto (proposta: `car/design/`, file nuovi).
 - applicationId e package Kotlin: `io.github.sirionero.mycar` (debug: `.dev`). Nome: "MyCar".
 - MyCar è autonoma: continua a **definire** il permesso `android.car.permission.TEMPLATE_RENDERER`
   (quindi non si installa insieme a Gearslip).
-- Donazioni: link dell'utente al posto di quelli di upstream (link da ricevere).
+- Donazioni: solo Bitcoin, `bc1qu8q2sc5kuccjj3zpzzfpj85xn7szp73nae9xlx` (in `ui/AboutLinks.kt` e nel README).
 - Bug chiamate: priorità alle chiamate **in arrivo** (branch `fix/calls`).
 - F-Droid: per ora variante **senza** voce offline (sherpa-onnx).
 - Auto-updater delle build GitHub: rilasci di `sirionero/mycar`; disattivato nella build F-Droid.
