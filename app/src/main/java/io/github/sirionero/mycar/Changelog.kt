@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            16, "0.5.03-alpha",
+            listOf(
+                "Gemini opens listening too: myCar asks the Google app, which listens for Gemini, and opens a typed chat only if no app will listen.",
+                "On the app grid, the button at the foot of the dock takes you back to the map with the music beside it.",
+                "Moving wallpapers: set Wallpaper motion to Moving in the car's settings, and the colours drift slowly.",
+            ),
+        ),
+        Release(
             15, "0.5.02-alpha",
             listOf(
                 "Two smaller sizes for the car screen: Small (90%) and Extra small (83%), in the car's settings.",

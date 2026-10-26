@@ -49,6 +49,7 @@ Rispondi sempre in **italiano**.
   scaricabili dalla sessione cloud. Installa anche, dagli ultimi rilasci, Vela Maps, Plancia
   (debug) e Xonos, le apre dalla griglia (cartelle `vela/`, `plancia/`, `xonos/`), fotografa
   telefono e impostazioni, e simula una chiamata in arrivo sul modem dell'emulatore (`call/`).
+  `motion/` è la griglia con lo sfondo in movimento (`--ez motion true`), scattata ogni 2,5 s.
   Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script. Con
   `--ez player true` l'anteprima mostra solo il player accanto alla mappa con un brano finto
   (`app/src/debug/.../car/PlayerPreview.kt`, cartelle `player/`): nell'emulatore non suona niente.
@@ -114,6 +115,10 @@ Tutti i token in un solo posto, `car/design/`:
   o nessuno) disegnati dal codice con una grana anti-banding; `WallpaperSetting` (chiave
   `car_wallpaper`); `wallpaperBackground` li disegna allineati all'intero schermo, così dock e
   schermata sono un'unica immagine. Dietro griglia app e dashboard; il dock ci fa da vetro.
+  "Wallpaper motion" Still/Moving (`WallpaperSetting.animated`, chiave `car_wallpaper_motion`,
+  fermo di default): i bagliori vagano piano (giri di 40–80 s), ridisegnati ogni 50 ms nella sola
+  fase di disegno, sull'uptime del telefono così le copie restano allineate. Movimento lento e
+  ampio: niente che attiri l'occhio di chi guida, e ogni fotogramma che cambia costa al video.
 - Font: `res/font/inter_*.ttf` (OFL); icone: `res/drawable/sym_*.xml` (Material Symbols
   Rounded, Apache 2.0). Licenze in `licenses/` e `NOTICE.md`.
 
@@ -132,7 +137,9 @@ Tutti i token in un solo posto, `car/design/`:
 - **Layout**: dock laterale fisso a sinistra (`CarDock`: orologio in alto → dashboard, mappa,
   brano in riproduzione, app fissate e aperte, assistente; tasto della griglia app in basso);
   Home resta mappa + player; la griglia app (≈4×2 per pagina, a pagine, con indicatori) si apre
-  dal tasto del dock; icone reali delle app installate dentro una cornice squircle.
+  dal tasto del dock; icone reali delle app installate dentro una cornice squircle. Sulla griglia
+  il tasto in fondo al dock diventa "mappa e musica" (`sym_split_view`, nostro) e riporta allo
+  schermo condiviso (`CarNavigator.homeWithPlayer()`).
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -167,7 +174,9 @@ Tutti i token in un solo posto, `car/design/`:
   permette di disegnarli sull'auto; la loro voce arriva in auto solo via Bluetooth. Si aprono in
   modalità voce: prima VOICE_SEARCH_HANDS_FREE, poi VOICE_COMMAND / VOICE_ASSIST, ASSIST per
   ultimo (su Google e Gemini apre la chat scritta); "l'assistente del telefono" va all'app letta da
-  `Settings.Secure` "assistant" (Gemini risponde tramite l'app Google).
+  `Settings.Secure` "assistant". L'app di Gemini (`com.google.android.apps.bard`) risponde solo ad
+  ASSIST: la sua voce passa dall'app Google (`com.google.android.googlequicksearchbox`), a cui
+  `PhoneAssistants.launch` manda le richieste vocali prima di ripiegare su ASSIST.
 - Condivisione schermo (`mirror/`): mentre il telefono è copiato in auto, `TouchRelayService`
   (accessibilità, già usato per i tocchi) aggiunge un pixel trasparente
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
