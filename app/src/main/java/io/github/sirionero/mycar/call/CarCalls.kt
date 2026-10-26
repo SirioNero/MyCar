@@ -56,7 +56,8 @@ object CarCalls {
     private var numberWatcher: BroadcastReceiver? = null
     /** Answer was tapped while the call was still being screened: pick it up once it rings. */
     private var answerWhenRinging = false
-    private var watcherContext: Context? = null
+    /** The application context, kept while call state is being watched. */
+    private var appContext: Context? = null
 
     /** [inCar] is true from the car screen, false from the phone's setup guide. */
     fun start(context: Context, inCar: Boolean = false) {
@@ -71,6 +72,7 @@ object CarCalls {
             .onSuccess {
                 telephony = manager
                 watcher = callback
+                appContext = context.applicationContext
                 watchNumbers(context.applicationContext)
             }
             .onFailure { MyCarLog.w("calls: could not watch call state: ${it.message}") }
@@ -96,7 +98,7 @@ object CarCalls {
         }
         // Exported because the telephony stack sends it; as a protected broadcast, no app can fake it.
         runCatching { app.registerReceiver(receiver, IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED), Context.RECEIVER_EXPORTED) }
-            .onSuccess { numberWatcher = receiver; watcherContext = app }
+            .onSuccess { numberWatcher = receiver }
             .onFailure { MyCarLog.w("calls: could not watch incoming numbers: ${it.message}") }
     }
 
@@ -104,9 +106,9 @@ object CarCalls {
         inCar = false
         val callback = watcher ?: return
         runCatching { telephony?.unregisterTelephonyCallback(callback) }
-        numberWatcher?.let { receiver -> runCatching { watcherContext?.unregisterReceiver(receiver) } }
+        numberWatcher?.let { receiver -> runCatching { appContext?.unregisterReceiver(receiver) } }
         numberWatcher = null
-        watcherContext = null
+        appContext = null
         telephony = null
         watcher = null
         pendingRespond = null
@@ -137,17 +139,17 @@ object CarCalls {
                 val caller = ringingCaller ?: Caller("", null).also { ringingCaller = it }
                 // Telecom rejects a ringing call on request - unless another call is under way,
                 // which it would end instead.
-                val canEnd = previous != TelephonyManager.CALL_STATE_OFFHOOK && watcherContext?.let(::canEndCalls) == true
+                val canEnd = previous != TelephonyManager.CALL_STATE_OFFHOOK && appContext?.let(::canEndCalls) == true
                 _state.value = CallUiState.Ringing(caller, pendingRespond != null || canEnd)
                 if (answerWhenRinging) {
                     answerWhenRinging = false
-                    watcherContext?.let(::acceptRingingCall)
+                    appContext?.let(::acceptRingingCall)
                 }
             }
         }
     }
 
-    /** Called by [MyCarCallScreening] the moment a call comes in - the only place with a number. */
+    /** Called by [MyCarCallScreening] when a call from outside the contacts comes in, before it rings. */
     fun incomingCall(context: Context, number: String?, respond: (allow: Boolean) -> Unit) {
         val caller = Caller(number.orEmpty(), number?.let { lookUpName(context, it) })
         ringingCaller = caller
@@ -183,7 +185,7 @@ object CarCalls {
         if (respond == null) {
             // Past screening, the call rings like any other, and Telecom rejects it.
             val ringing = _state.value as? CallUiState.Ringing ?: return
-            if (ringing.canDecline) watcherContext?.let(::endCall)
+            if (ringing.canDecline) appContext?.let(::endCall)
             return
         }
         pendingRespond = null
