@@ -14,3 +14,6 @@ myCar 0.4.00-alpha: a new look for the car screen.
 - Selected tabs and choices are a brighter blue; secondary buttons are grey.
 - The bar above a car app open full screen (Plancia, for one) is dark like the dock and 44dp tall, the room apps leave for it.
 - "Warn when Bluetooth isn't connected" shows with USB audio too.
+
+## Fixed
+- Car apps' icons drawn by the app itself no longer swap: one app's icon used to stand in for every other such icon (Plancia's menu button showed Vela's map pin, and Vela's place categories all showed the same icon).
