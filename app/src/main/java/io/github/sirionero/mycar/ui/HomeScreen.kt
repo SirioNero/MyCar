@@ -157,13 +157,13 @@ fun HomeScreen(
     }
 }
 
-/** Bluetooth audio is chosen, but the phone isn't connected to the car. See [BluetoothAudioCheck]. */
+/** The phone isn't connected to the car for calls, or for music with Bluetooth audio. See [BluetoothAudioCheck]. */
 @Composable
 private fun BluetoothMissingCard() {
     val missing by BluetoothAudioCheck.missing.collectAsStateWithLifecycle()
     val usb by CarSettings.pipeAudio.collectAsStateWithLifecycle()
     val warn by CarSettings.bluetoothWarning.collectAsStateWithLifecycle()
-    if (!missing || usb || !warn) return
+    if (!missing || !warn) return
     val context = LocalContext.current
     // Yellow, not the theme's error red: music is missing, but nothing is broken. Material has no
     // warning colour, so these are fixed amber tones for light and dark.
@@ -175,7 +175,8 @@ private fun BluetoothMissingCard() {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Bluetooth isn't connected", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
-                "Music plays over Bluetooth, but your phone isn't connected to the car. Connect it " +
+                (if (usb) "Calls play" else "Calls and music play") +
+                    " over Bluetooth, but your phone isn't connected to the car. Connect it " +
                     "here or from the car's Bluetooth menu.",
                 style = MaterialTheme.typography.bodyMedium,
             )

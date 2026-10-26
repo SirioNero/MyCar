@@ -89,6 +89,15 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
+            if (rememberCallOnPhone(active = false)) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "Your phone isn't connected to the car over Bluetooth: the call will play on the phone.",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MyCarPalette.Warning,
+                    textAlign = TextAlign.Center,
+                )
+            }
             Spacer(Modifier.height(56.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(48.dp)) {
                 CallButton(ImageVector.vectorResource(R.drawable.sym_call_end), "Decline", MyCarPalette.Negative, enabled = s.canDecline, onClick = onDecline)
@@ -140,14 +149,25 @@ private fun ActiveCallBanner(
         ) {
             Icon(ImageVector.vectorResource(R.drawable.sym_call), contentDescription = null, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
-            Text(
-                "On a call" + (s.caller?.let { " with ${it.label}" } ?: ""),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "On a call" + (s.caller?.let { " with ${it.label}" } ?: ""),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                // The voice never comes over USB: without Bluetooth it stays on the phone.
+                if (rememberCallOnPhone(active = true)) {
+                    Text(
+                        "Playing on the phone: not connected to the car over Bluetooth",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MyCarPalette.Warning,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
             if (canHangUp) {
                 Spacer(Modifier.width(12.dp))
                 GsButton(onClick = onHangUp, tone = GsTone.Danger, modifier = Modifier.heightIn(min = 64.dp)) {
