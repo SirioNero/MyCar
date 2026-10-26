@@ -100,6 +100,17 @@ The screenshots below still show Gearslip's look. MyCar is getting a new design.
   Settings.
 - **No usage data.** MyCar sends no usage notes or statistics.
 
+## Verify your download
+
+Check that your copy of MyCar is genuine with
+[AppVerifier](https://github.com/soupslurpr/AppVerifier): share this block to it, or compare it
+with the output of `apksigner verify --print-certs`.
+
+```
+io.github.sirionero.mycar
+E4:77:A4:79:4B:98:49:27:36:0E:9A:E4:A3:1E:87:CB:08:A2:6C:54:E0:E2:7E:43:34:11:6D:1C:7C:DC:CC:31
+```
+
 ## Support MyCar
 
 MyCar is free, with no ads and no tracking. To support it, send any amount of Bitcoin to:
