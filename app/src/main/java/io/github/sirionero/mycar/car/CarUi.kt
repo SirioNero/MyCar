@@ -359,7 +359,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
 
 private const val APP_START_TIMEOUT_MS = 15_000L
 
-/** What a car app that won't run under Gearslip gets instead of a loading screen that never ends. */
+/** What a car app that won't run under MyCar gets instead of a loading screen that never ends. */
 @Composable
 private fun AppWontStart(app: String, onBack: () -> Unit) {
     Column(

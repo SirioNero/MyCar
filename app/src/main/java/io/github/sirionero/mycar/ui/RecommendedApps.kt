@@ -42,7 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 
-/** A free app that runs on Gearslip's car screen, and where to get it. */
+/** A free app that runs on MyCar's car screen, and where to get it. */
 private class RecommendedApp(val name: String, val packageName: String, val url: String, val about: String)
 
 private val recommended = listOf(

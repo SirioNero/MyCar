@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 /**
  * The donation ask on Home, after a drive that worked. A driver sees it first after their third
- * such drive, so Gearslip has earned it, and then at most once every three months. Tapping either
+ * such drive, so MyCar has earned it, and then at most once every three months. Tapping either
  * donate button ends it for good.
  */
 object DonatePrompt {

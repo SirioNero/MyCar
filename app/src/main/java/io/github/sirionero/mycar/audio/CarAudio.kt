@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
  * phone is playing, and the car's audio channel, which is where it has to end up.
  *
  * Capture belongs to the car session, not to any one app. Android grants it through a consent
- * dialog that cannot be answered in advance or remembered, so Gearslip asks once, when a head unit
+ * dialog that cannot be answered in advance or remembered, so MyCar asks once, when a head unit
  * first offers a sink to play through, and then holds that grant for as long as the car is
  * connected. Switching between media apps, or starting playback from the phone, costs nothing
  * further: the capture is by audio usage rather than by app, so whatever the phone plays as media

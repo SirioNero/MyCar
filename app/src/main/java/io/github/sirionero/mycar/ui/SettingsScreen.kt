@@ -148,7 +148,7 @@ private fun Arrow() = Icon(
     tint = MaterialTheme.colorScheme.onSurfaceVariant,
 )
 
-/** What's new, the replays, and where Gearslip lives outside the app. */
+/** What's new, the replays, and where MyCar lives outside the app. */
 @Composable
 private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Unit, onReplayIntro: () -> Unit) {
     SettingsSection("About") {
@@ -180,7 +180,7 @@ private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Uni
     }
 }
 
-/** Off, a stock Android Auto app or head unit answers the USB connection instead of Gearslip. */
+/** Off, a stock Android Auto app or head unit answers the USB connection instead of MyCar. */
 @Composable
 private fun ConnectionSection() {
     val context = LocalContext.current
@@ -199,7 +199,7 @@ private fun ConnectionSection() {
     }
 }
 
-/** Connection help, and the tools for checking what Gearslip does. */
+/** Connection help, and the tools for checking what MyCar does. */
 @Composable
 private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, onOpenLogs: () -> Unit) {
     val context = LocalContext.current
@@ -244,7 +244,7 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
     }
 }
 
-/** How music reaches the car: by Bluetooth as usual, or through Gearslip over USB. Same choice as setup. */
+/** How music reaches the car: by Bluetooth as usual, or through MyCar over USB. Same choice as setup. */
 @Composable
 private fun CarAudioSection() {
     val usb by CarSettings.pipeAudio.collectAsState()

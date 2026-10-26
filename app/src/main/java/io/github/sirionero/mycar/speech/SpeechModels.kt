@@ -20,11 +20,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * The speech models Gearslip listens with, in two roles: a streaming one that writes the words
+ * The speech models MyCar listens with, in two roles: a streaming one that writes the words
  * while the driver talks, and an optional final one that reads the whole phrase again once they
  * stop, for a more accurate result. None ships in the APK: each is fetched once and kept in the
  * app's own storage. sherpa-onnx's author publishes them twice: as .tar.bz2 archives on GitHub and
- * as plain files on Hugging Face. Gearslip takes the plain files: unpacking bzip2 on the phone
+ * as plain files on Hugging Face. MyCar takes the plain files: unpacking bzip2 on the phone
  * pinned a core and held a download to 150 KB/s on Wi-Fi that does 19 MB/s.
  */
 object SpeechModels {

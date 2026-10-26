@@ -31,7 +31,7 @@ import java.util.concurrent.Executors
 import kotlin.math.max
 
 /**
- * Gearslip's own speech-to-text, so voice works on phones with no speech service (GrapheneOS ships
+ * MyCar's own speech-to-text, so voice works on phones with no speech service (GrapheneOS ships
  * none). sherpa-onnx runs a streaming model ([SpeechModels]) on the phone: words come out while
  * the driver is still talking, and the model itself decides when they've finished. A larger model
  * then reads the whole phrase once more for the final words, since a model that waits for the end

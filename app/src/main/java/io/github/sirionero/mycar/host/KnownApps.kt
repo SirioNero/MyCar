@@ -5,11 +5,11 @@ import android.content.pm.PackageManager
 import java.security.MessageDigest
 
 /**
- * Apps that have been run through Gearslip from start to finish and behave. The launcher marks
+ * Apps that have been run through MyCar from start to finish and behave. The launcher marks
  * them so a driver can pick something that works without finding out at the wheel.
  *
  * An app belongs here only after a real session: the app starts, draws, takes touches and
- * answers its buttons. Apps that connect but show no library, or refuse Gearslip as a host, stay
+ * answers its buttons. Apps that connect but show no library, or refuse MyCar as a host, stay
  * off the list.
  */
 object KnownApps {
@@ -29,29 +29,29 @@ object KnownApps {
     fun works(packageName: String): Boolean = packageName in working
 
     /**
-     * Apps whose media player works through Gearslip's own player even though their car screen
+     * Apps whose media player works through MyCar's own player even though their car screen
      * doesn't. Only the player tile gets the check, not the "· Browse" one.
      */
     private val workingPlayer = setOf(
-        "com.spotify.music", // Spotify: play, browse, seek through Gearslip's player
+        "com.spotify.music", // Spotify: play, browse, seek through MyCar's player
     )
 
     fun playerWorks(packageName: String): Boolean = packageName in workingPlayer
 
     /**
-     * Apps whose car screen refuses Gearslip but whose player works. When the player covers the
+     * Apps whose car screen refuses MyCar but whose player works. When the player covers the
      * app (see [playerWorks]) the launcher drops the dead "· Browse" tile entirely rather than
      * show it; otherwise that tile gets a red X. Car library 1.9 and later accepts only Google's
      * host on a phone.
      */
     private val brokenScreen = setOf(
-        "com.spotify.music", // Spotify 9.1.86 and later: car library 1.9 rejects Gearslip
+        "com.spotify.music", // Spotify 9.1.86 and later: car library 1.9 rejects MyCar
     )
 
     fun screenBroken(packageName: String): Boolean = packageName in brokenScreen
 
     /**
-     * Registers a car template service but never gives Gearslip a usable screen - left off the
+     * Registers a car template service but never gives MyCar a usable screen - left off the
      * launcher entirely rather than shown as a tile that goes nowhere.
      */
     private val hidden = setOf(
@@ -100,7 +100,7 @@ object KnownApps {
      */
     private val partial = setOf(
         "app.vela", // Vela Maps: connects and draws, but rough enough not to call it working yet
-        "com.spotify.music",        // Spotify: plays through Gearslip's player, but the app has to be opened on the phone first
+        "com.spotify.music",        // Spotify: plays through MyCar's player, but the app has to be opened on the phone first
         "deezer.android.app",       // Deezer: the same - it has to be opened on the phone first
     )
 

@@ -4,9 +4,9 @@
 # the real work on size.
 -dontobfuscate
 
-# Gearslip hosts other apps' car screens: their templates arrive as Bundles, and the car
+# MyCar hosts other apps' car screens: their templates arrive as Bundles, and the car
 # library rebuilds them by class name and reflection. Any model class an app might send has to
-# survive, used by Gearslip's code or not.
+# survive, used by MyCar's code or not.
 -keep class androidx.car.app.** { *; }
 
 # Speech-to-text: the native library calls back into these classes by name.

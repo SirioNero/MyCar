@@ -322,7 +322,7 @@ object AssistantCommands {
         if (name.isBlank()) return null
         val wanted = APP_NICKNAMES[name] ?: name
 
-        // Gearslip's own apps come first in the list, so "phone" opens its dialer, not the phone's.
+        // MyCar's own apps come first in the list, so "phone" opens its dialer, not the phone's.
         val match = bestMatch(allEntries(context), wanted) { it.label }
             ?: return "I couldn't find an app called $name."
 
@@ -332,7 +332,7 @@ object AssistantCommands {
 
     private val EXIT_WORDS = setOf("exit", "exit gearslip", "close gearslip", "quit", "quit gearslip", "open exit")
 
-    /** Other names people use for Gearslip's own apps. */
+    /** Other names people use for MyCar's own apps. */
     private val APP_NICKNAMES = mapOf(
         "web" to "browser", "internet" to "browser", "the web" to "browser", "web browser" to "browser",
         "dialer" to "phone", "the dialer" to "phone", "keypad" to "phone",

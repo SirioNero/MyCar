@@ -31,8 +31,8 @@ sealed interface CallUiState {
  * doors a sideloaded app can use: [android.telecom.TelecomManager.acceptRingingCall] to answer,
  * and [MyCarCallScreening]'s response to decline one that is still ringing.
  *
- * Ending a call already answered needs MODIFY_PHONE_STATE, a privileged permission Gearslip
- * cannot hold, so a call taken here is finished the way it would be without Gearslip at all -
+ * Ending a call already answered needs MODIFY_PHONE_STATE, a privileged permission MyCar
+ * cannot hold, so a call taken here is finished the way it would be without MyCar at all -
  * from the phone itself, a paired headset, or the car's own Bluetooth if it has any. Call audio
  * stays on the phone's normal voice path too; nothing here sends it over the USB link, which
  * only ever carries media playback.
@@ -129,7 +129,7 @@ object CarCalls {
     }
 }
 
-/** Posts to the main thread after a delay - used to give up on a screening response Gearslip never sent. */
+/** Posts to the main thread after a delay - used to give up on a screening response MyCar never sent. */
 internal fun mainThreadDelay(ms: Long, action: () -> Unit) {
     Handler(Looper.getMainLooper()).postDelayed(action, ms)
 }

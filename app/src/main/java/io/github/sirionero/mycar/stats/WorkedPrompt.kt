@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
 
 /**
- * The one-time "Gearslip worked with your car. Share that?" ask, for drivers who never answered
+ * The one-time "MyCar worked with your car. Share that?" ask, for drivers who never answered
  * the usage notes question in setup, either way. It comes after the first drive that worked, when a driver is happiest to help, as
  * a card on Home. Answering it clears it, and it never comes back.
  *

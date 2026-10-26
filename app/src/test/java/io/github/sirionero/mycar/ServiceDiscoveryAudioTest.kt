@@ -15,7 +15,7 @@ import org.junit.Test
  * audio simply never arrives.
  *
  * The 2022 Dacia Jogger (LGE ULC 4.5, protocol 1.5) offers four: AAC media on channel 3, AAC
- * guidance on 4, PCM media on 5 and PCM guidance on 6. Gearslip sends PCM, so it has to pick
+ * guidance on 4, PCM media on 5 and PCM guidance on 6. MyCar sends PCM, so it has to pick
  * channel 5 even though channel 3 comes first; PCM pushed into the AAC sink plays as silence.
  */
 class ServiceDiscoveryAudioTest {

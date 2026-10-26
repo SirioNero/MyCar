@@ -28,7 +28,7 @@ import java.net.Socket
 import java.util.UUID
 
 /**
- * Wireless Android Auto, phone side: the start-up that hands Gearslip a socket instead of a USB
+ * Wireless Android Auto, phone side: the start-up that hands MyCar a socket instead of a USB
  * accessory. Everything after it - versions, TLS, the certificate, channels, video - is the same
  * protocol [io.github.sirionero.mycar.MyCarRunner] already speaks over USB.
  *
@@ -147,7 +147,7 @@ object WirelessLink {
         SessionStatus.connecting("Bluetooth: reaching $name")
         val socket = try {
             // A running scan slows the connect, but stopping one needs BLUETOOTH_SCAN on Android
-            // 12+, which Gearslip doesn't ask for. Gearslip never scans, so skipping it is fine.
+            // 12+, which MyCar doesn't ask for. MyCar never scans, so skipping it is fine.
             runCatching { context.getSystemService(BluetoothManager::class.java)?.adapter?.cancelDiscovery() }
             device.createRfcommSocketToServiceRecord(AA_UUID).also { it.connect() }
         } catch (e: SecurityException) {
@@ -439,7 +439,7 @@ object WirelessLink {
                 // car's Wi-Fi by hand, the phone's ordinary route reaches it, so use that instead.
                 // The phone's main Wi-Fi on the car's network wins: that is how Android Auto itself
                 // connects, and a Pixel 6 passed pings but no TCP over the side connection Android
-                // opens for Gearslip's request.
+                // opens for MyCar's request.
                 val main = mainOnCarNetwork(context, ip, net)
                 if (main != null && attempt == 0) log.i("TCP: the phone's main Wi-Fi is on the car's network, using it")
                 val socket = when {

@@ -112,7 +112,7 @@ object Intro {
     val release: String = BuildConfig.VERSION_NAME.split('.').take(2).joinToString(".")
 
     /**
-     * True once per release for people who used Gearslip before. A new install, or one with its
+     * True once per release for people who used MyCar before. A new install, or one with its
      * data cleared, gets the setup guide instead: there's nothing "new" yet, so this release
      * counts as seen and the next one shows. Install dates can't tell those apart, since
      * clearing data keeps them, so this goes by what setup left behind; 0.2 saved the same.

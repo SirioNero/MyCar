@@ -6,7 +6,7 @@ import io.github.sirionero.mycar.MyCarLog
 
 /**
  * Sees every incoming call before it rings, so the car screen can show who is calling and
- * decline it in the same window a spam-blocker would use. Inert until the driver sets Gearslip
+ * decline it in the same window a spam-blocker would use. Inert until the driver sets MyCar
  * as the phone's caller ID and spam app - the same on-device consent Truecaller-style apps ask
  * for, not a privileged permission.
  *
@@ -40,7 +40,7 @@ class MyCarCallScreening : CallScreeningService() {
         CarCalls.incomingCall(applicationContext, number, respond)
 
         // Answer for the system if nobody has by the time its own patience runs out, so a call
-        // Gearslip is slow to show never gets silently blocked.
+        // MyCar is slow to show never gets silently blocked.
         mainThreadDelay(SCREENING_WINDOW_MS) {
             respond(true)
             CarCalls.screeningExpired()

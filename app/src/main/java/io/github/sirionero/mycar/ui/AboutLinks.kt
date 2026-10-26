@@ -33,13 +33,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 
-/** Where Gearslip lives outside the app: support, the chat room, and the code. */
+/** Where MyCar lives outside the app: support, the chat room, and the code. */
 internal object MyCarLinks {
     const val BUY_ME_A_COFFEE = "https://buymeacoffee.com/seb3thehacker"
     const val LIBERAPAY = "https://liberapay.com/Seb3thehacker"
     /** A card payment page for giving once, any amount. Its row stays hidden while this is empty. */
     const val PAYMENT_LINK = ""
-    /** Gearslip's Monero address. Its row stays hidden while this is empty. */
+    /** MyCar's Monero address. Its row stays hidden while this is empty. */
     const val MONERO = "44gTVxQJY3cirBJ41J5i1bPUVnSkTMhn9esSp1kg9MHwJ3TUz8tkkigUTKwiok5zA5RZvNxyM4pqkAfPs79pPLfaNG21pCn"
     const val MATRIX = "https://matrix.to/#/!mf0_mgBd5KqKpc9FfX_wHp1jFCcwAtPrndIn_oGIyMk?via=matrix.org"
     const val SOURCE = "https://github.com/twinksoftware/gearslip"
@@ -67,7 +67,7 @@ internal object MyCarLinks {
     }
 }
 
-/** The ways to support Gearslip: Liberapay first, Monero last, card once it's set up. */
+/** The ways to support MyCar: Liberapay first, Monero last, card once it's set up. */
 @Composable
 internal fun DonateRows() {
     val context = LocalContext.current

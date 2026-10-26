@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Shown when Gearslip has no certificate loaded. Download is the one clear path; importing your
+ * Shown when MyCar has no certificate loaded. Download is the one clear path; importing your
  * own file is offered as a smaller, secondary option underneath it.
  *
  * The app ships no certificates. Skipping generates a self-signed one, which a real head unit

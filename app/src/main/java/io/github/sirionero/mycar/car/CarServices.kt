@@ -206,7 +206,7 @@ object CarServices {
 
     /**
      * Whichever known car media app has an actively playing session right now, system-wide - not
-     * just the one Gearslip itself last connected to. Reading another app's session needs
+     * just the one MyCar itself last connected to. Reading another app's session needs
      * notification access, the same permission [io.github.sirionero.mycar.media.CarMedia]
      * already asks for to control apps that won't share their library.
      */
@@ -228,7 +228,7 @@ object CarServices {
      * The car went away mid-song: pause it, as Android Auto does, so it doesn't carry on out of
      * the phone's speaker. Unplugging a USB accessory isn't "audio becoming noisy" the way
      * headphones are, so the apps won't pause themselves. Every playing session is paused, not
-     * just the one Gearslip opened: anything the car was playing was going through the car.
+     * just the one MyCar opened: anything the car was playing was going through the car.
      */
     fun pausePhoneMedia(why: String = "the car left") {
         val ctx = context ?: return
@@ -240,7 +240,7 @@ object CarServices {
             null
         }
         if (playing == null) {
-            // No notification access: the app Gearslip itself is driving is all it can reach.
+            // No notification access: the app MyCar itself is driving is all it can reach.
             mediaOrNull()?.let { if (it.now.value.playing) it.togglePlay() }
             return
         }

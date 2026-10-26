@@ -208,7 +208,7 @@ class AudioCaptureService : Service() {
         reading = false
         runCatching { thread?.join(500) }
         // Belt and braces: a phone left muted after the drive is a bug the driver blames on their
-        // phone, not on Gearslip, so unmute on every way out of here.
+        // phone, not on MyCar, so unmute on every way out of here.
         unmutePhone()
         runCatching { projection?.stop() }
         projection = null

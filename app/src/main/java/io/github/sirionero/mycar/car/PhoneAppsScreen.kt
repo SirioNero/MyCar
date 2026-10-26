@@ -42,7 +42,7 @@ import kotlinx.coroutines.withContext
  * Starts a phone app on the car screen.
  *
  * Picking one hands the whole frame over to the mirror, so this screen is the last thing
- * Gearslip draws until mirroring stops - either from the notification on the phone, or by
+ * MyCar draws until mirroring stops - either from the notification on the phone, or by
  * tapping the black bars beside the mirrored picture.
  */
 @Composable

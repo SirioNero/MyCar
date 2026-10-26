@@ -60,7 +60,7 @@ private val CarGlyph: ImageVector = ImageVector.Builder("Car", 24.dp, 24.dp, 24f
 ).build()
 
 /**
- * One of Gearslip's own apps: a screen, with nothing running behind it once you leave. [screen] is
+ * One of MyCar's own apps: a screen, with nothing running behind it once you leave. [screen] is
  * null for an action like Exit, which has no screen and so never shows as open.
  */
 internal class BuiltInApp(
@@ -94,7 +94,7 @@ internal fun rememberVehicleDataShown(): Boolean {
 }
 
 /**
- * Where an open app lives - decides where tapping it goes and how it closes. Gearslip's own
+ * Where an open app lives - decides where tapping it goes and how it closes. MyCar's own
  * apps have no connection behind them, so [SCREEN] is simply "on screen right now".
  */
 internal enum class RunningSlot { NAV, BROWSE, MEDIA, SCREEN }

@@ -9,7 +9,7 @@ import android.os.Looper
 import io.github.sirionero.mycar.MyCarLog
 
 /**
- * Pauses the music while Gearslip talks or listens. Without it the microphone heard the song and
+ * Pauses the music while MyCar talks or listens. Without it the microphone heard the song and
  * Whisper wrote down lyrics, and a message read aloud had to compete with the music.
  *
  * Transient exclusive focus makes music apps pause rather than duck, and they resume on their
@@ -40,7 +40,7 @@ object VoiceFocus {
     }
 
     /**
-     * Runs [action] once the music has its focus back, or now if Gearslip isn't holding it.
+     * Runs [action] once the music has its focus back, or now if MyCar isn't holding it.
      * Metrolist takes a pause sent while it's held as nothing and resumes when focus returns,
      * so "pause" sends it again from here.
      */

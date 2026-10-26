@@ -47,7 +47,7 @@ private val WIRELESS_PERMISSIONS = buildList {
 }.toTypedArray()
 
 /**
- * Wireless Android Auto, in Home's status card: pick the paired car, and Gearslip connects to
+ * Wireless Android Auto, in Home's status card: pick the paired car, and MyCar connects to
  * it over Bluetooth and Wi-Fi.
  */
 @Composable

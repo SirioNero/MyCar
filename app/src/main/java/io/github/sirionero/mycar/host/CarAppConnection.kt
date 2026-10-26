@@ -43,7 +43,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Speaks the Car App Library's host half, so a templated app can be rendered by Gearslip.
+ * Speaks the Car App Library's host half, so a templated app can be rendered by MyCar.
  *
  * This is the opposite end of the interface an app implements: the app exports a
  * CarAppService and describes a screen as a template, and whichever host it is bound to
@@ -51,7 +51,7 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * Whether an app will talk to us at all is decided by its HostValidator, which accepts a host
  * that either holds android.car.permission.TEMPLATE_RENDERER or is signed by a key on its
- * allow-list. Gearslip declares that permission in its manifest, which is the whole reason
+ * allow-list. MyCar declares that permission in its manifest, which is the whole reason
  * this can work from an ordinary app - see AndroidManifest.xml.
  *
  * Every binder callback lands on a binder thread and is hopped to the main thread, because
@@ -144,16 +144,16 @@ class CarAppConnection(private val context: Context) {
             if (binding !== connection) return@bind
             var bindError: Throwable? = null
             // BIND_ALLOW_ACTIVITY_STARTS lets the app start its own location service while
-            // Gearslip's car window is showing. Since Android 14 a bound app only inherits that
+            // MyCar's car window is showing. Since Android 14 a bound app only inherits that
             // from a visible host that opts in, and MapQuest crashes as navigation starts without it.
             val flags = Context.BIND_AUTO_CREATE or LocationKeepAlive.BIND_INCLUDE_CAPABILITIES or
                 (if (Build.VERSION.SDK_INT >= 34) Context.BIND_ALLOW_ACTIVITY_STARTS else 0)
             val bound = runCatching {
                 // Without BIND_FOREGROUND_SERVICE, an app bound by a foreground service (which is
-                // all Gearslip is once the phone screen leaves it) only reaches "important
+                // all MyCar is once the phone screen leaves it) only reaches "important
                 // foreground", and that state loses network under Doze and background network
                 // restrictions: the map and GPS keep working while search and routing go dead.
-                // In the preview Gearslip is the top app, which hides this. Retried without the
+                // In the preview MyCar is the top app, which hides this. Retried without the
                 // flag in case a build of Android refuses it from an unprivileged caller.
                 runCatching { context.bindService(intent, connection, flags or BIND_FOREGROUND_SERVICE) }
                     .getOrElse {
@@ -173,7 +173,7 @@ class CarAppConnection(private val context: Context) {
             }
         }
 
-        // BIND_INCLUDE_CAPABILITIES only lends the location capability Gearslip holds at bind
+        // BIND_INCLUDE_CAPABILITIES only lends the location capability MyCar holds at bind
         // time, so the keep-alive has to be running first - a nav app that starts its own
         // location service before then is refused, and MapQuest crashes on that.
         if (holdsLocation) {
@@ -461,7 +461,7 @@ class CarAppConnection(private val context: Context) {
      * Lends the app a Surface to draw into.
      *
      * Navigation apps render their own map rather than describing it as a template, so the host
-     * has to give them somewhere to draw. Gearslip's car UI already lives in a Presentation on a
+     * has to give them somewhere to draw. MyCar's car UI already lives in a Presentation on a
      * VirtualDisplay backed by the encoder, so the Surface handed over here belongs to a
      * SurfaceView in that Presentation: the app draws straight into the car's picture and
      * SurfaceFlinger composites it under our chrome, with no readback or GL on our side.
@@ -696,7 +696,7 @@ class CarAppConnection(private val context: Context) {
      * Tells apps how much content this screen can take.
      *
      * These are safety limits in a real car - how many rows a driver may be shown at once -
-     * and the app trims its own lists to them. Gearslip's numbers match what the Car App
+     * and the app trims its own lists to them. MyCar's numbers match what the Car App
      * Library documents for a projected head unit; they are about the screen, not about us.
      */
     private val constraintHost = object : IConstraintHost.Stub() {
@@ -714,7 +714,7 @@ class CarAppConnection(private val context: Context) {
     /**
      * Accepts the shortcuts an app offers for a car launcher.
      *
-     * Gearslip has nowhere to show these yet, but accepting and dropping them is right: an app
+     * MyCar has nowhere to show these yet, but accepting and dropping them is right: an app
      * that pushes suggestions shouldn't fail because its host doesn't surface them.
      */
     private val suggestionHost = object : ISuggestionHost.Stub() {

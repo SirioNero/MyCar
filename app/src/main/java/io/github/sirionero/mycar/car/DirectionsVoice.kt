@@ -23,7 +23,7 @@ import kotlin.math.roundToInt
  * Spoken turn-by-turn on the car's directions channel (the GUIDANCE audio sink).
  *
  * A map app on the phone speaks its own prompts as navigation audio, which Android can't hand to
- * Gearslip without root, and which the phone mutes while USB audio runs. So Gearslip reads the
+ * MyCar without root, and which the phone mutes while USB audio runs. So MyCar reads the
  * same turn the instrument cluster gets ([NavTurn]) and says it itself: once when the turn comes
  * up, again a kilometre or so out on a long stretch, and once more just before it. The words are
  * rendered with the phone's text-to-speech to a file, never played on the phone, and streamed to

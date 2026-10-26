@@ -117,7 +117,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
-    /** Setting Gearslip as the phone's caller ID and spam app - what lets it decline a ringing call. */
+    /** Setting MyCar as the phone's caller ID and spam app - what lets it decline a ringing call. */
     private val callScreeningRole = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode != RESULT_OK) MyCarLog.w("calls: call screening role declined")
     }
@@ -227,7 +227,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         MyCarLog.flush()
     }
 
-    /** Launches the system dialog that offers Gearslip the call-screening role, if it isn't held already. */
+    /** Launches the system dialog that offers MyCar the call-screening role, if it isn't held already. */
     private fun requestCallScreeningRole() {
         val roleManager = getSystemService(android.app.role.RoleManager::class.java)
         if (roleManager == null || !roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
@@ -291,7 +291,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val point = PhoneMirror.mapToPhone(this, x, y)
         if (point == null) {
             // The letterbox bars belong to no window, which makes them a safe way back: a tap
-            // on the padding leaves the mirror and returns the car to Gearslip's own UI.
+            // on the padding leaves the mirror and returns the car to MyCar's own UI.
             if (action == MotionEvent.ACTION_UP) PhoneMirror.requestStop()
             return
         }

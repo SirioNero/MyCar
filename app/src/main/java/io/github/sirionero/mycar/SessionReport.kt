@@ -39,7 +39,7 @@ object SessionReport {
         TLS("tls"),             // the secure link is up
         ACCEPTED("accepted"),   // the car accepted the certificate
         CHANNELS("channels"),   // the car listed its channels and said who it is
-        VIDEO("video"),         // the car's screen is set up for Gearslip
+        VIDEO("video"),         // the car's screen is set up for MyCar
         STREAMING("streaming"), // video frames are reaching the car
     }
 
@@ -214,7 +214,7 @@ object SessionReport {
         printed = true
         render().lines().forEach { MyCarLog.i(it) }
         appContext?.let { context ->
-            // Video started means the car showed Gearslip: that's a working car, and unplugging or
+            // Video started means the car showed MyCar: that's a working car, and unplugging or
             // switching the car off at the end shows up as a USB or ByeBye "failure" that isn't one.
             val reached = carScreen.isNotEmpty()
             val outcome = when {

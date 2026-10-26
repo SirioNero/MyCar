@@ -39,7 +39,7 @@ class MediaEntry(
     val playable: Boolean,
 )
 
-/** [icon] is a drawable id inside the media app's own package, not Gearslip's; 0 for none. */
+/** [icon] is a drawable id inside the media app's own package, not MyCar's; 0 for none. */
 class CustomAction(val id: String, val name: String, val extras: Bundle?, val icon: Int = 0, val iconName: String = "") {
     /**
      * Whether a toggle like heart or shuffle is on, read from the icon's name - Tidal swaps
@@ -88,7 +88,7 @@ class NowPlaying(
         words.any { a.id.contains(it, ignoreCase = true) || a.name.contains(it, ignoreCase = true) }
     }
 
-    /** The app says it takes searches. Spotify says so and then ignores Gearslip's, so [CarMedia.search] checks. */
+    /** The app says it takes searches. Spotify says so and then ignores MyCar's, so [CarMedia.search] checks. */
     val canSearch get() = (actions and PlaybackState.ACTION_PLAY_FROM_SEARCH) != 0L
 
     /** Thumbs-down buttons say "like" too ("Dislike"), so those are skipped. */
@@ -168,7 +168,7 @@ class CarMedia(private val context: Context) {
     private val main = Handler(Looper.getMainLooper())
     private var connecting: MediaApp? = null
 
-    /** The music app Gearslip is attached to, for the assistant to name; null when there's none. */
+    /** The music app MyCar is attached to, for the assistant to name; null when there's none. */
     val appLabel: String? get() = connecting?.label?.takeIf { controller != null }
 
     private val _phase = MutableStateFlow(Phase.IDLE)
@@ -496,7 +496,7 @@ class CarMedia(private val context: Context) {
 
     /**
      * Asks the app to find and play [query]: a song, artist, album or playlist. This goes through
-     * the app's playback session, so it works for apps that keep their library from Gearslip, and
+     * the app's playback session, so it works for apps that keep their library from MyCar, and
      * the app stays in the background. Apps may still ignore it (Spotify only takes Google's), so
      * if nothing new plays within [SEARCH_WAIT_MS] the search is marked ignored.
      */
@@ -767,7 +767,7 @@ class CarMedia(private val context: Context) {
         const val LAUNCH_WAIT_MS = 1_500L
         /** Retries once the app has been opened: a cold start can take a few seconds to publish. */
         const val SESSION_RETRIES_LAUNCHED = 16
-        /** How long an app gets to start playing a search before Gearslip says it didn't. */
+        /** How long an app gets to start playing a search before MyCar says it didn't. */
         const val SEARCH_WAIT_MS = 6_000L
         const val SEARCH_NOTICE_MS = 6_000L
     }

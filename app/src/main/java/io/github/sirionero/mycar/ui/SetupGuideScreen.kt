@@ -127,7 +127,7 @@ private fun glyph(icon: ImageVector): @Composable (Color) -> Unit = { tint ->
 private fun granted(context: Context, permissions: Array<String>): Boolean =
     permissions.all { context.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
 
-/** Whether Gearslip already holds the hidden `PROJECT_MEDIA` app-op an adb command grants -
+/** Whether MyCar already holds the hidden `PROJECT_MEDIA` app-op an adb command grants -
  * checked the same way the platform checks it, since there is no public permission for it. */
 private fun hasProjectMediaOp(context: Context): Boolean {
     val ops = context.getSystemService(AppOpsManager::class.java) ?: return false
@@ -142,7 +142,7 @@ private fun hasCallScreeningRole(context: Context): Boolean {
     return runCatching { roleManager.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) }.getOrDefault(false)
 }
 
-/** Whether the driver has already granted Gearslip's [MyCarNotificationListener] access. */
+/** Whether the driver has already granted MyCar's [MyCarNotificationListener] access. */
 private fun hasNotificationAccess(context: Context): Boolean {
     val manager = context.getSystemService(NotificationManager::class.java) ?: return false
     val component = ComponentName(context, MyCarNotificationListener::class.java)

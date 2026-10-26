@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * A voice assistant: Gearslip's own [SpeechEngine] (whisper.cpp) to listen, the system's
+ * A voice assistant: MyCar's own [SpeechEngine] (whisper.cpp) to listen, the system's
  * [TextToSpeech] to answer. Listening used to go through the system's [SpeechRecognizer] alone,
  * but many phones have no recognizer at all (GrapheneOS ships only text-to-speech), so the
  * system one is now just the fallback for when the bundled engine can't run.
@@ -181,7 +181,7 @@ object CarAssistant {
     }
 
     /**
-     * One phrase, through Gearslip's own [SpeechEngine], or the phone's recognizer when the driver
+     * One phrase, through MyCar's own [SpeechEngine], or the phone's recognizer when the driver
      * chose it in settings. Never the phone's on its own: on most phones that's Google's.
      */
     private fun listenOnce(
