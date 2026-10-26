@@ -354,9 +354,10 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!hasCallScreeningRole(context)) {
         add(
             GuidePage(
-                title = "Answer calls.",
-                explanation = "Make MyCar your caller ID app, and the car can answer and decline " +
-                    "calls. Without it, calls still ring, but only the phone can answer them.",
+                title = "Screen unknown callers.",
+                explanation = "Make MyCar your caller ID app, and the car can turn down a call from " +
+                    "outside your contacts before it rings. Without it, the car still shows every " +
+                    "call, and you answer or decline it there.",
                 icon = glyph(Icons.Filled.Call),
                 optional = true,
                 actionLabel = "Set up",

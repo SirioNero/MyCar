@@ -69,9 +69,9 @@ private fun inTheCar(onRequestCallScreening: () -> Unit) = listOf(
             "pair the first time you plug in.",
     ),
     Step(
-        "Answer calls from the car screen.",
-        "Set MyCar as your caller ID and spam app. Without it, calls still ring, but only " +
-            "the phone can answer them.",
+        "Turn down unknown callers before they ring.",
+        "Set MyCar as your caller ID and spam app. Without it, the car still shows every call, " +
+            "and you answer or decline it there.",
         buttonLabel = "Set up",
         onClick = onRequestCallScreening,
     ),
