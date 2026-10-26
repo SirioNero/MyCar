@@ -6,5 +6,12 @@ MyCar's first release: Gearslip 0.3.01-alpha under a new name, as an independent
 - MyCar sends no usage notes.
 - The About screen credits Gearslip and shows the license.
 
-## Known issues
-- Phone calls are unstable right now and may drop or fail to connect.
+## Fixed
+- A call card no longer stays on the car screen after you decline a call, or when the caller hangs up before it rings.
+- Calls from your contacts show on the car screen, and you can answer them there.
+- Answer works in the first seconds of a call, too.
+- A call you place no longer shows as an incoming call.
+- Away from the car, calls from unknown numbers ring at once.
+
+## New
+- Decline any ringing call, and end a call, from the car screen or the steering wheel.

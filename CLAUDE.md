@@ -47,7 +47,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `CarMic`) |
-| `call/` | Chiamate: `CarCalls` (stato), `MyCarCallScreening` (CallScreeningService) |
+| `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
 | `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
 
 Tema/colori/font oggi:
