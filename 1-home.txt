@@ -1,0 +1,9 @@
+myCar
+Settings
+v0.5.12-alpha
+Not connected
+Plug into the car's USB port, or connect wirelessly. myCar opens by itself when the car answers.
+Connect wirelessly
+What's new in 0.5
+Which cars work
+Most do. See which ones, and what to set up first
