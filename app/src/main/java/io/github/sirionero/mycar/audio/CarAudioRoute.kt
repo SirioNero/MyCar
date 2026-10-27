@@ -7,6 +7,7 @@ import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.SessionReport
 import io.github.sirionero.mycar.car.CarBluetooth
 import io.github.sirionero.mycar.car.CarSettings
 
@@ -89,6 +90,7 @@ object CarAudioRoute {
                 useBluetooth()
             } else {
                 log.i("route: through myCar - the car takes no music from the phone over Bluetooth")
+                SessionReport.audioRoute("auto: through myCar (no Bluetooth music connection to the car)")
                 CarSettings.useCarLink(true)
             }
         }, settling, SETTLE_MS)
@@ -96,6 +98,7 @@ object CarAudioRoute {
 
     private fun useBluetooth() {
         log.i("route: Bluetooth - the car takes the phone's music over it")
+        SessionReport.audioRoute("auto: Bluetooth (the car takes the phone's music over it)")
         CarSettings.useCarLink(false)
         watch()
     }
@@ -107,6 +110,7 @@ object CarAudioRoute {
             override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) {
                 if (!projecting || !onBluetooth || bluetoothMusic()) return
                 log.i("route: through myCar - the Bluetooth music connection dropped")
+                SessionReport.audioRoute("auto: through myCar (the Bluetooth music connection dropped)")
                 CarSettings.useCarLink(true)
                 stopWatching()
             }
