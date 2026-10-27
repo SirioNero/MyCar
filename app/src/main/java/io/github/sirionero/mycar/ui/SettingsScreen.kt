@@ -65,6 +65,7 @@ import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.SessionStatus
+import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.notify.TestMessage
 import io.github.sirionero.mycar.car.CarSettings
 import kotlinx.coroutines.Dispatchers
@@ -244,28 +245,43 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
     }
 }
 
-/** How music reaches the car: by Bluetooth as usual, or through myCar over USB. Same choice as setup. */
+/** How music reaches the car: Automatic, by Bluetooth as usual, or through myCar's own link. Same choice as setup. */
 @Composable
 private fun CarAudioSection() {
-    val usb by CarSettings.pipeAudio.collectAsState()
+    val route by CarSettings.audioRoute.collectAsState()
     SettingsSection(
         "Car audio",
-        footer = if (usb) "Run the command in Help once, and USB stops asking." else "Calls go over Bluetooth either way.",
+        footer = if (route != AudioRoute.BLUETOOTH) {
+            "Calls go over Bluetooth either way. Run the command in Help once, and myCar stops asking to share audio."
+        } else {
+            "Calls go over Bluetooth either way."
+        },
     ) {
-        SettingsRow(
-            "Bluetooth (Recommended)",
-            Modifier.selectable(!usb, role = Role.RadioButton) { CarSettings.setPipeAudio(false) },
-            subtitle = "No prompt each drive, and your map app's voice reaches the car",
-            trailing = { RadioButton(selected = !usb, onClick = null) },
+        AudioRouteRow(
+            AudioRoute.AUTO, route, "Automatic (Recommended)",
+            "Bluetooth when the car takes the phone's music that way, otherwise through myCar",
         )
         SettingsDivider()
-        SettingsRow(
-            "USB",
-            Modifier.selectable(usb, role = Role.RadioButton) { CarSettings.setPipeAudio(true) },
-            subtitle = "Clearer sound with no delay. Android asks to share audio once each drive",
-            trailing = { RadioButton(selected = usb, onClick = null) },
+        AudioRouteRow(
+            AudioRoute.BLUETOOTH, route, "Bluetooth",
+            "No prompt each drive, and your map app's voice reaches the car. Some cars take only calls over it",
+        )
+        SettingsDivider()
+        AudioRouteRow(
+            AudioRoute.CAR_LINK, route, "Through myCar",
+            "Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive",
         )
     }
+}
+
+@Composable
+private fun AudioRouteRow(value: AudioRoute, route: AudioRoute, title: String, subtitle: String) {
+    SettingsRow(
+        title,
+        Modifier.selectable(route == value, role = Role.RadioButton) { CarSettings.setAudioRoute(value) },
+        subtitle = subtitle,
+        trailing = { RadioButton(selected = route == value, onClick = null) },
+    )
 }
 
 @Composable

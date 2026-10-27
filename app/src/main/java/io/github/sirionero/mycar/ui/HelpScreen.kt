@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.ui
 
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.car.CarSettings
+import io.github.sirionero.mycar.audio.AudioRoute
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -97,7 +98,7 @@ private val USB_AUDIO = listOf(
 @Composable
 fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
     val car = remember(onRequestCallScreening) { inTheCar(onRequestCallScreening) }
-    val usb by CarSettings.pipeAudio.collectAsState()
+    val route by CarSettings.audioRoute.collectAsState()
     val context = LocalContext.current
 
     Scaffold(
@@ -136,7 +137,7 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
             }
             Steps("Before your first drive", FIRST_DRIVE)
             Steps("In the car", car)
-            if (usb) Steps("USB audio", USB_AUDIO)
+            if (route != AudioRoute.BLUETOOTH) Steps("Sound through myCar", USB_AUDIO)
             Spacer(Modifier.height(16.dp))
         }
     }

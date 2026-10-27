@@ -28,12 +28,13 @@ fun AudioChoiceDialog(onUseBluetooth: () -> Unit, onKeepAsking: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "Android treats music sent over USB like sharing your screen, so it asks every " +
-                        "drive. Over Bluetooth it never asks. You can change this later in Settings.",
+                    "Android treats music sent through myCar like sharing your screen, so it asks every " +
+                        "drive. Over Bluetooth it never asks, if your car plays the phone's music that way. You " +
+                        "can change this later in Settings.",
                 )
                 if (showCommand) {
                     Text(
-                        "Or keep USB and stop the question for good: plug the phone into a " +
+                        "Or keep it and stop the question for good: plug the phone into a " +
                             "computer with USB debugging on, and run this once.",
                         style = MaterialTheme.typography.bodyMedium,
                     )
