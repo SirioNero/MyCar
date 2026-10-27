@@ -47,6 +47,7 @@ internal fun CinemaSection() {
     var warning by remember { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
+    val askLocalNetwork = rememberLocalNetworkAsk()
 
     SettingsSection(
         "Cinema",
@@ -54,6 +55,9 @@ internal fun CinemaSection() {
             "(Netflix, DAZN, Prime Video, Disney+ and the like) most likely stays black in the car: Android " +
             "hides it from a screen made into a video stream, as the car's is.",
     ) {
+        // A site at home (Jellyfin, the router) needs the home network, which Android 17 keeps
+        // myCar off until it's allowed.
+        LocalNetworkRow(sites.map { it.url })
         SettingsRow(
             "Video only when parked",
             Modifier.toggleable(parkedOnly, role = Role.Switch) { on ->
@@ -98,6 +102,7 @@ internal fun CinemaSection() {
                         Cinema.add(CinemaSite(name.trim().ifEmpty { CinemaSite("", url).host }, url))
                         name = ""
                         address = ""
+                        askLocalNetwork(listOf(url)) {}
                     },
                     enabled = address.isNotBlank(),
                 ) { Text("Add the site") }

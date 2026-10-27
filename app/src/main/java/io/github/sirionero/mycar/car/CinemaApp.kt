@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.audio.CarAudio
@@ -184,6 +185,8 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
     var fullScreen by remember { mutableStateOf<Pair<View, WebChromeClient.CustomViewCallback>?>(null) }
     var fieldText by remember { mutableStateOf<String?>(null) }
     var desktopShown by remember { mutableStateOf(site.desktop) }
+    // The page is at home and Android keeps myCar off the home network (see LocalNetwork).
+    var offHomeNetwork by remember { mutableStateOf(false) }
 
     // Another app's sound has to reach the car: the capture starts now, if it waited for Xonos.
     LaunchedEffect(Unit) { CarAudio.captureNow() }
@@ -238,7 +241,7 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                         settings.loadWithOverviewMode = true
                         settings.useWideViewPort = true
                         settings.userAgentString = userAgentFor(this, site.desktop)
-                        webViewClient = CinemaClient(ring)
+                        webViewClient = CinemaClient(ring, onLoading = { offHomeNetwork = false }, onOffHomeNetwork = { offHomeNetwork = true })
                         webChromeClient = CinemaChrome(
                             onShow = { view, callback -> fullScreen = view to callback },
                             onHide = { fullScreen = null },
@@ -265,6 +268,12 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                     },
                     onRelease = { it.removeAllViews() },
                 )
+            }
+            if (offHomeNetwork) {
+                HomeNetworkCover(onRetry = {
+                    offHomeNetwork = false
+                    web?.reload()
+                })
             }
             if (!allowed) ParkedCover()
         }
@@ -344,6 +353,28 @@ private fun ParkedCover() {
     }
 }
 
+/** Over a page at home that Android keeps myCar from: what to allow on the phone; a tap tries again. */
+@Composable
+private fun HomeNetworkCover(onRetry: () -> Unit) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onRetry),
+        verticalArrangement = Arrangement.spacedBy(MyCarSpace.M, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text("This site is on your home network", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(
+            LocalNetwork.HINT + "\nTap to try again.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = MyCarSpace.XL),
+        )
+    }
+}
+
 /** The phone's own user agent, or, for a site's computer layout, a computer's with the same Chrome. */
 private fun userAgentFor(view: WebView, desktop: Boolean): String? {
     if (!desktop) return null
@@ -353,7 +384,13 @@ private fun userAgentFor(view: WebView, desktop: Boolean): String? {
 
 private val CHROME_VERSION = Regex("Chrome/([\\d.]+)")
 
-private class CinemaClient(private val ring: String) : WebViewClient() {
+private class CinemaClient(
+    private val ring: String,
+    private val onLoading: () -> Unit,
+    private val onOffHomeNetwork: () -> Unit,
+) : WebViewClient() {
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading()
+
     override fun onPageFinished(view: WebView?, url: String?) {
         view?.evaluateJavascript(FOCUS_TRACKING_JS, null)
         view?.evaluateJavascript(focusRingJs(ring), null)
@@ -362,6 +399,7 @@ private class CinemaClient(private val ring: String) : WebViewClient() {
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         if (request?.isForMainFrame == true) {
             MyCarLog.w("cinema: ${request.url} didn't load - ${error?.errorCode} ${error?.description}")
+            if (view != null && LocalNetwork.blocks(view.context, listOf(request.url.toString()))) onOffHomeNetwork()
         }
     }
 }
