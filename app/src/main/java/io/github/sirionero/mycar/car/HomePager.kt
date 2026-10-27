@@ -261,7 +261,7 @@ private fun DriverPage(page: HomePage, inView: Boolean, editing: Boolean, onEdit
             when (page.layout) {
                 PageLayout.HALVES -> Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(PageGap)) {
                     repeat(2) { slot ->
-                        PagePart(page.slots[slot], entries, inView && slot == runner, editing, onEdit, { onChoose(slot) }, keyboard, Modifier.weight(1f).fillMaxHeight())
+                        PagePart(page.slots[slot], entries, inView, inView && slot == runner, editing, onEdit, { onChoose(slot) }, keyboard, Modifier.weight(1f).fillMaxHeight())
                     }
                 }
                 PageLayout.GRID -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(PageGap)) {
@@ -269,7 +269,7 @@ private fun DriverPage(page: HomePage, inView: Boolean, editing: Boolean, onEdit
                         Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(PageGap)) {
                             repeat(2) { column ->
                                 val slot = row * 2 + column
-                                PagePart(page.slots[slot], entries, inView && slot == runner, editing, onEdit, { onChoose(slot) }, keyboard, Modifier.weight(1f).fillMaxHeight())
+                                PagePart(page.slots[slot], entries, inView, inView && slot == runner, editing, onEdit, { onChoose(slot) }, keyboard, Modifier.weight(1f).fillMaxHeight())
                             }
                         }
                     }
@@ -289,6 +289,7 @@ private fun DriverPage(page: HomePage, inView: Boolean, editing: Boolean, onEdit
 private fun PagePart(
     content: String?,
     entries: List<Entry>,
+    inView: Boolean,
     runs: Boolean,
     editing: Boolean,
     onEdit: () -> Unit,
@@ -303,7 +304,7 @@ private fun PagePart(
             null -> EmptyPart(onChoose, onEdit, fill)
             PageContent.WEATHER -> WeatherWidget(onEdit, fill)
             PageContent.AGENDA -> AgendaWidget(onEdit, fill)
-            PageContent.BROWSER -> BrowserPart(onEdit, keyboard, fill)
+            PageContent.BROWSER -> BrowserPart(inView, onEdit, keyboard, fill)
             else -> {
                 val entry = entries.find { it.componentId == content }
                 val app = carAppIn(content, entries)
@@ -385,22 +386,39 @@ private val LIVE_PHASES = setOf(CarAppConnection.Phase.BINDING, CarAppConnection
  * elsewhere - as its icon and name, so turning to it shows what's coming rather than a gap.
  */
 @Composable
-internal fun AppPlaceholder(label: String, icon: ImageBitmap?, modifier: Modifier, onHold: () -> Unit = {}) {
+internal fun AppPlaceholder(
+    label: String,
+    icon: ImageBitmap?,
+    modifier: Modifier,
+    onHold: () -> Unit = {},
+    builtInId: String? = null,
+) {
     WidgetCard(onClick = null, onHold = onHold, modifier = modifier) {
         Column(
             Modifier.align(Alignment.Center).padding(MyCarSpace.L),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
         ) {
-            AppIcon(icon, null, PlaceholderIcon)
+            AppIcon(icon, builtInId, PlaceholderIcon)
             Text(label, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
 
-/** myCar's browser in a part of a page, on the start page set on the phone. */
+/**
+ * myCar's browser in a part of a page, on the start page set on the phone. Built the first time
+ * its page is turned to, then kept: the first browser of a session holds up the whole car screen
+ * for a few seconds as it starts, which must not happen as the car connects, and most drives
+ * never turn to it.
+ */
 @Composable
-private fun BrowserPart(onHold: () -> Unit, keyboard: MutableState<(@Composable () -> Unit)?>, modifier: Modifier) {
+private fun BrowserPart(inView: Boolean, onHold: () -> Unit, keyboard: MutableState<(@Composable () -> Unit)?>, modifier: Modifier) {
+    var opened by remember { mutableStateOf(false) }
+    LaunchedEffect(inView) { if (inView) opened = true }
+    if (!opened) {
+        AppPlaceholder(BuiltInApps.Web.label, null, modifier, onHold, builtInId = BuiltInApps.Web.id)
+        return
+    }
     val context = LocalContext.current
     val start = remember { ProjectedContent.resolve(context) }
     val hold by rememberUpdatedState(onHold)
