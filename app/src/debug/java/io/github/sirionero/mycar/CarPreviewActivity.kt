@@ -87,11 +87,13 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,
         )
-        CarEnvironment.start(this)
-
         val w = intent.getIntExtra("w", 800)
         val h = intent.getIntExtra("h", 480)
         val dpi = intent.getIntExtra("dpi", 160)
+        // As a car session does: the screen's size and density, which car apps' surfaces get too.
+        CarEnvironment.setDisplay(w, h, dpi)
+        CarEnvironment.start(this)
+
         val taps = intent.getStringExtra("taps").orEmpty().split(";").filter { it.isNotBlank() }
             .map { it.split(",").let { p -> p[0].toFloat() to p[1].toFloat() } }
 
