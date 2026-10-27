@@ -85,9 +85,12 @@ Rispondi sempre in **italiano**.
   Lanciato a mano, il workflow accetta `shots` (nomi degli scatti separati da spazi, vuoto = tutti)
   per provare una cosa sola in pochi minuti; nello script `BEFORE` è un comando eseguito subito
   prima di aprire l'anteprima (es. accendere myCar in Accessibilità, che il force-stop spegne).
-  Accetta anche `api` (livello API dell'emulatore, 34 di default): con 37 (Android 17) gli scatti
-  `lnp-plancia-off/on` e `lnp-xonos-off/on` tolgono e ridanno a myCar il permesso della rete di
-  casa (`pm revoke/grant … ACCESS_LOCAL_NETWORK`). Su API 34 quel blocco non esiste: per questo la
+  Accetta anche `api` (livello API dell'emulatore, 34 di default) e `target` (immagine,
+  `google_apis` di default): per Android 17 `api` è `37.0`, perché i pacchetti nuovi si chiamano
+  `android-37.0` (con `37` l'emulatore non parte); con un livello diverso da 34 il log elenca i
+  pacchetti che quel livello offre. Su Android 17 gli scatti `lnp-plancia-off/on` e
+  `lnp-xonos-off/on` tolgono e ridanno a myCar il permesso della rete di casa
+  (`pm revoke/grant … ACCESS_LOCAL_NETWORK`). Su API 34 quel blocco non esiste: per questo la
   CI non vedeva il bug di 0.5.10/0.5.11 (vedi "Rete di casa con Android 17").
   Plancia integrata: `.github/home-assistant.sh` avvia in Docker un Home Assistant usa e getta
   (utente, onboarding, token in `HA_TOKEN`) che l'emulatore raggiunge a `10.0.2.2:8123`; l'account
