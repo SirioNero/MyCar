@@ -50,12 +50,15 @@ GRID_BUTTON="72,654"   # the dock's foot, at 1920x720
 WAIT="-100,-100"       # a tap off the screen: only gives an app time before the next shot
 
 # shoot <name> <width> <height> <dpi> <taps "x,y;x,y" in screen pixels> [command, run 5s in]
-# EXTRA adds intent extras for the preview activity.
+# EXTRA adds intent extras for the preview activity; BEFORE is a command run just before it starts.
+# ONLY (the workflow's "shots" input) names the shots to take, all of them when empty.
 shoot() {
+    case " ${ONLY:-$1} " in *" $1 "*) ;; *) return ;; esac
     adb shell am force-stop "$PKG"
     for p in $VELA $PLANCIA $XONOS; do adb shell am force-stop "$p"; done
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
+    if [ -n "${BEFORE:-}" ]; then eval "$BEFORE"; fi
     # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
     adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true ${EXTRA:-} --es taps '$5'"
     if [ -n "${6:-}" ]; then
