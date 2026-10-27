@@ -127,13 +127,18 @@ sleep 3
 size=$(adb shell wm size | tr -d '\r' | sed -n 's/.*: \([0-9]*x[0-9]*\)$/\1/p' | tail -1)
 W=${size%x*}; H=${size#*x}
 echo "phone screen ${W}x${H}, $(adb shell wm density | tr -d '\r' | tail -1), navigation_mode=$(adb shell settings get secure navigation_mode | tr -d '\r')"
+# A fast "input swipe" from the corner came out as the quick switch between apps: this one goes a
+# step at a time, as a finger does, so the launcher has time to see it as the assistant's.
 corner_swipe() {
     adb shell input keyevent KEYCODE_HOME
     sleep 2
-    adb shell input swipe 5 $((H - 5)) $((W / 2)) $((H - W / 2)) 600
+    adb shell "input motionevent DOWN 4 $((H - 4)); for i in 1 2 3 4 5 6 7 8 9 10; do input motionevent MOVE \$((4 + 15 * i)) \$(($H - 4 - 15 * i)); done; input motionevent UP 154 $((H - 154))"
     sleep 4
 }
 focus() { adb shell dumpsys window | grep -E "mCurrentFocus|mFocusedApp" | tr -d '\r'; }
+# Whether the launcher, which turns the swipe into the assistant, thinks there is one to start.
+echo "--- launcher: assistant gesture state ---"
+adb shell dumpsys activity service TouchInteractionService | tr -d '\r' | grep -iE "assistant|sysui.*state|navmode|gesture" | head -20
 
 # The emulator's own assistant, the Google app: the phone's screen after the microphone, then
 # after the swipe. The two should show the assistant the same way.
