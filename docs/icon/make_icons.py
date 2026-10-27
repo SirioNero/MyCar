@@ -12,9 +12,9 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 src, repo = sys.argv[1], sys.argv[2]
-BG = (0, 6, 17)                 # the art's own background, measured on its border
-SUBJECT_C = (702, 732)          # centre of the padlock and its wheels in the source
-SUBJECT_R = 552                 # farthest subject pixel from that centre, source pixels
+BG = (49, 49, 48)               # the art's own background, measured on its border
+SUBJECT_C = (576, 897)          # centre of the padlock and its feet in the source
+SUBJECT_R = 430                 # farthest subject pixel from that centre, source pixels
 TARGET_R = 0.295                # of the 108dp canvas: inside the 66dp safe circle (0.3056)
 FEATHER = 90                    # px of fade from the art's edge into the flat background
 
@@ -36,7 +36,7 @@ def compose(img):
     return canvas
 
 def amber(img):
-    """The debug build's art: the blue neon shackle turned amber, everything else unchanged."""
+    """The debug build's art: the cyan padlock turned amber, the orange feet unchanged."""
     hsv = np.asarray(img.convert('HSV')).astype(float)
     rgb = np.asarray(img).astype(float)
     shifted = hsv.copy()
