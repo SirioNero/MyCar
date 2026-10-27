@@ -12,7 +12,13 @@ import java.net.URL
 /** Cover art arrives as a content:// or https:// URI; this fetches and remembers it. */
 object MediaArt {
 
-    private val cache = LruCache<String, Bitmap>(48)
+    /**
+     * Weighed in bytes, not covers: one file's art can be 3000 pixels a side, 36 MB decoded, and
+     * forty-eight of those ran a long drive out of memory.
+     */
+    private val cache = object : LruCache<String, Bitmap>((Runtime.getRuntime().maxMemory() / 8).toInt()) {
+        override fun sizeOf(key: String, value: Bitmap) = value.allocationByteCount
+    }
 
     suspend fun load(context: Context, uri: Uri?): Bitmap? {
         if (uri == null) return null
@@ -27,8 +33,21 @@ object MediaArt {
                     }.getInputStream()
                     else -> context.contentResolver.openInputStream(uri)
                 } ?: return@runCatching null
-                stream.use { BitmapFactory.decodeStream(it) }
+                decodeForCar(stream.use { it.readBytes() })
             }.getOrNull()?.also { cache.put(key, it) }
         }
     }
+
+    /** Decoded no bigger than the car shows it: a power-of-two step down to [MAX_SIDE_PX] at most. */
+    private fun decodeForCar(bytes: ByteArray): Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        val side = maxOf(bounds.outWidth, bounds.outHeight)
+        var sample = 1
+        while (side / sample > MAX_SIDE_PX) sample *= 2
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample })
+    }
+
+    /** Larger than the cover ever shows on a car screen, beside the map or on its own. */
+    private const val MAX_SIDE_PX = 1024
 }

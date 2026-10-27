@@ -17,6 +17,7 @@ import androidx.car.app.serialization.Bundleable
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import io.github.sirionero.mycar.MyCarLog
 import java.util.concurrent.TimeUnit
@@ -37,11 +38,12 @@ fun CarText?.text(): String = this?.takeIf { !it.isEmpty }?.toCharSequence()?.to
  * Icons keep coming back under fresh [CarIcon]/IconCompat objects - every template refetch
  * deserializes its own copies over the binder - so caching by object identity would never hit.
  * [describe] is stable across those copies for the same underlying icon (same URI or resource),
- * which is what makes it usable as a cache key. Capacity is in entries, not bytes: cover art at
- * car-screen size is small and a shelf plus its sections stays well under a hundred distinct
- * icons on screen at once.
+ * which is what makes it usable as a cache key. Capacity is in bytes: icons are small, but an
+ * app may hand over cover art or photos at full size, and two hundred of those don't fit in memory.
  */
-private val iconCache = android.util.LruCache<String, ImageBitmap>(200)
+private val iconCache = object : android.util.LruCache<String, ImageBitmap>((Runtime.getRuntime().maxMemory() / 16).toInt()) {
+    override fun sizeOf(key: String, value: ImageBitmap) = value.asAndroidBitmap().allocationByteCount
+}
 
 /**
  * Loads an icon the app described.
@@ -67,7 +69,9 @@ fun CarIcon?.image(context: Context): ImageBitmap? {
     // mush once Compose stretches it up to button size. Rasterizing it larger here instead lets
     // Android's own bitmap scaler do that smoothing while the source is still a Drawable, rather
     // than Compose scaling an already-tiny texture at draw time.
+    // A big image is drawn no larger than a car screen shows it.
     val scale = (ICON_FALLBACK_PX.toFloat() / maxOf(rawWidth, rawHeight)).coerceAtLeast(1f)
+        .coerceAtMost(ICON_MAX_PX.toFloat() / maxOf(rawWidth, rawHeight))
     val width = (rawWidth * scale).toInt()
     val height = (rawHeight * scale).toInt()
     val bitmap = runCatching { drawable.toBitmap(width, height).asImageBitmap() }
@@ -285,3 +289,6 @@ fun Action.isDrawable(): Boolean =
     icon != null || title.text().isNotEmpty() || type != Action.TYPE_CUSTOM
 
 private const val ICON_FALLBACK_PX = 48
+
+/** No car screen shows an app's image bigger than this. */
+private const val ICON_MAX_PX = 1024
