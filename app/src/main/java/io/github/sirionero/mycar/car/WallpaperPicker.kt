@@ -24,32 +24,46 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.car.design.MyCarRadius
+import io.github.sirionero.mycar.car.design.Wallpaper
 import io.github.sirionero.mycar.car.design.WallpaperBackground
 import io.github.sirionero.mycar.car.design.WallpaperSetting
 import io.github.sirionero.mycar.car.design.Wallpapers
 
 /**
- * The car settings' wallpaper row: a swatch of each wallpaper, plus none, in a strip that scrolls
- * sideways. The chosen one is ringed in the accent colour.
+ * The car settings' wallpaper rows: a swatch of each still wallpaper, plus none, then of each
+ * moving one - moving in its swatch too - in strips that scroll sideways. The chosen one is ringed
+ * in the accent colour.
  */
 @Composable
 internal fun WallpaperPicker() {
     val current by WallpaperSetting.current.collectAsState()
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Wallpaper", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        Row(
-            Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+        SwatchStrip("Still") {
             Swatch(Wallpapers.NONE, "None", current) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
             }
-            Wallpapers.all.forEach { wallpaper ->
-                Swatch(wallpaper.id, wallpaper.name, current) {
-                    WallpaperBackground(wallpaper, Modifier.fillMaxSize(), wholeScreen = false)
-                }
-            }
+            Wallpapers.all.filter { it.motion == null }.forEach { WallpaperSwatch(it, current) }
         }
+        SwatchStrip("Moving") {
+            Wallpapers.all.filter { it.motion != null }.forEach { WallpaperSwatch(it, current) }
+        }
+    }
+}
+
+@Composable
+private fun SwatchStrip(label: String, swatches: @Composable () -> Unit) {
+    Text(label, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) { swatches() }
+}
+
+@Composable
+private fun WallpaperSwatch(wallpaper: Wallpaper, current: String) {
+    Swatch(wallpaper.id, wallpaper.name, current) {
+        WallpaperBackground(wallpaper, Modifier.fillMaxSize(), wholeScreen = false)
     }
 }
 

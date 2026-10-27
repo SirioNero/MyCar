@@ -71,8 +71,10 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.AssistantChoice.set(
             intent.getStringExtra("assistant") ?: io.github.sirionero.mycar.car.PhoneAssistants.MYCAR,
         )
-        // --ez motion true: the wallpaper moving. Set every run, so other shots stay still.
-        io.github.sirionero.mycar.car.design.WallpaperSetting.setAnimated(intent.getBooleanExtra("motion", false))
+        // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
+        io.github.sirionero.mycar.car.design.WallpaperSetting.set(
+            intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,
+        )
         CarEnvironment.start(this)
 
         val w = intent.getIntExtra("w", 800)
@@ -95,8 +97,16 @@ class CarPreviewActivity : ComponentActivity() {
 
         val p = ScreenProjector(this).also { projector = it }
         // --ez player true: the docked player alone, with a made-up song (see PlayerPreview).
+        // --ez wallpapers true: the wallpaper picker alone, below the fold in the car's settings.
         val playerOnly = intent.getBooleanExtra("player", false)
-        p.start(imageReader.surface, w, h, dpi) { if (playerOnly) io.github.sirionero.mycar.car.PlayerPreview() else CarUi() }
+        val wallpapersOnly = intent.getBooleanExtra("wallpapers", false)
+        p.start(imageReader.surface, w, h, dpi) {
+            when {
+                playerOnly -> io.github.sirionero.mycar.car.PlayerPreview()
+                wallpapersOnly -> io.github.sirionero.mycar.car.WallpaperPickerPreview()
+                else -> CarUi()
+            }
+        }
 
         // Stand in for the car's media sink, so the phone half of the audio path runs for real.
         if (intent.getBooleanExtra("audio", false)) {

@@ -22,9 +22,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.luminance
@@ -49,13 +51,47 @@ import kotlin.math.sin
  * Smooth gradients are what video compression handles worst: on the way to the head unit they
  * break into visible bands. A faint grain over the top breaks the bands up again.
  *
- * With motion on, the glows drift and swell slowly, so any of them is a moving wallpaper too.
+ * The moving ones are drawn here too, a frame at a time: glows that wander and swell, waves that
+ * roll, lights that rise. Steady and smooth, nothing that flashes.
  */
 
 /** One soft disc of colour: its centre as a fraction of the screen, its radius of the longer side. */
 class Glow(val color: Color, val x: Float, val y: Float, val radius: Float, val strength: Float = 0.9f)
 
-class Wallpaper(val id: String, val name: String, val ground: Color, val glows: List<Glow>)
+/** A wallpaper: [glows] on a [ground], and how it moves, or null [motion] for a still one. */
+class Wallpaper(val id: String, val name: String, val ground: Color, val glows: List<Glow>, val motion: Motion? = null)
+
+/** How a moving wallpaper moves. */
+sealed interface Motion {
+    /** The glows wander about the screen, swelling and dimming, each on its own loop. */
+    class Drift(val reach: Float, val loopSeconds: Double) : Motion
+
+    /** Bands of colour, back to front, rolling across the lower screen like waves. */
+    class Waves(val colors: List<Color>) : Motion
+
+    /** Soft lights rising through the picture, swaying and glowing brighter and dimmer. */
+    class Lights(colors: List<Color>, count: Int) : Motion {
+        internal val lights = List(count) { Light.make(it, colors) }
+    }
+}
+
+/** One of [Motion.Lights]: where it rises, how fast and how big, and its own timing. */
+internal class Light(val x: Float, val speed: Float, val size: Float, val sway: Float, val phase: Float, val color: Color) {
+    companion object {
+        /** The same lights every time: seeded by their place in the list. */
+        fun make(index: Int, colors: List<Color>): Light {
+            val random = java.util.Random(31L * index + 7)
+            return Light(
+                x = random.nextFloat(),
+                speed = 0.025f + random.nextFloat() * 0.035f,
+                size = 0.012f + random.nextFloat() * 0.03f,
+                sway = 0.01f + random.nextFloat() * 0.03f,
+                phase = random.nextFloat() * 10f,
+                color = colors[index % colors.size],
+            )
+        }
+    }
+}
 
 object Wallpapers {
     /** Plain background, no wallpaper: what myCar looked like before them. */
@@ -118,36 +154,58 @@ object Wallpapers {
                 Glow(Color(0xFF2E3442), 0.85f, 0.90f, 0.60f),
             ),
         ),
+        // The moving ones.
+        Wallpaper(
+            "lava", "Lava", Color(0xFF120309),
+            listOf(
+                Glow(Color(0xFFFF2E63), 0.25f, 0.70f, 0.50f),
+                Glow(Color(0xFFFF8A1F), 0.70f, 0.30f, 0.48f),
+                Glow(Color(0xFF9B2CFF), 0.85f, 0.85f, 0.42f, 0.75f),
+            ),
+            Motion.Drift(reach = 0.24f, loopSeconds = 28.0),
+        ),
+        Wallpaper(
+            "polar", "Polar", Color(0xFF020A0C),
+            listOf(
+                Glow(Color(0xFF14E08A), 0.20f, 0.30f, 0.50f),
+                Glow(Color(0xFF00B3FF), 0.75f, 0.65f, 0.50f),
+                Glow(Color(0xFF7C4DFF), 0.55f, 0.05f, 0.40f, 0.7f),
+            ),
+            Motion.Drift(reach = 0.2f, loopSeconds = 34.0),
+        ),
+        Wallpaper(
+            "waves", "Waves", Color(0xFF010915),
+            listOf(Glow(Color(0xFF1F6BFF), 0.80f, 0.05f, 0.55f, 0.7f)),
+            Motion.Waves(listOf(Color(0xFF2E3DD1), Color(0xFF1A73E8), Color(0xFF00B8D9), Color(0xFF00E0B0))),
+        ),
+        Wallpaper(
+            "fireflies", "Fireflies", Color(0xFF03080A),
+            listOf(
+                Glow(Color(0xFF0F5C4A), 0.30f, 0.90f, 0.60f, 0.8f),
+                Glow(Color(0xFF1B2F6B), 0.85f, 0.15f, 0.50f, 0.8f),
+            ),
+            Motion.Lights(listOf(Color(0xFFFFD36B), Color(0xFFFFA94D), Color(0xFFB8FF7A)), count = 24),
+        ),
     )
 
     fun find(id: String): Wallpaper? = all.find { it.id == id }
 }
 
-/** The driver's wallpaper, and whether it moves, kept with the rest of myCar's settings. */
+/** The driver's wallpaper, kept with the rest of myCar's settings. */
 object WallpaperSetting {
     private const val KEY = "car_wallpaper"
-    private const val KEY_MOTION = "car_wallpaper_motion"
     private var app: Context? = null
     private val flow = MutableStateFlow(Wallpapers.DEFAULT)
     val current: StateFlow<String> = flow
-    private val motionFlow = MutableStateFlow(false)
-    /** The glows drift slowly about, rather than standing still. Off by default: a still picture costs the video nothing. */
-    val animated: StateFlow<Boolean> = motionFlow
 
     fun init(context: Context) {
         val app = context.applicationContext.also { this.app = it }
         flow.value = AppSettings.getString(app, KEY, Wallpapers.DEFAULT)
-        motionFlow.value = AppSettings.getString(app, KEY_MOTION, "false") == "true"
     }
 
     fun set(id: String) {
         flow.value = id
         app?.let { AppSettings.putString(it, KEY, id) }
-    }
-
-    fun setAnimated(on: Boolean) {
-        motionFlow.value = on
-        app?.let { AppSettings.putString(it, KEY_MOTION, on.toString()) }
     }
 }
 
@@ -176,11 +234,11 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
     val lightGround = MaterialTheme.colorScheme.background
     var origin by remember { mutableStateOf(Offset.Zero) }
     val grain = rememberGrain()
-    val animated by WallpaperSetting.animated.collectAsState()
-    val clock = if (animated) rememberMotionClock() else null
+    val motion = wallpaper.motion
+    val clock = if (motion != null) rememberMotionClock() else null
     onGloballyPositioned { origin = it.positionInRoot() }.drawBehind {
         // Read here, the clock only redraws the picture: nothing recomposes as it moves.
-        val seconds = clock?.let { it.value / 1000.0 }
+        val seconds = clock?.let { it.value / 1000.0 } ?: 0.0
         val screen = if (!wholeScreen) size else Size(
             view.rootView.width.toFloat().takeIf { it > 0f } ?: size.width,
             view.rootView.height.toFloat().takeIf { it > 0f } ?: size.height,
@@ -190,11 +248,13 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
             translate(-shift.x, -shift.y) {
                 drawRect(if (light) lightGround else wallpaper.ground, size = screen)
                 val longest = max(screen.width, screen.height)
+                // Softer on a light ground, so dark text stays readable over it.
+                val fade = if (light) 0.45f else 1f
                 wallpaper.glows.forEachIndexed { i, glow ->
-                    val drift = seconds?.let { drift(i, it) } ?: Drift.NONE
+                    val drift = if (motion is Motion.Drift) drift(i, seconds, motion) else Drift.NONE
                     val center = Offset((glow.x + drift.dx) * screen.width, (glow.y + drift.dy) * screen.height)
                     val radius = glow.radius * longest * drift.grow
-                    val strength = if (light) glow.strength * 0.45f else glow.strength
+                    val strength = glow.strength * fade * drift.glow
                     drawCircle(
                         Brush.radialGradient(
                             0f to glow.color.copy(alpha = strength),
@@ -207,6 +267,11 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
                         center = center,
                     )
                 }
+                when (motion) {
+                    is Motion.Waves -> drawWaves(screen, motion, seconds, fade)
+                    is Motion.Lights -> drawLights(screen, motion, seconds, fade)
+                    else -> Unit
+                }
             }
             drawRect(ShaderBrush(ImageShader(grain, TileMode.Repeated, TileMode.Repeated)), alpha = GRAIN_ALPHA)
             // A touch darker overall, so white labels stay clear over the brightest glow.
@@ -217,32 +282,91 @@ fun Modifier.wallpaperBackground(wallpaper: Wallpaper, dim: Float = 0f, wholeScr
     }
 }
 
-/** How far a glow has wandered from its place: a fraction of the screen each way, and its size. */
-private class Drift(val dx: Float, val dy: Float, val grow: Float) {
+/** Where a glow has wandered: a fraction of the screen each way, its size and its brightness. */
+private class Drift(val dx: Float, val dy: Float, val grow: Float, val glow: Float) {
     companion object {
-        val NONE = Drift(0f, 0f, 1f)
+        val NONE = Drift(0f, 0f, 1f, 1f)
     }
 }
 
 /**
- * Glow [index]'s drift [seconds] into the phone's uptime: slow loops of a minute or so, each glow
- * on its own periods and phase, so the picture never quite repeats and nothing moves fast enough
- * to catch the eye. In doubles, as uptime runs to millions of seconds.
+ * Glow [index]'s place [seconds] into the phone's uptime: loops of half a minute or so, each glow
+ * on its own pace and phase, so the picture never quite repeats. In doubles, as uptime runs to
+ * millions of seconds.
  */
-private fun drift(index: Int, seconds: Double): Drift {
+private fun drift(index: Int, seconds: Double, motion: Motion.Drift): Drift {
     val phase = index * 2.1
-    val turn = 2 * PI
+    val angle = seconds * 2 * PI / (motion.loopSeconds * (1 + index * 0.37)) + phase
     return Drift(
-        dx = (sin(seconds * turn / (47 + index * 13) + phase) * 0.10).toFloat(),
-        dy = (cos(seconds * turn / (61 + index * 11) + phase) * 0.08).toFloat(),
-        grow = 1f + (sin(seconds * turn / (37 + index * 7) + phase) * 0.07).toFloat(),
+        dx = (sin(angle) * motion.reach).toFloat(),
+        dy = (cos(angle * 0.83) * motion.reach * 0.8).toFloat(),
+        grow = 1f + (sin(angle * 1.3) * 0.15).toFloat(),
+        glow = 0.85f + (sin(angle * 1.7) * 0.15).toFloat(),
     )
 }
 
 /**
- * The phone's uptime in milliseconds, moved on every [MOTION_FRAME_MS]: a few redraws a second
- * are plenty for glows this slow. Every copy of the wallpaper reads uptime, so the dock and the
- * screen beside it drift together.
+ * [Motion.Waves]: each band a filled curve, the nearer ones lower, taller and quicker, shading
+ * off towards the bottom of the screen.
+ */
+private fun DrawScope.drawWaves(screen: Size, waves: Motion.Waves, seconds: Double, fade: Float) {
+    val step = screen.width / WAVE_STEPS
+    waves.colors.forEachIndexed { i, color ->
+        val base = screen.height * (0.42f + 0.14f * i)
+        val height = screen.height * (0.05f + 0.025f * i)
+        val length = screen.width * (1.1f + 0.4f * i)
+        val travel = seconds * screen.width * (0.035 + 0.025 * i)
+        val path = Path().apply {
+            moveTo(0f, screen.height)
+            for (s in 0..WAVE_STEPS) {
+                val x = s * step
+                val angle = 2 * PI * (x + travel) / length + i * 1.7
+                lineTo(x, base + height * (sin(angle) + 0.35 * sin(2.3 * angle + seconds * 0.4)).toFloat())
+            }
+            lineTo(screen.width, screen.height)
+            close()
+        }
+        drawPath(
+            path,
+            Brush.verticalGradient(
+                0f to color.copy(alpha = 0.55f * fade),
+                1f to color.copy(alpha = 0.12f * fade),
+                startY = base - height,
+                endY = screen.height,
+            ),
+        )
+    }
+}
+
+/** [Motion.Lights]: each rises from just below the screen to just above it, then starts again. */
+private fun DrawScope.drawLights(screen: Size, motion: Motion.Lights, seconds: Double, fade: Float) {
+    val longest = max(screen.width, screen.height)
+    motion.lights.forEach { light ->
+        val travel = ((seconds * light.speed + light.phase) % (1 + 2 * LIGHT_MARGIN)).toFloat()
+        val center = Offset(
+            (light.x + light.sway * sin(seconds * 0.5 + light.phase).toFloat()) * screen.width,
+            (1 + LIGHT_MARGIN - travel) * screen.height,
+        )
+        val radius = light.size * longest
+        val alpha = 0.6f * fade * (0.55f + 0.45f * sin(seconds * 1.3 + light.phase * 3).toFloat())
+        drawCircle(
+            Brush.radialGradient(
+                0f to light.color.copy(alpha = alpha),
+                0.5f to light.color.copy(alpha = alpha * 0.45f),
+                1f to light.color.copy(alpha = 0f),
+                center = center,
+                radius = radius,
+            ),
+            radius = radius,
+            center = center,
+        )
+    }
+}
+
+/**
+ * The phone's uptime in milliseconds, moved on every [MOTION_FRAME_MS]: about 30 redraws a
+ * second, for smooth motion. Every copy of the wallpaper reads uptime, so the dock and the screen
+ * beside it move together.
  */
 @Composable
 private fun rememberMotionClock(): State<Long> {
@@ -269,5 +393,7 @@ private fun rememberGrain(): ImageBitmap = remember {
 }
 
 private const val GRAIN_ALPHA = 0.05f
-private const val MOTION_FRAME_MS = 50L
+private const val MOTION_FRAME_MS = 33L
+private const val WAVE_STEPS = 64
+private const val LIGHT_MARGIN = 0.1f
 private const val BASE_SHADE = 0.15f
