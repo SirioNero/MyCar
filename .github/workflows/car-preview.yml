@@ -7,6 +7,11 @@ on:
   push:
     branches: ["design/**"]
   workflow_dispatch:
+    inputs:
+      shots:
+        description: "Only these shots, by name, space-separated (all when empty)"
+        required: false
+        default: ""
 
 jobs:
   preview:
@@ -54,6 +59,8 @@ jobs:
 
       - name: Render the car screen
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          ONLY: ${{ inputs.shots }}
         with:
           api-level: 34
           arch: x86_64
