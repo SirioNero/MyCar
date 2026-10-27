@@ -31,12 +31,12 @@ behind it all — still or moving.
 
 | | |
 |---|---|
-| ![The app grid over the Waves wallpaper, with the dock down the left](docs/screenshots/launcher.png) | ![Vela Maps on the car screen with the dock beside it](docs/screenshots/navigation.png) |
-| Your car apps in one place, over a wallpaper you choose. | Vela Maps on the car screen. |
-| ![The player beside a map, the cover filling its side on frosted glass](docs/screenshots/music.png) | ![An incoming call on the car screen, with Decline and Answer](docs/screenshots/call.png) |
-| The player beside the map, its cover on frosted glass. | Answer or decline a call from the car. |
-| ![Nearby categories in Vela Maps: gas, EV charging, restaurants, coffee](docs/screenshots/places.png) | ![The car settings: size, theme, and the wallpaper picker](docs/screenshots/settings.png) |
-| Find places nearby without leaving the map. | Size, theme, and the wallpaper, in the car's settings. |
+| ![The app grid over the moving Waves wallpaper, with the dock down the left](docs/screenshots/launcher.png) | ![Vela Maps on the car screen, its list of nearby places beside the map](docs/screenshots/navigation.png) |
+| Your car apps in one place, over a moving wallpaper. | Vela Maps, with nearby places a tap away. |
+| ![The player: the song's cover filling it, its controls on frosted glass](docs/screenshots/music.png) | ![An incoming call on the car screen, with Decline and Answer](docs/screenshots/call.png) |
+| The player that sits beside the map, its controls on frosted glass. | Answer or decline a call from the car. |
+| ![The wallpaper picker: seven still wallpapers and four moving ones](docs/screenshots/wallpapers.png) | ![The car settings: open on connect, size, and theme](docs/screenshots/settings.png) |
+| Still or moving wallpapers, all drawn by myCar. | Size and theme, in the car's settings. |
 
 ## Features
 
@@ -55,7 +55,7 @@ behind it all — still or moving.
   nearest gas station", "play Daft Punk", or "call Mom". Say "help" for the full list.
   Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
   assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
-  listening, the way the swipe up from a bottom corner of the phone does.
+  the way the swipe up from a bottom corner of the phone does, rather than in a typed chat.
 - **Messages.** New messages appear as a small card on the car screen. myCar reads
   each one aloud, and you reply by voice or with a quick reply. Music pauses while
   myCar speaks or listens. Speech runs on the phone, so it needs no Google account.
@@ -193,27 +193,30 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
 - The player sits beside the map when music plays, its cover filling its side on frosted glass;
   the dock's foot returns to map-and-music from the grid.
 - The whole car screen scales from Extra small to Extra large.
-- Material Symbols icons and the Inter font ship as files, with no new Google Play dependency.
+- Material Symbols icons and the Inter typeface ship as files inside the app, with no new
+  dependencies.
 
 **Features and fixes**
 - Incoming calls from contacts show on the car screen; answer, decline, or end them there, and a
   declined call no longer leaves its card stuck. myCar says when call audio stays on the phone
   because the car's Bluetooth hands-free isn't connected.
 - A choice of voice assistant: myCar's own, the phone's, or another assistant app. The phone's
-  wakes listening, the way the corner swipe wakes it, rather than opening a typed chat.
+  is woken the way the swipe up from a bottom corner wakes it, rather than in a typed chat.
 - Screen sharing turns the phone landscape while it shows in the car, so apps fill the wide
   screen instead of standing upright between two bars.
+- Car apps show their own icons again, instead of another app's.
 - Vela Maps works and no longer carries a "works in part" mark.
 
 **Toward F-Droid**
-- No Google Play Services, and the groundwork for a fully free build (see the F-Droid notes).
+- No Google Play Services and no statistics server. A build for F-Droid is the goal; what's
+  left is mostly building the offline speech library from source instead of shipping it prebuilt.
 
 The full list of changes is this repository's commit history.
 
 ## Trademarks
 
-Android, Android Auto, Google Messages, and Waze are trademarks of Google LLC. Spotify is
-a trademark of Spotify AB. Gearslip is a name of Twink Software LLC. myCar is not
+Android, Android Auto, Google Messages, YouTube Music, and Waze are trademarks of Google LLC.
+Spotify is a trademark of Spotify AB. Gearslip is a name of Twink Software LLC. myCar is not
 affiliated with, endorsed by, or sponsored by any of these companies. All other names
 belong to their owners.
 

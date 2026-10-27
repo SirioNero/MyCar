@@ -38,7 +38,7 @@ Rispondi sempre in **italiano**.
   Sta solo nei secret di GitHub (`KEYSTORE_BASE64`, `KEYSTORE_STORE_PASSWORD`, `KEYSTORE_KEY_ALIAS`,
   `KEYSTORE_KEY_PASSWORD`) e nel backup dell'utente; mai nel repository.
 - Icona: logo in `docs/icon/mycar-logo.jpg`; `python3 docs/icon/make_icons.py docs/icon/mycar-logo.jpg .`
-  rigenera i PNG `mipmap-*/ic_launcher_foreground.png` (main: arco blu, debug: arco ambra) e
+  rigenera i PNG `mipmap-*/ic_launcher_foreground.png` (main: lucchetto azzurro, debug: ambra) e
   `docs/icon/mycar-icon.png`. La sagoma a tema è il vettoriale `drawable/ic_launcher_monochrome.xml`.
 - Il debug ha `applicationIdSuffix = ".dev"`. Nel debug esiste `CarPreviewActivity`, che
   renderizza la UI auto in PNG senza auto (utile per verificare il restyling).
@@ -55,6 +55,10 @@ Rispondi sempre in **italiano**.
   `--ez player true` l'anteprima mostra solo il player accanto alla mappa con un brano finto
   (`app/src/debug/.../car/PlayerPreview.kt`, cartelle `player/`): nell'emulatore non suona niente.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
+- Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
+  branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
+  destra. Mai scatti con la mappa ancora nera o col segnaposto "Map" del player di debug: del
+  player si mostra solo il suo pannello.
 
 ## Rilasci
 
