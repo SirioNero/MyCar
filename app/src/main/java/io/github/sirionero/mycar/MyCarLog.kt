@@ -33,6 +33,9 @@ object MyCarLog {
 
     private const val MAX_LIVE_LINES = 3000
 
+    /** Session logs kept on the phone; older ones are deleted when a new session starts. */
+    private const val KEEP_LOGS = 20
+
     private var file: File? = null
 
     /**
@@ -55,7 +58,18 @@ object MyCarLog {
         val name = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
         file = File(dir, "mycar-$name.log")
         i("log file: ${file?.absolutePath}")
+        // One file a session, and none was ever removed: months of drives filled the phone with
+        // them. The newest few are kept, for sharing after a drive. Queued behind the line above,
+        // so the new file already exists and counts among them.
+        io.execute { runCatching { pruneOldLogs(dir) } }
         SessionReport.init(context)
+    }
+
+    private fun pruneOldLogs(dir: File) {
+        dir.listFiles { f -> f.isFile && f.name.startsWith("mycar-") && f.name.endsWith(".log") }
+            ?.sortedByDescending { it.name } // the name is the start time, so newest first
+            ?.drop(KEEP_LOGS)
+            ?.forEach { it.delete() }
     }
 
     fun snapshot(): List<String> = synchronized(live) { live.toList() }
