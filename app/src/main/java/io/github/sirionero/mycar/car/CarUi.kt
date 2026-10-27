@@ -133,10 +133,17 @@ fun CarUi() {
     remember(appContext) { Prefetch.warm(appContext, force = true); CarServices.init(appContext) }
     DisposableEffect(Unit) { onDispose { CarServices.shutdown() } }
     // Plancia's page, alive through the drive once Plancia is set up, drawn at the car screen's
-    // density (this context's) and in the car's light or dark.
+    // density (this context's) and in the car's light or dark. Made a moment after the car's screen
+    // is up rather than with it: making it takes the main thread, and the first frames and the map
+    // app's start go first.
     val carContext = LocalContext.current
     val homeSetUp = io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState().value.isComplete
-    val plancia = remember(homeSetUp, dark) { if (homeSetUp) PlanciaWeb(carContext, dark) else null }
+    var settled by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(PLANCIA_AFTER_MS)
+        settled = true
+    }
+    val plancia = remember(homeSetUp && settled, dark) { if (homeSetUp && settled) PlanciaWeb(carContext, dark) else null }
     DisposableEffect(plancia) { onDispose { plancia?.destroy() } }
     // Ask for the phone's sound as soon as the car connects, not only when a media app opens:
     // a video in the web browser or a map's voice needs it too. Asks once, after the car offers
@@ -468,3 +475,6 @@ private fun BreadcrumbBar(navigator: CarNavigator) {
 private object NoHaptics : HapticFeedback {
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {}
 }
+
+/** How long after the car's screen is up Plancia's page is made (see CarUi). */
+private const val PLANCIA_AFTER_MS = 2_500L
