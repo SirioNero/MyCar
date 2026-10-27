@@ -145,7 +145,7 @@ class CarPreviewActivity : ComponentActivity() {
         if (intent.getBooleanExtra("demoSong", false)) {
             var tries = 0
             fun tryDemo() {
-                if (io.github.sirionero.mycar.car.showDemoSong()) MyCarLog.i("preview: demo song playing")
+                if (io.github.sirionero.mycar.car.showDemoSong(this)) MyCarLog.i("preview: demo song playing")
                 else if (++tries < 50) main.postDelayed(::tryDemo, 100)
                 else MyCarLog.e("preview: no media to show the demo song in")
             }
