@@ -3,5 +3,28 @@
     <application>
         <!-- Debug builds only: renders the car UI to PNGs so it can be checked without a car. -->
         <activity android:name="io.github.sirionero.mycar.CarPreviewActivity" android:exported="true" />
+
+        <!-- Debug builds only: a stand-in voice assistant, so the Car preview workflow can check that
+             myCar's microphone starts the phone's assistant as the swipe from a bottom corner does. -->
+        <service
+            android:name="io.github.sirionero.mycar.debug.TestAssistantService"
+            android:exported="true"
+            android:permission="android.permission.BIND_VOICE_INTERACTION">
+            <meta-data android:name="android.voice_interaction" android:resource="@xml/test_assistant" />
+            <intent-filter>
+                <action android:name="android.service.voice.VoiceInteractionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="io.github.sirionero.mycar.debug.TestAssistantSessionService"
+            android:exported="true"
+            android:permission="android.permission.BIND_VOICE_INTERACTION" />
+        <service
+            android:name="io.github.sirionero.mycar.debug.TestRecognitionService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.speech.RecognitionService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

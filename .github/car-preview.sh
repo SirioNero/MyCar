@@ -113,5 +113,39 @@ EXTRA="--es assistant phone" shoot assistant 1920 720 240 "$GRID_BUTTON;$MIC_BUT
     "sleep 6; mkdir -p previews/assistant; adb exec-out screencap -p > previews/assistant/phone-screen.png"
 adb shell settings delete secure assistant
 
+# Does the microphone start the phone's assistant just as the swipe up from a bottom corner does?
+# The debug build carries a stand-in assistant (debug/TestAssistant.kt) that logs how Android
+# showed it: the flags and arguments a real assistant reads to decide whether to open listening.
+# It's made the phone's assistant, started once from myCar's microphone and once by the swipe
+# itself, and the two lines are printed side by side.
+adb shell cmd role add-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || echo "could not make the test assistant the default"
+echo "assistant: $(adb shell settings get secure voice_interaction_service | tr -d '\r')"
+EXTRA="--es assistant phone" shoot assistant-mic 1920 720 240 "$GRID_BUTTON;$MIC_BUTTON;$WAIT"
+mkdir -p previews/assistant-gesture
+adb shell settings put secure assist_touch_gesture_enabled 1
+echo "navigation_mode=$(adb shell settings get secure navigation_mode | tr -d '\r')"
+adb shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.gestural || true
+sleep 3
+adb shell input keyevent KEYCODE_HOME
+sleep 2
+size=$(adb shell wm size | tr -d '\r' | sed -n 's/.*: \([0-9]*x[0-9]*\)$/\1/p' | tail -1)
+W=${size%x*}; H=${size#*x}
+echo "phone screen ${W}x${H}"
+adb logcat -c
+# From the very corner up and in, as a thumb would: left corner, slower, then the right one.
+for swipe in "5 $((H - 5)) $((W / 4)) $((H - W / 4)) 250" \
+             "15 $((H - 15)) $((W / 3)) $((H - W / 3)) 450" \
+             "$((W - 5)) $((H - 5)) $((W - W / 4)) $((H - W / 4)) 250"; do
+    adb shell input swipe $swipe
+    sleep 3
+    if adb logcat -d -s myCar | grep -q "test assistant: shown"; then echo "the swipe started it: $swipe"; break; fi
+done
+adb exec-out screencap -p > previews/assistant-gesture/phone-screen.png
+adb logcat -d -s myCar > previews/assistant-gesture/log.txt
+echo "--- how the assistant was shown: microphone, then the swipe ---"
+grep -h "test assistant: shown" previews/assistant-mic/log.txt || echo "microphone: no test assistant line"
+grep -h "test assistant: shown" previews/assistant-gesture/log.txt || echo "swipe: no test assistant line"
+adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || true
+
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews
