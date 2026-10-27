@@ -90,25 +90,61 @@ internal object AssistantUnlock {
 class AssistantUnlockActivity : Activity() {
     private val handler = Handler(Looper.getMainLooper())
     private var done = false
+    private var keyguard: KeyguardManager? = null
+
+    /** When Android was asked to open the phone (0: not yet), and whether it's been asked twice. */
+    private var askedAt = 0L
+    private var askedAgain = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AssistantUnlock.shown()
         setShowWhenLocked(true)
         setTurnScreenOn(true)
-        val keyguard = getSystemService(KeyguardManager::class.java)
+        val keyguard = getSystemService(KeyguardManager::class.java).also { this.keyguard = it }
         if (keyguard?.isKeyguardLocked != true) {
             finishWith { AssistantUnlock.opened() }
             return
         }
+        // Asked once this is in front with the screen lit (it gets the focus then): asked while the
+        // screen is still dark, Android drops the question at once. Asked anyway if no focus comes.
+        handler.postDelayed(::ask, ASK_ANYWAY_MS)
+        // Nobody opened it: don't stay over the lock screen for good.
+        handler.postDelayed({ finishWith { AssistantUnlock.stayedLocked("nobody opened it") } }, GIVE_UP_MS)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        AssistantUnlock.shown()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) ask()
+    }
+
+    private fun ask() {
+        val keyguard = keyguard ?: return
+        if (done || askedAt != 0L) return
+        askedAt = SystemClock.uptimeMillis()
         MyCarLog.i("assistant: opening the phone first")
         keyguard.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
             override fun onDismissSucceeded() = finishWith { AssistantUnlock.opened() }
-            override fun onDismissCancelled() = finishWith { AssistantUnlock.stayedLocked("the driver backed out") }
-            override fun onDismissError() = finishWith { AssistantUnlock.stayedLocked("Android couldn't ask") }
+            override fun onDismissCancelled() = dropped("the driver backed out")
+            override fun onDismissError() = dropped("Android couldn't ask")
         })
-        // Nobody opened it: don't stay over the lock screen for good.
-        handler.postDelayed({ finishWith { AssistantUnlock.stayedLocked("nobody opened it") } }, GIVE_UP_MS)
+    }
+
+    /** Dropped at once is the screen still lighting up: ask once more. Later, the driver said no. */
+    private fun dropped(why: String) {
+        if (!askedAgain && SystemClock.uptimeMillis() - askedAt < DROPPED_AT_ONCE_MS) {
+            askedAgain = true
+            askedAt = 0L
+            MyCarLog.i("assistant: Android dropped the unlock at once ($why) - asking again")
+            handler.postDelayed(::ask, ASK_AGAIN_MS)
+            return
+        }
+        finishWith { AssistantUnlock.stayedLocked(why) }
     }
 
     private fun finishWith(then: () -> Unit) {
@@ -125,6 +161,9 @@ class AssistantUnlockActivity : Activity() {
     }
 
     private companion object {
+        const val ASK_ANYWAY_MS = 1_500L
+        const val DROPPED_AT_ONCE_MS = 1_500L
+        const val ASK_AGAIN_MS = 600L
         const val GIVE_UP_MS = 60_000L
     }
 }
