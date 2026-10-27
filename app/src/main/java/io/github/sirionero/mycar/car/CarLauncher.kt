@@ -89,6 +89,7 @@ import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.media.MediaCatalog
 import io.github.sirionero.mycar.notify.MessagingApp
 import io.github.sirionero.mycar.notify.MessagingCatalog
+import io.github.sirionero.mycar.xonos.Xonos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -171,7 +172,10 @@ internal object LauncherCache {
                 val label = if (it.component.packageName in mediaPackages) "${it.label} · Browse" else it.label
                 Entry(label, iconOf(it.component.packageName), template = it)
             }
-        val media = mediaApps.map { Entry(it.label, iconOf(it.component.packageName), media = it) }
+        val xonosIcon = runCatching { Xonos.icon(context)?.let { squareAppIcon(it, ICON_PX).asImageBitmap() } }.getOrNull()
+        val media = mediaApps.map {
+            Entry(it.label, if (Xonos.isInside(it.component)) xonosIcon else iconOf(it.component.packageName), media = it)
+        }
         // A messenger that is also a car media app keeps only its player tile.
         val messaging = messagingApps
             .filter { it.packageName !in mediaPackages }
@@ -186,8 +190,12 @@ internal fun rememberAllEntries(): List<Entry> {
     val context = LocalContext.current
     val installed by LauncherCache.state.collectAsState()
     val home by io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState()
-    LaunchedEffect(context) {
-        if (LauncherCache.entries == null) withContext(Dispatchers.IO) { LauncherCache.load(context) }
+    val xonos by Xonos.setUp.collectAsState()
+    LaunchedEffect(context, xonos) {
+        val entries = LauncherCache.entries
+        // Xonos set up on the phone, or removed, since the last scan: the music apps change.
+        val stale = entries != null && entries.any { it.media?.component?.let(Xonos::isInside) == true } != xonos
+        if (entries == null || stale) withContext(Dispatchers.IO) { LauncherCache.load(context, force = stale) }
     }
     return remember(installed, home.isComplete) { withPlancia(BuiltInApps.entries + installed.orEmpty(), home.isComplete) }
 }

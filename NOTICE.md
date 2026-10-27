@@ -30,5 +30,9 @@ Gearslip only. myCar is available under the AGPL-3.0 alone.
   is adapted from [Plancia](https://github.com/SirioNero/Home-Assistant-on-Gearslip), and its
   icon (`app/src/main/res/drawable/ic_plancia.xml`) comes from it. Plancia is by myCar's author,
   under the AGPL-3.0.
+- Xonos inside myCar (`app/src/main/java/io/github/sirionero/mycar/xonos/`), its icons
+  (`ic_xonos.xml`, `xonos_*.xml`) and its words (`values/xonos.xml`) are adapted from
+  [Xonos](https://github.com/SirioNero/Music-Assistant-on-Gearslip), by myCar's author, under the
+  AGPL-3.0 (or later).
 - Voice models, downloaded on the phone when you choose them: Kroko ASR by Banafo
   (CC BY-SA 4.0), and Parakeet and Canary by NVIDIA (CC BY 4.0).

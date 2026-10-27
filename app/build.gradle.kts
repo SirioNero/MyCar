@@ -141,6 +141,9 @@ dependencies {
     // Plancia inside myCar: Home Assistant's WebSocket, and its page's sign-in script set before it runs.
     implementation(libs.okhttp)
     implementation(libs.androidx.webkit)
+    // Xonos inside myCar: Music Assistant's player, a Media3 library service as in the Xonos app.
+    implementation(libs.androidx.media3.session)
+    implementation(libs.androidx.media3.common)
     testImplementation(libs.junit)
 }
 

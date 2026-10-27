@@ -52,6 +52,11 @@ behind it all — still or moving.
   to seek, the cover's colours behind it, and the cover in sight while you browse.
 - **The web.** A browser template with its own on-screen keyboard, for anything that
   doesn't ship a car interface of its own.
+- **Your music library.** Xonos, built in: your Music Assistant library among the car's music
+  apps — everything Music Assistant plays, from your own files to the services you added to it.
+  With the car audio through myCar, its sound goes straight to the car, and Android doesn't ask
+  to share the audio while you listen to it. Sign in on the phone, or bring your account over
+  from the Xonos app with one tap.
 - **Your home.** Plancia, built in: your Home Assistant dashboards in the car, connected from
   the start of the drive and kept loaded, so they're there the moment you open them — full
   screen from the app grid, on a page beside the map, or beside the map itself. Set it up in
@@ -116,7 +121,7 @@ behind it all — still or moving.
   only calls over Bluetooth while Android Auto runs. Bluetooth never needs a permission, and
   your map app's voice reaches the car too. Through myCar, Android shows a screen-share
   consent dialog once per drive, one tap with no app to pick, which a one-time adb command
-  removes. When the car takes its speakers for a call or a prompt, the music comes back after. myCar never reads the
+  removes; not while you listen to Xonos, which myCar plays itself. When the car takes its speakers for a call or a prompt, the music comes back after. myCar never reads the
   screen; capturing playback is the only way an ordinary app can pass another app's audio along.
 - **myCar needs no adb, root, or Shizuku.** Every feature relies on an ordinary
   Android permission or an on-device consent dialog. For sound through myCar, setup offers two

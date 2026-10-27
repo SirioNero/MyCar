@@ -1,0 +1,94 @@
+package io.github.sirionero.mycar.xonos
+
+import android.content.ComponentName
+import android.content.Context
+import android.graphics.drawable.AdaptiveIconDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.os.Process
+import androidx.core.content.ContextCompat
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.media.MediaApp
+import io.github.sirionero.mycar.xonos.data.ArtCache
+import io.github.sirionero.mycar.xonos.data.Library
+import io.github.sirionero.mycar.xonos.data.MaRepository
+import io.github.sirionero.mycar.xonos.data.Settings
+import io.github.sirionero.mycar.xonos.playback.PlaybackService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.io.File
+
+/**
+ * Xonos inside myCar: Music Assistant's player, set up on the phone and played in the car as one
+ * of the car's music apps. One of each for the whole app, as the Xonos app keeps them in its
+ * Application: the account, the connection to Music Assistant, the library and the covers.
+ *
+ * Its player is [PlaybackService], found by the car's media screens like any music app's, and
+ * named "myCar" in Music Assistant. With the car audio through myCar, its sound goes straight
+ * down the car's audio link (see CarLinkOutput) rather than through the phone's speakers.
+ */
+object Xonos {
+
+    private lateinit var app: Context
+
+    /** Idempotent; any context will do. */
+    fun init(context: Context) {
+        if (!::app.isInitialized) app = context.applicationContext
+    }
+
+    val settings: Settings by lazy { Settings(app) }
+    val repo: MaRepository by lazy { MaRepository(settings) }
+    val library: Library by lazy { Library(repo) }
+
+    /** The covers fetched for the car, the notification and the player (see playback/Artwork). */
+    val artCache: ArtCache by lazy { ArtCache(File(app.cacheDir, "xonos-art"), repo.http) }
+
+    /** True once the player is Music Assistant's: its API and its audio both connected. */
+    val playerReady = MutableStateFlow(false)
+
+    private val _setUp = MutableStateFlow(false)
+
+    /** Whether there's an account to play with: only then is Xonos among the car's music apps. */
+    val setUp: StateFlow<Boolean> = _setUp.asStateFlow()
+
+    /** Reads the account once, so the car's app lists know whether Xonos is set up. */
+    fun refresh(context: Context) {
+        init(context)
+        _setUp.value = settings.load().isComplete
+    }
+
+    /** Keeps an account (or an empty one, to remove it) and reconnects with it. */
+    fun save(context: Context, config: Settings.Config, username: String?) {
+        init(context)
+        settings.save(config)
+        settings.username = username
+        _setUp.value = config.isComplete
+        repo.reconnect()
+    }
+
+    /** The player, as the car's media screens connect to it. */
+    fun component(context: Context) = ComponentName(context, PlaybackService::class.java)
+
+    /** Whether [component] is Xonos inside myCar rather than an installed app. */
+    fun isInside(component: ComponentName) = component.className == PlaybackService::class.java.name
+
+    /** Xonos as one of the car's music apps, once it's set up; null until then. */
+    fun mediaApp(context: Context): MediaApp? {
+        refresh(context)
+        return if (_setUp.value) MediaApp(component(context), LABEL, Process.myUid()) else null
+    }
+
+    /** Xonos's icon as an adaptive one, so it's framed exactly as the Xonos app's was. */
+    fun icon(context: Context): Drawable? {
+        val art = ContextCompat.getDrawable(context, R.drawable.ic_xonos) ?: return null
+        return AdaptiveIconDrawable(ColorDrawable(ICON_BACKGROUND), art)
+    }
+
+    /** The Xonos app, whose place Xonos inside myCar takes in the car once it's set up. */
+    const val APP_PACKAGE = "it.xonos.ma"
+
+    const val LABEL = "Xonos"
+
+    private const val ICON_BACKGROUND = 0xFF0E1420.toInt()
+}

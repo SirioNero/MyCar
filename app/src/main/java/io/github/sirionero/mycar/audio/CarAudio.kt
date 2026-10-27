@@ -15,6 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
  * connected. Switching between media apps, or starting playback from the phone, costs nothing
  * further: the capture is by audio usage rather than by app, so whatever the phone plays as media
  * goes to the car.
+ *
+ * myCar's own music - Xonos inside myCar - needs no capture: it goes straight down the same sink
+ * ([openDirect], [DirectFeed]). While the car's music is that, the consent question waits
+ * ([consentWaits]) until another app's sound has to reach the car ([captureNow]).
  */
 object CarAudio {
 
@@ -50,6 +54,23 @@ object CarAudio {
 
     @Volatile private var link: Link? = null
 
+    /** myCar's own music on its way to the car, once it has played this drive. */
+    @Volatile private var feed: DirectFeed? = null
+
+    /** Held for each write to the car's sink, by the capture and by [feed]: one writer at a time. */
+    private val writes = Any()
+
+    private val _direct = MutableStateFlow(false)
+
+    /** Whether myCar's own player can play straight into the car now: the sound goes through myCar, and the car has a sink. */
+    val direct: StateFlow<Boolean> = _direct.asStateFlow()
+
+    /**
+     * True while the car's music is myCar's own, which needs no capture: the consent question waits
+     * for [captureNow]. Set by the car session.
+     */
+    @Volatile var consentWaits: () -> Boolean = { false }
+
     /** Rate and channel count the capture should use: the car's, or a sensible default. */
     val sampleRate get() = link?.sampleRate ?: 48_000
     val channels get() = link?.channels ?: 2
@@ -59,12 +80,18 @@ object CarAudio {
         MyCarLog.i("audio: the car offered a sink at ${link.sampleRate}Hz x${link.channels}")
         when {
             _capture.value == Capture.ON -> link.start()
+            wanted && consentWaits() -> MyCarLog.i("audio: the car's music is myCar's own - Android isn't asked for now")
             wanted -> ask()
         }
+        updateDirect()
     }
 
     fun detach(link: Link) {
-        if (this.link === link) this.link = null
+        if (this.link !== link) return
+        this.link = null
+        feed?.takeIf { it.link === link }?.stop()
+        feed = null
+        updateDirect()
     }
 
     /**
@@ -74,14 +101,40 @@ object CarAudio {
      */
     fun request() {
         wanted = true
+        updateDirect()
         when (_capture.value) {
             Capture.ON, Capture.ASKING, Capture.DENIED -> return
             Capture.OFF -> if (link == null) {
                 MyCarLog.i("audio: waiting for the car to offer an audio sink")
-            } else {
+            } else if (!consentWaits()) {
                 ask()
             }
         }
+    }
+
+    /** Another app's sound has to reach the car: ask for the capture now, if it waited ([consentWaits]). */
+    fun captureNow() {
+        if (wanted && link != null && _capture.value == Capture.OFF) ask()
+    }
+
+    /**
+     * Where myCar's own music at [sampleRate] x [channels] goes into the car, while the sound goes
+     * through myCar; null otherwise, and it plays on the phone (over Bluetooth, to the car).
+     */
+    internal fun openDirect(sampleRate: Int, channels: Int): DirectFeed.Writer? {
+        val link = link ?: return null
+        if (!wanted) return null
+        val running = feed?.takeIf { it.link === link } ?: DirectFeed(link, { _capture.value == Capture.ON }, writes).also {
+            feed = it
+            it.start()
+        }
+        // Asks the car for its speakers, unless the capture already has them.
+        link.start()
+        return running.open(sampleRate, channels)
+    }
+
+    private fun updateDirect() {
+        _direct.value = wanted && link != null
     }
 
     private fun ask() {
@@ -100,6 +153,12 @@ object CarAudio {
         wanted = false
         AudioCaptureService.stop()
         _capture.value = Capture.OFF
+        feed?.let {
+            it.stop()
+            feed = null
+            link?.stop()
+        }
+        updateDirect()
     }
 
     fun denied() {
@@ -132,13 +191,16 @@ object CarAudio {
     }
 
     internal fun captureStopped() {
-        link?.stop()
+        // myCar's own music, if it has played, keeps the car's speakers.
+        if (feed == null) link?.stop()
         _level.value = 0f
         if (_capture.value == Capture.ON) _capture.value = Capture.OFF
     }
 
     internal fun deliver(pcm: ByteArray, size: Int, peak: Float) {
         _level.value = peak
-        link?.write(pcm, size)
+        // While myCar's own music reaches the car, it alone feeds it.
+        if (feed?.feeding == true) return
+        synchronized(writes) { link?.write(pcm, size) }
     }
 }

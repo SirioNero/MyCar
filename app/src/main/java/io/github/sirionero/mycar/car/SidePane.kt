@@ -74,7 +74,7 @@ internal fun rememberSidePaneApp(): Entry? {
     val entries = rememberAllEntries()
     if (choice == SidePaneChoice.MUSIC) return null
     return remember(choice, entries) {
-        val id = withPlanciaInside(choice, entries)
+        val id = withXonosInside(withPlanciaInside(choice, entries), entries)
         entries.find { it.componentId == id && it.fitsBesideMap }
     }
 }
