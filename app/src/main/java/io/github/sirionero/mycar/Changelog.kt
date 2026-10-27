@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            24, "0.5.11-alpha",
+            listOf(
+                "Xonos is now part of myCar: your Music Assistant library among the car's music apps. Set it up on the phone, or bring your account over from the Xonos app with one tap.",
+                "With the car audio through myCar, Xonos plays straight into the car, and Android doesn't ask to share the audio while you listen to it.",
+            ),
+        ),
+        Release(
             23, "0.5.10-alpha",
             listOf(
                 "Plancia is now part of myCar: your Home Assistant dashboards, ready the moment you open them, from the app grid, one of your pages, or beside the map.",
