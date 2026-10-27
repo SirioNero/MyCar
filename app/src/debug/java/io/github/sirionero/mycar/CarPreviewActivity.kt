@@ -77,6 +77,8 @@ class CarPreviewActivity : ComponentActivity() {
         // --es sidePane it.plancia.ha: that app beside the map on Home - its car app service, or
         // its music service. Set every run, so other shots keep the music player there.
         val sidePane = intent.getStringExtra("sidePane")?.let { pkg ->
+            // One of myCar's own (mycar:plancia) as it is.
+            if (pkg.startsWith(io.github.sirionero.mycar.car.BUILT_IN_PREFIX)) return@let pkg
             listOf(androidx.car.app.CarAppService.SERVICE_INTERFACE, android.service.media.MediaBrowserService.SERVICE_INTERFACE)
                 .firstNotNullOfOrNull { action ->
                     packageManager.queryIntentServices(android.content.Intent(action).setPackage(pkg), 0).firstOrNull()
@@ -85,6 +87,14 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
         // Home's ready-made pages every run, so a shot that changed one leaves the next alone.
         io.github.sirionero.mycar.car.HomePages.reset()
+        // --es haUrl http://10.0.2.2:8123 --es haToken ...: Plancia inside myCar on that Home
+        // Assistant (the workflow's own, in Docker beside the emulator). Set every run: without
+        // them Plancia is off, and the Plancia app stays as it was.
+        io.github.sirionero.mycar.home.HomeAssistant.save(
+            intent.getStringExtra("haUrl")?.let { url ->
+                io.github.sirionero.mycar.home.HomeAssistant.Config(url, "", intent.getStringExtra("haToken").orEmpty())
+            } ?: io.github.sirionero.mycar.home.HomeAssistant.Config(),
+        )
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,

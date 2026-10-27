@@ -51,6 +51,13 @@ jobs:
           [ -n "$vela" ] && get vela.apk "$vela"
           ls -l third-party
 
+      # Plancia's shots run against a Home Assistant of the run's own, in Docker beside the
+      # emulator. If it won't start, the other shots still run, and Plancia's are left out.
+      - name: Start Home Assistant for Plancia
+        if: inputs.shots == '' || contains(inputs.shots, 'plancia')
+        continue-on-error: true
+        run: bash .github/home-assistant.sh
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
