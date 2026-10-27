@@ -185,11 +185,20 @@ internal object LauncherCache {
 internal fun rememberAllEntries(): List<Entry> {
     val context = LocalContext.current
     val installed by LauncherCache.state.collectAsState()
+    val home by io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState()
     LaunchedEffect(context) {
         if (LauncherCache.entries == null) withContext(Dispatchers.IO) { LauncherCache.load(context) }
     }
-    return remember(installed) { BuiltInApps.entries + installed.orEmpty() }
+    return remember(installed, home.isComplete) { withPlancia(BuiltInApps.entries + installed.orEmpty(), home.isComplete) }
 }
+
+/**
+ * Plancia inside myCar, once it's set up, takes the place of the Plancia app: one Plancia on the
+ * grid, the one that's always ready. Not set up, the app stays, as it always worked.
+ */
+internal fun withPlancia(entries: List<Entry>, setUp: Boolean): List<Entry> =
+    if (!setUp) entries
+    else entries.filterNot { it.template?.component?.packageName == PLANCIA_PACKAGE } + BuiltInApps.planciaEntry
 
 /** The launcher's groups, in the order they're laid out. */
 private enum class AppGroup { PHONE, MAPS, MUSIC, MESSAGING, WEB, SCREEN_SHARING, OTHER, SETTINGS, EXIT }
@@ -201,6 +210,7 @@ private fun groupOf(entry: Entry, mediaPackages: Set<String>): AppGroup {
             BuiltInApps.Web -> AppGroup.WEB
             BuiltInApps.ScreenSharing -> AppGroup.SCREEN_SHARING
             BuiltInApps.Exit -> AppGroup.EXIT
+            BuiltInApps.Plancia -> AppGroup.OTHER
             else -> AppGroup.SETTINGS
         }
     }

@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.car
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Settings
@@ -33,6 +34,9 @@ object CarApps {
         },
         CarApp("settings", "Settings", Icons.Filled.Settings) {
             CarSettingsScreen()
+        },
+        CarApp("plancia", "Plancia", Icons.Filled.Home) {
+            PlanciaScreen()
         },
     )
 

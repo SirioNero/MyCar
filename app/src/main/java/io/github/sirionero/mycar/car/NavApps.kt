@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -83,6 +84,13 @@ internal object BuiltInApps {
 
     val all = listOf(Web, ScreenSharing, Phone, VehicleData, Settings, Exit)
     val entries: List<Entry> = all.map { Entry(it.label, icon = null, builtIn = it) }
+
+    /**
+     * Plancia, Home Assistant inside myCar: on the grid once it's set up on the phone (see
+     * [io.github.sirionero.mycar.home.HomeAssistant]), when it takes the place of the Plancia app.
+     */
+    val Plancia = BuiltInApp("plancia", "Plancia", Icons.Filled.Home, CarScreen.App("plancia")) { it.open("plancia") }
+    val planciaEntry = Entry(Plancia.label, icon = null, builtIn = Plancia)
 }
 
 /** Vehicle data is experimental: raw, unverified sensor labels (see [CarSensors]). */
@@ -131,7 +139,8 @@ internal fun rememberRunningApps(): Map<String, RunningSlot> {
             else -> false
         }
         mediaApp?.component?.flattenToString()?.takeIf { mediaLive }?.let { put(it, RunningSlot.MEDIA) }
-        BuiltInApps.all.firstOrNull { it.screen != null && it.screen == current }?.let { put(BUILT_IN_PREFIX + it.id, RunningSlot.SCREEN) }
+        (BuiltInApps.all + BuiltInApps.Plancia).firstOrNull { it.screen != null && it.screen == current }
+            ?.let { put(BUILT_IN_PREFIX + it.id, RunningSlot.SCREEN) }
         (current as? CarScreen.Messages)?.let { put(MESSAGING_PREFIX + it.packageName, RunningSlot.SCREEN) }
     }
 }

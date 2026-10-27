@@ -111,6 +111,9 @@ fun CarHome() {
                 // surface back and forth.
                 sideTemplate != null ->
                     if (inView) SideAppPane(sideTemplate, frame, side) else AppPlaceholder(sideApp?.label.orEmpty(), sideApp?.icon, side)
+                // Plancia inside myCar: its one page goes wherever it's on screen, so here too only in view.
+                sideApp?.builtIn == BuiltInApps.Plancia ->
+                    if (inView) PlanciaPane(side) else AppPlaceholder("Plancia", null, side, builtInId = BuiltInApps.Plancia.id)
                 panel == SidePanel.LYRICS -> SideLyrics(now, side)
                 sideMedia != null -> SideMediaPane(sideMedia, now, side)
                 else -> GlassDockedPlayer(now, side)

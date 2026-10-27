@@ -132,6 +132,12 @@ fun CarUi() {
     LaunchedEffect(controlsWake) { CarKeys.focusMoves.collect { controlsWake.touch() } }
     remember(appContext) { Prefetch.warm(appContext, force = true); CarServices.init(appContext) }
     DisposableEffect(Unit) { onDispose { CarServices.shutdown() } }
+    // Plancia's page, alive through the drive once Plancia is set up, drawn at the car screen's
+    // density (this context's) and in the car's light or dark.
+    val carContext = LocalContext.current
+    val homeSetUp = io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState().value.isComplete
+    val plancia = remember(homeSetUp, dark) { if (homeSetUp) PlanciaWeb(carContext, dark) else null }
+    DisposableEffect(plancia) { onDispose { plancia?.destroy() } }
     // Ask for the phone's sound as soon as the car connects, not only when a media app opens:
     // a video in the web browser or a map's voice needs it too. Asks once, after the car offers
     // somewhere to play it.
@@ -188,6 +194,7 @@ fun CarUi() {
         LocalDarkOutside provides darkOutside,
         LocalMapControlsWake provides controlsWake,
         LocalGsTheme provides GsThemes.byId(uiThemeId),
+        LocalPlanciaWeb provides plancia,
     ) {
         MyCarCarTheme(dark) {
           CompositionLocalProvider(LocalIndication provides FocusRingIndication(MaterialTheme.colorScheme.primary)) {
