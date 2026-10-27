@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            23, "0.5.10-alpha",
+            listOf(
+                "Plancia is now part of myCar: your Home Assistant dashboards, ready the moment you open them, from the app grid, one of your pages, or beside the map.",
+                "Set Plancia up in myCar's settings on the phone, or bring your account over from the Plancia app with one tap.",
+                "Home Assistant's menu button opens Plancia's menu: your dashboards, the one that opens first, the size and Reload.",
+            ),
+        ),
+        Release(
             22, "0.5.09-alpha",
             listOf(
                 "The music comes back after a call or the phone's assistant. Before, once the car took its speakers for a moment, the music stayed off until the next drive.",
