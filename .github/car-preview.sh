@@ -200,7 +200,7 @@ BEFORE="adb shell settings put secure enabled_accessibility_services $A11Y_SERVI
     adb shell settings put secure accessibility_enabled 1; sleep 3" \
     EXTRA="--es assistant phone" shoot assistant-locked 1920 720 240 \
     "$WAIT;$WAIT;$WAIT;$GRID_BUTTON;$MIC_BUTTON;$WAIT;$WAIT;$WAIT" \
-    "lock_phone; sleep 8; mkdir -p previews/assistant-locked; \
+    "lock_phone; sleep 10; mkdir -p previews/assistant-locked; \
      adb exec-out screencap -p > previews/assistant-locked/phone-unlock.png; \
      adb shell input text $PIN; adb shell input keyevent KEYCODE_ENTER; sleep 4; \
      adb exec-out screencap -p > previews/assistant-locked/phone-after.png"
