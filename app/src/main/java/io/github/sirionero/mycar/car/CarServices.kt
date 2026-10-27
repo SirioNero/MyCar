@@ -215,12 +215,15 @@ object CarServices {
         }
     }
 
-    /** The car's music is Xonos inside myCar: the one open, or, until one opens, the one used last. */
+    /**
+     * The car's music is Xonos inside myCar: the one open, or, until one opens, the one used last -
+     * or none yet, with Xonos the music app there is.
+     */
     private fun xonosIsTheMusic(): Boolean {
         if (!Xonos.setUp.value) return false
         val app = _mediaApp.value?.component
             ?: CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString)
-            ?: return false
+            ?: return true
         return Xonos.isInside(app) || app.packageName == Xonos.APP_PACKAGE
     }
 
