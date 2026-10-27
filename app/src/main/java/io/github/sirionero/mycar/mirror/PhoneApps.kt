@@ -71,20 +71,25 @@ object PhoneApps {
     }
 
     /**
-     * Opens the phone's accessibility settings where myCar is switched on: its own page if the
-     * phone has one to open, the list of services otherwise.
+     * Opens the phone's accessibility settings, where myCar is switched on. Settings apps that
+     * know the argument highlight myCar in the list; only the system may open its own page.
      */
     fun openAccessibilitySettings(context: Context) {
         val app = context.applicationContext
-        val own = Intent(Settings.ACTION_ACCESSIBILITY_DETAILS_SETTINGS)
-            .putExtra(Intent.EXTRA_COMPONENT_NAME, android.content.ComponentName(app, TouchRelayService::class.java).flattenToString())
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        runCatching { app.startActivity(own) }
-            .recoverCatching {
-                app.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
-            .onFailure { MyCarLog.e("could not open accessibility settings", it) }
+        val myCar = android.content.ComponentName(app, TouchRelayService::class.java).flattenToString()
+        runCatching {
+            app.startActivity(
+                Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                    .putExtra(SETTINGS_HIGHLIGHT, myCar)
+                    .putExtra(SETTINGS_ARGS, android.os.Bundle().apply { putString(SETTINGS_HIGHLIGHT, myCar) })
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }.onFailure { MyCarLog.e("could not open accessibility settings", it) }
     }
+
+    /** The extras a settings screen reads to point at one of its entries. */
+    private const val SETTINGS_HIGHLIGHT = ":settings:fragment_args_key"
+    private const val SETTINGS_ARGS = ":settings:show_fragment_args"
 
     private fun Drawable.toImageBitmap(): ImageBitmap {
         if (this is BitmapDrawable && bitmap != null) {
