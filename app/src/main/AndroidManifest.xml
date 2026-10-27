@@ -14,6 +14,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <!-- Xonos inside myCar plays on with the screen off: a media service, the CPU and Wi-Fi kept awake. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -97,6 +100,8 @@
     <package android:name="foundation.e.apps" />
     <!-- The Plancia app hands its Home Assistant account to Plancia inside myCar (HomeAssistant). -->
     <provider android:authorities="it.plancia.ha.account" />
+    <!-- The Xonos app hands its Music Assistant account to Xonos inside myCar (XonosAccount). -->
+    <provider android:authorities="it.xonos.ma.account" />
     <intent>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -228,6 +233,21 @@
             android:name=".audio.AudioCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection|microphone" />
+
+        <!--
+          Xonos inside myCar: Music Assistant's player, which the car's media screens open like
+          any music app's. Not exported: only myCar plays it. Its covers come from the provider
+          below, at addresses only myCar can sign (xonos/playback/Artwork.kt).
+        -->
+        <service
+            android:name=".xonos.playback.PlaybackService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
+        <provider
+            android:name=".xonos.playback.ArtworkProvider"
+            android:authorities="${applicationId}.xonos.art"
+            android:exported="false" />
 
         <!--
           Touch on the car screen is replayed onto the phone through this service.
