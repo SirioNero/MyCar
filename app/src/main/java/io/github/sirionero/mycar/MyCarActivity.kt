@@ -68,7 +68,9 @@ class MyCarActivity : ComponentActivity(), Projection {
     private val captureConsent = registerForActivityResult(StartActivityForResult()) { result ->
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
-            MirrorService.start(this, result.resultCode, data)
+            // Answered once the car had gone: there's no screen to share with.
+            if (surface != null) MirrorService.start(this, result.resultCode, data)
+            else MyCarLog.i("screen capture allowed, but the car is gone")
         } else {
             MyCarLog.w("screen capture consent declined")
         }
@@ -93,7 +95,10 @@ class MyCarActivity : ComponentActivity(), Projection {
     private val audioConsent = registerForActivityResult(StartActivityForResult()) { result ->
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
-            AudioCaptureService.start(this, result.resultCode, data)
+            // Answered after the car went away, or after the sound moved to Bluetooth: starting now
+            // would mute the phone and send its music nowhere.
+            if (CarAudio.stillWanted) AudioCaptureService.start(this, result.resultCode, data)
+            else MyCarLog.i("audio: capture allowed, but the car no longer wants it")
         } else {
             MyCarLog.w("audio: capture consent declined")
             CarAudio.denied()
@@ -269,7 +274,13 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     /** A Surface has a single producer, so our own display must go before the mirror arrives. */
     private fun showMirror(token: MediaProjection) {
-        val target = surface ?: return
+        val target = surface ?: run {
+            // The car went away while sharing started: end it, or the phone stays "casting" with
+            // its notification up until stopped by hand.
+            runCatching { token.stop() }
+            MirrorService.stop()
+            return
+        }
         screenProjector?.stop()
         screenProjector = null
         PhoneMirror.begin(token, target, frameWidth, frameHeight, frameDensity)
