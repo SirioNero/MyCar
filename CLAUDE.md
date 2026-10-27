@@ -204,6 +204,15 @@ Tutti i token in un solo posto, `car/design/`:
   Android 12 l'instradamento lo decide chi possiede la chiamata). myCar quindi avvisa:
   `BluetoothAudioCheck` controlla il vivavoce anche con l'audio USB, e `car/CallVoice.kt` fa dire
   alla schermata della chiamata quando la voce resta sul telefono (branch `fix/call-audio`).
+- Audio verso l'auto (`audio/CarAudioRoute.kt`, chiave `car_audio_route`): **Automatico**
+  (default), Bluetooth, **Tramite myCar** (l'ex "USB": cattura dell'audio + canale musica di
+  Android Auto, col cavo o senza fili). Automatico decide a ogni viaggio: se il telefono ha l'audio
+  Bluetooth (A2DP) collegato all'auto (all'indirizzo dell'auto, se lei lo dichiara) usa il
+  Bluetooth; altrimenti dopo 5 s passa a myCar, e ci passa anche se l'A2DP cade a metà viaggio.
+  Nato dal VW Tayron: si collega a myCar ma col Bluetooth porta solo le chiamate, e la musica
+  restava sul telefono. Migrazione: il vecchio "USB" diventa Tramite myCar, il vecchio
+  "Bluetooth" (quasi tutti: era il default del setup) diventa Automatico. In Automatico sul
+  Bluetooth le indicazioni vocali di myCar tacciono: la voce del navigatore arriva già per quella via.
 - App fatte per Gearslip: Plancia (`it.plancia.ha`, repository `SirioNero/Home-Assistant-on-Gearslip`)
   e Xonos (`it.xonos.ma`, `SirioNero/Music-Assistant-on-Gearslip`) funzionano con myCar. Xonos
   accetta qualsiasi app che lo comanda; Plancia **debug** accetta qualsiasi host, la **release** solo

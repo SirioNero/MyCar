@@ -79,6 +79,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.car.CarSettings
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.filled.PlayArrow
@@ -114,7 +115,7 @@ private class GuidePage(
     val onAction: (() -> Unit)? = null,
     /** Drawn under [explanation]. */
     val content: (@Composable () -> Unit)? = null,
-    /** Only shown when the driver picked USB audio on the car audio page. */
+    /** Only shown when the car audio page's choice may send the sound through myCar. */
     val usbOnly: Boolean = false,
 )
 
@@ -408,19 +409,23 @@ private fun VoiceDownloadStatus() {
 
 @Composable
 private fun AudioChoice() {
-    val usb by CarSettings.pipeAudio.collectAsState()
-    LaunchedEffect(Unit) { if (!CarSettings.pipeAudioChosen) CarSettings.setPipeAudio(false) }
+    val route by CarSettings.audioRoute.collectAsState()
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AudioCard(
-            "Bluetooth", "Recommended",
-            "No prompt each drive, and your map app's voice reaches the car.",
-            selected = !usb,
-        ) { CarSettings.setPipeAudio(false) }
+            "Automatic", "Recommended",
+            "Over Bluetooth when your car takes the phone's music that way, otherwise through myCar.",
+            selected = route == AudioRoute.AUTO,
+        ) { CarSettings.setAudioRoute(AudioRoute.AUTO) }
         AudioCard(
-            "USB", null,
-            "Clearer sound with no delay. Android asks to share audio once each drive.",
-            selected = usb,
-        ) { CarSettings.setPipeAudio(true) }
+            "Bluetooth", null,
+            "No prompt each drive, and your map app's voice reaches the car. Some cars take only calls over it.",
+            selected = route == AudioRoute.BLUETOOTH,
+        ) { CarSettings.setAudioRoute(AudioRoute.BLUETOOTH) }
+        AudioCard(
+            "Through myCar", null,
+            "Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive.",
+            selected = route == AudioRoute.CAR_LINK,
+        ) { CarSettings.setAudioRoute(AudioRoute.CAR_LINK) }
     }
 }
 
@@ -460,10 +465,11 @@ private fun AudioCard(title: String, tag: String?, body: String, selected: Boole
 fun SetupGuideScreen(onRequestCallScreening: () -> Unit, onDone: () -> Unit, onlyUsageNotes: Boolean = false) {
     val context = LocalContext.current
     val allPages = remember { if (onlyUsageNotes) listOf(usageNotesPage(context)) else pages(context, onRequestCallScreening) }
-    // The USB-only pages all come after the car audio page, so dropping them never moves the
-    // page the driver is on.
-    val usbAudio by CarSettings.pipeAudio.collectAsState()
-    val pages = remember(usbAudio) { allPages.filter { usbAudio || !it.usbOnly } }
+    // The pages for sound through myCar all come after the car audio page, so dropping them never
+    // moves the page the driver is on. Automatic may send it that way too.
+    val route by CarSettings.audioRoute.collectAsState()
+    val throughMyCar = route != AudioRoute.BLUETOOTH
+    val pages = remember(throughMyCar) { allPages.filter { throughMyCar || !it.usbOnly } }
     var index by remember { mutableIntStateOf(0) }
 
     // Only ours to handle once there is a previous page to return to; at the first page, the

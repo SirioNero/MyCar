@@ -36,6 +36,7 @@ import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
 import io.github.sirionero.mycar.car.theme.GsThemes
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.ui.CertSummary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -52,7 +53,7 @@ fun CarSettingsScreen() {
     val night by CarSettings.nightMode.collectAsState()
     val units by CarSettings.units.collectAsState()
     val whatsNew by CarSettings.whatsNewAfterUpdates.collectAsState()
-    val pipeAudio by CarSettings.pipeAudio.collectAsState()
+    val audioRoute by CarSettings.audioRoute.collectAsState()
     val speakDirections by CarSettings.speakDirections.collectAsState()
     val bluetoothWarning by CarSettings.bluetoothWarning.collectAsState()
     val locationWarning by CarSettings.locationWarning.collectAsState()
@@ -126,13 +127,15 @@ fun CarSettingsScreen() {
 
         ChoiceRow(
             "Car audio",
-            listOf(false to "Bluetooth", true to "USB"),
-            pipeAudio,
-        ) { CarSettings.setPipeAudio(it) }
+            listOf(AudioRoute.AUTO to "Automatic", AudioRoute.BLUETOOTH to "Bluetooth", AudioRoute.CAR_LINK to "Through myCar"),
+            audioRoute,
+        ) { CarSettings.setAudioRoute(it) }
         Text(
-            "USB sends the phone's sound through myCar. Android asks to share your screen each " +
-                "drive, and a few apps block it. Bluetooth plays as the phone normally would, and " +
-                "Android never asks.",
+            "Through myCar sends the phone's sound over myCar's own link, the cable or Wi-Fi, as " +
+                "Android Auto does. Android asks to share your screen each drive, and a few apps " +
+                "block it. Bluetooth plays as the phone normally would, and Android never asks, but " +
+                "some cars only take calls over it. Automatic uses Bluetooth when the car takes the " +
+                "phone's music that way, and myCar's link when it doesn't.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

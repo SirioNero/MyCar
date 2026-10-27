@@ -2,6 +2,7 @@ package io.github.sirionero.mycar
 
 import android.os.Build
 import io.github.sirionero.mycar.audio.AudioLink
+import io.github.sirionero.mycar.audio.CarAudioRoute
 import io.github.sirionero.mycar.audio.CarMic
 import io.github.sirionero.mycar.media.CarMediaStatus
 import io.github.sirionero.mycar.car.BluetoothAudioCheck
@@ -167,6 +168,7 @@ class MyCarRunner(
         CarSensors.clear()
         CarMic.current = null
         CarBluetooth.onCarDisconnected()
+        CarAudioRoute.onCarDisconnected()
         BluetoothAudioCheck.onCarDisconnected()
         LocationCheck.onCarDisconnected()
         mediaStatus?.stop()
@@ -1017,6 +1019,7 @@ class MyCarRunner(
                 if (projection != null && surface != null) {
                     projection.onSurfaceReady(surface, width, height, config.density)
                     SessionStatus.projecting()
+                    CarAudioRoute.onProjecting()
                     BluetoothAudioCheck.onProjecting()
                     LocationCheck.onProjecting()
                 }
