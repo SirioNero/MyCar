@@ -68,6 +68,8 @@ import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.notify.TestMessage
 import io.github.sirionero.mycar.car.CarSettings
+import io.github.sirionero.mycar.mirror.PhoneApps
+import io.github.sirionero.mycar.mirror.TouchRelayService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
@@ -249,14 +251,7 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
 @Composable
 private fun CarAudioSection() {
     val route by CarSettings.audioRoute.collectAsState()
-    SettingsSection(
-        "Car audio",
-        footer = if (route != AudioRoute.BLUETOOTH) {
-            "Calls go over Bluetooth either way. Run the command in Help once, and myCar stops asking to share audio."
-        } else {
-            "Calls go over Bluetooth either way."
-        },
-    ) {
+    SettingsSection("Car audio", footer = "Calls go over Bluetooth either way.") {
         AudioRouteRow(
             AudioRoute.AUTO, route, "Automatic (Recommended)",
             "Bluetooth when the car takes the phone's music that way, otherwise through myCar",
@@ -271,7 +266,32 @@ private fun CarAudioSection() {
             AudioRoute.CAR_LINK, route, "Through myCar",
             "Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive",
         )
+        if (route != AudioRoute.BLUETOOTH) {
+            SettingsDivider()
+            AnswerAudioQuestionRow()
+        }
     }
+}
+
+/**
+ * Whether myCar answers Android's audio question by itself: on once its accessibility service is
+ * switched on, which this row opens. Follows the switch as the driver comes back from Settings.
+ */
+@Composable
+private fun AnswerAudioQuestionRow() {
+    val context = LocalContext.current
+    val on by TouchRelayService.switchedOn.collectAsState()
+    SettingsRow(
+        "Answer Android's audio question for me",
+        Modifier.clickable { PhoneApps.openAccessibilitySettings(context) },
+        subtitle = if (on) {
+            "On: myCar presses Start in it by itself, each drive"
+        } else {
+            "Turn on myCar under Accessibility, once, and you never tap Start again. " +
+                "If Android says the setting is restricted, allow restricted settings in myCar's App info first"
+        },
+        trailing = { Switch(checked = on, onCheckedChange = null) },
+    )
 }
 
 @Composable

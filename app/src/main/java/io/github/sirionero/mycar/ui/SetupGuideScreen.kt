@@ -93,6 +93,8 @@ import io.github.sirionero.mycar.car.Prefetch
 import io.github.sirionero.mycar.host.AndroidAuto
 import io.github.sirionero.mycar.notify.MyCarNotificationListener
 import io.github.sirionero.mycar.stats.UsageStats
+import io.github.sirionero.mycar.mirror.PhoneApps
+import io.github.sirionero.mycar.mirror.TouchRelayService
 import androidx.compose.runtime.DisposableEffect
 
 /**
@@ -325,16 +327,19 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     }
 
     // --- Optional: each is skipped once its actual effect is already in place --------
-    if (!hasProjectMediaOp(context)) {
+    if (!hasProjectMediaOp(context) && !TouchRelayService.enabled) {
         add(
             GuidePage(
-                title = "No audio prompt.",
-                explanation = "Run this from a computer with USB debugging on, and Android trusts " +
-                    "myCar with your audio for good. Without it, you tap Start once each drive.",
+                title = "No audio question.",
+                explanation = "Each drive, Android asks before myCar may send the phone's sound to the car. " +
+                    "Turn on myCar under Accessibility, once, and myCar answers it for you: it presses Start " +
+                    "in that question, and looks at nothing else. If Android says the setting is restricted, " +
+                    "open myCar's App info, tap the menu at the top, and allow restricted settings first.",
                 icon = glyph(Icons.Filled.Build),
                 optional = true,
                 usbOnly = true,
-                command = "adb shell appops set ${BuildConfig.APPLICATION_ID} PROJECT_MEDIA allow",
+                actionLabel = "Open Accessibility",
+                onAction = { PhoneApps.openAccessibilitySettings(context) },
             ),
         )
     }

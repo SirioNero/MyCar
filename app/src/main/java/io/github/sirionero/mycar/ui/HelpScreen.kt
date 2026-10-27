@@ -3,6 +3,7 @@ package io.github.sirionero.mycar.ui
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.audio.AudioRoute
+import io.github.sirionero.mycar.mirror.PhoneApps
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -78,11 +79,19 @@ private fun inTheCar(onRequestCallScreening: () -> Unit) = listOf(
     ),
 )
 
-private val USB_AUDIO = listOf(
+private fun usbAudio(onOpenAccessibility: () -> Unit) = listOf(
     Step(
-        "Stop the audio prompt each drive.",
-        "Connect the phone to a computer with USB debugging on, and run this once. Skip it and " +
-            "you tap Start each time you set off.",
+        "Let myCar answer the audio question.",
+        "Each drive, Android asks before myCar may send the phone's sound to the car. Turn on myCar " +
+            "under Accessibility, once, and it presses Start in that question by itself. If Android says " +
+            "the setting is restricted, allow restricted settings in myCar's App info first.",
+        buttonLabel = "Open",
+        onClick = onOpenAccessibility,
+    ),
+    Step(
+        "Or stop the question for good, from a computer.",
+        "Connect the phone to a computer with USB debugging on, and run this once. Then Android " +
+            "doesn't ask at all.",
         command = "adb shell appops set ${BuildConfig.APPLICATION_ID} PROJECT_MEDIA allow",
     ),
     Step(
@@ -137,7 +146,9 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
             }
             Steps("Before your first drive", FIRST_DRIVE)
             Steps("In the car", car)
-            if (route != AudioRoute.BLUETOOTH) Steps("Sound through myCar", USB_AUDIO)
+            if (route != AudioRoute.BLUETOOTH) {
+                Steps("Sound through myCar", usbAudio { PhoneApps.openAccessibilitySettings(context) })
+            }
             Spacer(Modifier.height(16.dp))
         }
     }
