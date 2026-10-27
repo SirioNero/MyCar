@@ -85,6 +85,10 @@ Rispondi sempre in **italiano**.
   Lanciato a mano, il workflow accetta `shots` (nomi degli scatti separati da spazi, vuoto = tutti)
   per provare una cosa sola in pochi minuti; nello script `BEFORE` è un comando eseguito subito
   prima di aprire l'anteprima (es. accendere myCar in Accessibilità, che il force-stop spegne).
+  Accetta anche `api` (livello API dell'emulatore, 34 di default): con 37 (Android 17) gli scatti
+  `lnp-plancia-off/on` e `lnp-xonos-off/on` tolgono e ridanno a myCar il permesso della rete di
+  casa (`pm revoke/grant … ACCESS_LOCAL_NETWORK`). Su API 34 quel blocco non esiste: per questo la
+  CI non vedeva il bug di 0.5.10/0.5.11 (vedi "Rete di casa con Android 17").
   Plancia integrata: `.github/home-assistant.sh` avvia in Docker un Home Assistant usa e getta
   (utente, onboarding, token in `HA_TOKEN`) che l'emulatore raggiunge a `10.0.2.2:8123`; l'account
   arriva all'anteprima con `--es haUrl` / `--es haToken` (solo debug). Scatti `plancia-app/`
@@ -364,6 +368,19 @@ Tutti i token in un solo posto, `car/design/`:
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
   telefono in orizzontale; lo toglie a fine condivisione. I tocchi si mappano sulle dimensioni
   reali del display (`Display.getRealSize`), non sulla finestra di myCar, che non riceve la rotazione.
+- **Rete di casa con Android 17** (0.5.12, `LocalNetwork.kt`, `ui/LocalNetworkAccess.kt`): myCar ha
+  targetSdk 37, e Android 17 tiene un'app così fuori dalla rete di casa (IP privati, link-local,
+  nomi `.local`, anche nei WebView) finché non ha il permesso runtime `ACCESS_LOCAL_NETWORK`, del
+  gruppo "Dispositivi nelle vicinanze" come il Bluetooth (concesso quello, Android lo dà senza
+  dialogo, ma va chiesto). Senza, le connessioni TCP vanno in timeout. Era il bug "Plancia e Xonos
+  dentro myCar non si collegano agli indirizzi http con cui le app funzionano": le app Plancia e
+  Xonos hanno target 34 e il permesso implicito; non c'entrava https (`usesCleartextTraffic` c'è).
+  myCar lo chiede: nella guida (pagina del Bluetooth, "Nearby devices." da Android 17),
+  all'apertura sulla Home una volta per avvio se Plancia o Xonos hanno un indirizzo di casa, prima
+  delle prove nelle impostazioni (Save and test, account dalle app, Sign in), e una riga "Allow the
+  home network" resta in quelle sezioni finché manca. In auto, se manca, Plancia e Xonos lo dicono
+  (`LocalNetwork.HINT`). Il wireless lo chiedeva già (`WirelessButton`). Da ricordare per Cinema e
+  il browser: un sito di casa (Jellyfin, il router) ha bisogno dello stesso permesso.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.

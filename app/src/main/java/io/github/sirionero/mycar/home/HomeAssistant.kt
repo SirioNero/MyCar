@@ -3,6 +3,7 @@ package io.github.sirionero.mycar.home
 import android.content.Context
 import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -224,6 +225,8 @@ object HomeAssistant {
             }
 
             if (session == null) {
+                // Android 17 keeping myCar off the home network looks like an address that doesn't answer.
+                if (app?.let { LocalNetwork.blocks(it, config.urls) } == true) lastError = LocalNetwork.HINT
                 _connection.value = HaConnection.Failed(lastError)
                 failures++
                 delay((2_000L * failures).coerceAtMost(30_000L))

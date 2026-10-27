@@ -146,6 +146,37 @@ EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cin
 echo "--- Cinema ---"
 grep -h "cinema" previews/cinema/log.txt previews/cinema-moving/log.txt 2>/dev/null | head -20 || echo "cinema: nothing in the log"
 
+# Android 17 (the workflow's "api" input at 37) keeps an app made for it, as myCar is, off the
+# home network until it's given the local network permission: its connections there time out, and
+# 10.0.2.2 is the home network here. Plancia and Xonos inside myCar with the permission taken away,
+# where the car should say what's missing, then with it given back, where they should connect.
+SDK=$(adb shell getprop ro.build.version.sdk | tr -d '\r')
+LOCAL_NET=android.permission.ACCESS_LOCAL_NETWORK
+if [ "${SDK:-0}" -ge 37 ]; then
+    if [ -n "${HA_TOKEN:-}" ]; then
+        BEFORE="adb shell pm revoke $PKG $LOCAL_NET" EXTRA="$HA" \
+            shoot lnp-plancia-off 1920 720 240 "$WAIT;$WAIT;$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT;$WAIT"
+        BEFORE="adb shell pm grant $PKG $LOCAL_NET" EXTRA="$HA" \
+            shoot lnp-plancia-on 1920 720 240 "$WAIT;$WAIT;$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT;$WAIT"
+    fi
+    if [ -n "${MA_TOKEN:-}" ]; then
+        BEFORE="adb shell pm revoke $PKG $LOCAL_NET" LOGTAGS=Xonos EXTRA="$MA" \
+            shoot lnp-xonos-off 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;$WAIT;$WAIT"
+        BEFORE="adb shell pm grant $PKG $LOCAL_NET" LOGTAGS=Xonos EXTRA="$MA" \
+            shoot lnp-xonos-on 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;1230,48;$WAIT;$WAIT"
+        adb shell am force-stop "$PKG"
+    fi
+    adb shell pm grant $PKG $LOCAL_NET || true
+    echo "--- Android $SDK, local network: without the permission, then with it ---"
+    for d in lnp-plancia-off lnp-plancia-on lnp-xonos-off lnp-xonos-on; do
+        [ -d "previews/$d" ] || continue
+        echo "[$d]"
+        grep -h "plancia:\|local network\|Xonos" "previews/$d/log.txt" 2>/dev/null | head -25
+    done
+else
+    echo "--- Android $SDK: the local network permission comes with 37, nothing to try ---"
+fi
+
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"

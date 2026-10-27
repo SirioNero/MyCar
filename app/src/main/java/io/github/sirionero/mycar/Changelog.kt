@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            25, "0.5.12-alpha",
+            listOf(
+                "Plancia and Xonos reach your Home Assistant and Music Assistant at home again, plain http addresses included. On Android 17, myCar needs the Nearby devices permission for your home network, and now asks for it.",
+                "If that permission is missing, the car says so, rather than that Home Assistant or Music Assistant isn't answering.",
+            ),
+        ),
+        Release(
             24, "0.5.11-alpha",
             listOf(
                 "Xonos is now part of myCar: your Music Assistant library among the car's music apps. Set it up on the phone, or bring your account over from the Xonos app with one tap.",
