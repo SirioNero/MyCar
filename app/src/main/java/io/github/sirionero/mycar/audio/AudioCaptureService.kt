@@ -214,6 +214,7 @@ class AudioCaptureService : Service() {
         projection = null
         ScreenShareGuard.restore(this)
         running = false
+        started = false
     }
 
     private fun notification(): Notification {
@@ -255,8 +256,12 @@ class AudioCaptureService : Service() {
         @Volatile var running = false
             private set
 
+        /** From [start] until the service ends, so [stop] knows there's something to stop. */
+        @Volatile private var started = false
+
         fun start(context: Context, resultCode: Int, data: Intent) {
             appContext = context.applicationContext
+            started = true
             context.startForegroundService(
                 Intent(context, AudioCaptureService::class.java)
                     .putExtra(EXTRA_RESULT_CODE, resultCode)
@@ -265,8 +270,13 @@ class AudioCaptureService : Service() {
         }
 
         fun stop() {
+            // Starting the service only to stop it, when it never ran, is refused while myCar is in
+            // the background (Android 12 on) - as at the end of a drive with the phone locked - and
+            // the refusal is an exception that would close myCar.
+            if (!started) return
             val context = appContext ?: return
-            context.startService(Intent(context, AudioCaptureService::class.java).setAction(ACTION_STOP))
+            runCatching { context.startService(Intent(context, AudioCaptureService::class.java).setAction(ACTION_STOP)) }
+                .onFailure { MyCarLog.w("audio: could not stop the capture service: $it") }
         }
     }
 }
