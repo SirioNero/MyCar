@@ -186,6 +186,11 @@ object AssistantChoice {
         val choice = flow.value
         if (choice == PhoneAssistants.MYCAR) return false
         val name = PhoneAssistants.label(context, choice)
+        // Locked or asleep, the phone is opened first, and the assistant starts once it is.
+        if (AssistantUnlock.needed(context)) {
+            AssistantUnlock.start(context, name)
+            return true
+        }
         if (!PhoneAssistants.launch(context, choice)) {
             CarToasts.show(this, "Couldn't start $name. myCar is listening instead.", CarToast.LENGTH_LONG)
             return false
@@ -232,7 +237,8 @@ internal fun AssistantPicker() {
         Text(
             "The phone's assistant wakes as with the swipe up from a bottom corner of the phone's screen. " +
                 "Another assistant listens and answers on the phone, and its voice reaches the car only " +
-                "over Bluetooth. myCar's own works offline and shows on the car screen.",
+                "over Bluetooth; with the phone locked, it starts once the phone is unlocked. myCar's own " +
+                "works offline, locked or not, and shows on the car screen.",
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,
         )
