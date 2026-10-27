@@ -1,13 +1,23 @@
-myCar 0.5.08-alpha: pages beside the map, with widgets.
+myCar 0.5.09-alpha: the music comes back, a new player, and the assistant on a locked phone.
+
+## Fixed
+- Car audio through myCar: when the car took its speakers for a moment (a call, the phone's assistant over Bluetooth, the car's own voice, even a navigation prompt that only turns the music down), myCar handed them back for good, and the music stayed off for the rest of the drive. Now myCar waits, and the music comes back by itself when the car is done; a prompt that only turns it down leaves it playing. Switch the car to the radio and the phone's music pauses; press play again and the car comes back to myCar.
 
 ## New
+- The player, in the style of recent phones: plain controls with nothing behind them, a thin line to seek along with the time played and the time left, and on the full-screen player the cover's colours, blurred, behind everything. The cover now stays in sight while you browse a music app.
+- The microphone with the phone locked: assistants such as Claude don't listen over the lock screen, and Android lets no app past it. So with the phone locked or asleep, myCar lights the phone and asks Android to open it, with your face, fingerprint or PIN, and your assistant starts listening as soon as it's open. With nothing to unlock (no lock, or the phone kept open by a trusted device) it goes straight on. This needs myCar turned on under Accessibility, which is what lets it light the phone.
+- Android's question to send the car audio through myCar is one tap now: myCar asks for the whole screen, so there's no app to pick first, and the sound of every app reaches the car, not just the one picked.
+
+## Good to know
+- Android still asks once each drive before myCar can pass another app's sound to the car. The one-time adb command in Help stops the question for good; Bluetooth never asks.
+- To skip unlocking in the car, Android's Extend Unlock (Smart Lock on some phones) can keep the phone unlocked while it's connected to the car's Bluetooth.
+
+## Also in 0.5.08-alpha
 - Home is now a row of pages. The map's page is as it was, the map with the music or your app beside it; your own pages sit either side of it. Swipe across Home to reach them, wherever your finger doesn't already move something (the map, the browser and car apps keep their swipes), or tap the dots at the foot of Home. Over the map the dots fade with the map's buttons and come back at a touch.
 - Ready-made pages: the weather and your agenda on the left of the map, and on its right Plancia beside the browser, when Plancia is on the phone. Plancia shows its default dashboard, with your Home Assistant controls.
 - Each page is two halves or four parts. A part holds the weather (now, the next hours and days, as room allows), the agenda (what's coming up in the phone's calendar), myCar's browser, or a car app such as Plancia. Tap the weather for the whole forecast, the agenda for the dashboard.
 - To change a page, tap the pencil beside the dots, or hold a widget or the bar over an app: choose two halves or four parts, move the page left or right (past the map too), add a page after it or delete it, then tap a part to choose what goes there. New pages can also be added from the car's Settings > Pages beside the map, which can bring the ready-made pages back too.
 - The dock's map button, the car's map key and Back on one of your pages all go back to the map's page.
-
-## Good to know
 - One car app runs at a time on the pages, besides the map: a car app on a page runs while that page is in view, and shows as its icon otherwise. Swiping to another page with a different car app starts that one instead.
 - The browser's keyboard on a page takes the page's whole width.
 - Android widgets from other apps aren't there yet; they're planned for a later version.
