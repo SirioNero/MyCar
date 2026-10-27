@@ -95,6 +95,8 @@
          them away (UsageStats.osName). -->
     <package android:name="app.grapheneos.setupwizard" />
     <package android:name="foundation.e.apps" />
+    <!-- The Plancia app hands its Home Assistant account to Plancia inside myCar (HomeAssistant). -->
+    <provider android:authorities="it.plancia.ha.account" />
     <intent>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
