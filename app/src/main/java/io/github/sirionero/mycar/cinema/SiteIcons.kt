@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okio.ByteString
+import okio.ByteString.Companion.encodeUtf8
 import org.json.JSONObject
 import java.io.File
 import java.net.URI
@@ -82,7 +84,9 @@ object SiteIcons {
 
     /** The site's best icon: from its manifest, then its apple-touch-icon, then its icon links. */
     private fun fetch(url: String): Bitmap? {
-        val page = get(url)?.let { (finalUrl, body) -> finalUrl to String(body, Charsets.UTF_8) } ?: return null
+        // The page's head only, where the links are: some sites (YouTube) put hundreds of kilobytes
+        // of script in it before them.
+        val page = get(url, MAX_PAGE_BYTES, until = HEAD_END)?.let { (finalUrl, body) -> finalUrl to String(body, Charsets.UTF_8) } ?: return null
         val (base, html) = page
         val links = LINK.findAll(html).map { attributes(it.value) }.toList()
         val candidates = buildList {
@@ -97,12 +101,15 @@ object SiteIcons {
                 .sortedByDescending { size(it["sizes"]) }
                 .forEach { link -> link["href"]?.let { resolve(base, it) }?.let(::add) }
             resolve(base, "/apple-touch-icon.png")?.let(::add)
+            resolve(base, "/favicon.ico")?.let(::add)
         }
-        for (candidate in candidates.distinct().take(MAX_TRIES)) {
+        val tries = candidates.distinct().take(MAX_TRIES)
+        for (candidate in tries) {
             val bytes = get(candidate)?.second ?: continue
             val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: continue
             if (bitmap.width >= MIN_PX) return scaled(bitmap)
         }
+        MyCarLog.i("cinema: no usable icon at ${URI(base).host} (${links.size} links, ${tries.size} tried)")
         return null
     }
 
@@ -117,13 +124,21 @@ object SiteIcons {
             .mapNotNull { resolve(url, it.optString("src")) }
     }
 
-    private fun get(url: String): Pair<String, ByteArray>? {
+    /** Up to [max] bytes of [url], or up to the end of [until] when it comes sooner; null on an error. */
+    private fun get(url: String, max: Long = MAX_BYTES, until: ByteString? = null): Pair<String, ByteArray>? {
         val request = Request.Builder().url(url).header("User-Agent", USER_AGENT).build()
         http.newCall(request).execute().use { response ->
             if (!response.isSuccessful) return null
             val body = response.body.source().use { source ->
-                source.request(MAX_BYTES)
-                source.buffer.readByteArray(minOf(source.buffer.size, MAX_BYTES))
+                var end = -1L
+                var asked = 0L
+                while (end < 0 && asked < max) {
+                    asked = minOf(max, asked + CHUNK)
+                    val more = source.request(asked)
+                    if (until != null) end = source.buffer.indexOf(until).let { if (it >= 0) it + until.size else -1 }
+                    if (!more) break
+                }
+                source.buffer.readByteArray(if (end >= 0) end else minOf(source.buffer.size, max))
             }
             return response.request.url.toString() to body
         }
@@ -153,6 +168,9 @@ object SiteIcons {
     private const val USER_AGENT =
         "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36"
     private const val MAX_BYTES = 512L * 1024
+    private const val MAX_PAGE_BYTES = 2L * 1024 * 1024
+    private const val CHUNK = 64L * 1024
+    private val HEAD_END = "</head>".encodeUtf8()
     private const val MAX_TRIES = 6
     private const val MIN_PX = 48
     private const val MAX_PX = 256
