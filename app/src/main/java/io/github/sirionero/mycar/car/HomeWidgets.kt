@@ -29,8 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -154,12 +156,13 @@ internal fun WeatherWidget(onHold: () -> Unit, modifier: Modifier = Modifier) {
 internal fun AgendaWidget(onHold: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current.applicationContext
     val navigator = LocalCarNavigator.current
-    val allowed = remember(context) {
-        context.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
-    }
-    // Read again now and then, as the page stays up all drive and the day moves on under it.
+    fun allowedNow() = context.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
+    var allowed by remember { mutableStateOf(allowedNow()) }
+    // Read again now and then, as the page stays up all drive and the day moves on under it - or
+    // the calendar is allowed on the phone meanwhile.
     val events by produceState(cachedAgenda) {
         while (true) {
+            allowed = allowedNow()
             value = withContext(Dispatchers.IO) { fetchAgenda(context) }.also { cachedAgenda = it }
             delay(WIDGET_REFRESH_MS)
         }
