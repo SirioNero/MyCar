@@ -265,6 +265,10 @@ Tutti i token in un solo posto, `car/design/`:
   Anteprima: `.github/music-assistant.sh` (Music Assistant 2.10.8 in Docker, un album di tre toni
   fatti con ffmpeg, token in `MA_TOKEN`), `--es maUrl` / `--es maToken`, scatti `xonos-inside/`
   (griglia, Browse, Albums, play dell'album, Now playing) e `xonos-side/`; log con il tag `Xonos`.
+  Verificato in emulatore (0.5.11): si collega, sfoglia, suona l'album (Opus 48 kHz, AudioTrack) e
+  avanza; accanto alla mappa la scelta fatta con l'app passa a lui. L'uscita diretta verso l'auto
+  ha solo i test (`DirectFeedTest`): l'emulatore non ha un canale Android Auto. Lo scatto ferma la
+  musica alla fine: una volta l'emulatore è caduto un minuto dopo, con l'album ancora in corso.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
