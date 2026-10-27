@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.car
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -74,10 +75,30 @@ class CarNavigator(startId: String) {
         stack.add(Crumb(screen, label))
     }
 
-    /** The one way back to a clean slate: resets the whole trail to just Home. */
+    /** The one way back to a clean slate: resets the whole trail to just Home, on the map's page. */
     fun home() {
         stack.clear()
         stack.add(Crumb(CarScreen.Home, "Home"))
+        mapPageRequests++
+    }
+
+    /** Whether Home is on the map's own page, rather than one of the driver's pages beside it. */
+    var onMapPage by mutableStateOf(true)
+        internal set
+
+    /** Bumped by [home], for Home to turn back to the map's page. */
+    var mapPageRequests by mutableIntStateOf(0)
+        private set
+
+    /** A page of Home to open for changing, asked for from the car's settings. */
+    var pageToEdit by mutableStateOf<Int?>(null)
+        internal set
+
+    /** Home, turned to its page [id] and open for changing it. */
+    fun editHomePage(id: Int) {
+        stack.clear()
+        stack.add(Crumb(CarScreen.Home, "Home"))
+        pageToEdit = id
     }
 
     /**
@@ -90,11 +111,11 @@ class CarNavigator(startId: String) {
         private set
 
     /**
-     * The dock's song: moves the player beside the map, going Home first if need be. With lyrics
-     * already there it swaps them for the controls; with the controls there it closes.
+     * The dock's song: moves the player beside the map, going to the map's page first if need be.
+     * With lyrics already there it swaps them for the controls; with the controls there it closes.
      */
     fun togglePlayerDock() {
-        if (current != CarScreen.Home) {
+        if (current != CarScreen.Home || !onMapPage) {
             sidePanel = SidePanel.CONTROLS
             home()
             return

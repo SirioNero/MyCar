@@ -95,7 +95,7 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
     val running = rememberRunningApps()
     val pinnedIds by CarSettings.pinnedApps.collectAsState()
     val frame by CarEnvironment.frame.collectAsState()
-    val turn = rememberNextTurn().takeIf { navigator.current != CarScreen.Home }
+    val turn = rememberNextTurn().takeIf { navigator.current != CarScreen.Home || !navigator.onMapPage }
     val media = CarServices.media
     val mediaPhase by media.phase.collectAsState()
     val now by media.now.collectAsState()
@@ -293,7 +293,7 @@ private fun DockMap(navigator: CarNavigator, entries: List<Entry>, running: Map<
     val navId = running.entries.firstOrNull { it.value == RunningSlot.NAV }?.key
     val navEntry = navId?.let { id -> entries.find { it.componentId == id } }
     DockItem(
-        selected = navigator.current == CarScreen.Home,
+        selected = navigator.current == CarScreen.Home && navigator.onMapPage,
         onClick = { navigator.home() },
         description = navEntry?.label ?: "Map",
         running = navEntry != null,
@@ -324,7 +324,7 @@ private fun DockNowPlaying(navigator: CarNavigator) {
     val appBesideMap = rememberSidePaneApp()?.template != null
     DockItem(
         selected = navigator.current == CarScreen.Media ||
-            (!appBesideMap && navigator.current == CarScreen.Home && navigator.sidePanel == SidePanel.CONTROLS),
+            (!appBesideMap && navigator.current == CarScreen.Home && navigator.onMapPage && navigator.sidePanel == SidePanel.CONTROLS),
         onClick = { if (appBesideMap) navigator.media() else navigator.togglePlayerDock() },
         description = listOf(now.title, now.artist).filter { it.isNotBlank() }.joinToString(" - ").ifEmpty { "Now playing" },
         onLongClick = { navigator.media() },

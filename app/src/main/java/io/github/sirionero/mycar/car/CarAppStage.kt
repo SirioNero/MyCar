@@ -58,8 +58,8 @@ fun CarAppStage(
     frame: CarEnvironment.Frame,
     /** Inside the home screen's map pane: no title bar, the template gets the whole area. */
     embedded: Boolean = false,
-    /** The title bar's button, at its right end: Stop for an app on its own screen. */
-    endLabel: String = "Stop",
+    /** The title bar's button, at its right end: Stop for an app on its own screen; none if null. */
+    endLabel: String? = "Stop",
     onDisconnect: () -> Unit,
 ) {
     val template by connection.template.collectAsStateWithLifecycle()
@@ -191,7 +191,7 @@ private fun SurfaceHost(
 @Composable
 private fun ChromeBar(
     status: CarAppConnection.Status,
-    endLabel: String,
+    endLabel: String?,
     onDisconnect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -225,7 +225,7 @@ private fun ChromeBar(
                 }
             }
             // The bar's whole height to hit, and wider than the pill it shows.
-            Box(
+            if (endLabel != null) Box(
                 Modifier.fillMaxHeight().clickable(onClick = onDisconnect).padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
@@ -243,7 +243,7 @@ private fun ChromeBar(
 }
 
 /** Height of [ChromeBar]; the template's own chrome starts below it. */
-private val CHROME_BAR = 44.dp
+internal val CHROME_BAR = 44.dp
 
 /** Slower than this when the finger lifts and it was a drag that stopped, not a fling. */
 private const val FLING_MIN_PX_S = 400f

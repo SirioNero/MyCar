@@ -86,8 +86,10 @@ fun CarHome() {
     val sideApp = rememberSidePaneApp()
     val splitScreen = panel != SidePanel.NONE && (sideApp != null || (phase == CarMedia.Phase.READY && now.isActive))
 
-    // No outer padding on any side, split screen or not - only the gap between the two panes
-    // when the player is sharing the screen with the map.
+    // The map's page among the driver's own (see HomePager). No outer padding on any side, split
+    // screen or not - only the gap between the two panes when the player is sharing the screen
+    // with the map.
+    HomePager(onHome) { inView ->
     Row(
         Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -104,14 +106,17 @@ fun CarHome() {
             val sideTemplate = sideApp?.template
             val sideMedia = sideApp?.media
             when {
-                // Only while Home shows: an app opened full screen from the grid uses the same
-                // connection, and two stages on it would pull its surface back and forth.
-                sideTemplate != null -> if (onHome) SideAppPane(sideTemplate, frame, side) else Box(side)
+                // Only while its page is in view on Home: an app opened full screen from the grid,
+                // or on another page, uses the same connection, and two stages on it would pull its
+                // surface back and forth.
+                sideTemplate != null ->
+                    if (inView) SideAppPane(sideTemplate, frame, side) else AppPlaceholder(sideApp?.label.orEmpty(), sideApp?.icon, side)
                 panel == SidePanel.LYRICS -> SideLyrics(now, side)
                 sideMedia != null -> SideMediaPane(sideMedia, now, side)
                 else -> GlassDockedPlayer(now, side)
             }
         }
+    }
     }
 }
 
