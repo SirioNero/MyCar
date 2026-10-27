@@ -13,6 +13,8 @@ import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.media.MediaCatalog
 import io.github.sirionero.mycar.notify.MyCarNotificationListener
+import io.github.sirionero.mycar.xonos.Xonos
+import io.github.sirionero.mycar.xonos.XonosAccount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -76,6 +78,10 @@ object CarServices {
         VoiceReply.init(appContext)
         // Plancia stays connected to Home Assistant through the drive, ready before it's opened.
         io.github.sirionero.mycar.home.HomeAssistant.acquire()
+        // Xonos inside myCar takes the Xonos app's account if it has none yet; and while it's the
+        // car's music, which it plays into the car by itself, Android isn't asked to share the audio.
+        XonosAccount.adoptIfUnset(appContext)
+        CarAudio.consentWaits = ::xonosIsTheMusic
         // Loaded now, while nothing's waiting on it, so the first reply isn't slower than the rest.
         io.github.sirionero.mycar.speech.SpeechEngine.warm(appContext)
     }
@@ -151,7 +157,7 @@ object CarServices {
         val ctx = context ?: return false
         val last = CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString) ?: return false
         val app = withContext(Dispatchers.IO) { MediaCatalog.installed(ctx) }
-            .firstOrNull { it.component == last } ?: return false
+            .let { catalog -> catalog.firstOrNull { it.component == last } ?: xonosFor(last, catalog) } ?: return false
         openMedia(app)
         return true
     }
@@ -202,12 +208,25 @@ object CarServices {
             if (playing != null) {
                 openMedia(playing)
             } else {
-                val last = CarSettings.lastMedia.value
-                val app = last?.let { id -> catalog.firstOrNull { it.component == ComponentName.unflattenFromString(id) } }
+                val last = CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString)
+                val app = last?.let { component -> catalog.firstOrNull { it.component == component } ?: xonosFor(component, catalog) }
                 if (app != null) openMedia(app, autoplay = CarSettings.autoplay.value)
             }
         }
     }
+
+    /** The car's music is Xonos inside myCar: the one open, or, until one opens, the one used last. */
+    private fun xonosIsTheMusic(): Boolean {
+        if (!Xonos.setUp.value) return false
+        val app = _mediaApp.value?.component
+            ?: CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString)
+            ?: return false
+        return Xonos.isInside(app) || app.packageName == Xonos.APP_PACKAGE
+    }
+
+    /** Xonos inside myCar, in place of the Xonos app last used in the car, once it's set up. */
+    private fun xonosFor(last: ComponentName, catalog: List<MediaApp>): MediaApp? =
+        if (last.packageName == Xonos.APP_PACKAGE) catalog.firstOrNull { Xonos.isInside(it.component) } else null
 
     /**
      * Whichever known car media app has an actively playing session right now, system-wide - not

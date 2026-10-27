@@ -3,6 +3,7 @@ package io.github.sirionero.mycar.media
 import io.github.sirionero.mycar.host.AndroidAuto
 import io.github.sirionero.mycar.host.CarDescriptor
 import io.github.sirionero.mycar.host.KnownApps
+import io.github.sirionero.mycar.xonos.Xonos
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -29,9 +30,12 @@ object MediaCatalog {
 
     fun installed(context: Context): List<MediaApp> {
         val manager = context.packageManager
-        return manager.queryIntentServices(Intent(MediaBrowserService.SERVICE_INTERFACE), PackageManager.GET_META_DATA)
+        // Xonos inside myCar, once it's set up, takes the Xonos app's place: one Xonos in the car.
+        val xonos = Xonos.mediaApp(context)
+        val found = manager.queryIntentServices(Intent(MediaBrowserService.SERVICE_INTERFACE), PackageManager.GET_META_DATA)
             .asSequence()
             .filter { it.serviceInfo.packageName != context.packageName }
+            .filterNot { xonos != null && it.serviceInfo.packageName == Xonos.APP_PACKAGE }
             .filterNot { AndroidAuto.matches(it.serviceInfo.packageName, it.loadLabel(manager).toString()) }
             .filterNot { KnownApps.isHidden(it.serviceInfo.packageName) }
             .filter { declaresMedia(manager, it.serviceInfo) }
@@ -44,8 +48,8 @@ object MediaCatalog {
                 )
             }
             .distinctBy { it.component.packageName }
-            .sortedBy { it.label.lowercase() }
             .toList()
+        return (if (xonos == null) found else found + xonos).sortedBy { it.label.lowercase() }
     }
 
     /** A descriptor that can't be read keeps the app, rather than dropping a real player over an odd manifest. */
