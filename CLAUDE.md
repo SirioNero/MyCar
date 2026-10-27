@@ -297,7 +297,12 @@ Tutti i token in un solo posto, `car/design/`:
   altrimenti volto/impronta/PIN) e, aperto, fa ripartire `CarAssistant.start()`, che ora trova il
   telefono sbloccato. Aprire una schermata dal background lo permette il servizio di
   accessibilità di myCar (Android lo collega con `BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS`): senza,
-  dopo 2,5 s l'auto dice di sbloccare e ritoccare il microfono.
+  dopo 2,5 s l'auto dice di sbloccare e ritoccare il microfono. La richiesta di sblocco parte
+  quando la schermata ha il focus (schermo già acceso) o dopo 1,5 s: chiesta a schermo ancora
+  spento, Android la annulla subito (lo ha mostrato la prima prova); se la scarta entro 1,5 s la
+  si ripete una volta. Verificato (0.5.09, scatto `assistant-locked`): PIN sul telefono, avviso
+  sull'auto, e dopo lo sblocco l'assistente di prova si apre con `invocation_type=1`,
+  `triggered_by=83`.
 - Condivisione schermo (`mirror/`): mentre il telefono è copiato in auto, `TouchRelayService`
   (accessibilità, già usato per i tocchi) aggiunge un pixel trasparente
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
