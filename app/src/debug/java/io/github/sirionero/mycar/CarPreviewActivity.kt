@@ -107,6 +107,9 @@ class CarPreviewActivity : ComponentActivity() {
             ),
             null,
         )
+        // --ez moving true: the car says it's moving, so Cinema keeps its video for when it stops
+        // ("Video only when parked"). Set every run, so other shots ask the car, or the GPS.
+        io.github.sirionero.mycar.car.CarDriving.override = if (intent.getBooleanExtra("moving", false)) false else null
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,

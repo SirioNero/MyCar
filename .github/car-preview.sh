@@ -137,6 +137,15 @@ else
     echo "--- no Music Assistant: Xonos's shots left out ---"
 fi
 
+# Cinema: from the grid, the video sites as tiles (each with the icon it gives itself), then the
+# first, YouTube; and the same with the car moving, where "Video only when parked" covers the
+# picture and the sound carries on.
+CINEMA_FIRST="302,216"
+shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_FIRST;$WAIT;$WAIT;$WAIT"
+EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_FIRST;$WAIT;$WAIT"
+echo "--- Cinema ---"
+grep -h "cinema" previews/cinema/log.txt previews/cinema-moving/log.txt 2>/dev/null | head -20 || echo "cinema: nothing in the log"
+
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
