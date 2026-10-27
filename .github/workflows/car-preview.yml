@@ -12,6 +12,10 @@ on:
         description: "Only these shots, by name, space-separated (all when empty)"
         required: false
         default: ""
+      api:
+        description: "Android API level of the emulator (37 for Android 17's local network shots)"
+        required: false
+        default: "34"
 
 jobs:
   preview:
@@ -75,7 +79,7 @@ jobs:
         env:
           ONLY: ${{ inputs.shots }}
         with:
-          api-level: 34
+          api-level: ${{ inputs.api || 34 }}
           arch: x86_64
           target: google_apis
           script: bash .github/car-preview.sh
