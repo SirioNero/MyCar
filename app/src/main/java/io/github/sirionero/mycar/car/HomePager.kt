@@ -144,12 +144,19 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
             choosing = null
         }
     }
-    // While a page is being changed, Back closes the list of what can go in it, then the changing.
-    val changing = editing != null
-    DisposableEffect(changing) {
-        if (!changing) return@DisposableEffect onDispose { }
+    // Back on one of the driver's pages turns to the map's. While a page is being changed, it closes
+    // the list of what can go in it first, then the changing.
+    // Only on Home: another screen up may want Back for itself (the browser, for its pages).
+    val changing = onHome && editing != null
+    val besideMap = onHome && pages.getOrNull(pager.currentPage)?.layout != PageLayout.MAP
+    DisposableEffect(changing, besideMap) {
+        if (!changing && !besideMap) return@DisposableEffect onDispose { }
         val back: () -> Boolean = {
-            if (choosing != null) choosing = null else editing = null
+            when {
+                choosing != null -> choosing = null
+                editing != null -> editing = null
+                else -> navigator.home()
+            }
             true
         }
         navigator.backInterceptor = back
