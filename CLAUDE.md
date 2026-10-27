@@ -203,6 +203,9 @@ Tutti i token in un solo posto, `car/design/`:
   vista: icona e nome, `AppPlaceholder`). Il tasto mappa del dock, il tasto mappa dell'auto e
   Indietro su una pagina del guidatore tornano alla pagina della mappa (`CarNavigator.home()` /
   `mapPageRequests`). La tastiera del browser in un riquadro occupa tutta la larghezza della pagina.
+  Il browser di un riquadro si crea solo alla prima apertura della sua pagina: il primo WebView della
+  sessione blocca lo schermo dell'auto per qualche secondo (in anteprima 4-5 s e un'app ferma),
+  quindi mai al collegamento dell'auto.
   Impostazioni dell'auto → "Pages beside the map": aggiungi una pagina (si apre in modifica) o
   torna a quelle pronte.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
