@@ -121,11 +121,12 @@ else
 fi
 
 # Xonos inside myCar, on the run's own Music Assistant (.github/music-assistant.sh) at 10.0.2.2:8095,
-# with an album of three tones: from the grid, where the Xonos app was; and beside the map, chosen
-# as the Xonos app was. Its own log lines are tagged Xonos.
+# with an album of three tones: from the grid, where the Xonos app was; then Browse, Tracks and the
+# first track, to play it; and beside the map, chosen as the Xonos app was. Its own log lines are
+# tagged Xonos.
 if [ -n "${MA_TOKEN:-}" ]; then
     MA="--es maUrl http://10.0.2.2:8095 --es maToken $MA_TOKEN"
-    LOGTAGS=Xonos EXTRA="$MA" shoot xonos-inside 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;$WAIT"
+    LOGTAGS=Xonos EXTRA="$MA" shoot xonos-inside 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;1230,48;$WAIT;1300,560;$WAIT;1300,160;$WAIT;$WAIT;$WAIT"
     LOGTAGS=Xonos EXTRA="$MA --es sidePane $XONOS" shoot xonos-side 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT"
     echo "--- Xonos inside myCar ---"
     grep -h "xonos\|Xonos\|media:" previews/xonos-inside/log.txt 2>/dev/null | head -60 || echo "xonos-inside: nothing in the log"
