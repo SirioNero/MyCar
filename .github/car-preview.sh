@@ -105,11 +105,11 @@ shoot pages-edit 1920 720 240 "$DOCK_MAP;966,675;1138,675;585,400;$WAIT"
 
 # Plancia inside myCar, on the run's own Home Assistant (.github/home-assistant.sh), which the
 # emulator reaches at 10.0.2.2: full screen from the grid, where the Plancia app was, then its
-# menu (the ☰ at the right end of its bar); on its ready-made page right of the map, beside the
-# browser; and beside the map. Its page is made 2.5s after the car's screen is up.
+# menu (Home Assistant's ☰, in its bar under myCar's); on its ready-made page right of the map,
+# beside the browser; and beside the map. Its page is made 2.5s after the car's screen is up.
 if [ -n "${HA_TOKEN:-}" ]; then
     HA="--es haUrl http://10.0.2.2:8123 --es haToken $HA_TOKEN"
-    PLANCIA_MENU="1848,60"
+    PLANCIA_MENU="197,108"
     EXTRA="$HA" shoot plancia-app 1920 720 240 "$WAIT;$WAIT;$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT;$PLANCIA_MENU;$WAIT"
     EXTRA="$HA" shoot plancia-page 1920 720 240 "$WAIT;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT;$WAIT"
     EXTRA="$HA --es sidePane mycar:plancia" shoot plancia-side 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
