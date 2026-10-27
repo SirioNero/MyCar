@@ -25,26 +25,25 @@ a template, and myCar renders that template natively on the car screen. Nothing 
 mirrored from the phone. For apps without a car interface, myCar offers a separate
 screen-sharing mode.
 
-The screenshots below still show Gearslip's look. myCar is getting a new design.
+myCar has an infotainment-style look of its own: a dock down the left, a paged app grid, the
+Inter typeface, a dark theme by default, app icons in a rounded-square frame, and wallpapers
+behind it all — still or moving.
 
 | | |
 |---|---|
-| ![The launcher, with every car app on the phone and the route in the bar below](docs/screenshots/launcher.png) | ![Vela Maps showing the route, with the music player beside the map](docs/screenshots/navigation.png) |
-| Your car apps in one place. A red X marks the ones that don't work yet. | Vela Maps navigating, with the player beside it. |
-| ![ViVi Music's song, art, and controls in the player](docs/screenshots/music.png) | ![A new message card over Organic Maps](docs/screenshots/message.png) |
-| ViVi Music in the built-in player. | A new message, read aloud at a tap, over the map. |
-| ![The dashboard, with the weather, the next calendar event, and recent notifications](docs/screenshots/dashboard.png) | ![DuckDuckGo open in the web browser](docs/screenshots/web.png) |
-| The weather, your next event, and what you missed. | Browse the web while parked. |
-| ![The voice assistant listening over Organic Maps](docs/screenshots/assistant.png) | ![Coffee shops near you in Vela Maps, with the music player beside the map](docs/screenshots/places.png) |
-| Ask for a place, a song, or an app. | Find coffee nearby without leaving the map. |
+| ![The app grid over the Waves wallpaper, with the dock down the left](docs/screenshots/launcher.png) | ![Vela Maps on the car screen with the dock beside it](docs/screenshots/navigation.png) |
+| Your car apps in one place, over a wallpaper you choose. | Vela Maps on the car screen. |
+| ![The player beside a map, the cover filling its side on frosted glass](docs/screenshots/music.png) | ![An incoming call on the car screen, with Decline and Answer](docs/screenshots/call.png) |
+| The player beside the map, its cover on frosted glass. | Answer or decline a call from the car. |
+| ![Nearby categories in Vela Maps: gas, EV charging, restaurants, coffee](docs/screenshots/places.png) | ![The car settings: size, theme, and the wallpaper picker](docs/screenshots/settings.png) |
+| Find places nearby without leaving the map. | Size, theme, and the wallpaper, in the car's settings. |
 
 ## Features
 
 - **Phone calls.** Dial from a keypad, or search your contacts, then confirm before the
   call goes out. When a call comes in, answer or decline it on the car screen.
 - **Navigation.** myCar hosts real Car App Library map apps on the car screen.
-  Organic Maps, OsmAnd, and Flitsmeister work today. Vela runs, with rough
-  edges.
+  Organic Maps, OsmAnd, Flitsmeister, and Vela Maps work today.
 - **Music.** Browse, play, and queue tracks from a car-enabled media app, with a Now
   Playing view, an Up Next queue, and lyrics. Type a search, and apps that accept one
   play the best match.
@@ -54,7 +53,9 @@ The screenshots below still show Gearslip's look. myCar is getting a new design.
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the
   nearest gas station", "play Daft Punk", or "call Mom". Say "help" for the full list.
-  Speech turns into text on the phone, and nothing you say leaves it.
+  Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
+  assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
+  listening, the way the swipe up from a bottom corner of the phone does.
 - **Messages.** New messages appear as a small card on the car screen. myCar reads
   each one aloud, and you reply by voice or with a quick reply. Music pauses while
   myCar speaks or listens. Speech runs on the phone, so it needs no Google account.
@@ -63,6 +64,16 @@ The screenshots below still show Gearslip's look. myCar is getting a new design.
 - **Your apps, your order.** The launcher groups apps by kind: phone, maps, music,
   messaging, and the rest. Press and hold an app to move it.
 - **Car controls.** Steering wheel buttons, control knobs, and D-pads all work.
+- **A look of its own.** A dock down the left with the clock and your apps, a paged app grid,
+  app icons in a rounded-square frame with a soft glass shine, and the Inter typeface. Dark by
+  default; choose light or follow the phone.
+- **Wallpapers.** Pick one of myCar's own behind the grid and the dashboard — still, or moving
+  (Lava, Polar, Waves, Fireflies). They're drawn by myCar, not shipped as pictures.
+- **The player beside the map.** When music plays, the player shares the screen with the map,
+  its cover filling its side on frosted glass. Tap the song in the dock to put it away or bring
+  it back; the dock's foot brings map and music back from the app grid.
+- **Pick your size.** Scale the whole car screen from Extra small to Extra large, for the car's
+  display and your eyes.
 - **Themes.** Choose flat buttons or skeuomorphic ones that look like real keys.
 
 ## Status
@@ -164,13 +175,38 @@ affiliated with, endorsed by, or sponsored by Twink Software LLC.
 
 Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
 
+**Identity**
 - New name, icon, package name (`io.github.sirionero.mycar`), signing key, and source repository.
-- Updates come from this repository's releases.
+- Updates come from this repository's releases, checked against GitHub's own SHA-256.
 - No usage notes: myCar has no stats server and never asks to send them.
-- The About screen credits Gearslip and shows the license.
-- Incoming calls: calls from contacts show on the car screen, a declined call no longer leaves
-  its card stuck on the screen, and calls can be declined or ended from the car.
-- Donations go to myCar's Bitcoin address.
+- The About screen credits Gearslip and shows the license; donations go to myCar's Bitcoin address.
+
+**A new design (the `car/design` system)**
+- A side dock with the clock, the dashboard, the map, what's playing, your pinned and open apps,
+  the assistant, and the app-grid button at its foot.
+- A paged app grid, with real app icons in a rounded-square (squircle) frame, and a soft glass
+  shine on icons and on the player's controls.
+- The Inter typeface, a dark theme by default (light or follow-the-phone optional), and myCar's
+  own colours, radii, and motion, all from one place.
+- Wallpapers drawn by myCar — still (Aurora and six more) or moving (Lava, Polar, Waves,
+  Fireflies) — behind the grid and the dashboard, with the dock in glass over them.
+- The player sits beside the map when music plays, its cover filling its side on frosted glass;
+  the dock's foot returns to map-and-music from the grid.
+- The whole car screen scales from Extra small to Extra large.
+- Material Symbols icons and the Inter font ship as files, with no new Google Play dependency.
+
+**Features and fixes**
+- Incoming calls from contacts show on the car screen; answer, decline, or end them there, and a
+  declined call no longer leaves its card stuck. myCar says when call audio stays on the phone
+  because the car's Bluetooth hands-free isn't connected.
+- A choice of voice assistant: myCar's own, the phone's, or another assistant app. The phone's
+  wakes listening, the way the corner swipe wakes it, rather than opening a typed chat.
+- Screen sharing turns the phone landscape while it shows in the car, so apps fill the wide
+  screen instead of standing upright between two bars.
+- Vela Maps works and no longer carries a "works in part" mark.
+
+**Toward F-Droid**
+- No Google Play Services, and the groundwork for a fully free build (see the F-Droid notes).
 
 The full list of changes is this repository's commit history.
 

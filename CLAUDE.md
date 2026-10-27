@@ -172,15 +172,22 @@ Tutti i token in un solo posto, `car/design/`:
   Gearslip ufficiale: per usarla con myCar va aggiunta alla sua `hosts_allowlist` la riga
   `e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar`.
   Plancia lascia in alto 44dp per la barra di myCar (`CHROME_BAR` in `CarAppStage`): non cambiarla.
+- Vela Maps (`app.vela`, open source, OpenStreetMap) funziona con myCar: si collega, disegna e
+  naviga. Niente più segno giallo (`KnownApps.partial`): la mappa che avanza a scatti è come Vela
+  la disegna in auto (immagini ferme), non un difetto dell'host. Restano `partial` Spotify e Deezer.
 - Assistente vocale a scelta (`AssistantChoice`, chiave `car_assistant`): myCar (default),
   l'assistente del telefono o un'app assistente installata. Gli esterni si aprono sul telefono
   (ASSIST / VOICE_ASSIST / VOICE_COMMAND / VOICE_SEARCH_HANDS_FREE, in `<queries>`): Android non
-  permette di disegnarli sull'auto; la loro voce arriva in auto solo via Bluetooth. Si aprono in
-  modalità voce: prima VOICE_SEARCH_HANDS_FREE, poi VOICE_COMMAND / VOICE_ASSIST, ASSIST per
-  ultimo (su Google e Gemini apre la chat scritta); "l'assistente del telefono" va all'app letta da
-  `Settings.Secure` "assistant". L'app di Gemini (`com.google.android.apps.bard`) risponde solo ad
-  ASSIST: la sua voce passa dall'app Google (`com.google.android.googlequicksearchbox`), a cui
-  `PhoneAssistants.launch` manda le richieste vocali prima di ripiegare su ASSIST.
+  permette di disegnarli sull'auto; la loro voce arriva in auto solo via Bluetooth. Per
+  l'assistente predefinito (Gemini, Claude, Google…) myCar lo sveglia **come lo scorrimento da
+  un angolo in basso** (`AssistGesture`): chiama `launchAssist` del servizio di ricerca via
+  `ServiceManager` + `Parcel` (transazione 6, dopo cinque getter; uguale da Android 12 a 16; non
+  chiede permessi), che passa per l'interfaccia di sistema e mostra l'assistente in ascolto, non
+  in chat scritta. È così che Claude si apre in voce dove un ASSIST aprirebbe la tastiera. Se non
+  va, ripiega sugli intent: prima VOICE_SEARCH_HANDS_FREE, poi VOICE_COMMAND / VOICE_ASSIST,
+  ASSIST per ultimo (ora con gli stessi extra del gesto). "L'assistente del telefono" è l'app
+  letta da `Settings.Secure` "assistant"; l'app di Gemini (`com.google.android.apps.bard`) la
+  voce la dà tramite l'app Google (`com.google.android.googlequicksearchbox`).
 - Condivisione schermo (`mirror/`): mentre il telefono è copiato in auto, `TouchRelayService`
   (accessibilità, già usato per i tocchi) aggiunge un pixel trasparente
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il

@@ -1,11 +1,16 @@
-myCar 0.5.03-alpha: Gemini listening, the way back to map and music from the app grid, and moving wallpapers.
+myCar 0.5.04-alpha: the phone's assistant wakes listening, moving wallpapers, and a new icon.
 
 ## New
-- Moving wallpapers: under the car's Settings > Wallpaper motion, choose Moving and the glows of any wallpaper drift and swell slowly, on loops of about a minute. Still, as before, is the default. Like the wallpapers themselves, the motion is drawn by myCar: no pictures or videos from elsewhere.
-- On the app grid, the button at the foot of the dock changes to a map-and-player icon and takes you back to the map with the music beside it. Everywhere else it opens the app grid, as before.
+- The phone's assistant now wakes **listening**, the way the swipe up from a bottom corner of the phone's screen wakes it. myCar asks the system to start it as that gesture does, so Gemini, Google or Claude open ready for your voice instead of in their typed chat. Choose your assistant under the car's Settings > Voice assistant.
+- Moving wallpapers: Lava and Polar (slow drifting colour), Waves (rolling bands) and Fireflies (lights rising), under Wallpaper in the car's settings, below the still ones. They are drawn by myCar, so they stay myCar's own, with no pictures or videos from elsewhere.
+- A new myCar icon.
 
 ## Fixed
-- With Gemini chosen as the assistant (or as the phone's assistant), the dock's microphone and the steering wheel's voice button still opened Gemini's typed chat: Gemini's own app only answers the request that opens it. myCar now asks the Google app, which listens for Gemini, and falls back to the typed chat only when no app on the phone will listen.
+- Vela Maps no longer carries the yellow "works in part" mark. It connects, draws the map and navigates with myCar; its map moving in steps is how Vela draws it in the car, not a fault in myCar.
+
+## Also in 0.5.03-alpha
+- Gemini: when chosen as the assistant, myCar asks the Google app, which listens for it, so it too opens listening rather than in its typed chat.
+- On the app grid, the button at the foot of the dock changes to a map-and-player icon and takes you back to the map with the music beside it. Everywhere else it opens the app grid, as before.
 
 ## Also in 0.5.02-alpha
 - Two smaller sizes for the car screen, under the car's Settings > Size: Small (90%) and Extra small (83%), beside Normal, Large and Extra large.
