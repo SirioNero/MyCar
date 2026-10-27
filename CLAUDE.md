@@ -22,6 +22,13 @@ Rispondi sempre in **italiano**.
 - Chiedere conferma prima di aggiungere dipendenze (anche font/asset con licenza propria).
 - Niente dipendenze Google Play Services / proprietarie: il fork deve restare compatibile F-Droid.
 - Tenere aggiornato questo file.
+- **Modello**: l'utente ha scelto **Opus 5.5** (`claude-opus-5-5`) per questo progetto. Se la
+  sessione gira su un modello diverso o inferiore (cambio o ripiego automatico: controllare con
+  `get_session`, `session_context.model` e `last_served_model`), non fare modifiche, commit né
+  push: fermarsi subito e chiedere all'utente di riselezionare Opus 5.5.
+- **Ripresa automatica**: quando la sessione si sblocca (limiti di utilizzo, crediti finiti,
+  riavvii), riprendere da soli il lavoro in sospeso dalla lista delle attività, senza aspettare
+  che l'utente lo richieda.
 
 ## Build
 
