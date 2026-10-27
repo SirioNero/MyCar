@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Plancia's icon - a house with a warm light on - from Plancia, the Home Assistant app for the car
+  (github.com/SirioNero/Home-Assistant-on-Gearslip, AGPL-3.0, by myCar's own author): its adaptive
+  icon's background and foreground as one square picture, for Plancia inside myCar.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#0E1420"
+        android:pathData="M0,0h108v108h-108z" />
+    <!-- The light's glow -->
+    <path
+        android:fillColor="#33FFC27A"
+        android:pathData="M36,64a18,18 0 1,0 36,0a18,18 0 1,0 -36,0z" />
+    <!-- The house -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M30,52 L54,32 L78,52 L78,78 L30,78 Z"
+        android:strokeColor="#EEF2F7"
+        android:strokeLineJoin="round"
+        android:strokeWidth="4.5" />
+    <!-- The light, on -->
+    <path
+        android:fillColor="#FFC27A"
+        android:pathData="M47,64a7,7 0 1,0 14,0a7,7 0 1,0 -14,0z" />
+</vector>

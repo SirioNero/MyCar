@@ -371,6 +371,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         )
         this.runner = runner
         worker = Thread { runner.run() }.apply { name = "mycar"; start() }
+        io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
     /** A wireless session: the same runner, on the socket [WirelessLink] opened to the car. */
@@ -393,6 +394,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         )
         this.runner = runner
         worker = Thread { runner.run() }.apply { name = "mycar"; start() }
+        io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
     private fun describe(accessory: UsbAccessory) {

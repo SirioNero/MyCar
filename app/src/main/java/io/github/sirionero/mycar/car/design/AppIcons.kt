@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import io.github.sirionero.mycar.R
 
@@ -49,8 +50,11 @@ fun squareAppIcon(drawable: Drawable, px: Int): Bitmap {
 /** Behind a legacy icon, which brings no background of its own. */
 private val LegacyIconTile = Color(0xFF2C2C2F)
 
-/** How one of myCar's own apps looks on the launcher: a white glyph on its own colour. */
-class BuiltInIconLook(val color: Color, @DrawableRes val glyph: Int)
+/**
+ * How one of myCar's own apps looks on the launcher: a white glyph on its own colour, or, with
+ * [art], a picture of its own, framed like an installed app's icon.
+ */
+class BuiltInIconLook(val color: Color, @DrawableRes val glyph: Int, @DrawableRes val art: Int? = null)
 
 /** The look for a built-in app, by the id it has in [io.github.sirionero.mycar.car.BuiltInApps]. */
 fun builtInIconLook(id: String): BuiltInIconLook = when (id) {
@@ -59,6 +63,8 @@ fun builtInIconLook(id: String): BuiltInIconLook = when (id) {
     "phone" -> BuiltInIconLook(MyCarPalette.Indigo, R.drawable.sym_screen_share)
     "vehicle" -> BuiltInIconLook(MyCarPalette.Warning, R.drawable.sym_speed)
     "settings" -> BuiltInIconLook(MyCarPalette.Graphite, R.drawable.sym_settings)
+    // Plancia's own icon, as people know it from the Plancia app.
+    "plancia" -> BuiltInIconLook(Color(0xFF0E1420), R.drawable.sym_directions_car, art = R.drawable.ic_plancia)
     else -> BuiltInIconLook(MyCarPalette.DarkSurface4, R.drawable.sym_directions_car)
 }
 
@@ -79,7 +85,17 @@ fun AppIcon(icon: ImageBitmap?, builtInId: String?, size: Dp, modifier: Modifier
         )
         builtInId != null -> {
             val look = builtInIconLook(builtInId)
-            GlassTile(look.color, look.glyph, size, modifier)
+            val art = look.art
+            if (art != null) {
+                Image(
+                    painterResource(art),
+                    contentDescription = null,
+                    modifier = modifier.size(size).clip(AppIconShape).glassFinish(strength = 0.75f),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                GlassTile(look.color, look.glyph, size, modifier)
+            }
         }
         else -> Box(modifier.size(size).clip(AppIconShape).background(MaterialTheme.colorScheme.surfaceContainerHighest).glassFinish())
     }

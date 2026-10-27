@@ -261,6 +261,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         AssistantChoice.init(app)
         SidePaneChoice.init(app)
         HomePages.init(app)
+        io.github.sirionero.mycar.home.HomeAssistant.init(app)
         CarAudioRoute.init(app)
     }
 

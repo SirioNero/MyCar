@@ -52,6 +52,10 @@ behind it all — still or moving.
   to seek, the cover's colours behind it, and the cover in sight while you browse.
 - **The web.** A browser template with its own on-screen keyboard, for anything that
   doesn't ship a car interface of its own.
+- **Your home.** Plancia, built in: your Home Assistant dashboards in the car, connected from
+  the start of the drive and kept loaded, so they're there the moment you open them — full
+  screen from the app grid, on a page beside the map, or beside the map itself. Set it up in
+  myCar's settings on the phone, or bring your account over from the Plancia app with one tap.
 - **Weather and the day ahead.** A dashboard screen shows the week's calendar next to
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the
@@ -79,9 +83,9 @@ behind it all — still or moving.
   the dock's foot brings map and music back from the app grid. Or pick an app to stay beside
   the map instead, such as Plancia for your home or Xonos for your music.
 - **Pages beside the map.** Swipe across Home, or tap the dots at its foot, for pages either side
-  of the map: two halves or four parts each, holding the weather, your agenda, the browser, or a
-  car app such as Plancia with its dashboard. Ready-made, the weather and the agenda sit left of
-  the map and Plancia beside the browser on its right; the pencil beside the dots changes a page.
+  of the map: two halves or four parts each, holding the weather, your agenda, the browser,
+  Plancia's dashboard, or a car app. Ready-made, the weather and the agenda sit left of the map
+  and Plancia beside the browser on its right; the pencil beside the dots changes a page.
 - **Pick your size.** Scale the whole car screen from Extra small to Extra large, for the car's
   display and your eyes.
 - **Themes.** Choose flat buttons or skeuomorphic ones that look like real keys.

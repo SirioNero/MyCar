@@ -37,6 +37,9 @@ internal object PageContent {
 
     /** myCar's own browser, by the id the launcher and the dock know it by. */
     const val BROWSER = BUILT_IN_PREFIX + "web"
+
+    /** Plancia inside myCar, Home Assistant always ready (see [PlanciaWeb]). */
+    const val PLANCIA = BUILT_IN_PREFIX + "plancia"
 }
 
 /**
@@ -159,9 +162,18 @@ internal fun List<HomePage>.moved(pageId: Int, by: Int): List<HomePage> {
     return toMutableList().apply { add(to, removeAt(from)) }
 }
 
-/** Plancia's component id, when it's installed as a car app. */
+/** Plancia's id: Plancia inside myCar once it's set up, otherwise the Plancia app's component id, when it's installed. */
 internal fun planciaIn(entries: List<Entry>): String? =
-    entries.firstOrNull { it.template?.component?.packageName == PLANCIA_PACKAGE && it.fitsBesideMap }?.componentId
+    if (entries.any { it.builtIn == BuiltInApps.Plancia }) PageContent.PLANCIA
+    else entries.firstOrNull { it.template?.component?.packageName == PLANCIA_PACKAGE && it.fitsBesideMap }?.componentId
+
+/**
+ * What a part or the place beside the map shows, with the Plancia app read as Plancia inside
+ * myCar once that's set up: pages saved with the app keep showing Plancia.
+ */
+internal fun withPlanciaInside(id: String?, entries: List<Entry>): String? =
+    if (id != null && id.substringBefore('/') == PLANCIA_PACKAGE && entries.any { it.builtIn == BuiltInApps.Plancia }) PageContent.PLANCIA
+    else id
 
 /** The pages Home shows: the driver's own, or the ready-made ones for the apps installed now. */
 @Composable

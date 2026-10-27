@@ -63,9 +63,9 @@ object SidePaneChoice {
     }
 }
 
-/** Templated apps other than maps, whose side the map already is, and music apps. */
+/** Templated apps other than maps, whose side the map already is, music apps, and Plancia inside myCar. */
 internal val Entry.fitsBesideMap: Boolean
-    get() = (template != null && !template.isNavigation) || media != null
+    get() = (template != null && !template.isNavigation) || media != null || builtIn == BuiltInApps.Plancia
 
 /** The app chosen to sit beside the map, or null for the music player - or once that app is gone. */
 @Composable
@@ -73,7 +73,10 @@ internal fun rememberSidePaneApp(): Entry? {
     val choice by SidePaneChoice.current.collectAsState()
     val entries = rememberAllEntries()
     if (choice == SidePaneChoice.MUSIC) return null
-    return remember(choice, entries) { entries.find { it.componentId == choice && it.fitsBesideMap } }
+    return remember(choice, entries) {
+        val id = withPlanciaInside(choice, entries)
+        entries.find { it.componentId == id && it.fitsBesideMap }
+    }
 }
 
 /**

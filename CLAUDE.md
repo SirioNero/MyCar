@@ -85,6 +85,11 @@ Rispondi sempre in **italiano**.
   Lanciato a mano, il workflow accetta `shots` (nomi degli scatti separati da spazi, vuoto = tutti)
   per provare una cosa sola in pochi minuti; nello script `BEFORE` è un comando eseguito subito
   prima di aprire l'anteprima (es. accendere myCar in Accessibilità, che il force-stop spegne).
+  Plancia integrata: `.github/home-assistant.sh` avvia in Docker un Home Assistant usa e getta
+  (utente, onboarding, token in `HA_TOKEN`) che l'emulatore raggiunge a `10.0.2.2:8123`; l'account
+  arriva all'anteprima con `--es haUrl` / `--es haToken` (solo debug). Scatti `plancia-app/`
+  (dalla griglia, poi il menu dal ☰ di Home Assistant), `plancia-page/` (pagina pronta a destra
+  della mappa), `plancia-side/` (accanto alla mappa).
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
@@ -113,10 +118,11 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
+| `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `CarMic`) |
 | `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
 | `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
@@ -194,10 +200,10 @@ Tutti i token in un solo posto, `car/design/`:
 - **Pagine accanto alla mappa** (`HomePager.kt`, `HomePages.kt`, `HomeWidgets.kt`, chiave
   `car_home_pages`): la Home è una fila di pagine; quella della mappa (mappa + musica o app scelta,
   invariata) e quelle del guidatore ai suoi lati, ognuna in **due metà** o **quattro parti**. Ogni
-  parte: meteo, agenda, browser di myCar o un'app per auto con template non di navigazione (es.
-  Plancia: mostra la sua plancia predefinita, coi comandi). Pagine pronte finché il guidatore non ne
-  cambia una (`readyMade`): Meteo + Agenda a sinistra, Plancia + Browser a destra se Plancia è
-  installata; la prima modifica le salva tutte. Si cambia pagina scorrendo dove il dito non sposta
+  parte: meteo, agenda, browser di myCar, Plancia integrata o un'app per auto con template non di
+  navigazione (es. l'app Plancia: mostra la sua plancia predefinita, coi comandi). Pagine pronte
+  finché il guidatore non ne cambia una (`readyMade`): Meteo + Agenda a sinistra, Plancia + Browser
+  a destra se Plancia è configurata in myCar o installata; la prima modifica le salva tutte. Si cambia pagina scorrendo dove il dito non sposta
   già qualcosa (mappa, browser e app per auto lo prendono per sé: si scorre su widget, barre e
   spazi) o con i puntini in basso (sulla mappa svaniscono coi suoi tasti, `MapControlsWake`); la
   matita accanto ai puntini apre la modifica: due metà / quattro parti, sposta a sinistra/destra
@@ -214,6 +220,27 @@ Tutti i token in un solo posto, `car/design/`:
   quindi mai al collegamento dell'auto.
   Impostazioni dell'auto → "Pages beside the map": aggiungi una pagina (si apre in modifica) o
   torna a quelle pronte.
+- **Plancia integrata** (0.5.10; `home/`, `car/Plancia*.kt`): Home Assistant dentro myCar, col
+  nome Plancia. Si configura solo sul telefono (`ui/PlanciaSettings.kt`: indirizzo a casa, fuori
+  casa, token di lunga durata, "Save and test") o dall'app Plancia (sotto). `HomeAssistant` si
+  collega all'inizio del viaggio (`CarServices`), prima all'indirizzo di casa, e tiene l'elenco
+  delle plance. La pagina è **un solo WebView per tutto il viaggio** (`PlanciaWeb`), creato 2,5 s
+  dopo l'avvio della UI dell'auto (`PLANCIA_AFTER_MS`: il primo WebView ferma lo schermo per un
+  momento, mai mentre l'auto si collega) e spostato dove Plancia si vede: a tutto schermo dalla
+  griglia (barra sottile "Plancia"), in una parte di pagina (`PlanciaPart`, solo nella pagina ferma
+  in vista) e accanto alla mappa (`PlanciaPane`); vince l'ultimo posto composto. Il motore web si
+  carica mentre myCar si aggancia all'auto (`WebViewWarmUp`). Barra laterale di Home Assistant
+  nascosta: il suo ☰ apre il menu di Plancia (`PlanciaScripts`): plance, quella che si apre per
+  prima, dimensione 60–150% (riscrive il viewport), Ricarica; dove la plancia è piccola il menu
+  apre Plancia a tutto schermo. Accesso col ponte `externalApp` di Home Assistant: il token va solo
+  alle pagine dell'host di Home Assistant. Indirizzi `http` permessi (`usesCleartextTraffic`): a
+  casa Home Assistant è spesso `http://…:8123`. In auto compare solo se configurata, e allora prende
+  il posto dell'app Plancia ovunque (griglia, pagine, accanto alla mappa: `withPlancia`,
+  `withPlanciaInside`); tolto l'account, torna l'app.
+  Import dall'app Plancia (da 0.1.15): `content://it.plancia.ha.account`, metodo `account`;
+  risponde solo ai pacchetti myCar della sua `hosts_allowlist` firmati col certificato di myCar
+  (non alla build debug, firmata con la chiave di debug). myCar lo chiede da sé finché non è
+  configurata, all'avvio e a ogni viaggio; sul telefono c'è "Use the Plancia app's account".
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -268,9 +295,10 @@ Tutti i token in un solo posto, `car/design/`:
   suonata da myCar stesso (Xonos integrato, nel backlog).
 - App fatte per Gearslip: Plancia (`it.plancia.ha`, repository `SirioNero/Home-Assistant-on-Gearslip`)
   e Xonos (`it.xonos.ma`, `SirioNero/Music-Assistant-on-Gearslip`) funzionano con myCar. Xonos
-  accetta qualsiasi app che lo comanda; Plancia **debug** accetta qualsiasi host, la **release** solo
-  Gearslip ufficiale: per usarla con myCar va aggiunta alla sua `hosts_allowlist` la riga
-  `e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar`.
+  accetta qualsiasi app che lo comanda; Plancia **debug** accetta qualsiasi host, la **release** (da
+  0.1.13) Gearslip ufficiale e myCar: nella sua `hosts_allowlist` le righe
+  `e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar` (e
+  `.dev`). Con Plancia integrata configurata, in auto l'app Plancia non compare più.
   Plancia lascia in alto 44dp per la barra di myCar (`CHROME_BAR` in `CarAppStage`): non cambiarla.
 - Vela Maps (`app.vela`, open source, OpenStreetMap) funziona con myCar: si collega, disegna e
   naviga. Niente più segno giallo (`KnownApps.partial`): la mappa che avanza a scatti è come Vela
@@ -308,6 +336,8 @@ Tutti i token in un solo posto, `car/design/`:
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
   telefono in orizzontale; lo toglie a fine condivisione. I tocchi si mappano sulle dimensioni
   reali del display (`Display.getRealSize`), non sulla finestra di myCar, che non riceve la rotazione.
+- Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
+  e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.
 - F-Droid: per ora variante **senza** voce offline (sherpa-onnx).
 - Auto-updater delle build GitHub: rilasci di `sirionero/mycar`; disattivato nella build F-Droid.
@@ -316,10 +346,8 @@ Tutti i token in un solo posto, `car/design/`:
 
 - Voce offline nella build F-Droid: compilare sherpa-onnx (+ onnxruntime) da sorgente nella
   ricetta F-Droid invece del `.so` precompilato.
-- **Plancia integrata** in myCar (richiesta dell'utente): Home Assistant configurato dal telefono
-  (o importato da Plancia installata, con un'esportazione che risponde solo alla firma di myCar),
-  plancia pre-caricata e collegata da inizio viaggio, così si apre all'istante; comandi rapidi
-  nativi (cancello, garage) come widget. Dipendenze da approvare: OkHttp, androidx.webkit.
+- **Comandi rapidi di Home Assistant** come widget nelle pagine (cancello, garage), sul
+  collegamento di Plancia integrata (`HomeAssistant`).
 - **Xonos integrato**: motore Music Assistant + Sendspin di Xonos dentro myCar, con l'interfaccia
   di myCar e il PCM direttamente su `AudioLink` (niente cattura né domanda di Android).
   Configurazione dal telefono come in Xonos (scoperta mDNS, utente e password, token creato da

@@ -74,6 +74,8 @@ object CarServices {
         LocationCheck.init(appContext)
         CarKeys.init(appContext)
         VoiceReply.init(appContext)
+        // Plancia stays connected to Home Assistant through the drive, ready before it's opened.
+        io.github.sirionero.mycar.home.HomeAssistant.acquire()
         // Loaded now, while nothing's waiting on it, so the first reply isn't slower than the rest.
         io.github.sirionero.mycar.speech.SpeechEngine.warm(appContext)
     }
@@ -261,6 +263,7 @@ object CarServices {
         runCatching { media.disconnect() }
         runCatching { browse.disconnect() }
         CarAssistant.cancel()
+        io.github.sirionero.mycar.home.HomeAssistant.release()
         // About 900 MB that nothing needs once the car's gone.
         io.github.sirionero.mycar.speech.SpeechEngine.unload()
         CarAudio.release()

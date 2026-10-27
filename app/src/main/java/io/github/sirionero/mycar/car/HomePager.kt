@@ -300,14 +300,18 @@ private fun PagePart(
     val loaded by LauncherCache.state.collectAsState()
     Box(modifier) {
         val fill = Modifier.fillMaxSize()
-        when (content) {
+        when (val shown = withPlanciaInside(content, entries)) {
             null -> EmptyPart(onChoose, onEdit, fill)
             PageContent.WEATHER -> WeatherWidget(onEdit, fill)
             PageContent.AGENDA -> AgendaWidget(onEdit, fill)
             PageContent.BROWSER -> BrowserPart(inView, onEdit, keyboard, fill)
+            // Plancia isn't on the browse connection: it shows whenever its page is in view.
+            PageContent.PLANCIA ->
+                if (entries.any { it.builtIn == BuiltInApps.Plancia }) PlanciaPart(inView, onEdit, fill)
+                else MissingPart(onChoose, onEdit, fill)
             else -> {
-                val entry = entries.find { it.componentId == content }
-                val app = carAppIn(content, entries)
+                val entry = entries.find { it.componentId == shown }
+                val app = carAppIn(shown, entries)
                 when {
                     entry != null && app != null -> AppPart(entry, app, runs, onEdit, fill)
                     // Still being looked for: the phone's apps are scanned as the car connects.
@@ -330,7 +334,8 @@ private fun partName(content: String?, entries: List<Entry>): String = when (con
     PageContent.WEATHER -> "Weather"
     PageContent.AGENDA -> "Agenda"
     PageContent.BROWSER -> "Browser"
-    else -> entries.find { it.componentId == content }?.label ?: "App not on the phone"
+    PageContent.PLANCIA -> "Plancia"
+    else -> entries.find { it.componentId == withPlanciaInside(content, entries) }?.label ?: "App not on the phone"
 }
 
 /**
@@ -716,6 +721,13 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
                 item {
                     Choice("Browser", current == PageContent.BROWSER, onClick = { onChoose(PageContent.BROWSER) }) {
                         AppIcon(null, BuiltInApps.Web.id, ChoiceIcon)
+                    }
+                }
+                if (entries.any { it.builtIn == BuiltInApps.Plancia }) {
+                    item {
+                        Choice("Plancia", withPlanciaInside(current, entries) == PageContent.PLANCIA, onClick = { onChoose(PageContent.PLANCIA) }) {
+                            AppIcon(null, BuiltInApps.Plancia.id, ChoiceIcon)
+                        }
                     }
                 }
                 items(apps, key = { it.componentId!! }) { app ->

@@ -95,6 +95,8 @@
          them away (UsageStats.osName). -->
     <package android:name="app.grapheneos.setupwizard" />
     <package android:name="foundation.e.apps" />
+    <!-- The Plancia app hands its Home Assistant account to Plancia inside myCar (HomeAssistant). -->
+    <provider android:authorities="it.plancia.ha.account" />
     <intent>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -130,8 +132,13 @@
     </intent>
 </queries>
 
-<application
+<!--
+      Plain http allowed: Home Assistant at home is often http://homeassistant.local:8123, and
+      Plancia's page and connection go to the address the driver typed (the token to that one only).
+    -->
+    <application
         android:allowBackup="false"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:label="${appLabel}"

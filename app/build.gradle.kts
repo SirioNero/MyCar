@@ -138,6 +138,9 @@ dependencies {
     implementation(libs.androidx.car.app)
     implementation(libs.androidx.car.app.projected)
     implementation(libs.androidx.media)
+    // Plancia inside myCar: Home Assistant's WebSocket, and its page's sign-in script set before it runs.
+    implementation(libs.okhttp)
+    implementation(libs.androidx.webkit)
     testImplementation(libs.junit)
 }
 
