@@ -127,6 +127,7 @@ fun SettingsScreen(
             ConnectionSection()
             HelpSection(onOpenHelp, onOpenCarPreview, onOpenLogs)
             CarAudioSection()
+            PlanciaSection()
             VoiceModelSection()
             if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
             SettingsSection(
