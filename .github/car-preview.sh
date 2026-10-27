@@ -50,12 +50,15 @@ GRID_BUTTON="72,654"   # the dock's foot, at 1920x720
 WAIT="-100,-100"       # a tap off the screen: only gives an app time before the next shot
 
 # shoot <name> <width> <height> <dpi> <taps "x,y;x,y" in screen pixels> [command, run 5s in]
-# EXTRA adds intent extras for the preview activity.
+# EXTRA adds intent extras for the preview activity; BEFORE is a command run just before it starts.
+# ONLY (the workflow's "shots" input) names the shots to take, all of them when empty.
 shoot() {
+    case " ${ONLY:-$1} " in *" $1 "*) ;; *) return ;; esac
     adb shell am force-stop "$PKG"
     for p in $VELA $PLANCIA $XONOS; do adb shell am force-stop "$p"; done
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
+    if [ -n "${BEFORE:-}" ]; then eval "$BEFORE"; fi
     # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
     adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true ${EXTRA:-} --es taps '$5'"
     if [ -n "${6:-}" ]; then
@@ -123,14 +126,27 @@ adb emu gsm cancel 3331234567
 A11Y_SERVICE="$PKG/io.github.sirionero.mycar.mirror.TouchRelayService"
 EXTRA="--ez audio true" shoot audio-consent 1920 720 240 "$WAIT;$WAIT;$WAIT" \
     "mkdir -p previews/audio-consent; adb exec-out screencap -p > previews/audio-consent/phone-question.png; \
+     adb shell uiautomator dump /sdcard/question.xml; adb pull /sdcard/question.xml previews/audio-consent/; \
      adb shell settings put secure enabled_accessibility_services $A11Y_SERVICE; \
      adb shell settings put secure accessibility_enabled 1; \
      sleep 4; adb exec-out screencap -p > previews/audio-consent/phone-after.png"
 adb shell settings delete secure enabled_accessibility_services
 adb shell settings put secure accessibility_enabled 0
+# The same with myCar already on under Accessibility, as a driver has it after the first time.
+# (Stopping an app turns its accessibility service off, so it's turned on again after.)
+BEFORE="adb shell settings put secure enabled_accessibility_services $A11Y_SERVICE; \
+    adb shell settings put secure accessibility_enabled 1; sleep 3" \
+    EXTRA="--ez audio true" shoot audio-consent-on 1920 720 240 "$WAIT;$WAIT;$WAIT" \
+    "mkdir -p previews/audio-consent-on; adb exec-out screencap -p > previews/audio-consent-on/phone-after.png"
+adb shell settings delete secure enabled_accessibility_services
+adb shell settings put secure accessibility_enabled 0
 echo "--- the audio question: what myCar did ---"
-grep -h "touch relay connected\|answered Android's question\|capturing media playback\|consent declined" \
-    previews/audio-consent/log.txt || echo "audio-consent: nothing about it in the log"
+for d in audio-consent audio-consent-on; do
+    [ -f "previews/$d/log.txt" ] || continue
+    echo "$d:"
+    grep -h "touch relay connected\|Android's question\|capturing media playback\|consent declined" \
+        "previews/$d/log.txt" || echo "  nothing about it in the log"
+done
 
 # The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
 # as the swipe up from a bottom corner does, through SystemUI. First with the Settings app standing
