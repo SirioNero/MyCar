@@ -28,7 +28,7 @@ installed() { adb shell pm list packages "$1" | tr -d '\r' | grep -qx "package:$
 grid=(phone)
 installed $VELA && grid+=(vela)
 installed $XONOS && grid+=(xonos)
-grid+=(ytmusic ytmusic-browse messages browser screen)
+grid+=(ytmusic ytmusic-browse messages browser cinema screen)
 installed $PLANCIA && grid+=(plancia)
 grid+=(settings exit)
 echo "1920x720 grid: ${grid[*]}"
