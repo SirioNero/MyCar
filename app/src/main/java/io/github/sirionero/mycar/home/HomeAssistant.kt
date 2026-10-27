@@ -151,10 +151,17 @@ object HomeAssistant {
 
     fun newClient() = HaClient(http)
 
-    /** The car connected: stay connected, so the dashboard is ready before it's asked for. */
+    /**
+     * The car connected: stay connected, so the dashboard is ready before it's asked for. Not set
+     * up yet, the Plancia app is asked again first: it may have been set up, or updated, since.
+     */
     @Synchronized
     fun acquire() {
         users++
+        val app = app
+        if (!configFlow.value.isComplete && app != null) {
+            scope.launch { fromPlanciaApp(app)?.let { if (!configFlow.value.isComplete) use(it) } }
+        }
         if (loop?.isActive != true) loop = scope.launch { connectLoop() }
     }
 
