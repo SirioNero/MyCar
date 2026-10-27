@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.home.HaException
 import io.github.sirionero.mycar.home.HomeAssistant
 import kotlinx.coroutines.CancellationException
@@ -50,6 +51,7 @@ internal fun PlanciaSection() {
     var token by rememberSaveable(saved) { mutableStateOf(saved.token) }
     var status by remember { mutableStateOf<String?>(null) }
     val planciaApp = remember { HomeAssistant.planciaAppCanShare(context) }
+    val askLocalNetwork = rememberLocalNetworkAsk()
 
     fun test(config: HomeAssistant.Config) {
         if (!config.isComplete) {
@@ -69,7 +71,7 @@ internal fun PlanciaSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    "$place: ${describe(e)}"
+                    if (LocalNetwork.blocks(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(e)}"
                 } finally {
                     client.close()
                 }
@@ -84,6 +86,7 @@ internal fun PlanciaSection() {
             "a page beside the map, or beside it. Make the token in Home Assistant: your profile, Security, " +
             "Long-lived access tokens.",
     ) {
+        if (saved.isComplete) LocalNetworkRow(saved.urls)
         if (planciaApp) {
             SettingsRow(
                 "Use the Plancia app's account",
@@ -95,7 +98,7 @@ internal fun PlanciaSection() {
                             status = "Plancia has no account to share yet: set it up in Plancia first, or type it below."
                         } else {
                             HomeAssistant.use(imported)
-                            test(imported.config)
+                            askLocalNetwork(imported.config.urls) { test(imported.config) }
                         }
                     }
                 },
@@ -140,7 +143,7 @@ internal fun PlanciaSection() {
                         token.trim(),
                     )
                     HomeAssistant.save(config)
-                    test(config)
+                    askLocalNetwork(config.urls) { test(config) }
                 }) { Text("Save and test") }
                 if (saved.isComplete) {
                     TextButton(onClick = {

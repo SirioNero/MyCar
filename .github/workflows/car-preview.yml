@@ -12,6 +12,14 @@ on:
         description: "Only these shots, by name, space-separated (all when empty)"
         required: false
         default: ""
+      api:
+        description: "Android API level of the emulator (37.0 for Android 17's local network shots)"
+        required: false
+        default: "34"
+      target:
+        description: "Its system image (google_apis; google_apis_ps16k where only that one exists)"
+        required: false
+        default: "google_apis"
 
 jobs:
   preview:
@@ -70,14 +78,22 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Newer Android versions name their packages "android-37.0" and the like: what this API level
+      # offers, in the log, for when the emulator can't find its image.
+      - name: SDK packages for the emulator
+        if: inputs.api != '' && inputs.api != '34'
+        continue-on-error: true
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --list 2>/dev/null | grep -E "android-${{ inputs.api }}|android-${{ inputs.api }}\\.0" | sort -u | head -40
+
       - name: Render the car screen
         uses: reactivecircus/android-emulator-runner@v2
         env:
           ONLY: ${{ inputs.shots }}
         with:
-          api-level: 34
+          api-level: ${{ inputs.api || 34 }}
           arch: x86_64
-          target: google_apis
+          target: ${{ inputs.target || 'google_apis' }}
           script: bash .github/car-preview.sh
 
       - name: Publish to the ci/car-preview branch

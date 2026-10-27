@@ -23,6 +23,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
@@ -351,7 +352,11 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
 
         override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
             if (view !== web || !request.isForMainFrame) return
-            val why = error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
+            val why = if (LocalNetwork.blocks(view.context, listOf(request.url.toString()))) {
+                LocalNetwork.HINT
+            } else {
+                error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
+            }
             MyCarLog.w("plancia: the dashboard didn't load: $why")
             _page.value = _page.value.copy(error = why)
         }

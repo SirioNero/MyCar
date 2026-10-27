@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,12 @@ import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.CertProvider
+import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.home.HomeAssistant
 import io.github.sirionero.mycar.stats.UsageStats
+import io.github.sirionero.mycar.xonos.Xonos
+import io.github.sirionero.mycar.xonos.XonosAccount
 
 private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP, SETUP_GUIDE, USAGE_NOTES, HELP, WHATS_NEW, RECOMMENDED_APPS }
 
@@ -92,6 +98,24 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // Android 17 keeps myCar off the home network until it's allowed (see LocalNetwork), and
+    // Plancia's and Xonos's addresses at home are there: asked once a run, on Home, when one of
+    // them has such an address. With Bluetooth allowed, Android allows it without a word.
+    val localNetworkPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        MyCarLog.i("local network: ${if (granted) "allowed" else "refused"}")
+    }
+    val plancia by HomeAssistant.config.collectAsState()
+    val xonos by Xonos.setUp.collectAsState()
+    LaunchedEffect(Unit) { XonosAccount.adoptIfUnset(context) }
+    LaunchedEffect(plancia, xonos, screen) {
+        if (screen != Screen.HOME || LocalNetwork.askedAtStart || LocalNetwork.allowed(context)) return@LaunchedEffect
+        val urls = plancia.urls + if (xonos) Xonos.settings.load().urls else emptyList()
+        if (urls.any(LocalNetwork::isLocal)) {
+            LocalNetwork.askedAtStart = true
+            localNetworkPermission.launch(LocalNetwork.PERMISSION)
         }
     }
 
