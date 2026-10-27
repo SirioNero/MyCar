@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            26, "0.5.13-alpha",
+            listOf(
+                "Cinema, myCar's video app: your video sites as tiles, YouTube, RaiPlay and Twitch to start with. Add your own in myCar's settings on the phone, your Jellyfin too.",
+                "Video shows only with the car parked: while it moves the picture is covered, and the sound carries on.",
+            ),
+        ),
+        Release(
             25, "0.5.12-alpha",
             listOf(
                 "Plancia and Xonos reach your Home Assistant and Music Assistant at home again, plain http addresses included. On Android 17, myCar needs the Nearby devices permission for your home network, and now asks for it.",
