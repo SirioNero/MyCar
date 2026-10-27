@@ -22,6 +22,8 @@ internal class DirectFeed(
     val link: CarAudio.Link,
     /** True while the capture is feeding the car: a quiet feed leaves the car to it. */
     private val captureOn: () -> Boolean,
+    /** Held for each write to the car, as the capture holds it: never both at once (an AAC encoder can't take it). */
+    private val writes: Any = Any(),
     private val nanos: () -> Long = System::nanoTime,
 ) {
     private val rate = link.sampleRate
@@ -105,7 +107,7 @@ internal class DirectFeed(
             val music = take()
             if (music > 0 || !captureOn() || feeding) {
                 toBytes()
-                link.write(bytes, bytes.size)
+                synchronized(writes) { link.write(bytes, bytes.size) }
             }
             sent += chunkFrames
             due = (nanos() - anchor) * rate / 1_000_000_000L + leadFrames

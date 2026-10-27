@@ -30,7 +30,7 @@ class DirectFeedTest {
         }
     }
 
-    private fun feed() = DirectFeed(link, { captureOn }, { now })
+    private fun feed() = DirectFeed(link, { captureOn }, Any(), { now })
 
     private fun ms(value: Long) = value * 1_000_000L
 

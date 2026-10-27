@@ -57,6 +57,9 @@ object CarAudio {
     /** myCar's own music on its way to the car, once it has played this drive. */
     @Volatile private var feed: DirectFeed? = null
 
+    /** Held for each write to the car's sink, by the capture and by [feed]: one writer at a time. */
+    private val writes = Any()
+
     private val _direct = MutableStateFlow(false)
 
     /** Whether myCar's own player can play straight into the car now: the sound goes through myCar, and the car has a sink. */
@@ -121,7 +124,7 @@ object CarAudio {
     internal fun openDirect(sampleRate: Int, channels: Int): DirectFeed.Writer? {
         val link = link ?: return null
         if (!wanted) return null
-        val running = feed?.takeIf { it.link === link } ?: DirectFeed(link, { _capture.value == Capture.ON }).also {
+        val running = feed?.takeIf { it.link === link } ?: DirectFeed(link, { _capture.value == Capture.ON }, writes).also {
             feed = it
             it.start()
         }
@@ -198,6 +201,6 @@ object CarAudio {
         _level.value = peak
         // While myCar's own music reaches the car, it alone feeds it.
         if (feed?.feeding == true) return
-        link?.write(pcm, size)
+        synchronized(writes) { link?.write(pcm, size) }
     }
 }
