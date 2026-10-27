@@ -95,6 +95,18 @@ class CarPreviewActivity : ComponentActivity() {
                 io.github.sirionero.mycar.home.HomeAssistant.Config(url, "", intent.getStringExtra("haToken").orEmpty())
             } ?: io.github.sirionero.mycar.home.HomeAssistant.Config(),
         )
+        // --es maUrl http://10.0.2.2:8095 --es maToken ...: Xonos inside myCar on that Music
+        // Assistant (the workflow's own, in Docker beside the emulator). Set every run: without
+        // them Xonos is off in myCar, and the Xonos app stays as it was.
+        io.github.sirionero.mycar.xonos.Xonos.save(
+            this,
+            io.github.sirionero.mycar.xonos.data.Settings.Config(
+                intent.getStringExtra("maUrl").orEmpty(),
+                "",
+                intent.getStringExtra("maToken").orEmpty(),
+            ),
+            null,
+        )
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,

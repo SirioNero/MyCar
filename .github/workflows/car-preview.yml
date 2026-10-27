@@ -58,6 +58,12 @@ jobs:
         continue-on-error: true
         run: bash .github/home-assistant.sh
 
+      # Xonos inside myCar against a Music Assistant of the run's own, the same way.
+      - name: Start Music Assistant for Xonos
+        if: inputs.shots == '' || contains(inputs.shots, 'xonos-')
+        continue-on-error: true
+        run: bash .github/music-assistant.sh
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

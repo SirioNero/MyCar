@@ -50,7 +50,8 @@ GRID_BUTTON="72,654"   # the dock's foot, at 1920x720
 WAIT="-100,-100"       # a tap off the screen: only gives an app time before the next shot
 
 # shoot <name> <width> <height> <dpi> <taps "x,y;x,y" in screen pixels> [command, run 5s in]
-# EXTRA adds intent extras for the preview activity; BEFORE is a command run just before it starts.
+# EXTRA adds intent extras for the preview activity; BEFORE is a command run just before it starts;
+# LOGTAGS, more log tags to keep besides myCar's.
 # ONLY (the workflow's "shots" input) names the shots to take, all of them when empty.
 shoot() {
     case " ${ONLY:-$1} " in *" $1 "*) ;; *) return ;; esac
@@ -71,7 +72,7 @@ shoot() {
     sleep $((12 + 3 * taps))
     mkdir -p "previews/$1"
     adb pull "$FILES/." "previews/$1/" || echo "nothing to pull for $1"
-    adb logcat -d -s myCar > "previews/$1/log.txt" 2>&1
+    adb logcat -d -s myCar ${LOGTAGS:-} > "previews/$1/log.txt" 2>&1
     adb logcat -d -b crash > "previews/$1/crash.txt" 2>&1
 }
 
@@ -117,6 +118,19 @@ if [ -n "${HA_TOKEN:-}" ]; then
     grep -h "plancia:\|web:" previews/plancia-app/log.txt 2>/dev/null || echo "plancia-app: nothing in the log"
 else
     echo "--- no Home Assistant: Plancia's shots left out ---"
+fi
+
+# Xonos inside myCar, on the run's own Music Assistant (.github/music-assistant.sh) at 10.0.2.2:8095,
+# with an album of three tones: from the grid, where the Xonos app was; and beside the map, chosen
+# as the Xonos app was. Its own log lines are tagged Xonos.
+if [ -n "${MA_TOKEN:-}" ]; then
+    MA="--es maUrl http://10.0.2.2:8095 --es maToken $MA_TOKEN"
+    LOGTAGS=Xonos EXTRA="$MA" shoot xonos-inside 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;$WAIT"
+    LOGTAGS=Xonos EXTRA="$MA --es sidePane $XONOS" shoot xonos-side 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT"
+    echo "--- Xonos inside myCar ---"
+    grep -h "xonos\|Xonos\|media:" previews/xonos-inside/log.txt 2>/dev/null | head -60 || echo "xonos-inside: nothing in the log"
+else
+    echo "--- no Music Assistant: Xonos's shots left out ---"
 fi
 
 # myCar's own screens: the phone and the car settings.
