@@ -16,9 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +90,8 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
             surfaceContainerHighest = Color.White.copy(alpha = 0.16f),
             onSurfaceVariant = Color.White.copy(alpha = 0.92f),
         )
-        MaterialTheme(colorScheme = scheme) {
+        // White glyphs whatever the car's theme: the pane is dark glass over the cover.
+        MaterialTheme(colorScheme = scheme) { CompositionLocalProvider(LocalContentColor provides Color.White) {
             Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)).background(ground)) {
                 if (cover != null) {
                     Image(cover, null, Modifier.fillMaxSize().clickable { navigator.media() }, contentScale = ContentScale.Crop)
@@ -160,7 +163,7 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                     }
                 }
             }
-        }
+        } }
     }
 }
 
