@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="touch_relay_description">Lets myCar replay touches from the car screen onto the phone while mirroring. myCar does not read screen content.</string>
+    <string name="touch_relay_description">Lets myCar replay touches from the car screen onto the phone while sharing it, and answer Android\'s question to share the phone\'s sound with the car, by pressing Start in it. myCar looks at the screen only while that question, asked by myCar, is waiting, and reads nothing else.</string>
 </resources>

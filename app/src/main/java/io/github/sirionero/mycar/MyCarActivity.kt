@@ -93,6 +93,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     private val audioConsent = registerForActivityResult(StartActivityForResult()) { result ->
+        io.github.sirionero.mycar.audio.CaptureConsent.answered()
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             // Answered after the car went away, or after the sound moved to Bluetooth: starting now
@@ -170,6 +171,10 @@ class MyCarActivity : ComponentActivity(), Projection {
                             close()
                         },
                         onKeepAsking = ::close,
+                        onLetMyCarAnswer = {
+                            io.github.sirionero.mycar.mirror.PhoneApps.openAccessibilitySettings(this@MyCarActivity)
+                            close()
+                        },
                     )
                 }
                 val micNotice by micBlockedNotice.collectAsState()
@@ -258,8 +263,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     private fun askAudioCapture() {
-        val manager = getSystemService(MediaProjectionManager::class.java)
-        runCatching { audioConsent.launch(manager.createScreenCaptureIntent()) }
+        runCatching { audioConsent.launch(io.github.sirionero.mycar.audio.CaptureConsent.intent(this)) }
             .onFailure {
                 MyCarLog.e("could not ask for audio capture", it)
                 CarAudio.denied()

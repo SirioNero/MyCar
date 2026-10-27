@@ -16,22 +16,23 @@ import io.github.sirionero.mycar.BuildConfig
 
 /**
  * Shown once, the first time the driver turns down Android's screen-sharing dialog: that dialog
- * is the price of sending music over USB, and most people who refuse it would rather not see it
- * again. Offers the two ways out: Bluetooth, or the one-time adb command.
+ * is the price of sending music through myCar, and most people who refuse it would rather not see
+ * it again. Offers the ways out: myCar answering it by itself, Bluetooth, or the one-time adb command.
  */
 @Composable
-fun AudioChoiceDialog(onUseBluetooth: () -> Unit, onKeepAsking: () -> Unit) {
+fun AudioChoiceDialog(onUseBluetooth: () -> Unit, onKeepAsking: () -> Unit, onLetMyCarAnswer: () -> Unit) {
     var showCommand by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onKeepAsking,
-        title = { Text("Play car audio over Bluetooth?") },
+        title = { Text("Stop Android's audio question?") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     "Android treats music sent through myCar like sharing your screen, so it asks every " +
-                        "drive. Over Bluetooth it never asks, if your car plays the phone's music that way. You " +
-                        "can change this later in Settings.",
+                        "drive. Turn on myCar under Accessibility, once, and myCar answers it for you. Or play " +
+                        "over Bluetooth, where Android never asks, if your car takes the phone's music that way.",
                 )
+                TextButton(onClick = onLetMyCarAnswer) { Text("Let myCar answer it") }
                 if (showCommand) {
                     Text(
                         "Or keep it and stop the question for good: plug the phone into a " +

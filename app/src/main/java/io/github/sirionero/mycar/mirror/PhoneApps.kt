@@ -70,14 +70,20 @@ object PhoneApps {
             .onFailure { MyCarLog.e("launching $packageName failed", it) }
     }
 
-    /** Opens the phone's accessibility settings, where the touch relay is switched on. */
+    /**
+     * Opens the phone's accessibility settings where myCar is switched on: its own page if the
+     * phone has one to open, the list of services otherwise.
+     */
     fun openAccessibilitySettings(context: Context) {
         val app = context.applicationContext
-        runCatching {
-            app.startActivity(
-                Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            )
-        }.onFailure { MyCarLog.e("could not open accessibility settings", it) }
+        val own = Intent(Settings.ACTION_ACCESSIBILITY_DETAILS_SETTINGS)
+            .putExtra(Intent.EXTRA_COMPONENT_NAME, android.content.ComponentName(app, TouchRelayService::class.java).flattenToString())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        runCatching { app.startActivity(own) }
+            .recoverCatching {
+                app.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }
+            .onFailure { MyCarLog.e("could not open accessibility settings", it) }
     }
 
     private fun Drawable.toImageBitmap(): ImageBitmap {

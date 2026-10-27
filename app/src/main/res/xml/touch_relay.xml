@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  myCar never reads screen content: it only needs canPerformGestures, which is what lets
-  dispatchGesture replay a head-unit touch onto whatever app is mirrored. No event types are
-  requested, so the service is notified of nothing.
+  canPerformGestures lets dispatchGesture replay a head-unit touch onto whatever app is mirrored.
+  canRetrieveWindowContent, with the windows and their view ids, lets myCar find Start in
+  Android's question to share the phone's audio and press it (see CaptureConsent) - looked for
+  only while that question, asked by myCar, is waiting. No event types are requested, so the
+  service is notified of nothing.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagRetrieveInteractiveWindows|flagReportViewIds"
     android:canPerformGestures="true"
+    android:canRetrieveWindowContent="true"
     android:description="@string/touch_relay_description"
     android:notificationTimeout="0" />

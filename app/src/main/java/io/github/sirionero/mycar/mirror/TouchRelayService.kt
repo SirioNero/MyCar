@@ -11,14 +11,18 @@ import android.view.View
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.audio.CaptureConsent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Replays head-unit touches onto the phone while [PhoneMirror] is running.
+ * Replays head-unit touches onto the phone while [PhoneMirror] is running, and answers Android's
+ * question to share the phone's sound when myCar has asked it ([CaptureConsent]).
  *
  * dispatchGesture is the only public API that lets one app inject input into another, which
  * is why mirroring needs an accessibility service at all. myCar subscribes to no event
- * types and never inspects a window, so nothing about the phone's screen is read here - the
- * service is a one-way output.
+ * types, and looks at a window only while its own audio question is waiting, to press Start in
+ * it - nothing else about the phone's screen is read here.
  *
  * A head unit sends a stream of DOWN/MOVE/UP, but a gesture is dispatched as a whole path, so
  * the two are bridged with continued strokes: each dispatch carries the movement since the
@@ -40,15 +44,19 @@ class TouchRelayService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
+        on.value = true
         MyCarLog.i("touch relay connected")
         // Switched on while the phone was already showing in the car.
         if (PhoneMirror.active.value) holdLandscape(true)
+        // Switched on while Android's audio question was up: answer it now.
+        CaptureConsent.serviceReady(this)
     }
 
     override fun onDestroy() {
         holdLandscape(false)
         super.onDestroy()
         instance = null
+        on.value = false
         reset()
     }
 
@@ -182,5 +190,10 @@ class TouchRelayService : AccessibilityService() {
 
         /** False until the user enables myCar under Settings > Accessibility. */
         val enabled: Boolean get() = instance != null
+
+        private val on = MutableStateFlow(false)
+
+        /** [enabled], to watch: the phone's settings show it changing as the driver comes back. */
+        val switchedOn: StateFlow<Boolean> = on
     }
 }

@@ -98,6 +98,7 @@ object CarAudio {
     /** The car went away. Everything is torn down; the next connection asks again. */
     fun release() {
         wanted = false
+        CaptureConsent.answered()
         AudioCaptureService.stop()
         _capture.value = Capture.OFF
     }
