@@ -83,6 +83,8 @@ class CarPreviewActivity : ComponentActivity() {
                 }?.serviceInfo?.let { android.content.ComponentName(it.packageName, it.name).flattenToString() }
         }
         io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
+        // Home's ready-made pages every run, so a shot that changed one leaves the next alone.
+        io.github.sirionero.mycar.car.HomePages.reset()
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,
