@@ -108,41 +108,59 @@ shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"
 adb emu gsm cancel 3331234567
 
 # The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
-# as the swipe up from a bottom corner does, through SystemUI. The emulator has no assistant, so
-# the Settings app stands in for one; the phone's own screen, shot after the tap, should show it.
+# as the swipe up from a bottom corner does, through SystemUI. First with the Settings app standing
+# in for an assistant that's an activity; the phone's own screen, shot after the tap, should show it.
 MIC_BUTTON="72,549"   # just above the dock's foot, where it always is
+default_assistant=$(adb shell settings get secure assistant | tr -d '\r')
+echo "default assistant: $default_assistant"
 adb shell settings put secure assistant com.android.settings/com.android.settings.Settings
 EXTRA="--es assistant phone" shoot assistant 1920 720 240 "$GRID_BUTTON;$MIC_BUTTON;$WAIT" \
     "sleep 6; mkdir -p previews/assistant; adb exec-out screencap -p > previews/assistant/phone-screen.png"
-adb shell settings delete secure assistant
+if [ "$default_assistant" = "null" ]; then adb shell settings delete secure assistant
+else adb shell settings put secure assistant "$default_assistant"; fi
 
-# Does the microphone start the phone's assistant just as the swipe up from a bottom corner does?
-# The debug build carries a stand-in assistant (debug/TestAssistant.kt) that logs how Android
-# showed it: the flags and arguments a real assistant reads to decide whether to open listening.
-# It's made the phone's assistant, started once from myCar's microphone and once by the swipe
-# itself, and the two lines are printed side by side.
-adb shell cmd role add-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || echo "could not make the test assistant the default"
-echo "assistant: $(adb shell settings get secure voice_interaction_service | tr -d '\r')"
-EXTRA="--es assistant phone" shoot assistant-mic 1920 720 240 "$GRID_BUTTON;$MIC_BUTTON;$WAIT"
-mkdir -p previews/assistant-gesture
+# The swipe itself, on the phone: gesture navigation, then from the very corner up and in, as a
+# thumb would, from the Home screen.
 adb shell settings put secure assist_touch_gesture_enabled 1
-echo "navigation_mode=$(adb shell settings get secure navigation_mode | tr -d '\r')"
 adb shell cmd overlay enable-exclusive --category com.android.internal.systemui.navbar.gestural || true
 sleep 3
-adb shell input keyevent KEYCODE_HOME
-sleep 2
 size=$(adb shell wm size | tr -d '\r' | sed -n 's/.*: \([0-9]*x[0-9]*\)$/\1/p' | tail -1)
 W=${size%x*}; H=${size#*x}
-echo "phone screen ${W}x${H}"
+echo "phone screen ${W}x${H}, $(adb shell wm density | tr -d '\r' | tail -1), navigation_mode=$(adb shell settings get secure navigation_mode | tr -d '\r')"
+corner_swipe() {
+    adb shell input keyevent KEYCODE_HOME
+    sleep 2
+    adb shell input swipe 5 $((H - 5)) $((W / 2)) $((H - W / 2)) 600
+    sleep 4
+}
+focus() { adb shell dumpsys window | grep -E "mCurrentFocus|mFocusedApp" | tr -d '\r'; }
+
+# The emulator's own assistant, the Google app: the phone's screen after the microphone, then
+# after the swipe. The two should show the assistant the same way.
+mkdir -p previews/assistant-google
+EXTRA="--es assistant phone" shoot assistant-google 1920 720 240 "$GRID_BUTTON;$MIC_BUTTON;$WAIT" \
+    "sleep 6; adb exec-out screencap -p > previews/assistant-google/phone-mic.png; focus > previews/assistant-google/focus-mic.txt"
+corner_swipe
+adb exec-out screencap -p > previews/assistant-google/phone-swipe.png
+focus > previews/assistant-google/focus-swipe.txt
+echo "--- the Google app: what had the phone's focus after the microphone, then after the swipe ---"
+cat previews/assistant-google/focus-mic.txt previews/assistant-google/focus-swipe.txt
+
+# How Android showed the assistant, from the microphone and from the swipe: the debug build's
+# stand-in assistant (debug/TestAssistant.kt) logs the flags and arguments a real assistant reads
+# to decide whether to open listening. It's made the phone's assistant only once the preview runs:
+# force-stopping the assistant's app, as each shot starts by doing, hands the role back to the
+# Google app.
+make_test_assistant() {
+    adb shell cmd role add-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || echo "could not make the test assistant the default"
+    sleep 1
+    echo "assistant: $(adb shell settings get secure assistant | tr -d '\r')"
+    echo "voice interaction service: $(adb shell settings get secure voice_interaction_service | tr -d '\r')"
+}
+EXTRA="--es assistant phone" shoot assistant-mic 1920 720 240 "$WAIT;$WAIT;$GRID_BUTTON;$MIC_BUTTON;$WAIT" make_test_assistant
+mkdir -p previews/assistant-gesture
 adb logcat -c
-# From the very corner up and in, as a thumb would: left corner, slower, then the right one.
-for swipe in "5 $((H - 5)) $((W / 4)) $((H - W / 4)) 250" \
-             "15 $((H - 15)) $((W / 3)) $((H - W / 3)) 450" \
-             "$((W - 5)) $((H - 5)) $((W - W / 4)) $((H - W / 4)) 250"; do
-    adb shell input swipe $swipe
-    sleep 3
-    if adb logcat -d -s myCar | grep -q "test assistant: shown"; then echo "the swipe started it: $swipe"; break; fi
-done
+corner_swipe
 adb exec-out screencap -p > previews/assistant-gesture/phone-screen.png
 adb logcat -d -s myCar > previews/assistant-gesture/log.txt
 echo "--- how the assistant was shown: microphone, then the swipe ---"
