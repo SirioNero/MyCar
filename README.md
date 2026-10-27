@@ -99,13 +99,15 @@ behind it all — still or moving.
   look for, and Android lets only one signing key define it. Uninstall Gearslip first.
 - **Calls use the car's Bluetooth,** as they do in Android Auto. Pair the phone with the
   car to hear calls through its speakers.
-- **Music reaches the car over Bluetooth or USB.** Setup asks which. Bluetooth is the
-  default: Android never asks for permission, and your map app's voice reaches the car
-  too. USB sounds a little clearer, with no delay, but Android shows a screen-share
-  consent dialog once per drive. myCar never reads the screen; capturing playback is
-  the only way an ordinary app can pass another app's audio along.
+- **Music reaches the car over Bluetooth, or through myCar.** Automatic, the default, uses
+  Bluetooth when the car takes the phone's music that way, and otherwise sends it through
+  myCar's own link to the car, over the cable or Wi-Fi, as Android Auto does: many cars take
+  only calls over Bluetooth while Android Auto runs. Bluetooth never needs a permission, and
+  your map app's voice reaches the car too. Through myCar, Android shows a screen-share
+  consent dialog once per drive, which a one-time adb command removes. myCar never reads the
+  screen; capturing playback is the only way an ordinary app can pass another app's audio along.
 - **myCar needs no adb, root, or Shizuku.** Every feature relies on an ordinary
-  Android permission or an on-device consent dialog. For USB audio, setup offers two
+  Android permission or an on-device consent dialog. For sound through myCar, setup offers two
   optional adb commands: one removes the audio dialog for good, and the other keeps
   notifications visible while audio plays.
 - **Updates come from GitHub.** Once a day, myCar checks this repository's latest
