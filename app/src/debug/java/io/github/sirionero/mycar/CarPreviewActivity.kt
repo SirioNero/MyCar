@@ -61,6 +61,9 @@ class CarPreviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MyCarLog.init(this)
+        // --ez demoSong true: no music app to bring back, or an earlier shot's would reopen on Home
+        // and take the made-up song's place. Cleared before the settings are read.
+        if (intent.getBooleanExtra("demoSong", false)) io.github.sirionero.mycar.AppSettings.putString(this, "car_last_media", "")
         CarSettings.init(this)
         if (intent.getBooleanExtra("skipIntro", false)) {
             CarSettings.markSafetyWarningSeen()
