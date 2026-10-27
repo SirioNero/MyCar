@@ -140,6 +140,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         MyCarLog.init(this)
         MyCarLog.installCrashHandler()
         MyCarLog.i("myCar ready")
+        AudioCaptureService.restorePhoneIfLeftMuted(this)
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = { socket ->
             runOnUiThread { startWireless(socket) }
         }
