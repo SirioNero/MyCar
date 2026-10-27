@@ -382,7 +382,7 @@ private fun rememberMotionClock(): State<Long> {
 
 /** Grey noise, tiled over the wallpaper to break up banding. The same every time: seeded. */
 @Composable
-private fun rememberGrain(): ImageBitmap = remember {
+internal fun rememberGrain(): ImageBitmap = remember {
     val side = 96
     val random = java.util.Random(7)
     val pixels = IntArray(side * side) {
