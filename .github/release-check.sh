@@ -32,7 +32,8 @@ ui() {
     adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
     adb pull /sdcard/ui.xml "$OUT/ui.xml" >/dev/null 2>&1
 }
-# The centre of the first node whose text or description is $1.
+# The centre of the first node whose text or description is $1, in capitals or not (the Plancia
+# app's buttons are all capitals).
 centre() {
     python3 - "$OUT/ui.xml" "$1" <<'PY'
 import re, sys, xml.etree.ElementTree as ET
@@ -40,8 +41,9 @@ try:
     nodes = list(ET.parse(sys.argv[1]).iter('node'))
 except Exception:
     sys.exit(0)
+want = sys.argv[2].lower()
 for n in nodes:
-    if sys.argv[2] in (n.get('text'), n.get('content-desc')):
+    if want in ((n.get('text') or '').lower(), (n.get('content-desc') or '').lower()):
         x1, y1, x2, y2 = map(int, re.findall(r'\d+', n.get('bounds')))
         print((x1 + x2) // 2, (y1 + y2) // 2)
         break
