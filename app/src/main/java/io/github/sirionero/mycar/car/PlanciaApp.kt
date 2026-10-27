@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -112,10 +111,8 @@ internal fun PlanciaScreen() {
     val navigator = LocalCarNavigator.current
     val web = LocalPlanciaWeb.current
     val menu = web?.menu?.collectAsState()?.value == true
-    val current = web?.current?.collectAsState()?.value
     val dashboards by HomeAssistant.dashboards.collectAsState()
     val haDefault by HomeAssistant.haDefault.collectAsState()
-    val shown = current ?: haDefault
     // Back closes the menu, then steps back inside the page, then leaves.
     DisposableEffect(web, menu) {
         navigator.backInterceptor = {
@@ -131,13 +128,9 @@ internal fun PlanciaScreen() {
         onDispose { navigator.backInterceptor = null }
     }
     Box(Modifier.fillMaxSize()) {
+        // Home Assistant's own bar, under this one, names the dashboard and opens the menu (☰).
         Column(Modifier.fillMaxSize()) {
-            ScreenHeader(
-                dashboards.firstOrNull { it.urlPath == shown }?.title ?: "Plancia",
-                Modifier.padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.S),
-            ) {
-                GsIconButton(Icons.Filled.Menu, "Dashboards", { web?.openMenu() }, size = MyCarSize.TouchTarget)
-            }
+            TileBar("Plancia", onBack = navigator::back, onHold = {})
             PlanciaView(Modifier.weight(1f).fillMaxWidth())
         }
         if (menu && web != null) PlanciaMenu(web, dashboards, haDefault, onClose = web::closeMenu)
