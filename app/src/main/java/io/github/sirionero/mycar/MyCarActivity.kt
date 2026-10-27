@@ -7,8 +7,10 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
 import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionConfig
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.provider.Settings
@@ -259,7 +261,14 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     private fun askAudioCapture() {
         val manager = getSystemService(MediaProjectionManager::class.java)
-        runCatching { audioConsent.launch(manager.createScreenCaptureIntent()) }
+        // The whole screen as the only choice: one tap on Start, with no list of apps to pick
+        // from first - and the sound of every app reaches the car, not just the one picked.
+        val intent = if (Build.VERSION.SDK_INT >= 34) {
+            manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+        } else {
+            manager.createScreenCaptureIntent()
+        }
+        runCatching { audioConsent.launch(intent) }
             .onFailure {
                 MyCarLog.e("could not ask for audio capture", it)
                 CarAudio.denied()
