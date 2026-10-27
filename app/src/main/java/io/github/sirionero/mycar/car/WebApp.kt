@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.car
 
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import org.json.JSONObject
 
@@ -138,6 +140,12 @@ private class LoggingClient(private val ring: String) : WebViewClient() {
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         if (request?.isForMainFrame == true) {
             MyCarLog.e("car web page FAILED: ${request.url} - ${error?.errorCode} ${error?.description}")
+            // A page at home that Android 17 keeps myCar from (see LocalNetwork): say what to allow,
+            // rather than the web engine's own "not available".
+            val url = request.url.toString()
+            if (view != null && LocalNetwork.blocks(view.context, listOf(url))) {
+                view.post { view.loadDataWithBaseURL(null, homeNetworkPage(url), "text/html", "utf-8", url) }
+            }
         }
     }
 
@@ -147,6 +155,12 @@ private class LoggingClient(private val ring: String) : WebViewClient() {
         }
     }
 }
+
+private fun homeNetworkPage(url: String) =
+    "<html><head><meta name=\"viewport\" content=\"width=device-width\"></head>" +
+        "<body style=\"font-family:sans-serif;padding:32px;text-align:center\">" +
+        "<h2>This page is on your home network</h2><p>${TextUtils.htmlEncode(LocalNetwork.HINT)}</p>" +
+        "<p style=\"opacity:.6\">${TextUtils.htmlEncode(url)}</p></body></html>"
 
 /** Tells Kotlin when an editable element on the page gains or loses focus, so [CarKeyboard] can show. */
 internal class FieldFocusBridge(private val onFocus: (String) -> Unit, private val onBlur: () -> Unit) {
