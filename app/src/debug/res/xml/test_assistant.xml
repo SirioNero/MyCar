@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only: the stand-in assistant the Car preview workflow makes the default (see TestAssistant.kt). -->
+<voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:sessionService="io.github.sirionero.mycar.debug.TestAssistantSessionService"
+    android:recognitionService="io.github.sirionero.mycar.debug.TestRecognitionService"
+    android:supportsAssist="true" />

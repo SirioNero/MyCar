@@ -81,7 +81,10 @@ fun CarHome() {
         if (onHome && seenHome[0]) CarServices.nav.replaceDeadSurface()
         if (onHome) seenHome[0] = true
     }
-    val splitScreen = phase == CarMedia.Phase.READY && now.isActive && panel != SidePanel.NONE
+    // Beside the map: the app chosen for it in the car's settings, always; or, by default, the
+    // music player while something plays.
+    val sideApp = rememberSidePaneApp()
+    val splitScreen = panel != SidePanel.NONE && (sideApp != null || (phase == CarMedia.Phase.READY && now.isActive))
 
     // No outer padding on any side, split screen or not - only the gap between the two panes
     // when the player is sharing the screen with the map.
@@ -98,7 +101,16 @@ fun CarHome() {
         }
         if (splitScreen) {
             val side = Modifier.weight(1f).fillMaxHeight()
-            if (panel == SidePanel.LYRICS) SideLyrics(now, side) else GlassDockedPlayer(now, side)
+            val sideTemplate = sideApp?.template
+            val sideMedia = sideApp?.media
+            when {
+                // Only while Home shows: an app opened full screen from the grid uses the same
+                // connection, and two stages on it would pull its surface back and forth.
+                sideTemplate != null -> if (onHome) SideAppPane(sideTemplate, frame, side) else Box(side)
+                panel == SidePanel.LYRICS -> SideLyrics(now, side)
+                sideMedia != null -> SideMediaPane(sideMedia, now, side)
+                else -> GlassDockedPlayer(now, side)
+            }
         }
     }
 }
@@ -139,10 +151,18 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
             } else if (hasLast) {
                 // IDLE with a last app on record means the driver stopped it themselves - it will
                 // not come back on its own, so the screen must offer a way to bring it back rather
-                // than sit on a "starting" message that never resolves.
-                Text("Map stopped.", style = MaterialTheme.typography.titleMedium)
-                GsButton(onClick = { scope.launch { CarServices.reconnectNav(frame) } }, tone = GsTone.Tonal) { Text("Reopen") }
-                GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                // than sit on a "starting" message that never resolves. Right after connecting it
+                // means autostart hasn't picked the map yet: that gets a moment first, or every
+                // drive would open on "Map stopped." for an instant.
+                val stopped by produceState(CarServices.navStoppedByDriver) {
+                    delay(MAP_START_GRACE_MS)
+                    value = true
+                }
+                if (stopped) {
+                    Text("Map stopped.", style = MaterialTheme.typography.titleMedium)
+                    GsButton(onClick = { scope.launch { CarServices.reconnectNav(frame) } }, tone = GsTone.Tonal) { Text("Reopen") }
+                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                }
             } else {
                 // Autostart is still picking one - a navigation app is installed, so this resolves
                 // to a "Starting..." state itself, in the next frame or two.
@@ -150,6 +170,9 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
         }
     }
 }
+
+/** How long the map may sit idle at the start of a drive before Home offers to reopen it. */
+private const val MAP_START_GRACE_MS = 2_000L
 
 /**
  * Lyrics alone beside the map, big enough to read at a glance. No art: that space goes to a

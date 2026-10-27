@@ -13,6 +13,8 @@ object Changelog {
         Release(
             17, "0.5.04-alpha",
             listOf(
+                "Beside the map: the music player while something plays, as before, or an app of your choice, such as Plancia or Xonos, always there. Pick it in the car's settings.",
+                "The microphone stays at the foot of the dock, just above the app grid button, however many apps are open.",
                 "The phone's assistant now wakes the way the swipe up from a bottom corner of the phone wakes it. Choose it under the car's Settings > Voice assistant.",
                 "Moving wallpapers: Lava, Polar, Waves and Fireflies, under Wallpaper in the car's settings, below the still ones.",
                 "A new myCar icon.",

@@ -247,6 +247,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         whatsNewSeenFlow.value = AppSettings.getString(app, KEY_WHATS_NEW_SEEN, "0").toIntOrNull() ?: 0
         io.github.sirionero.mycar.car.design.WallpaperSetting.init(app)
         AssistantChoice.init(app)
+        SidePaneChoice.init(app)
     }
 
     fun setScale(value: Float) {

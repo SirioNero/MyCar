@@ -61,6 +61,18 @@ Rispondi sempre in **italiano**.
   Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script. Con
   `--ez player true` l'anteprima mostra solo il player accanto alla mappa con un brano finto
   (`app/src/debug/.../car/PlayerPreview.kt`, cartelle `player/`): nell'emulatore non suona niente.
+  `split/` è la Home con la musica: mappa vera di Vela, lettore vero accanto e brano nel dock
+  (`--ez demoSong true`: un brano finto impostato in `CarMedia` dall'anteprima di debug,
+  `showDemoSong`), scattata per 15 s perché la mappa ci mette qualche secondo a comparire.
+  L'anteprima passa a `CarEnvironment.setDisplay` dimensioni e densità dello schermo, come una
+  sessione vera: le app (mappa di Vela, Plancia) disegnano alla densità dell'auto.
+  Assistente: `assistant/` (Impostazioni al posto di un assistente-activity, `phone-screen.png`),
+  `assistant-google/` (l'app Google dell'emulatore: schermo del telefono dopo il microfono e dopo lo
+  scorrimento dall'angolo, `phone-mic.png` / `phone-swipe.png`), `assistant-mic/` +
+  `assistant-gesture/` (l'assistente finto del debug, `debug/TestAssistant.kt`, scrive nel log
+  flag e argomenti con cui Android lo mostra: il log della CI li confronta). L'assistente finto
+  diventa predefinito solo dopo l'avvio dello scatto: un force-stop dell'app che fa da
+  assistente fa tornare Android all'app Google.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
@@ -150,11 +162,20 @@ Tutti i token in un solo posto, `car/design/`:
 - **Movimento**: pressione 120–150ms, transizioni 200–250ms, easing decelerato; niente
   animazioni lunghe.
 - **Layout**: dock laterale fisso a sinistra (`CarDock`: orologio in alto → dashboard, mappa,
-  brano in riproduzione, app fissate e aperte, assistente; tasto della griglia app in basso);
+  brano in riproduzione, app fissate e aperte; in basso, fissi, il microfono dell'assistente e
+  sotto di lui il tasto della griglia app). Il microfono non sta nella lista delle app: resta
+  sempre visibile allo stesso posto, quante che siano le app (prima, a dock pieno, spariva);
   Home resta mappa + player; la griglia app (≈4×2 per pagina, a pagine, con indicatori) si apre
   dal tasto del dock; icone reali delle app installate dentro una cornice squircle. Sulla griglia
   il tasto in fondo al dock diventa "mappa e musica" (`sym_space_dashboard`) e riporta allo
   schermo condiviso (`CarNavigator.homeWithPlayer()`).
+- **Accanto alla mappa** (`SidePane.kt`, chiave `car_side_pane`, impostazione "Beside the map"):
+  la musica (default: il player mentre qualcosa suona) oppure un'app scelta, sempre lì: un'app
+  con template (es. Plancia) gira sul collegamento `browse` dentro il pannello, con la barra in
+  alto e "Close" (`CarAppStage(endLabel)`); un'app musicale (es. Xonos) mostra il suo player e
+  diventa l'app musicale solo se non ne suona già un'altra. Il pannello di un'app esiste solo
+  mentre la Home è visibile: un'app aperta a tutto schermo usa lo stesso collegamento.
+  Anteprima: `--es sidePane <pacchetto>`, cartelle `split-plancia/`, `split-xonos/`.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -194,7 +215,9 @@ Tutti i token in un solo posto, `car/design/`:
   un angolo in basso** (`AssistGesture`): chiama `launchAssist` del servizio di ricerca via
   `ServiceManager` + `Parcel` (transazione 6, dopo cinque getter; uguale da Android 12 a 16; non
   chiede permessi), che passa per l'interfaccia di sistema e mostra l'assistente in ascolto, non
-  in chat scritta. È così che Claude si apre in voce dove un ASSIST aprirebbe la tastiera. Se non
+  in chat scritta. Gli argomenti sono quelli che il launcher dà per lo scorrimento
+  (`triggered_by` = 83, `invocation_type` = 1). È così che Claude si apre in voce dove un ASSIST
+  aprirebbe la tastiera. Se non
   va, ripiega sugli intent: prima VOICE_SEARCH_HANDS_FREE, poi VOICE_COMMAND / VOICE_ASSIST,
   ASSIST per ultimo (ora con gli stessi extra del gesto). "L'assistente del telefono" è l'app
   letta da `Settings.Secure` "assistant"; l'app di Gemini (`com.google.android.apps.bard`) la

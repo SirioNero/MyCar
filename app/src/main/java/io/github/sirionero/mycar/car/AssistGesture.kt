@@ -25,9 +25,14 @@ internal object AssistGesture {
     /** launchAssist(int userHandle, in Bundle args), Android 12 to 16. */
     private const val TRANSACTION_LAUNCH_ASSIST = IBinder.FIRST_CALL_TRANSACTION + 5
 
-    /** What SystemUI passes on to the assistant: how it was invoked, here the gesture. */
+    /**
+     * What the launcher hands SystemUI for the swipe, passed on to the assistant: how it was
+     * invoked (the gesture), and the trigger code Google's assistant reads (the diagonal swipe).
+     */
     private const val INVOCATION_TYPE_KEY = "invocation_type"
     private const val INVOCATION_TYPE_GESTURE = 1
+    private const val TRIGGER_KEY = "triggered_by"
+    private const val TRIGGER_CORNER_SWIPE = 83
 
     /** Each Android user's UIDs come in a block this size: the UID divided by it is the user. */
     private const val PER_USER_RANGE = 100_000
@@ -53,5 +58,8 @@ internal object AssistGesture {
     }.onFailure { MyCarLog.w("assistant: no corner-swipe start: $it") }.getOrDefault(false)
 
     /** The extras an assistant opened by the swipe finds: for an ASSIST intent to say the same. */
-    fun gestureExtras(): Bundle = Bundle().apply { putInt(INVOCATION_TYPE_KEY, INVOCATION_TYPE_GESTURE) }
+    fun gestureExtras(): Bundle = Bundle().apply {
+        putInt(TRIGGER_KEY, TRIGGER_CORNER_SWIPE)
+        putInt(INVOCATION_TYPE_KEY, INVOCATION_TYPE_GESTURE)
+    }
 }

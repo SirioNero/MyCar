@@ -61,6 +61,9 @@ class CarPreviewActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MyCarLog.init(this)
+        // --ez demoSong true: no music app to bring back, or an earlier shot's would reopen on Home
+        // and take the made-up song's place. Cleared before the settings are read.
+        if (intent.getBooleanExtra("demoSong", false)) io.github.sirionero.mycar.AppSettings.putString(this, "car_last_media", "")
         CarSettings.init(this)
         if (intent.getBooleanExtra("skipIntro", false)) {
             CarSettings.markSafetyWarningSeen()
@@ -71,15 +74,26 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.AssistantChoice.set(
             intent.getStringExtra("assistant") ?: io.github.sirionero.mycar.car.PhoneAssistants.MYCAR,
         )
+        // --es sidePane it.plancia.ha: that app beside the map on Home - its car app service, or
+        // its music service. Set every run, so other shots keep the music player there.
+        val sidePane = intent.getStringExtra("sidePane")?.let { pkg ->
+            listOf(androidx.car.app.CarAppService.SERVICE_INTERFACE, android.service.media.MediaBrowserService.SERVICE_INTERFACE)
+                .firstNotNullOfOrNull { action ->
+                    packageManager.queryIntentServices(android.content.Intent(action).setPackage(pkg), 0).firstOrNull()
+                }?.serviceInfo?.let { android.content.ComponentName(it.packageName, it.name).flattenToString() }
+        }
+        io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,
         )
-        CarEnvironment.start(this)
-
         val w = intent.getIntExtra("w", 800)
         val h = intent.getIntExtra("h", 480)
         val dpi = intent.getIntExtra("dpi", 160)
+        // As a car session does: the screen's size and density, which car apps' surfaces get too.
+        CarEnvironment.setDisplay(w, h, dpi)
+        CarEnvironment.start(this)
+
         val taps = intent.getStringExtra("taps").orEmpty().split(";").filter { it.isNotBlank() }
             .map { it.split(",").let { p -> p[0].toFloat() to p[1].toFloat() } }
 
@@ -124,6 +138,17 @@ class CarPreviewActivity : ComponentActivity() {
             CarAudio.attach(BenchAudioSink())
         }
 
+        // --ez demoSong true: a made-up song "plays", once CarUi has started the car's services, so
+        // Home shows the player beside the real map (see showDemoSong).
+        if (intent.getBooleanExtra("demoSong", false)) {
+            var tries = 0
+            fun tryDemo() {
+                if (io.github.sirionero.mycar.car.showDemoSong()) MyCarLog.i("preview: demo song playing")
+                else if (++tries < 50) main.postDelayed(::tryDemo, 100)
+                else MyCarLog.e("preview: no media to show the demo song in")
+            }
+            main.post(::tryDemo)
+        }
         MyCarLog.i("preview: displayId=${p.displayId}")
         if (intent.getBooleanExtra("hide", false)) p.setOverlayVisible(false)
 

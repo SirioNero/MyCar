@@ -81,11 +81,13 @@ import java.util.Date
 /**
  * The dock: a fixed column down the left edge, beside every screen. The clock sits on top - tap it
  * for the dashboard, with the calendar, the weather and the notifications - then the apps that
- * matter right now, and the app grid button at the foot.
+ * matter right now, and at the bottom the voice assistant, with the app grid button under it.
  *
  * The middle shows, most useful first: the next turn while the map is out of sight, the map, the
- * song playing, the pinned apps, whatever else is open, and the voice assistant. What doesn't fit
- * on a short screen waits on the app grid. Every slot is a [MyCarSize.TouchTarget] square.
+ * song playing, the pinned apps and whatever else is open. What doesn't fit on a short screen
+ * waits on the app grid. The assistant isn't one of them: it stays put just above the grid button,
+ * however many apps there are, so it never moves or drops out. Every slot is a
+ * [MyCarSize.TouchTarget] square.
  */
 @Composable
 internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
@@ -133,7 +135,6 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
                 (pinned + open).forEach { entry ->
                     entry.componentId?.let { id -> add(DockSlot(id) { DockApp(entry, running, navigator, frame) }) }
                 }
-                add(DockSlot("assistant") { DockAssistant() })
             }
             val fit = ((maxHeight + DockGap) / (MyCarSize.TouchTarget + DockGap)).toInt().coerceAtLeast(0)
             Column(
@@ -144,6 +145,8 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
             }
         }
         Spacer(Modifier.height(MyCarSpace.S))
+        DockAssistant()
+        Spacer(Modifier.height(DockGap))
         // The dock's foot: the app grid, and from the grid back to the map beside the music.
         val onGrid = navigator.current == CarScreen.Apps
         DockItem(
@@ -316,10 +319,13 @@ private fun DockNowPlaying(navigator: CarNavigator) {
     val context = LocalContext.current
     val art by produceState(now.art, now.art, now.artUri) { value = now.art ?: MediaArt.load(context, now.artUri) }
     val appIcon = remember(mediaApp) { mediaApp?.let { findEntry(it.component.flattenToString())?.icon } }
+    // With an app chosen to sit beside the map instead, the player isn't there to show or hide:
+    // the song opens the full player.
+    val appBesideMap = rememberSidePaneApp()?.template != null
     DockItem(
         selected = navigator.current == CarScreen.Media ||
-            (navigator.current == CarScreen.Home && navigator.sidePanel == SidePanel.CONTROLS),
-        onClick = { navigator.togglePlayerDock() },
+            (!appBesideMap && navigator.current == CarScreen.Home && navigator.sidePanel == SidePanel.CONTROLS),
+        onClick = { if (appBesideMap) navigator.media() else navigator.togglePlayerDock() },
         description = listOf(now.title, now.artist).filter { it.isNotBlank() }.joinToString(" - ").ifEmpty { "Now playing" },
         onLongClick = { navigator.media() },
     ) {

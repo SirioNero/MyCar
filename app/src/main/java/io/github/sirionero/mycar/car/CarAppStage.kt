@@ -58,6 +58,8 @@ fun CarAppStage(
     frame: CarEnvironment.Frame,
     /** Inside the home screen's map pane: no title bar, the template gets the whole area. */
     embedded: Boolean = false,
+    /** The title bar's button, at its right end: Stop for an app on its own screen. */
+    endLabel: String = "Stop",
     onDisconnect: () -> Unit,
 ) {
     val template by connection.template.collectAsStateWithLifecycle()
@@ -69,7 +71,7 @@ fun CarAppStage(
             AppSurface(connection, frame, template, Modifier.fillMaxSize())
         }
         TemplateChrome(template, Modifier.fillMaxSize().padding(top = if (embedded) 0.dp else CHROME_BAR))
-        if (!embedded) ChromeBar(status, onDisconnect, Modifier.align(Alignment.TopCenter))
+        if (!embedded) ChromeBar(status, endLabel, onDisconnect, Modifier.align(Alignment.TopCenter))
     }
 }
 
@@ -189,6 +191,7 @@ private fun SurfaceHost(
 @Composable
 private fun ChromeBar(
     status: CarAppConnection.Status,
+    endLabel: String,
     onDisconnect: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -201,7 +204,7 @@ private fun ChromeBar(
         modifier = modifier.fillMaxWidth().height(CHROME_BAR),
     ) {
         Row(Modifier.padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            // Everything but Stop, which keeps the right end.
+            // Everything but the end button, which keeps the right end.
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     status.app ?: "Car app",
@@ -227,7 +230,7 @@ private fun ChromeBar(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    "Stop",
+                    endLabel,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier

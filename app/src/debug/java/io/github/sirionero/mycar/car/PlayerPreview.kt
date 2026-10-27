@@ -27,7 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.car.design.MyCarCarTheme
 import io.github.sirionero.mycar.car.design.MyCarSize
+import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.NowPlaying
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * Debug only, for CarPreviewActivity's player mode: the player docked beside a stand-in map, with
@@ -38,18 +40,7 @@ internal fun PlayerPreview() {
     // CarUi starts the car's services before anything reads them; without it, so must this.
     val context = LocalContext.current.applicationContext
     remember(context) { CarServices.init(context) }
-    val now = remember {
-        NowPlaying(
-            title = "Midnight Drive",
-            artist = "myCar Preview",
-            art = previewCover(600),
-            state = PlaybackState.STATE_PLAYING,
-            positionMs = 72_000,
-            durationMs = 214_000,
-            updatedAt = SystemClock.elapsedRealtime(),
-            actions = PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS,
-        )
-    }
+    val now = remember { demoSong() }
     val navigator = remember { CarNavigator("") }
     MyCarCarTheme(dark = true) {
         CompositionLocalProvider(LocalCarNavigator provides navigator) {
@@ -63,6 +54,36 @@ internal fun PlayerPreview() {
             }
         }
     }
+}
+
+/** The made-up song the previews play: the emulator has no music of its own. */
+internal fun demoSong() = NowPlaying(
+    title = "Midnight Drive",
+    artist = "myCar Preview",
+    art = previewCover(600),
+    state = PlaybackState.STATE_PLAYING,
+    positionMs = 72_000,
+    durationMs = 214_000,
+    updatedAt = SystemClock.elapsedRealtime(),
+    actions = PlaybackState.ACTION_SKIP_TO_NEXT or PlaybackState.ACTION_SKIP_TO_PREVIOUS,
+)
+
+/**
+ * Debug only, for CarPreviewActivity's demoSong mode: the car's media looks as if [demoSong] were
+ * playing, so the real Home shows the player beside the real map and the dock shows the song.
+ * CarMedia keeps its state private for good reason; a preview reaching in by reflection is the
+ * price of leaving the app's own code alone. False until CarUi has started the car's services.
+ */
+internal fun showDemoSong(): Boolean {
+    val media = CarServices.mediaOrNull() ?: return false
+    @Suppress("UNCHECKED_CAST")
+    fun <T> state(name: String): MutableStateFlow<T> {
+        val field = CarMedia::class.java.getDeclaredField(name).apply { isAccessible = true }
+        return field.get(media) as MutableStateFlow<T>
+    }
+    state<NowPlaying>("_now").value = demoSong()
+    state<CarMedia.Phase>("_phase").value = CarMedia.Phase.READY
+    return true
 }
 
 /** A cover with some life in it: a sunset of colour and a bright disc, so the glass has something to blur. */
