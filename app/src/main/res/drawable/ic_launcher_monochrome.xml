@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Themed-icon silhouette of the logo (Android 13+): the padlock's shackle, its body with the
-     keyhole cut out, and the two wheels, each wheel set apart from the body by a thin gap.
+     keyhole cut out, and the two feet at the lower corners, each set a little apart from the body.
      Laid out on the same grid as the art in mipmap-*/ic_launcher_foreground.png. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -8,15 +8,18 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:pathData="M43.6,48 V39.35 A10.25,10.25 0 0 1 64.1,39.35 V48"
+        android:pathData="M45.5,48 V41.5 A8.5,8.5 0 0 1 62.5,41.5 V48"
         android:strokeColor="#FF000000"
-        android:strokeWidth="4"/>
+        android:strokeWidth="5"
+        android:strokeLinecap="round"/>
     <path
-        android:pathData="M39.9,46.7 H68.1 A2.5,2.5 0 0 1 70.6,49.2 V68.84 A5.7,5.7 0 0 0 63.1,72 H44.9 A5.7,5.7 0 0 0 37.4,68.84 V49.2 A2.5,2.5 0 0 1 39.9,46.7 Z M52.6,60.51 A3.3,3.3 0 1 1 54.8,60.51 L55.6,67.4 L51.8,67.4 Z"
+        android:pathData="M40,46.5 H68 A6,6 0 0 1 74,52.5 V64 A6,6 0 0 1 68,70 H40 A6,6 0 0 1 34,64 V52.5 A6,6 0 0 1 40,46.5 Z M54,55 A3.4,3.4 0 0 0 51.8,61 L50.8,66.2 H57.2 L56.2,61 A3.4,3.4 0 0 0 54,55 Z"
         android:fillType="evenOdd"
         android:fillColor="#FF000000"/>
     <path
-        android:pathData="M35.1,74.1 A4.5,4.5 0 1 0 44.1,74.1 A4.5,4.5 0 1 0 35.1,74.1 Z M38.2,74.1 A1.4,1.4 0 1 0 41,74.1 A1.4,1.4 0 1 0 38.2,74.1 Z M63.9,74.1 A4.5,4.5 0 1 0 72.9,74.1 A4.5,4.5 0 1 0 63.9,74.1 Z M67,74.1 A1.4,1.4 0 1 0 69.8,74.1 A1.4,1.4 0 1 0 67,74.1 Z"
-        android:fillType="evenOdd"
+        android:pathData="M35.4,61 A4.1,4.1 0 0 1 37,68.6 L34.2,74.5 A4,4 0 0 1 27.4,71.2 L28.5,64.2 A4.1,4.1 0 0 1 35.4,61 Z"
+        android:fillColor="#FF000000"/>
+    <path
+        android:pathData="M72.6,61 A4.1,4.1 0 0 0 71,68.6 L73.8,74.5 A4,4 0 0 0 80.6,71.2 L79.5,64.2 A4.1,4.1 0 0 0 72.6,61 Z"
         android:fillColor="#FF000000"/>
 </vector>
