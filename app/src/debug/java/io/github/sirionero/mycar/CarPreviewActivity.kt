@@ -43,6 +43,7 @@ class CarPreviewActivity : ComponentActivity() {
     private val audioConsent = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
     ) { result ->
+        io.github.sirionero.mycar.audio.CaptureConsent.answered()
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             AudioCaptureService.start(this, result.resultCode, data)
@@ -53,8 +54,7 @@ class CarPreviewActivity : ComponentActivity() {
     }
 
     private fun askAudioCapture() {
-        val manager = getSystemService(android.media.projection.MediaProjectionManager::class.java)
-        runCatching { audioConsent.launch(manager.createScreenCaptureIntent()) }
+        runCatching { audioConsent.launch(io.github.sirionero.mycar.audio.CaptureConsent.intent(this)) }
             .onFailure { MyCarLog.e("preview: could not ask for audio capture", it); CarAudio.denied() }
     }
 
@@ -138,6 +138,8 @@ class CarPreviewActivity : ComponentActivity() {
                 }
             }
             CarAudio.attach(BenchAudioSink())
+            // As the car's settings would with Through myCar chosen: Android's question goes up.
+            CarAudio.request()
         }
 
         // --ez demoSong true: a made-up song "plays", once CarUi has started the car's services, so

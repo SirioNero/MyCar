@@ -116,6 +116,22 @@ EXTRA="--ez player true" shoot player-800x480 800 480 160 "$WAIT"
 shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"
 adb emu gsm cancel 3331234567
 
+# Car audio through myCar: Android's question to share the phone's sound goes up as the shot
+# starts. 5s in, with the question on the phone's screen, myCar is switched on under Accessibility,
+# as a driver might do then, and should answer it by itself, with no tap: the log says so, and
+# the phone's screen after shows no question.
+A11Y_SERVICE="$PKG/io.github.sirionero.mycar.mirror.TouchRelayService"
+EXTRA="--ez audio true" shoot audio-consent 1920 720 240 "$WAIT;$WAIT;$WAIT" \
+    "mkdir -p previews/audio-consent; adb exec-out screencap -p > previews/audio-consent/phone-question.png; \
+     adb shell settings put secure enabled_accessibility_services $A11Y_SERVICE; \
+     adb shell settings put secure accessibility_enabled 1; \
+     sleep 4; adb exec-out screencap -p > previews/audio-consent/phone-after.png"
+adb shell settings delete secure enabled_accessibility_services
+adb shell settings put secure accessibility_enabled 0
+echo "--- the audio question: what myCar did ---"
+grep -h "touch relay connected\|answered Android's question\|capturing media playback\|consent declined" \
+    previews/audio-consent/log.txt || echo "audio-consent: nothing about it in the log"
+
 # The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
 # as the swipe up from a bottom corner does, through SystemUI. First with the Settings app standing
 # in for an assistant that's an activity; the phone's own screen, shot after the tap, should show it.
