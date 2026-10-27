@@ -186,6 +186,18 @@
                 android:resource="@xml/accessory_filter" />
         </activity-alias>
 
+        <!--
+          Opens a locked phone for the assistant chosen in the car, then starts it: see-through,
+          over the lock screen, gone once that's done (car/AssistantUnlock.kt).
+        -->
+        <activity
+            android:name=".car.AssistantUnlockActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <!-- Dev builds' test message: its Reply and Mark as read actions land here. -->
         <receiver
             android:name=".notify.TestMessageReceiver"

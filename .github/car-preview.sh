@@ -188,5 +188,34 @@ grep -h "test assistant: shown" previews/assistant-mic/log.txt || echo "micropho
 grep -h "test assistant: shown" previews/assistant-gesture/log.txt || echo "swipe: no test assistant line"
 adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || true
 
+# The microphone with the phone locked by a PIN, myCar on under Accessibility (which is what lets
+# it light the phone from the background): the phone should ask to be unlocked, and the assistant
+# start once it is. The PIN is typed on the phone as the driver would; the stand-in assistant logs
+# when it's shown, which should be after the unlock.
+PIN=1357
+A11Y_SERVICE="$PKG/io.github.sirionero.mycar.mirror.TouchRelayService"
+lock_phone() {
+    make_test_assistant
+    adb shell locksettings set-pin $PIN
+    adb shell input keyevent KEYCODE_SLEEP
+}
+BEFORE="adb shell settings put secure enabled_accessibility_services $A11Y_SERVICE; \
+    adb shell settings put secure accessibility_enabled 1; sleep 3" \
+    EXTRA="--es assistant phone" shoot assistant-locked 1920 720 240 \
+    "$WAIT;$WAIT;$WAIT;$GRID_BUTTON;$MIC_BUTTON;$WAIT;$WAIT;$WAIT" \
+    "lock_phone; sleep 8; mkdir -p previews/assistant-locked; \
+     adb exec-out screencap -p > previews/assistant-locked/phone-unlock.png; \
+     adb shell input text $PIN; adb shell input keyevent KEYCODE_ENTER; sleep 4; \
+     adb exec-out screencap -p > previews/assistant-locked/phone-after.png"
+adb shell locksettings clear --old $PIN || true
+adb shell input keyevent KEYCODE_WAKEUP
+adb shell wm dismiss-keyguard || true
+adb shell settings delete secure enabled_accessibility_services
+adb shell settings put secure accessibility_enabled 0
+adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || true
+echo "--- the microphone with the phone locked ---"
+grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
+    echo "assistant-locked: nothing in the log"
+
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews
