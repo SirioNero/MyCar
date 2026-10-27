@@ -54,6 +54,9 @@ Rispondi sempre in **italiano**.
   Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script. Con
   `--ez player true` l'anteprima mostra solo il player accanto alla mappa con un brano finto
   (`app/src/debug/.../car/PlayerPreview.kt`, cartelle `player/`): nell'emulatore non suona niente.
+  `split/` è la Home con la musica: mappa vera di Vela, lettore vero accanto e brano nel dock
+  (`--ez demoSong true`: un brano finto impostato in `CarMedia` dall'anteprima di debug,
+  `showDemoSong`), scattata per 15 s perché la mappa ci mette qualche secondo a comparire.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
@@ -143,7 +146,9 @@ Tutti i token in un solo posto, `car/design/`:
 - **Movimento**: pressione 120–150ms, transizioni 200–250ms, easing decelerato; niente
   animazioni lunghe.
 - **Layout**: dock laterale fisso a sinistra (`CarDock`: orologio in alto → dashboard, mappa,
-  brano in riproduzione, app fissate e aperte, assistente; tasto della griglia app in basso);
+  brano in riproduzione, app fissate e aperte; in basso, fissi, il microfono dell'assistente e
+  sotto di lui il tasto della griglia app). Il microfono non sta nella lista delle app: resta
+  sempre visibile allo stesso posto, quante che siano le app (prima, a dock pieno, spariva);
   Home resta mappa + player; la griglia app (≈4×2 per pagina, a pagine, con indicatori) si apre
   dal tasto del dock; icone reali delle app installate dentro una cornice squircle. Sulla griglia
   il tasto in fondo al dock diventa "mappa e musica" (`sym_space_dashboard`) e riporta allo

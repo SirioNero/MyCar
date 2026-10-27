@@ -81,6 +81,10 @@ installed $VELA && shoot vela 1920 720 240 "$GRID_BUTTON;$(at vela);$WAIT;$WAIT;
 installed $PLANCIA && shoot plancia 1920 720 240 "$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT"
 installed $XONOS && shoot xonos 1920 720 240 "$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;$WAIT"
 
+# Home with music playing: the real map beside the real player, a made-up song in the dock.
+# Shot over 15s, as the map app takes a few seconds to draw its first map.
+EXTRA="--ez demoSong true" shoot split 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
+
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
@@ -103,7 +107,7 @@ adb emu gsm cancel 3331234567
 # The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
 # as the swipe up from a bottom corner does, through SystemUI. The emulator has no assistant, so
 # the Settings app stands in for one; the phone's own screen, shot after the tap, should show it.
-MIC_BUTTON="72,278"
+MIC_BUTTON="72,549"   # just above the dock's foot, where it always is
 adb shell settings put secure assistant com.android.settings/com.android.settings.Settings
 EXTRA="--es assistant phone" shoot assistant 1920 720 240 "$GRID_BUTTON;$MIC_BUTTON;$WAIT" \
     "sleep 6; mkdir -p previews/assistant; adb exec-out screencap -p > previews/assistant/phone-screen.png"

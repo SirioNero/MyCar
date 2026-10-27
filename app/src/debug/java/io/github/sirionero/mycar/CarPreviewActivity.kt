@@ -124,6 +124,17 @@ class CarPreviewActivity : ComponentActivity() {
             CarAudio.attach(BenchAudioSink())
         }
 
+        // --ez demoSong true: a made-up song "plays", once CarUi has started the car's services, so
+        // Home shows the player beside the real map (see showDemoSong).
+        if (intent.getBooleanExtra("demoSong", false)) {
+            var tries = 0
+            fun tryDemo() {
+                if (io.github.sirionero.mycar.car.showDemoSong()) MyCarLog.i("preview: demo song playing")
+                else if (++tries < 50) main.postDelayed(::tryDemo, 100)
+                else MyCarLog.e("preview: no media to show the demo song in")
+            }
+            main.post(::tryDemo)
+        }
         MyCarLog.i("preview: displayId=${p.displayId}")
         if (intent.getBooleanExtra("hide", false)) p.setOverlayVisible(false)
 
