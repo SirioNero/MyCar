@@ -1,13 +1,23 @@
-myCar 0.5.07-alpha: a second bug hunt, mostly about what's left behind after a drive.
+myCar 0.5.08-alpha: pages beside the map, with widgets.
 
-## Fixed
+## New
+- Home is now a row of pages. The map's page is as it was, the map with the music or your app beside it; your own pages sit either side of it. Swipe across Home to reach them, wherever your finger doesn't already move something (the map, the browser and car apps keep their swipes), or tap the dots at the foot of Home. Over the map the dots fade with the map's buttons and come back at a touch.
+- Ready-made pages: the weather and your agenda on the left of the map, and on its right Plancia beside the browser, when Plancia is on the phone. Plancia shows its default dashboard, with your Home Assistant controls.
+- Each page is two halves or four parts. A part holds the weather (now, the next hours and days, as room allows), the agenda (what's coming up in the phone's calendar), myCar's browser, or a car app such as Plancia. Tap the weather for the whole forecast, the agenda for the dashboard.
+- To change a page, tap the pencil beside the dots, or hold a widget or the bar over an app: choose two halves or four parts, move the page left or right (past the map too), add a page after it or delete it, then tap a part to choose what goes there. New pages can also be added from the car's Settings > Pages beside the map, which can bring the ready-made pages back too.
+- The dock's map button, the car's map key and Back on one of your pages all go back to the map's page.
+
+## Good to know
+- One car app runs at a time on the pages, besides the map: a car app on a page runs while that page is in view, and shows as its icon otherwise. Swiping to another page with a different car app starts that one instead.
+- The browser's keyboard on a page takes the page's whole width.
+- Android widgets from other apps aren't there yet; they're planned for a later version.
+
+## Also in 0.5.07-alpha
 - If myCar was closed mid-drive (a crash, or Android ending it) while it was sending the phone's sound to the car, the phone's music stayed muted afterwards. myCar now remembers muting it and gives the sound back the next time it starts.
 - Android's question to share audio (or the screen) can stay open on the phone until after the drive. Answering yes then started the capture anyway: the phone went silent with its music sent nowhere, or kept sharing its screen with a notification up. Now nothing starts once the car is gone, and a screen share that started as the car left is ended.
 - The big offline voice model was only let go after a voice command: on a drive without any, it held its memory until the car disconnected. It now goes after five idle minutes either way.
 - A new log file was kept for every session, forever. Only the 20 most recent are kept now.
 - In the Flat controls theme, the wavy progress bar redrew the car's screen every frame, even with the music paused. Its wave now moves with the song.
-
-## Changed
 - The session report at the top of a shared log says which way the car audio went on that drive, and why.
 
 ## Also in 0.5.06-alpha

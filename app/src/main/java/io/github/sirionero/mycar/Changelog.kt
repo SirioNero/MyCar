@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            21, "0.5.08-alpha",
+            listOf(
+                "Pages beside the map: swipe across Home, or tap the dots at its foot. Ready-made, the weather and your agenda left of the map, and Plancia's dashboard beside the browser right of it.",
+                "The pencil beside the dots changes a page: two halves or four parts, each the weather, the agenda, the browser or a car app such as Plancia. Add, move and delete pages there too.",
+            ),
+        ),
+        Release(
             20, "0.5.07-alpha",
             listOf(
                 "The phone's music no longer stays muted if myCar was closed mid-drive while sending the sound to the car.",

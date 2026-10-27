@@ -75,6 +75,10 @@ behind it all — still or moving.
   filling its side on frosted glass. Tap the song in the dock to put it away or bring it back;
   the dock's foot brings map and music back from the app grid. Or pick an app to stay beside
   the map instead, such as Plancia for your home or Xonos for your music.
+- **Pages beside the map.** Swipe across Home, or tap the dots at its foot, for pages either side
+  of the map: two halves or four parts each, holding the weather, your agenda, the browser, or a
+  car app such as Plancia with its dashboard. Ready-made, the weather and the agenda sit left of
+  the map and Plancia beside the browser on its right; the pencil beside the dots changes a page.
 - **Pick your size.** Scale the whole car screen from Extra small to Extra large, for the car's
   display and your eyes.
 - **Themes.** Choose flat buttons or skeuomorphic ones that look like real keys.
@@ -198,6 +202,8 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
 - The player sits beside the map when music plays, its cover filling its side on frosted glass;
   the dock's foot returns to map-and-music from the grid. An app of your choice can take that
   place instead: a car app runs there, or a music app shows its player.
+- Home's pages either side of the map, swiped to or reached by the dots at its foot: two halves
+  or four parts each, holding the weather, the agenda, the browser or a car app, changed in place.
 - The whole car screen scales from Extra small to Extra large.
 - Material Symbols icons and the Inter typeface ship as files inside the app, with no new
   dependencies.

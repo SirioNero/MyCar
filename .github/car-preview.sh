@@ -88,6 +88,15 @@ EXTRA="--ez demoSong true" shoot split 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WA
 installed $PLANCIA && EXTRA="--es sidePane $PLANCIA" shoot split-plancia 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
 installed $XONOS && EXTRA="--es sidePane $XONOS" shoot split-xonos 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
 
+# Home's pages either side of the map, the ready-made ones: the dock's map first, as its touch
+# brings back the dots that fade over the map, then a dot turns to its page - the weather and
+# the agenda left of the map, Plancia and the browser right of it.
+DOCK_MAP="72,174"
+shoot pages 1920 720 240 "$DOCK_MAP;966,675;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT;$WAIT"
+shoot pages-800x480 800 480 160 "48,116;404,450;$WAIT"
+# Changing a page: the pencil beside the dots, then a part, for the list of what can go there.
+shoot pages-edit 1920 720 240 "$DOCK_MAP;966,675;1138,675;585,400;$WAIT"
+
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"

@@ -87,6 +87,8 @@ fun CarSettingsScreen() {
 
         SidePanePicker()
 
+        HomePagesSettings()
+
         ChoiceRow(
             "Size",
             listOf(0.83f to "Extra small", 0.9f to "Small", 1f to "Normal", 1.25f to "Large", 1.5f to "Extra large"),

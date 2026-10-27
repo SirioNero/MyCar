@@ -37,14 +37,23 @@ import org.json.JSONObject
  * native input path, which this Presentation can't reach.
  */
 @Composable
-fun WebApp(content: String) {
+fun WebApp(content: String) = WebApp(content, tile = null)
+
+/**
+ * [WebApp], or with [tile] the browser in a part of a Home page: a slim bar on top instead of the
+ * screen's header, the car's Back left alone (the page in view may not be this one), and the
+ * keyboard handed to the page, which has the width it needs.
+ */
+@Composable
+internal fun WebApp(content: String, tile: WebTile?) {
     val navigator = LocalCarNavigator.current
     val darkOutside = LocalDarkOutside.current
     val ring = String.format("#%06X", MaterialTheme.colorScheme.primary.toArgb() and 0xFFFFFF)
     var web by remember { mutableStateOf<WebView?>(null) }
     var fieldText by remember { mutableStateOf<String?>(null) }
 
-    DisposableEffect(web) {
+    DisposableEffect(web, tile) {
+        if (tile != null) return@DisposableEffect onDispose { }
         navigator.backInterceptor = {
             val view = web
             if (view != null && view.canGoBack()) {
@@ -58,8 +67,12 @@ fun WebApp(content: String) {
     }
 
     Column(Modifier.fillMaxSize()) {
-        // Back steps through the page's history first (the interceptor above), then leaves.
-        ScreenHeader("Browser", Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        if (tile == null) {
+            // Back steps through the page's history first (the interceptor above), then leaves.
+            ScreenHeader("Browser", Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        } else {
+            TileBar("Browser", onBack = { web?.takeIf { it.canGoBack() }?.goBack() }, onHold = tile.onHold)
+        }
         AndroidView(
             modifier = Modifier.weight(1f).fillMaxSize(),
             factory = { context ->
@@ -85,19 +98,30 @@ fun WebApp(content: String) {
             update = { it.settings.isAlgorithmicDarkeningAllowed = darkOutside },
             onRelease = { it.destroy() },
         )
-        fieldText?.let { text ->
-            CarKeyboard(
-                text = text,
-                onTextChange = { updated ->
-                    fieldText = updated
-                    web?.evaluateJavascript(setFieldValueJs(updated), null)
-                },
-                onSubmit = { web?.evaluateJavascript(SUBMIT_FIELD_JS, null) },
-                onDismiss = {
-                    fieldText = null
-                    web?.evaluateJavascript(BLUR_FIELD_JS, null)
-                },
-            )
+        val text = fieldText
+        val keyboard: @Composable () -> Unit = {
+            if (text != null) {
+                CarKeyboard(
+                    text = text,
+                    onTextChange = { updated ->
+                        fieldText = updated
+                        web?.evaluateJavascript(setFieldValueJs(updated), null)
+                    },
+                    onSubmit = { web?.evaluateJavascript(SUBMIT_FIELD_JS, null) },
+                    onDismiss = {
+                        fieldText = null
+                        web?.evaluateJavascript(BLUR_FIELD_JS, null)
+                    },
+                )
+            }
+        }
+        if (tile == null) {
+            keyboard()
+        } else {
+            DisposableEffect(text) {
+                tile.keyboard.value = if (text != null) keyboard else null
+                onDispose { tile.keyboard.value = null }
+            }
         }
     }
 }
