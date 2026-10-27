@@ -65,6 +65,7 @@ class MirrorService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        started = false
         Handler(Looper.getMainLooper()).post {
             PhoneMirror.end()
             PhoneMirror.onEnded?.invoke()
@@ -99,9 +100,13 @@ class MirrorService : Service() {
 
         private var appContext: Context? = null
 
+        /** From [start] until the service ends, so [stop] knows there's something to stop. */
+        @Volatile private var started = false
+
         /** Redeems a screen-capture consent result for a running capture session. */
         fun start(context: Context, resultCode: Int, data: Intent) {
             appContext = context.applicationContext
+            started = true
             context.startForegroundService(
                 Intent(context, MirrorService::class.java)
                     .putExtra(EXTRA_RESULT_CODE, resultCode)
@@ -110,8 +115,12 @@ class MirrorService : Service() {
         }
 
         fun stop() {
+            // Starting the service only to stop it would end a mirror that isn't there, and from the
+            // background (Android 12 on) it's refused with an exception that would close myCar.
+            if (!started) return
             val context = appContext ?: return
-            context.startService(Intent(context, MirrorService::class.java).setAction(ACTION_STOP))
+            runCatching { context.startService(Intent(context, MirrorService::class.java).setAction(ACTION_STOP)) }
+                .onFailure { MyCarLog.w("mirror: could not stop the mirror service: $it") }
         }
     }
 }

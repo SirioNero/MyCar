@@ -43,6 +43,8 @@ object DirectionsVoice {
 
     @Volatile private var link: AudioLink? = null
     @Volatile private var running = false
+    /** Bumped on each attach, so a watcher from a drive that just ended stops instead of running on beside the new one. */
+    @Volatile private var generation = 0
     private val speaker = Executors.newSingleThreadExecutor { Thread(it, "mycar-directions").apply { isDaemon = true } }
     @Volatile private var latest = 0
 
@@ -69,8 +71,9 @@ object DirectionsVoice {
         if (running) return
         running = true
         turnKey = null
+        val mine = ++generation
         Thread({
-            while (running) {
+            while (running && generation == mine) {
                 runCatching { tick() }.onFailure { MyCarLog.w("guidance: ${it.message}") }
                 Thread.sleep(TICK_MS)
             }

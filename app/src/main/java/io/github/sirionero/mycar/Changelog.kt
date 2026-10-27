@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            19, "0.5.06-alpha",
+            listOf(
+                "myCar no longer risks closing at the end of a drive with the phone locked.",
+                "The weather finds where you are without the twelve-second wait.",
+                "Long drives with lots of music use far less memory: cover art is sized for the car's screen.",
+            ),
+        ),
+        Release(
             18, "0.5.05-alpha",
             listOf(
                 "Car audio: Automatic, now the default, plays over Bluetooth when the car takes the phone's music that way, and through myCar otherwise, over the cable or Wi-Fi.",
