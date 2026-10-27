@@ -140,16 +140,17 @@ class MyCarActivity : ComponentActivity(), Projection {
         MyCarLog.init(this)
         MyCarLog.installCrashHandler()
         MyCarLog.i("myCar ready")
-        AudioCaptureService.restorePhoneIfLeftMuted(this)
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = { socket ->
             runOnUiThread { startWireless(socket) }
         }
         CarSettings.init(this)
         AppSettings.applyMyCarEnabled(this)
         // A capture that died without tidying up would leave notifications exposed to every
-        // later screen share. Nothing is capturing if the service is not running, so undo it.
+        // later screen share, and the phone's music muted. Nothing is capturing if the service is
+        // not running, so undo both.
         if (!io.github.sirionero.mycar.audio.AudioCaptureService.running) {
             io.github.sirionero.mycar.audio.ScreenShareGuard.restore(this)
+            AudioCaptureService.restorePhoneIfLeftMuted(this)
         }
         Prefetch.warm(this)
         CarEnvironment.setPhoneTheme(resources.configuration)
