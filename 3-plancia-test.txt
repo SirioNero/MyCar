@@ -1,0 +1,14 @@
+Plancia
+Use the Plancia app's account
+Its addresses and token, with nothing to type
+http://10.0.2.2:8123
+Address at home
+Address away (optional)
+•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+Long-lived access token
+Save and test
+Remove
+At home: Home Assistant 2026.10.4, 17 entities
+Your Home Assistant dashboards in the car, ready the moment you open them: from the app grid, a page beside the map, or beside it. Make the token in Home Assistant: your profile, Security, Long-lived access tokens.
+Back
+Settings

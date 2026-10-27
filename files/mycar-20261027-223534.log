@@ -1,0 +1,4 @@
+22:35:34.010 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261027-223534.log
+22:35:34.014 I APP   myCar ready
+22:35:37.387 I APP   prefetch done in 3341ms
+22:35:41.131 W APP   weather fetch failed: SocketException

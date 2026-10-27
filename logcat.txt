@@ -1,0 +1,174 @@
+10-27 22:35:48.047   651  1827 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=io.github.sirionero.mycar/.MyCarActivity} with LAUNCH_SINGLE_TOP from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-27 22:35:48.054  1021  1111 V WindowManagerShell: Transition requested (#12): android.os.BinderProxy@3466d0a TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=11 effectiveUid=10216 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=io.github.sirionero.mycar/.MyCarActivity } baseActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} topActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} origActivity=null realActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} numActivities=1 lastActiveTime=72558 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@9f1a97b} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{daad398 io.github.sirionero.mycar.MyCarActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(74, 160 - 246, 480) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 320, 640) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 12 }
+10-27 22:35:48.054   651  3167 I AppsFilter: interaction: PackageSetting{d0d037c com.android.microdroid.empty_payload/10209} -> PackageSetting{a2c30e6 io.github.sirionero.mycar/10216} BLOCKED
+10-27 22:35:48.073   651   687 I ActivityManager: Start proc 3274:io.github.sirionero.mycar/u0a216 for next-top-activity {io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}
+10-27 22:35:48.081  3274  3274 I sirionero.mycar: Using CollectorTypeCMC GC.
+10-27 22:35:48.082  3274  3274 W sirionero.mycar: Unexpected CPU variant for x86: x86_64.
+10-27 22:35:48.082  3274  3274 W sirionero.mycar: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-27 22:35:48.166   651   964 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10216 package io.github.sirionero.mycar isStopped false
+10-27 22:35:48.277   651   677 V WindowManager: Sent Transition (#12) createdAt=10-27 22:35:48.021 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=11 effectiveUid=10216 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=io.github.sirionero.mycar/.MyCarActivity } baseActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} topActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} origActivity=null realActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} numActivities=1 lastActiveTime=72558 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{b9837b8 Task{2c897c2 #11 type=standard A=10216:io.github.sirionero.mycar}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{119f991 io.github.sirionero.mycar.MyCarActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(74, 160 - 246, 480) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 320, 640) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 12 }
+10-27 22:35:48.277   651   677 V WindowManager:         {WCT{RemoteToken{b9837b8 Task{2c897c2 #11 type=standard A=10216:io.github.sirionero.mycar}}} m=OPEN f=NONE leash=Surface(name=Task=11)/@0xa46ec2a sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) epz=Point(320, 640) d=0 taskParent=-1},
+10-27 22:35:48.560  3274  3274 E sirionero.mycar: Not starting debugger since process cannot load the jdwp agent.
+10-27 22:35:48.731  3274  3274 D nativeloader: Configuring clns-9 for other apk /data/app/~~yIbFsl_e5ihdcI4fV3ukoA==/io.github.sirionero.mycar-gSRqOZE-kgSGt5FgfIFGDg==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~yIbFsl_e5ihdcI4fV3ukoA==/io.github.sirionero.mycar-gSRqOZE-kgSGt5FgfIFGDg==/lib/arm64:/data/app/~~yIbFsl_e5ihdcI4fV3ukoA==/io.github.sirionero.mycar-gSRqOZE-kgSGt5FgfIFGDg==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/io.github.sirionero.mycar
+10-27 22:35:48.770  3274  3274 I sirionero.mycar: AssetManager2(0x713a5b493e18) locale list changing from [] to [en-US]
+10-27 22:35:48.780  3274  3274 V GraphicsEnvironment: io.github.sirionero.mycar is not listed in per-application setting
+10-27 22:35:48.780  3274  3274 V GraphicsEnvironment: io.github.sirionero.mycar is not listed in ANGLE allowlist or settings, returning default
+10-27 22:35:48.816  1180  1180 D CarrierSvcBindHelper: onHandleForceStop: [io.github.sirionero.mycar]
+10-27 22:35:48.816  1180  1180 D CarrierSvcBindHelper: onHandleForceStop: [it.xonos.ma]
+10-27 22:35:48.875  3274  3274 I sirionero.mycar: AssetManager2(0x713a5b48eff8) locale list changing from [] to [en-US]
+10-27 22:35:48.914  3274  3274 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261027-223548.log
+10-27 22:35:48.932  3274  3274 I myCar   : myCar ready
+10-27 22:35:48.945  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b48ff98) locale list changing from [] to [en-US]
+10-27 22:35:48.978  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b490c18) locale list changing from [] to [en-US]
+10-27 22:35:48.979  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4921f8) locale list changing from [] to [en-US]
+10-27 22:35:49.027  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b494138) locale list changing from [] to [en-US]
+10-27 22:35:49.045  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b487f78) locale list changing from [] to [en-US]
+10-27 22:35:49.051  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4934b8) locale list changing from [] to [en-US]
+10-27 22:35:49.143  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b492e78) locale list changing from [] to [en-US]
+10-27 22:35:49.175  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b491258) locale list changing from [] to [en-US]
+10-27 22:35:49.176   651  3167 D CoreBackPreview: Window{edd25c9 u0 io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@20f7de7, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+10-27 22:35:49.273  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4950d8) locale list changing from [] to [en-US]
+10-27 22:35:49.276  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b493198) locale list changing from [] to [en-US]
+10-27 22:35:49.283  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b48e9b8) locale list changing from [] to [en-US]
+10-27 22:35:49.316  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b48f318) locale list changing from [] to [en-US]
+10-27 22:35:49.504  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b49ae98) locale list changing from [] to [en-US]
+10-27 22:35:49.615  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b49d0f8) locale list changing from [] to [en-US]
+10-27 22:35:49.655  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b49ab78) locale list changing from [] to [en-US]
+10-27 22:35:49.725  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4a2878) locale list changing from [] to [en-US]
+10-27 22:35:49.782   651  3167 D ConnectivityService: requestNetwork for uid/pid:10145/2983 activeRequest: null callbackRequest: 101 [NetworkRequest [ LISTEN_FOR_BEST id=101, [ Transports: CELLULAR|WIFI|BLUETOOTH|ETHERNET Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10145 RequestorUid: 10145 RequestorPkg: com.google.android.gms MatchNonThreadLocalNetworks UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOSING|LOST|UNAVAIL|NC|LP|BLK
+10-27 22:35:49.793  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4a2b98) locale list changing from [] to [en-US]
+10-27 22:35:49.860  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4a4498) locale list changing from [] to [en-US]
+10-27 22:35:49.948  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b49ffd8) locale list changing from [] to [en-US]
+10-27 22:35:49.972  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b49f038) locale list changing from [] to [en-US]
+10-27 22:35:49.997  3339  3352 I Plancia : Account passato a io.github.sirionero.mycar
+10-27 22:35:50.011  3274  3325 I myCar   : plancia: took the Plancia app's Home Assistant account
+10-27 22:35:50.274  3274  3328 I sirionero.mycar: AssetManager2(0x713a5b4a15b8) locale list changing from [] to [en-US]
+10-27 22:35:50.318  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:35:50.318  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:35:50.324   651   783 I ImeTracker: io.github.sirionero.mycar:4c29460c: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-27 22:35:50.325   651   677 W system_server: Failed to determine oat file name for dex location /data/app/~~yIbFsl_e5ihdcI4fV3ukoA==/io.github.sirionero.mycar-gSRqOZE-kgSGt5FgfIFGDg==/base.apk: Dalvik cache directory does not exist
+10-27 22:35:50.330  3274  3274 I ImeTracker: io.github.sirionero.mycar:4c29460c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-27 22:35:50.338  1491  1491 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=io.github.sirionero.mycar, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-27 22:35:50.363   651  2229 W PackageConfigPersister: App-specific configuration not found for packageName: io.github.sirionero.mycar and userId: 0
+10-27 22:35:50.370   651   677 I ActivityTaskManager: Displayed io.github.sirionero.mycar/.MyCarActivity for user 0: +2s186ms
+10-27 22:35:50.418  3274  3328 I myCar   : prefetch done in 1475ms
+10-27 22:35:50.434   651  1127 I AppsFilter: interaction: PackageSetting{d0d037c com.android.microdroid.empty_payload/10209} -> PackageSetting{128a8fd it.xonos.ma/10218} BLOCKED
+10-27 22:35:50.507   651   687 I ActivityManager: Start proc 3390:it.xonos.ma/u0a218 for content provider {it.xonos.ma/it.xonos.ma.data.AccountProvider}
+10-27 22:35:50.737  3390  3390 I it.xonos.ma: Using CollectorTypeCMC GC.
+10-27 22:35:50.741  3390  3390 W it.xonos.ma: Unexpected CPU variant for x86: x86_64.
+10-27 22:35:50.741  3390  3390 W it.xonos.ma: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-27 22:35:50.742  3390  3390 E it.xonos.ma: Not starting debugger since process cannot load the jdwp agent.
+10-27 22:35:51.084  3390  3390 D nativeloader: Configuring clns-9 for other apk /data/app/~~JJnyAvAKk6a-WY90mmOHqQ==/it.xonos.ma-1CxIyy5SPh-Jdop1qWIwCQ==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~JJnyAvAKk6a-WY90mmOHqQ==/it.xonos.ma-1CxIyy5SPh-Jdop1qWIwCQ==/lib/x86_64:/data/app/~~JJnyAvAKk6a-WY90mmOHqQ==/it.xonos.ma-1CxIyy5SPh-Jdop1qWIwCQ==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/it.xonos.ma
+10-27 22:35:51.106  3390  3390 I it.xonos.ma: AssetManager2(0x713a5b491bb8) locale list changing from [] to [en-US]
+10-27 22:35:51.176  3390  3390 V GraphicsEnvironment: it.xonos.ma is not listed in per-application setting
+10-27 22:35:51.179  3390  3390 V GraphicsEnvironment: it.xonos.ma is not listed in ANGLE allowlist or settings, returning default
+10-27 22:35:51.300  3390  3409 I Xonos   : Account passato a io.github.sirionero.mycar
+10-27 22:35:51.301  3274  3325 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-27 22:35:51.502  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:35:51.513  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:35:51.641   651   964 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10218 package it.xonos.ma isStopped false
+10-27 22:35:52.036  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:35:52.036  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:35:53.229   651  3171 D ConnectivityService: requestNetwork for uid/pid:10215/2372 activeRequest: null callbackRequest: 120 [NetworkRequest [ LISTEN_FOR_BEST id=120, [ Capabilities: INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_VCN_MANAGED&NOT_BANDWIDTH_CONSTRAINED Uid: 10215 RequestorUid: 10215 RequestorPkg: com.android.devicelockcontroller MatchNonThreadLocalNetworks UnderlyingNetworks: Null] ]] callback flags: 0 order: 2147483647 isUidTracked: false declaredMethods: AVAIL|LOST|UNAVAIL|NC
+10-27 22:35:54.811  3274  3606 D ProfileInstaller: Skipping profile installation for io.github.sirionero.mycar
+10-27 22:35:56.510  3390  3702 D ProfileInstaller: Skipping profile installation for it.xonos.ma
+10-27 22:36:00.756  3911  3911 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:00.767  3911  3911 I AndroidRuntime: Using default boot image
+10-27 22:36:00.767  3911  3911 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:01.004  1567  3551 D LT_OkHttpChannelBuilder: Using Spatula header keyless authentication.
+10-27 22:36:01.034  3911  3911 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:01.948  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:01.948  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:02.223  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:02.224  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:02.543  3911  3911 D AndroidRuntime: Shutting down VM
+10-27 22:36:03.549   798   798 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~yIbFsl_e5ihdcI4fV3ukoA==/io.github.sirionero.mycar-gSRqOZE-kgSGt5FgfIFGDg==/oat/x86_64/base.odex) is kOatUpToDate with filter 'verify' executable 'false'
+10-27 22:36:03.704  3981  3981 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:03.712  3981  3981 I AndroidRuntime: Using default boot image
+10-27 22:36:03.712  3981  3981 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:03.991  3981  3981 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:05.146  3981  3981 D AndroidRuntime: Shutting down VM
+10-27 22:36:06.161   651  1169 D CoreBackPreview: Window{edd25c9 u0 io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@26e1f46, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+10-27 22:36:06.387  3274  3299 W sirionero.mycar: Cleared Reference was only reachable from finalizer (only reported once)
+10-27 22:36:06.727  3274  3299 I sirionero.mycar: Background concurrent mark compact GC freed 3514KB AllocSpace bytes, 17(560KB) LOS objects, 49% free, 5908KB/11MB, paused 1.179ms,1.504ms total 475.979ms
+10-27 22:36:07.720  3274  3384 I myCar   : weather: loaded
+10-27 22:36:09.712  4314  4314 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:09.737  4314  4314 I AndroidRuntime: Using default boot image
+10-27 22:36:09.737  4314  4314 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:10.136  4314  4314 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:10.487  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:10.494  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:10.600  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:10.600  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:10.645  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:10.658  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:11.542  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:11.545  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:11.575  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:11.577  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:11.667  4314  4314 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@923b; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(80, 629 - 240, 641); boundsInWindow: Rect(80, 629 - 240, 641); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: See the car screen on your phone; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-27 22:36:11.683  4314  4314 D AndroidRuntime: Shutting down VM
+10-27 22:36:12.688  4424  4424 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:12.692  4424  4424 I AndroidRuntime: Using default boot image
+10-27 22:36:12.692  4424  4424 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:12.796  4424  4424 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:13.870  4424  4424 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9244; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(80, 629 - 240, 641); boundsInWindow: Rect(80, 629 - 240, 641); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: See the car screen on your phone; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-27 22:36:13.906  4424  4424 D AndroidRuntime: Shutting down VM
+10-27 22:36:16.508  4469  4469 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:16.534  4469  4469 I AndroidRuntime: Using default boot image
+10-27 22:36:16.534  4469  4469 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:16.879  4469  4469 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:17.834  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:17.835  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:17.952  4469  4469 D AndroidRuntime: Shutting down VM
+10-27 22:36:20.727  4559  4559 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:20.743  4559  4559 I AndroidRuntime: Using default boot image
+10-27 22:36:20.744  4559  4559 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:20.962  4559  4559 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:22.047  4559  4559 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9333; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(80, 64 - 148, 78); boundsInWindow: Rect(80, 64 - 148, 78); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Live logs; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-27 22:36:22.061  4559  4559 D AndroidRuntime: Shutting down VM
+10-27 22:36:22.647  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:22.647  1288  1288 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-27 22:36:24.870  4674  4674 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:24.880  4674  4674 I AndroidRuntime: Using default boot image
+10-27 22:36:24.880  4674  4674 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:25.040  4674  4674 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:26.086  4674  4674 D AndroidRuntime: Shutting down VM
+10-27 22:36:28.066   651   764 D ActivityManager: freezing 3390 it.xonos.ma
+10-27 22:36:28.740  4713  4713 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:28.745  4713  4713 I AndroidRuntime: Using default boot image
+10-27 22:36:28.747  4713  4713 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:28.984  4713  4713 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:30.067  4713  4713 D AndroidRuntime: Shutting down VM
+10-27 22:36:36.184  4941  4957 W cr_AWNetworkFetcherTask: java.io.IOException: Cleartext HTTP traffic to edgedl.me.gvt1.com not permitted
+10-27 22:36:36.184  4941  4957 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.HttpHandler$CleartextURLFilter.checkURLPermitted(HttpHandler.java:127)
+10-27 22:36:36.184  4941  4957 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:462)
+10-27 22:36:36.184  4941  4957 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+10-27 22:36:36.184  4941  4957 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+10-27 22:36:51.407  5015  5015 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:51.426  5015  5015 I AndroidRuntime: Using default boot image
+10-27 22:36:51.426  5015  5015 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:51.672  5015  5015 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:52.771  5015  5015 D AndroidRuntime: Shutting down VM
+10-27 22:36:53.744  5030  5030 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:53.748  5030  5030 I AndroidRuntime: Using default boot image
+10-27 22:36:53.748  5030  5030 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:53.883  5030  5030 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:54.919  5030  5030 D AndroidRuntime: Shutting down VM
+10-27 22:36:57.397  5050  5050 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:36:57.401  5050  5050 I AndroidRuntime: Using default boot image
+10-27 22:36:57.401  5050  5050 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:36:57.502  5050  5050 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:36:58.529  5050  5050 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9ebe; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(40, 622 - 280, 662); boundsInWindow: Rect(40, 622 - 280, 662); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-27 22:36:58.529  5050  5050 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9efc; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(56, 638 - 264, 662); boundsInWindow: Rect(56, 638 - 264, 662); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-27 22:36:58.533  5050  5050 D AndroidRuntime: Shutting down VM
+10-27 22:36:59.451   651  1738 D ActivityManager: sync unfroze 3390 it.xonos.ma for 7
+10-27 22:36:59.469  3390  3410 I Xonos   : Account passato a io.github.sirionero.mycar
+10-27 22:36:59.470  3274  3325 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-27 22:37:19.779  5225  5225 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-27 22:37:19.785  5225  5225 I AndroidRuntime: Using default boot image
+10-27 22:37:19.785  5225  5225 I AndroidRuntime: Leaving lock profiling enabled
+10-27 22:37:19.971  5225  5225 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-27 22:37:21.018  5225  5225 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9ec7; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(40, 622 - 280, 662); boundsInWindow: Rect(40, 622 - 280, 662); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-27 22:37:21.018  5225  5225 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9f05; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(56, 638 - 264, 662); boundsInWindow: Rect(56, 638 - 264, 662); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-27 22:37:21.024  5225  5225 D AndroidRuntime: Shutting down VM

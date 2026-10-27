@@ -1,0 +1,14 @@
+•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+Long-lived access token
+Save and test
+Remove
+At home: Home Assistant 2026.10.4, 17 entities
+Your Home Assistant dashboards in the car, ready the moment you open them: from the app grid, a page beside the map, or beside it. Make the token in Home Assistant: your profile, Security, Long-lived access tokens.
+Xonos
+Use the Xonos app's account
+Its addresses and sign-in, with nothing to type
+Signed in as mycar. Sign in again to change it.
+http://10.0.2.2:8095
+Music Assistant address
+Back
+Settings
