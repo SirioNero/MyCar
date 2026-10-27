@@ -81,7 +81,10 @@ fun CarHome() {
         if (onHome && seenHome[0]) CarServices.nav.replaceDeadSurface()
         if (onHome) seenHome[0] = true
     }
-    val splitScreen = phase == CarMedia.Phase.READY && now.isActive && panel != SidePanel.NONE
+    // Beside the map: the app chosen for it in the car's settings, always; or, by default, the
+    // music player while something plays.
+    val sideApp = rememberSidePaneApp()
+    val splitScreen = panel != SidePanel.NONE && (sideApp != null || (phase == CarMedia.Phase.READY && now.isActive))
 
     // No outer padding on any side, split screen or not - only the gap between the two panes
     // when the player is sharing the screen with the map.
@@ -98,7 +101,16 @@ fun CarHome() {
         }
         if (splitScreen) {
             val side = Modifier.weight(1f).fillMaxHeight()
-            if (panel == SidePanel.LYRICS) SideLyrics(now, side) else GlassDockedPlayer(now, side)
+            val sideTemplate = sideApp?.template
+            val sideMedia = sideApp?.media
+            when {
+                // Only while Home shows: an app opened full screen from the grid uses the same
+                // connection, and two stages on it would pull its surface back and forth.
+                sideTemplate != null -> if (onHome) SideAppPane(sideTemplate, frame, side) else Box(side)
+                panel == SidePanel.LYRICS -> SideLyrics(now, side)
+                sideMedia != null -> SideMediaPane(sideMedia, now, side)
+                else -> GlassDockedPlayer(now, side)
+            }
         }
     }
 }

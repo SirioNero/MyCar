@@ -71,6 +71,15 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.AssistantChoice.set(
             intent.getStringExtra("assistant") ?: io.github.sirionero.mycar.car.PhoneAssistants.MYCAR,
         )
+        // --es sidePane it.plancia.ha: that app beside the map on Home - its car app service, or
+        // its music service. Set every run, so other shots keep the music player there.
+        val sidePane = intent.getStringExtra("sidePane")?.let { pkg ->
+            listOf(androidx.car.app.CarAppService.SERVICE_INTERFACE, android.service.media.MediaBrowserService.SERVICE_INTERFACE)
+                .firstNotNullOfOrNull { action ->
+                    packageManager.queryIntentServices(android.content.Intent(action).setPackage(pkg), 0).firstOrNull()
+                }?.serviceInfo?.let { android.content.ComponentName(it.packageName, it.name).flattenToString() }
+        }
+        io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,

@@ -153,6 +153,13 @@ Tutti i token in un solo posto, `car/design/`:
   dal tasto del dock; icone reali delle app installate dentro una cornice squircle. Sulla griglia
   il tasto in fondo al dock diventa "mappa e musica" (`sym_space_dashboard`) e riporta allo
   schermo condiviso (`CarNavigator.homeWithPlayer()`).
+- **Accanto alla mappa** (`SidePane.kt`, chiave `car_side_pane`, impostazione "Beside the map"):
+  la musica (default: il player mentre qualcosa suona) oppure un'app scelta, sempre lì: un'app
+  con template (es. Plancia) gira sul collegamento `browse` dentro il pannello, con la barra in
+  alto e "Close" (`CarAppStage(endLabel)`); un'app musicale (es. Xonos) mostra il suo player e
+  diventa l'app musicale solo se non ne suona già un'altra. Il pannello di un'app esiste solo
+  mentre la Home è visibile: un'app aperta a tutto schermo usa lo stesso collegamento.
+  Anteprima: `--es sidePane <pacchetto>`, cartelle `split-plancia/`, `split-xonos/`.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
