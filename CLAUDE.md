@@ -49,7 +49,8 @@ Rispondi sempre in **italiano**.
   scaricabili dalla sessione cloud. Installa anche, dagli ultimi rilasci, Vela Maps, Plancia
   (debug) e Xonos, le apre dalla griglia (cartelle `vela/`, `plancia/`, `xonos/`), fotografa
   telefono e impostazioni, e simula una chiamata in arrivo sul modem dell'emulatore (`call/`).
-  `motion/` è la griglia con lo sfondo in movimento (`--ez motion true`), scattata ogni 2,5 s.
+  `motion-*/` sono la griglia sopra uno sfondo animato (`--es wallpaper <id>`), scattata ogni
+  2,5 s; `wallpapers/` è il selettore degli sfondi da solo (`--ez wallpapers true`).
   Le posizioni dei tocchi seguono l'ordine della griglia calcolato nello script. Con
   `--ez player true` l'anteprima mostra solo il player accanto alla mappa con un brano finto
   (`app/src/debug/.../car/PlayerPreview.kt`, cartelle `player/`): nell'emulatore non suona niente.
@@ -115,10 +116,13 @@ Tutti i token in un solo posto, `car/design/`:
   o nessuno) disegnati dal codice con una grana anti-banding; `WallpaperSetting` (chiave
   `car_wallpaper`); `wallpaperBackground` li disegna allineati all'intero schermo, così dock e
   schermata sono un'unica immagine. Dietro griglia app e dashboard; il dock ci fa da vetro.
-  "Wallpaper motion" Still/Moving (`WallpaperSetting.animated`, chiave `car_wallpaper_motion`,
-  fermo di default): i bagliori vagano piano (giri di 40–80 s), ridisegnati ogni 50 ms nella sola
-  fase di disegno, sull'uptime del telefono così le copie restano allineate. Movimento lento e
-  ampio: niente che attiri l'occhio di chi guida, e ogni fotogramma che cambia costa al video.
+  Sfondi animati, nell'elenco "Moving" sotto quelli fermi ("Still"): Lava e Polar (bagliori che
+  vagano, `Motion.Drift`), Waves (onde, `Motion.Waves`), Fireflies (luci che salgono,
+  `Motion.Lights`). Ridisegnati ogni 33 ms nella sola fase di disegno, sull'uptime del telefono
+  così le copie restano allineate. Movimento ben visibile ma calmo e continuo, niente lampi; ogni
+  fotogramma che cambia costa al video, per questo il default resta fermo (Aurora). Il primo
+  tentativo (0.5.03, interruttore "Wallpaper motion" con giri di 40–80 s) era troppo lento: in
+  auto non si vedeva muoversi.
 - Font: `res/font/inter_*.ttf` (OFL); icone: `res/drawable/sym_*.xml` (Material Symbols
   Rounded, Apache 2.0). Licenze in `licenses/` e `NOTICE.md`.
 
