@@ -159,7 +159,7 @@ class MyCarActivity : ComponentActivity(), Projection {
                     }
                     io.github.sirionero.mycar.ui.AudioChoiceDialog(
                         onUseBluetooth = {
-                            CarSettings.setPipeAudio(false)
+                            CarSettings.setAudioRoute(io.github.sirionero.mycar.audio.AudioRoute.BLUETOOTH)
                             close()
                         },
                         onKeepAsking = ::close,

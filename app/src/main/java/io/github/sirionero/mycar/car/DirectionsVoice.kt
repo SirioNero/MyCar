@@ -10,6 +10,7 @@ import androidx.car.app.navigation.model.Maneuver
 import androidx.car.app.navigation.model.Step
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.audio.AudioLink
+import io.github.sirionero.mycar.audio.CarAudioRoute
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -83,7 +84,8 @@ object DirectionsVoice {
     }
 
     private fun tick() {
-        if (!CarSettings.speakDirections.value) return
+        // Automatic left the sound to Bluetooth: the map app's own voice reaches the car that way.
+        if (!CarSettings.speakDirections.value || CarAudioRoute.onBluetooth) return
         val turn = NavTurn.current()
         if (turn == null) {
             turnKey = null

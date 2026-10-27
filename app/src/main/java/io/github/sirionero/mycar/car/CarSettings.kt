@@ -2,7 +2,9 @@ package io.github.sirionero.mycar.car
 
 import android.content.Context
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.audio.CarAudio
+import io.github.sirionero.mycar.audio.CarAudioRoute
 import io.github.sirionero.mycar.car.theme.GsTheme
 import io.github.sirionero.mycar.car.theme.GsThemes
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +29,9 @@ object CarSettings {
     private const val KEY_SCALE = "car_scale"
     private const val KEY_OPEN = "car_open_on_connect"
     private const val KEY_NIGHT = "car_night_mode"
+    /** Before Automatic: "true" for USB, "false" for Bluetooth. Read once, to carry the choice over. */
     private const val KEY_PIPE_AUDIO = "car_pipe_audio"
+    private const val KEY_AUDIO_ROUTE = "car_audio_route"
 private const val KEY_SPEAK_DIRECTIONS = "car_speak_directions"
 private const val KEY_BLUETOOTH_WARNING = "car_bluetooth_warning"
 private const val KEY_LOCATION_WARNING = "car_location_warning"
@@ -60,7 +64,8 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
     private val scaleFlow = MutableStateFlow(1f)
     private val openFlow = MutableStateFlow(HOME)
     private val nightFlow = MutableStateFlow(NightMode.AUTO)
-    private val pipeAudioFlow = MutableStateFlow(true)
+    private val audioRouteFlow = MutableStateFlow(AudioRoute.AUTO)
+    private val pipeAudioFlow = MutableStateFlow(false)
     private val speakDirectionsFlow = MutableStateFlow(true)
     private val bluetoothWarningFlow = MutableStateFlow(true)
     private val locationWarningFlow = MutableStateFlow(true)
@@ -150,12 +155,15 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
     val openOnConnect: StateFlow<String> = openFlow
     val nightMode: StateFlow<NightMode> = nightFlow
 
+    /** How the phone's sound reaches the car, as chosen; Automatic picks each drive, see [CarAudioRoute]. */
+    val audioRoute: StateFlow<AudioRoute> = audioRouteFlow
+
     /**
-     * Whether a media app's sound is captured and sent over the car link. On by default, since
-     * sound in the car is the point of the exercise; the platform allows the capture only behind a
-     * consent dialog, which [io.github.sirionero.mycar.audio.CarAudio] raises once the car has
-     * somewhere to play it. Turned off ("Bluetooth" in the settings), the app plays through the
-     * phone's normal output instead, and Android never asks.
+     * Whether a media app's sound is captured and sent over the car link right now: always through
+     * myCar, never with Bluetooth, and with Automatic when the car takes no music from the phone
+     * over Bluetooth. The platform allows the capture only behind a consent dialog, which
+     * [io.github.sirionero.mycar.audio.CarAudio] raises once the car has somewhere to play it.
+     * Off, the app plays through the phone's normal output instead, and Android never asks.
      */
     val pipeAudio: StateFlow<Boolean> = pipeAudioFlow
 
@@ -170,12 +178,8 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
 
     /**
      * Whether the driver has already been offered Bluetooth after turning down the capture
-     * dialog. Offered once only: someone who chose to keep the USB route shouldn't be nagged.
+     * dialog. Offered once only: someone who chose to keep the route through myCar shouldn't be nagged.
      */
-    /** False until the driver picks USB or Bluetooth, in setup or in settings. */
-    val pipeAudioChosen: Boolean
-        get() = AppSettings.getString(app, KEY_PIPE_AUDIO, "") != ""
-
     val audioChoiceAsked: Boolean
         get() = AppSettings.getString(app, KEY_AUDIO_CHOICE_ASKED, "false") == "true"
 
@@ -223,10 +227,18 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         uiThemeFlow.value = AppSettings.getString(app, KEY_UI_THEME, GsThemes.default.id)
         autoplayFlow.value = AppSettings.getString(app, KEY_AUTOPLAY, "false") == "true"
         playerTitleFlow.value = AppSettings.getString(app, KEY_PLAYER_TITLE, "false") == "true"
-        pipeAudioFlow.value = AppSettings.getString(app, KEY_PIPE_AUDIO, "true") == "true"
-        // Until the driver sets it, on for USB audio and off for Bluetooth, where the map app's
-        // own voice already reaches the car.
-        speakDirectionsFlow.value = AppSettings.getString(app, KEY_SPEAK_DIRECTIONS, pipeAudioFlow.value.toString()) == "true"
+        // Carried over from before Automatic: USB stays the route through myCar. Bluetooth, which
+        // setup picked for nearly everyone, becomes Automatic, which still plays over Bluetooth
+        // whenever the car takes the phone's music that way.
+        audioRouteFlow.value = AudioRoute.of(AppSettings.getString(app, KEY_AUDIO_ROUTE, ""))
+            ?: if (AppSettings.getString(app, KEY_PIPE_AUDIO, "") == "true") AudioRoute.CAR_LINK else AudioRoute.AUTO
+        // Automatic's pick belongs to the drive, so a second init mid-drive leaves it be.
+        if (audioRouteFlow.value != AudioRoute.AUTO) pipeAudioFlow.value = audioRouteFlow.value == AudioRoute.CAR_LINK
+        // Until the driver sets it, on unless the sound always goes over Bluetooth, where the map
+        // app's own voice already reaches the car. (Automatic on Bluetooth stays quiet too.)
+        speakDirectionsFlow.value = AppSettings.getString(
+            app, KEY_SPEAK_DIRECTIONS, (audioRouteFlow.value != AudioRoute.BLUETOOTH).toString(),
+        ) == "true"
         bluetoothWarningFlow.value = AppSettings.getString(app, KEY_BLUETOOTH_WARNING, "true") == "true"
         locationWarningFlow.value = AppSettings.getString(app, KEY_LOCATION_WARNING, "true") == "true"
         nightFlow.value = runCatching {
@@ -248,6 +260,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         io.github.sirionero.mycar.car.design.WallpaperSetting.init(app)
         AssistantChoice.init(app)
         SidePaneChoice.init(app)
+        CarAudioRoute.init(app)
     }
 
     fun setScale(value: Float) {
@@ -292,15 +305,35 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
 
     /**
      * Takes effect at once: switching to Bluetooth mid-drive stops the capture, and switching
-     * back asks for it again (or waits for the car, if none is connected).
+     * back asks for it again (or waits for the car, if none is connected). Automatic decides
+     * there and then in the car, and at the next drive otherwise.
      */
-    fun setPipeAudio(on: Boolean) {
-        // Saved even when unchanged, so picking the default still counts as a choice.
-        AppSettings.putString(app, KEY_PIPE_AUDIO, on.toString())
+    fun setAudioRoute(route: AudioRoute) {
+        AppSettings.putString(app, KEY_AUDIO_ROUTE, route.id)
+        audioRouteFlow.value = route
+        if (AppSettings.getString(app, KEY_SPEAK_DIRECTIONS, "") == "") {
+            speakDirectionsFlow.value = route != AudioRoute.BLUETOOTH
+        }
+        when (route) {
+            AudioRoute.CAR_LINK -> useCarLink(true)
+            AudioRoute.BLUETOOTH -> useCarLink(false)
+            AudioRoute.AUTO -> CarAudioRoute.chosen()
+        }
+    }
+
+    /** Whether the sound goes through myCar now: the route chosen, or Automatic's pick for this drive. */
+    internal fun useCarLink(on: Boolean) {
         if (pipeAudioFlow.value == on) return
         pipeAudioFlow.value = on
-        if (AppSettings.getString(app, KEY_SPEAK_DIRECTIONS, "") == "") speakDirectionsFlow.value = on
         if (on) CarAudio.request() else CarAudio.release()
+    }
+
+    /**
+     * The car went away: Automatic waits on Bluetooth until the next drive decides. The capture
+     * itself is already being stopped with the rest of the car's services.
+     */
+    internal fun forgetCarLink() {
+        if (audioRouteFlow.value == AudioRoute.AUTO) pipeAudioFlow.value = false
     }
 
     fun setSpeakDirections(on: Boolean) {

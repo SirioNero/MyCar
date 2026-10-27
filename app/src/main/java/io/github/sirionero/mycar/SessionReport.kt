@@ -83,7 +83,7 @@ object SessionReport {
     fun begin(wireless: Boolean) {
         startedAt = System.currentTimeMillis()
         link = if (wireless) "wireless" else "usb"
-        audioMode = if (io.github.sirionero.mycar.car.CarSettings.pipeAudio.value) "usb" else "bluetooth"
+        audioMode = io.github.sirionero.mycar.car.CarSettings.audioRoute.value.id
         category = Category.NONE
         failure = ""; protocolVersion = ""; certSource = ""; certIssuer = ""
         stage = Stage.USB; failCode = ""; failedAfter = 0
