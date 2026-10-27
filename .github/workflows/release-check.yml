@@ -3,14 +3,16 @@ name: Release check
 # Runs a published myCar release - the very APK drivers install, R8 and signing included - in an
 # emulator, next to a Home Assistant and a Music Assistant of the run's own, with the Plancia and
 # Xonos apps set up as a driver's would be. myCar should take their accounts and connect where the
-# apps do. Phone screens, UI dumps, myCar's log and what it kept go to the ci/release-check-<api> branch
-# (artifacts can't be fetched from the cloud session).
+# apps do. Two ways home: "lan" (the servers at 10.0.2.2, as on the home Wi-Fi) and "tailscale"
+# (the Tailscale app on the phone, the servers at http://umbrel:<port> through MagicDNS, see
+# .github/tailscale.sh). Phone screens, UI dumps, logs and what myCar kept go to the
+# ci/release-check-<api>-<net> branch (artifacts can't be fetched from the cloud session).
 on:
   # A new workflow can't be started by hand until it's on the default branch: on its own branch it
   # runs when pushed.
   push:
     branches: ["fix/integrated-connect"]
-    paths: [".github/release-check.sh", ".github/workflows/release-check.yml"]
+    paths: [".github/release-check.sh", ".github/tailscale.sh", ".github/workflows/release-check.yml"]
   workflow_dispatch:
     inputs:
       tag:
@@ -21,6 +23,10 @@ on:
         description: "Android API levels of the emulator, as JSON (37.0 = Android 17, 36 = Android 16)"
         required: false
         default: '["37.0", "36"]'
+      nets:
+        description: "Ways home, as JSON: lan, tailscale"
+        required: false
+        default: '["lan", "tailscale"]'
       target:
         description: "System image"
         required: false
@@ -33,9 +39,11 @@ jobs:
       fail-fast: false
       matrix:
         api: ${{ fromJSON(inputs.apis || '["37.0", "36"]') }}
+        net: ${{ fromJSON(inputs.nets || '["lan", "tailscale"]') }}
     env:
       TAG: ${{ inputs.tag || 'v0.5.12-alpha' }}
       TARGET: ${{ inputs.target || 'google_apis' }}
+      NET: ${{ matrix.net }}
     permissions:
       contents: write
     steps:
@@ -49,11 +57,30 @@ jobs:
           curl -fsSL -o third-party/xonos.apk https://github.com/SirioNero/Music-Assistant-on-Gearslip/releases/latest/download/Xonos.apk
           ls -l third-party
 
+      - name: Download Tailscale for the phone
+        if: matrix.net == 'tailscale'
+        run: |
+          # F-Droid's build of the Tailscale app: the one whose native code runs on the x86_64 emulator.
+          info=$(curl -fsSL https://f-droid.org/api/v1/packages/com.tailscale.ipn)
+          for vc in $(echo "$info" | jq -r '.suggestedVersionCode, .packages[].versionCode' | awk '!seen[$0]++'); do
+            curl -fsSL -o /tmp/tailscale.apk "https://f-droid.org/repo/com.tailscale.ipn_$vc.apk" || continue
+            if unzip -l /tmp/tailscale.apk | grep -q "lib/x86_64/"; then
+              mv /tmp/tailscale.apk third-party/tailscale.apk
+              echo "Tailscale from F-Droid, version code $vc"
+              break
+            fi
+          done
+          test -f third-party/tailscale.apk
+
       - name: Start Home Assistant
         run: bash .github/home-assistant.sh
 
       - name: Start Music Assistant
         run: bash .github/music-assistant.sh
+
+      - name: Start the tailnet, with this runner as "umbrel"
+        if: matrix.net == 'tailscale'
+        run: bash .github/tailscale.sh
 
       - name: Enable KVM
         run: |
@@ -76,9 +103,10 @@ jobs:
         run: |
           mkdir -p checks
           cd checks
-          printf '# Release check\n\n%s on Android API %s (%s), commit %s.\n' "$TAG" "${{ matrix.api }}" "$TARGET" "$GITHUB_SHA" > README.md
-          git init -q -b "ci/release-check-${{ matrix.api }}"
+          printf '# Release check\n\n%s on Android API %s (%s), home through %s, commit %s.\n' "$TAG" "${{ matrix.api }}" "$TARGET" "$NET" "$GITHUB_SHA" > README.md
+          if [ -n "${HEADSCALE_LOG:-}" ]; then cp "$HEADSCALE_LOG" headscale.log 2>/dev/null || true; fi
+          git init -q -b "ci/release-check-${{ matrix.api }}-$NET"
           git add -A
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -q -m "Release check of $TAG on API ${{ matrix.api }}"
-          git push -q -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "ci/release-check-${{ matrix.api }}"
+            commit -q -m "Release check of $TAG on API ${{ matrix.api }}, $NET"
+          git push -q -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "ci/release-check-${{ matrix.api }}-$NET"
