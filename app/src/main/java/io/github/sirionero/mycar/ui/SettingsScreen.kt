@@ -129,6 +129,7 @@ fun SettingsScreen(
             CarAudioSection()
             PlanciaSection()
             XonosSection()
+            CinemaSection()
             VoiceModelSection()
             if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
             SettingsSection(
