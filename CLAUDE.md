@@ -72,12 +72,18 @@ Rispondi sempre in **italiano**.
   `assistant-gesture/` (l'assistente finto del debug, `debug/TestAssistant.kt`, scrive nel log
   flag e argomenti con cui Android lo mostra: il log della CI li confronta). L'assistente finto
   diventa predefinito solo dopo l'avvio dello scatto: un force-stop dell'app che fa da
-  assistente fa tornare Android all'app Google.
+  assistente fa tornare Android all'app Google. Verificato (0.5.04): dal microfono l'assistente
+  riceve `invocation_type=1`, `triggered_by=83` e la sorgente "assist gesture", come dal launcher;
+  l'app Google si apre in ascolto. Lo scorrimento simulato con `input` invece l'emulatore non lo
+  prende per il gesto dell'assistente (né veloce né passo-passo): `assistant-gesture/` resta vuoto.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
   destra. Mai scatti con la mappa ancora nera o col segnaposto "Map" del player di debug: del
-  player si mostra solo il suo pannello.
+  player si mostra solo il suo pannello. In cima c'è `home.png`, da `split/` (mappa vera e
+  lettore): lì il badge si copre specchiando il pannello del lettore, che è simmetrico; sugli
+  sfondi con linee (Waves) si riflette la parte appena a sinistra del badge, perché copiarla
+  lascerebbe un gradino nell'onda.
 
 ## Rilasci
 

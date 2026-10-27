@@ -29,14 +29,16 @@ myCar has an infotainment-style look of its own: a dock down the left, a paged a
 Inter typeface, a dark theme by default, app icons in a rounded-square frame, and wallpapers
 behind it all — still or moving.
 
+![Home on a wide car screen: Vela Maps with places nearby, and beside it the player, a song's cover filling it with the controls on frosted glass](docs/screenshots/home.png)
+
+*Home: your map, with the music beside it, or an app you choose.*
+
 | | |
 |---|---|
-| ![The app grid over the moving Waves wallpaper, with the dock down the left](docs/screenshots/launcher.png) | ![Vela Maps on the car screen, its list of nearby places beside the map](docs/screenshots/navigation.png) |
-| Your car apps in one place, over a moving wallpaper. | Vela Maps, with nearby places a tap away. |
-| ![The player: the song's cover filling it, its controls on frosted glass](docs/screenshots/music.png) | ![An incoming call on the car screen, with Decline and Answer](docs/screenshots/call.png) |
-| The player that sits beside the map, its controls on frosted glass. | Answer or decline a call from the car. |
-| ![The wallpaper picker: seven still wallpapers and four moving ones](docs/screenshots/wallpapers.png) | ![The car settings: open on connect, size, and theme](docs/screenshots/settings.png) |
-| Still or moving wallpapers, all drawn by myCar. | Size and theme, in the car's settings. |
+| ![The app grid over the moving Waves wallpaper, with the dock down the left](docs/screenshots/launcher.png) | ![An incoming call on the car screen, with Decline and Answer](docs/screenshots/call.png) |
+| Your car apps in one place, over a moving wallpaper. | Answer or decline a call from the car. |
+| ![The wallpaper picker: seven still wallpapers and four moving ones](docs/screenshots/wallpapers.png) | ![The car settings: open on connect, what sits beside the map, and size](docs/screenshots/settings.png) |
+| Still or moving wallpapers, all drawn by myCar. | What sits beside the map, and the size, in the car's settings. |
 
 ## Features
 
