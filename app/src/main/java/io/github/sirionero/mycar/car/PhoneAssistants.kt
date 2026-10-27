@@ -95,7 +95,14 @@ object PhoneAssistants {
     fun launch(context: Context, choice: String): Boolean {
         // The phone's own is aimed at the app that holds the assistant role, when Android says
         // which, so the requests reach it rather than whichever app answers them first.
-        val target = if (choice == PHONE) defaultAssistant(context) else choice
+        val default = defaultAssistant(context)
+        val target = if (choice == PHONE) default else choice
+        // The default assistant - Gemini's included, which the Google app serves - wakes best as
+        // the corner swipe wakes it, listening. Intents are for the rest, or if that fails.
+        if (target != null && (target == default || (target == GEMINI && default == GOOGLE)) && AssistGesture.start()) {
+            MyCarLog.i("assistant: woke $default as the corner swipe does")
+            return true
+        }
         // Voice wherever it can be had first: the assistant's own voice requests, the Google app's
         // for Gemini, then (for the phone's own) any app's. The typed chat only after that.
         val voice = buildList {
@@ -116,8 +123,12 @@ object PhoneAssistants {
         val pm = context.packageManager
         for (action in actions) {
             val intent = Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            // Asked for all the same, to say it's voice the driver wants rather than the keyboard.
-            if (action == Intent.ACTION_ASSIST) intent.putExtra(Intent.EXTRA_ASSIST_INPUT_HINT_KEYBOARD, false)
+            // Asked for all the same, to say it's voice the driver wants rather than the keyboard,
+            // with what the corner swipe would tell it too.
+            if (action == Intent.ACTION_ASSIST) {
+                intent.putExtra(Intent.EXTRA_ASSIST_INPUT_HINT_KEYBOARD, false)
+                intent.putExtras(AssistGesture.gestureExtras())
+            }
             app?.let(intent::setPackage)
             val resolved = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) ?: continue
             // Several apps answer and none is the default: take the first rather than a chooser.
@@ -219,7 +230,8 @@ internal fun AssistantPicker() {
             }
         }
         Text(
-            "Another assistant listens and answers on the phone, and its voice reaches the car only " +
+            "The phone's assistant wakes as with the swipe up from a bottom corner of the phone's screen. " +
+                "Another assistant listens and answers on the phone, and its voice reaches the car only " +
                 "over Bluetooth. myCar's own works offline and shows on the car screen.",
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,

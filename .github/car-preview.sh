@@ -96,5 +96,14 @@ EXTRA="--ez player true" shoot player-800x480 800 480 160 "$WAIT"
 shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"
 adb emu gsm cancel 3331234567
 
+# The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
+# as the swipe up from a bottom corner does, through SystemUI. The emulator has no assistant, so
+# the Settings app stands in for one; the phone's own screen, shot after the tap, should show it.
+MIC_BUTTON="72,278"
+adb shell settings put secure assistant com.android.settings/com.android.settings.Settings
+EXTRA="--es assistant phone" shoot assistant 1920 720 240 "$GRID_BUTTON;$MIC_BUTTON;$WAIT" \
+    "sleep 6; mkdir -p previews/assistant; adb exec-out screencap -p > previews/assistant/phone-screen.png"
+adb shell settings delete secure assistant
+
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews

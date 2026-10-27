@@ -66,6 +66,11 @@ class CarPreviewActivity : ComponentActivity() {
             CarSettings.markSafetyWarningSeen()
             Changelog.current?.let { CarSettings.closeWhatsNew(it.versionCode) }
         }
+        // --es assistant phone: the dock's microphone wakes that assistant. Set every run, so
+        // other shots keep myCar's own.
+        io.github.sirionero.mycar.car.AssistantChoice.set(
+            intent.getStringExtra("assistant") ?: io.github.sirionero.mycar.car.PhoneAssistants.MYCAR,
+        )
         // --ez motion true: the wallpaper moving. Set every run, so other shots stay still.
         io.github.sirionero.mycar.car.design.WallpaperSetting.setAnimated(intent.getBooleanExtra("motion", false))
         CarEnvironment.start(this)
