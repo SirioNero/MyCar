@@ -25,6 +25,8 @@ MA_URL=http://$HOST:8095
 adb root >/dev/null 2>&1; sleep 3; adb wait-for-device
 echo "adb runs as $(adb shell whoami | tr -d '\r')"
 
+# A phone-sized screen, so results aren't pushed off the bottom.
+adb shell wm size 1080x2400; adb shell wm density 420; sleep 2
 size=$(adb shell wm size | tr -d '\r' | sed -n 's/.*: \([0-9]*x[0-9]*\)$/\1/p' | tail -1)
 W=${size%x*}; H=${size#*x}
 
@@ -84,6 +86,7 @@ type_text() { adb shell input text "$1"; sleep 1; }
 for apk in mycar plancia xonos; do adb install -r "third-party/$apk.apk" || echo "could not install $apk"; done
 
 # --- Tailscale on the phone, signed in to the run's headscale ---------------------------------
+in_tailnet() { adb shell ip addr 2>/dev/null | grep -q "inet 100\."; }
 if [ "$NET" = tailscale ]; then
     adb install -r third-party/tailscale.apk || echo "could not install Tailscale"
     adb shell appops set $TAILSCALE ACTIVATE_VPN allow
@@ -93,25 +96,11 @@ if [ "$NET" = tailscale ]; then
     sleep 8
     shot ts-1-start
     tap_if "Get Started"; sleep 4
-    tap_if "OK"; sleep 2
-    tap "Open settings" 2; sleep 3
+    tap "Open settings" 3; sleep 3
     tap "Accounts" 3; sleep 3
     shot ts-2-accounts
     tap "menu" 2; sleep 2
     tap "Use an alternate server" 2; sleep 3
-    tap "https://my.custom.server.com" 2; sleep 1
-    type_text "http://10.0.2.2:8080"
-    shot ts-3-server
-    tap "Add account" 2; sleep 8
-    shot ts-4-after-server
-    # The sign-in page opens in a browser, if there is one: back to Tailscale, then the key.
-    adb shell am start -n $TAILSCALE/.MainActivity >/dev/null 2>&1; sleep 4
-    for i in 1 2 3; do tap_if "Accounts" && break; adb shell input keyevent KEYCODE_BACK; sleep 2; done
-    sleep 3
-    if ! tap "menu" 2; then tap "Open settings" 2; sleep 2; tap "Accounts" 2; sleep 2; tap "menu" 2; fi
-    sleep 2
-    tap "Use an auth key" 2; sleep 3
-    shot ts-5-key
     ui
     field=$(python3 - "$OUT/ui.xml" <<'PY'
 import re, sys, xml.etree.ElementTree as ET
@@ -123,29 +112,31 @@ for n in ET.parse(sys.argv[1]).iter('node'):
 PY
 )
     [ -n "$field" ] && adb shell input tap $field && sleep 1
-    type_text "$TS_AUTHKEY"
-    tap "Add account" 2; sleep 15
-    adb shell am start -n $TAILSCALE/.MainActivity >/dev/null 2>&1; sleep 5
-    tap_if "Connect"; sleep 8
-    shot ts-6-connected
-    # Signed in through the browser page instead, if the key didn't take: the node registered by hand.
-    if ! adb shell ip addr 2>/dev/null | grep -q "inet 100\."; then
-        reg=$(adb logcat -d | grep -oE "/register/[A-Za-z0-9_-]+" | tail -1 | sed 's,/register/,,')
-        if [ -n "$reg" ]; then
-            echo "registering the phone by hand ($reg)"
-            $HEADSCALE nodes register --user "$TS_USER" --key "$reg" || true
-            sleep 15
-            shot ts-6b-registered
-        fi
-    fi
+    type_text "http://10.0.2.2:8080"
+    shot ts-3-server
+    tap "Add account" 2; sleep 8
+    shot ts-4-browser
+    # Headscale's sign-in page opens in the browser: the phone is let in from the runner instead,
+    # by the id of its request.
+    reg=$(grep -o "auth id: [A-Za-z0-9_-]*" "$HEADSCALE_LOG" | tail -1 | sed 's/auth id: //')
+    [ -z "$reg" ] && reg=$(adb logcat -d | grep -oE "/register/[A-Za-z0-9_-]+" | tail -1 | sed 's,/register/,,')
+    echo "letting the phone into the tailnet (request $reg)"
+    $HEADSCALE auth register --auth-id "$reg" --user driver ||
+        $HEADSCALE auth register --auth-id "$reg" --user "$TS_USER" ||
+        $HEADSCALE nodes register --user driver --key "$reg"
+    sleep 8
+    adb shell am start -n $TAILSCALE/.MainActivity >/dev/null 2>&1; sleep 8
+    in_tailnet || { tap_if "Connect"; sleep 8; }
+    in_tailnet || { tap_if "Connect to VPN"; sleep 8; }
+    shot ts-5-connected
     echo "--- the phone in the tailnet ---" | tee "$OUT/tailnet.txt"
     adb shell ip addr 2>/dev/null | grep -E "inet6? (100\.|fd7a)" | tee -a "$OUT/tailnet.txt"
-    adb shell ip rule 2>/dev/null | head -40 >> "$OUT/tailnet.txt"
-    $HEADSCALE nodes list 2>&1 | tee -a "$OUT/tailnet.txt"
-    adb shell dumpsys connectivity 2>/dev/null | grep -iE "VPN|tun|SearchDomains|DnsAddresses|Domains:" | head -40 > "$OUT/connectivity.txt"
+    $HEADSCALE nodes list 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | tee -a "$OUT/tailnet.txt"
+    adb shell dumpsys connectivity 2>/dev/null | grep -E "VPN CONNECTED|InterfaceName: tun" | head -10 > "$OUT/connectivity.txt"
     echo "--- umbrel from the phone's shell ---" | tee -a "$OUT/tailnet.txt"
     adb shell ping -c 2 -W 3 umbrel 2>&1 | tee -a "$OUT/tailnet.txt"
     adb logcat -d | grep -iE "tailscale|libtailscale|ipn|wgengine|magicsock" | tail -300 > "$OUT/tailscale-log.txt"
+    in_tailnet && echo "the phone is in the tailnet" || echo "THE PHONE IS NOT IN THE TAILNET: the rest says nothing about Tailscale"
 fi
 
 # What a driver allowed through myCar's guide before 0.5.12 - not the home network, which only
@@ -187,7 +178,12 @@ adb shell monkey -p $PLANCIA -c android.intent.category.LAUNCHER 1 >/dev/null 2>
 sleep 6
 tap "Save and test the connection"
 sleep 20
-shot 0-plancia-app
+for i in 1 2 3 4; do
+    shot 0-plancia-app
+    grep -qE "^(✓|✗)" "$OUT/0-plancia-app.txt" && break
+    adb shell input swipe $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 3)) 500
+    sleep 2
+done
 echo "--- the Plancia app, Save and test ---"
 grep -E "^(✓|✗)" "$OUT/0-plancia-app.txt" || echo "(no result line on screen)"
 adb shell am force-stop $PLANCIA
