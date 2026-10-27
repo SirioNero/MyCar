@@ -99,7 +99,8 @@ object KnownApps {
      * call working. Wins over [works] and [playerWorks] for the badge.
      */
     private val partial = setOf(
-        "app.vela", // Vela Maps: connects and draws, but rough enough not to call it working yet
+        // Not Vela Maps any more: it connects, draws and navigates with myCar. Its map moving in
+        // steps is Vela's own way of drawing it in the car (still pictures), not a fault here.
         "com.spotify.music",        // Spotify: plays through myCar's player, but the app has to be opened on the phone first
         "deezer.android.app",       // Deezer: the same - it has to be opened on the phone first
     )
