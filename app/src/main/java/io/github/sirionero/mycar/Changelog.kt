@@ -13,7 +13,7 @@ object Changelog {
         Release(
             17, "0.5.04-alpha",
             listOf(
-                "The phone's assistant now wakes listening, the way the swipe up from a bottom corner of the phone wakes it. Choose it under the car's Settings > Voice assistant.",
+                "The phone's assistant now wakes the way the swipe up from a bottom corner of the phone wakes it. Choose it under the car's Settings > Voice assistant.",
                 "Moving wallpapers: Lava, Polar, Waves and Fireflies, under Wallpaper in the car's settings, below the still ones.",
                 "A new myCar icon.",
                 "Vela Maps no longer carries the yellow \"works in part\" mark: it navigates with myCar.",

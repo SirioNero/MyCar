@@ -3,8 +3,8 @@ Builds myCar's launcher icon from the logo art (docs/icon/mycar-logo.jpg):
 
     python3 docs/icon/make_icons.py docs/icon/mycar-logo.jpg .
 
-Writes the adaptive icon's foreground at every density, for the release build (blue shackle)
-and the debug build (amber shackle), and docs/icon/mycar-icon.png for the README. The
+Writes the adaptive icon's foreground at every density, for the release build (cyan padlock)
+and the debug build (amber padlock), and docs/icon/mycar-icon.png for the README. The
 monochrome themed icon is a hand-drawn vector: app/src/main/res/drawable/ic_launcher_monochrome.xml.
 """
 import sys, os
