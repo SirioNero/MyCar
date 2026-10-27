@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.ui
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -22,11 +23,14 @@ import io.github.sirionero.mycar.MyCarLog
 import java.net.URI
 
 /**
- * Asks Android for the home network (see [LocalNetwork]) when some of the addresses about to be
- * tried are there and myCar may not reach them; then runs what was waiting, whatever the answer.
+ * Asks Android for the home network (see [LocalNetwork]) when the addresses about to be tried may
+ * be there ([block]: any address of Home Assistant or Music Assistant, by default) and myCar may
+ * not reach them; then runs what was waiting, whatever the answer.
  */
 @Composable
-internal fun rememberLocalNetworkAsk(): (urls: List<String>, then: () -> Unit) -> Unit {
+internal fun rememberLocalNetworkAsk(
+    block: (Context, List<String>) -> Boolean = LocalNetwork::mayBlock,
+): (urls: List<String>, then: () -> Unit) -> Unit {
     val context = LocalContext.current
     var waiting by remember { mutableStateOf<(() -> Unit)?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -36,7 +40,7 @@ internal fun rememberLocalNetworkAsk(): (urls: List<String>, then: () -> Unit) -
     }
     return remember(launcher) {
         { urls: List<String>, then: () -> Unit ->
-            if (LocalNetwork.blocks(context, urls)) {
+            if (block(context, urls)) {
                 waiting = then
                 launcher.launch(LocalNetwork.PERMISSION)
             } else {
@@ -51,18 +55,18 @@ internal fun rememberLocalNetworkAsk(): (urls: List<String>, then: () -> Unit) -
  * for it, and once Android has stopped asking, opens myCar's own permissions instead.
  */
 @Composable
-internal fun LocalNetworkRow(urls: List<String>) {
+internal fun LocalNetworkRow(urls: List<String>, block: (Context, List<String>) -> Boolean = LocalNetwork::mayBlock) {
     val context = LocalContext.current
-    var blocked by remember(urls) { mutableStateOf(LocalNetwork.blocks(context, urls)) }
+    var blocked by remember(urls) { mutableStateOf(block(context, urls)) }
     var refused by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         MyCarLog.i("local network: ${if (granted) "allowed" else "refused"}")
-        blocked = LocalNetwork.blocks(context, urls)
+        blocked = block(context, urls)
         refused = !granted
     }
     // Back from Android's settings, or from anywhere else: it may have changed meanwhile.
     LifecycleResumeEffect(urls) {
-        blocked = LocalNetwork.blocks(context, urls)
+        blocked = block(context, urls)
         onPauseOrDispose {}
     }
     if (!blocked) return

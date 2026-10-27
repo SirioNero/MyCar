@@ -76,7 +76,7 @@ internal fun PlanciaView(modifier: Modifier) {
         // Trying an address at home that Android 17 keeps myCar from: say so the whole time, not
         // only in the moments between one try and the next.
         val context = LocalContext.current
-        val offHomeNetwork = (connection as? HaConnection.Connecting)?.let { LocalNetwork.blocks(context, listOf(it.url)) } == true
+        val offHomeNetwork = (connection as? HaConnection.Connecting)?.let { LocalNetwork.mayBlock(context, listOf(it.url)) } == true
         val (title, detail) = planciaMessage(connection, page, offHomeNetwork) ?: return@Box
         Column(
             Modifier

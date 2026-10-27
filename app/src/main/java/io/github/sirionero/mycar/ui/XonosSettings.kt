@@ -75,7 +75,7 @@ internal fun XonosSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    if (LocalNetwork.blocks(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(context, e)}"
+                    if (LocalNetwork.mayBlock(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(context, e)}"
                 } finally {
                     client.close()
                 }
@@ -173,7 +173,7 @@ internal fun XonosSection() {
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
-                                status = if (LocalNetwork.blocks(context, listOf(url))) LOCAL_NETWORK_REFUSED else describe(context, e)
+                                status = if (LocalNetwork.mayBlock(context, listOf(url))) LOCAL_NETWORK_REFUSED else describe(context, e)
                             }
                         }
                     }

@@ -226,7 +226,7 @@ object HomeAssistant {
 
             if (session == null) {
                 // Android 17 keeping myCar off the home network looks like an address that doesn't answer.
-                if (app?.let { LocalNetwork.blocks(it, config.urls) } == true) lastError = LocalNetwork.HINT
+                if (app?.let { LocalNetwork.mayBlock(it, config.urls) } == true) lastError = LocalNetwork.HINT
                 _connection.value = HaConnection.Failed(lastError)
                 failures++
                 delay((2_000L * failures).coerceAtMost(30_000L))

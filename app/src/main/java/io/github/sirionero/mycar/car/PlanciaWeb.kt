@@ -352,7 +352,7 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
 
         override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
             if (view !== web || !request.isForMainFrame) return
-            val why = if (LocalNetwork.blocks(view.context, listOf(request.url.toString()))) {
+            val why = if (LocalNetwork.mayBlock(view.context, listOf(request.url.toString()))) {
                 LocalNetwork.HINT
             } else {
                 error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"

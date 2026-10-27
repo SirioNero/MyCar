@@ -71,7 +71,7 @@ internal fun PlanciaSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    if (LocalNetwork.blocks(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(e)}"
+                    if (LocalNetwork.mayBlock(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(e)}"
                 } finally {
                     client.close()
                 }

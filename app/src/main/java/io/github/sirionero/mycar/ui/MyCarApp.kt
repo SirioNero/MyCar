@@ -102,8 +102,9 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     }
 
     // Android 17 keeps myCar off the home network until it's allowed (see LocalNetwork), and
-    // Plancia's and Xonos's addresses at home are there: asked once a run, on Home, when one of
-    // them has such an address. With Bluetooth allowed, Android allows it without a word.
+    // Plancia's and Xonos's servers are usually there, whatever their addresses look like: asked
+    // once a run, on Home, when either is set up. With Bluetooth allowed, Android allows it
+    // without a word.
     val localNetworkPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         MyCarLog.i("local network: ${if (granted) "allowed" else "refused"}")
     }
@@ -113,7 +114,7 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     LaunchedEffect(plancia, xonos, screen) {
         if (screen != Screen.HOME || LocalNetwork.askedAtStart || LocalNetwork.allowed(context)) return@LaunchedEffect
         val urls = plancia.urls + if (xonos) Xonos.settings.load().urls else emptyList()
-        if (urls.any(LocalNetwork::isLocal)) {
+        if (LocalNetwork.mayBlock(context, urls)) {
             LocalNetwork.askedAtStart = true
             localNetworkPermission.launch(LocalNetwork.PERMISSION)
         }

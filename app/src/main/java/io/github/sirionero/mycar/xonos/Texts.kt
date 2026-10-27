@@ -12,7 +12,7 @@ import io.github.sirionero.mycar.xonos.data.Problem
  * risponde a casa, con Android 17 che tiene myCar fuori dalla rete di casa, è quello: lo si dice.
  */
 fun describe(context: Context, problem: Problem, detail: String?): String =
-    if (problem in UNREACHABLE && LocalNetwork.blocks(context, Xonos.settings.load().urls)) LocalNetwork.HINT
+    if (problem in UNREACHABLE && LocalNetwork.mayBlock(context, Xonos.settings.load().urls)) LocalNetwork.HINT
     else when (problem) {
     Problem.BAD_ADDRESS -> context.getString(R.string.xonos_problem_bad_address, detail.orEmpty())
     Problem.NO_ANSWER -> if (detail != null) context.getString(R.string.xonos_problem_no_answer_from, detail) else context.getString(R.string.xonos_problem_no_answer)
