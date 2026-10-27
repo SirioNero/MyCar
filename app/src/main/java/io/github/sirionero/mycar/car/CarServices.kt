@@ -58,6 +58,9 @@ object CarServices {
 
     /** Set when the driver stops the map by hand, so going Home doesn't immediately restart it. */
     private var navStopped = false
+
+    /** Whether the map is idle because the driver stopped it, rather than not started yet. */
+    val navStoppedByDriver: Boolean get() = navStopped
     private var autoplayPending = false
 
     fun init(appContext: Context) {

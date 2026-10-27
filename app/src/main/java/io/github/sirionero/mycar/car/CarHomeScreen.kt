@@ -151,10 +151,18 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
             } else if (hasLast) {
                 // IDLE with a last app on record means the driver stopped it themselves - it will
                 // not come back on its own, so the screen must offer a way to bring it back rather
-                // than sit on a "starting" message that never resolves.
-                Text("Map stopped.", style = MaterialTheme.typography.titleMedium)
-                GsButton(onClick = { scope.launch { CarServices.reconnectNav(frame) } }, tone = GsTone.Tonal) { Text("Reopen") }
-                GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                // than sit on a "starting" message that never resolves. Right after connecting it
+                // means autostart hasn't picked the map yet: that gets a moment first, or every
+                // drive would open on "Map stopped." for an instant.
+                val stopped by produceState(CarServices.navStoppedByDriver) {
+                    delay(MAP_START_GRACE_MS)
+                    value = true
+                }
+                if (stopped) {
+                    Text("Map stopped.", style = MaterialTheme.typography.titleMedium)
+                    GsButton(onClick = { scope.launch { CarServices.reconnectNav(frame) } }, tone = GsTone.Tonal) { Text("Reopen") }
+                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                }
             } else {
                 // Autostart is still picking one - a navigation app is installed, so this resolves
                 // to a "Starting..." state itself, in the next frame or two.
@@ -162,6 +170,9 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
         }
     }
 }
+
+/** How long the map may sit idle at the start of a drive before Home offers to reopen it. */
+private const val MAP_START_GRACE_MS = 2_000L
 
 /**
  * Lyrics alone beside the map, big enough to read at a glance. No art: that space goes to a
