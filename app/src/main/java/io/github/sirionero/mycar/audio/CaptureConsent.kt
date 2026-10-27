@@ -67,6 +67,8 @@ object CaptureConsent {
      */
     private fun lookFor(service: AccessibilityService) {
         main.removeCallbacksAndMessages(looking)
+        lastSeen = ""
+        MyCarLog.i("audio: waiting for Android's question, to answer it with Start")
         val tick = object : Runnable {
             override fun run() {
                 if (!waiting || answer(service)) return
@@ -76,21 +78,36 @@ object CaptureConsent {
         main.postAtTime(tick, looking, SystemClock.uptimeMillis() + LOOK_EVERY_MS)
     }
 
+    /** What the last look found, logged whenever it changes: why Start wasn't pressed, if it wasn't. */
+    @Volatile private var lastSeen = ""
+
     /** Presses Start in the question that names myCar, if it's on screen. True once pressed. */
     private fun answer(service: AccessibilityService): Boolean {
         val label = service.packageManager.getApplicationLabel(service.applicationInfo).toString()
-        val roots = runCatching { service.windows.mapNotNull { it.root } }.getOrDefault(emptyList())
-        for (root in roots) {
-            if (root.packageName?.toString() != SYSTEM_UI) continue
+        val windows = runCatching { service.windows }.getOrDefault(emptyList())
+        val seen = StringBuilder("${windows.size} windows:")
+        for (window in windows) {
+            val root = window.root
+            val app = root?.packageName?.toString()
+            seen.append(' ').append(app ?: "(no content)")
+            if (root == null || app != SYSTEM_UI) continue
             // Ours: the question names the app asking. Another app's is left alone.
-            if (root.findAccessibilityNodeInfosByText(label).isEmpty()) continue
-            val start = root.findAccessibilityNodeInfosByViewId(START_BUTTON)
-                .firstOrNull { it.isEnabled && it.isVisibleToUser } ?: continue
+            val named = root.findAccessibilityNodeInfosByText(label).isNotEmpty()
+            val buttons = root.findAccessibilityNodeInfosByViewId(START_BUTTON)
+            seen.append("[named=$named, start=${buttons.size}]")
+            if (!named) continue
+            val start = buttons.firstOrNull { it.isEnabled && it.isVisibleToUser } ?: continue
             if (start.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
                 MyCarLog.i("audio: answered Android's question with Start")
                 answered()
                 return true
             }
+            seen.append("[click refused]")
+        }
+        val summary = seen.toString()
+        if (summary != lastSeen) {
+            lastSeen = summary
+            MyCarLog.i("audio: looking for Android's question - $summary")
         }
         return false
     }
