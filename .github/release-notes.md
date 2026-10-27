@@ -1,6 +1,16 @@
-myCar 0.5.06-alpha: fixes from a bug hunt, and less memory on long drives.
+myCar 0.5.07-alpha: a second bug hunt, mostly about what's left behind after a drive.
 
 ## Fixed
+- If myCar was closed mid-drive (a crash, or Android ending it) while it was sending the phone's sound to the car, the phone's music stayed muted afterwards. myCar now remembers muting it and gives the sound back the next time it starts.
+- Android's question to share audio (or the screen) can stay open on the phone until after the drive. Answering yes then started the capture anyway: the phone went silent with its music sent nowhere, or kept sharing its screen with a notification up. Now nothing starts once the car is gone, and a screen share that started as the car left is ended.
+- The big offline voice model was only let go after a voice command: on a drive without any, it held its memory until the car disconnected. It now goes after five idle minutes either way.
+- A new log file was kept for every session, forever. Only the 20 most recent are kept now.
+- In the Flat controls theme, the wavy progress bar redrew the car's screen every frame, even with the music paused. Its wave now moves with the song.
+
+## Changed
+- The session report at the top of a shared log says which way the car audio went on that drive, and why.
+
+## Also in 0.5.06-alpha
 - myCar could close at the end of a drive. With the phone locked and the music on Bluetooth, stopping the car audio or screen sharing that never started was refused by Android, and the refusal closed the app. Now only what started is stopped.
 - The weather waited twelve seconds for a fresh location that could never arrive in time, then used an old one or none. It now gets the fresh location.
 - Long drives with lots of music could run out of memory: cover art was decoded at full size, up to 36 MB a cover, and up to 48 kept. Covers and app images are now sized for the car's screen, and kept by weight.

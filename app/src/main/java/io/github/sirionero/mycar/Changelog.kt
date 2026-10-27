@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            20, "0.5.07-alpha",
+            listOf(
+                "The phone's music no longer stays muted if myCar was closed mid-drive while sending the sound to the car.",
+                "Saying yes to Android's audio or screen-sharing question after the car has gone no longer mutes the phone or leaves it sharing.",
+                "Less memory during drives without voice commands, and old logs no longer pile up on the phone.",
+            ),
+        ),
+        Release(
             19, "0.5.06-alpha",
             listOf(
                 "myCar no longer risks closing at the end of a drive with the phone locked.",
