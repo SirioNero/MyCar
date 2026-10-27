@@ -57,6 +57,15 @@ Rispondi sempre in **italiano**.
   `split/` è la Home con la musica: mappa vera di Vela, lettore vero accanto e brano nel dock
   (`--ez demoSong true`: un brano finto impostato in `CarMedia` dall'anteprima di debug,
   `showDemoSong`), scattata per 15 s perché la mappa ci mette qualche secondo a comparire.
+  L'anteprima passa a `CarEnvironment.setDisplay` dimensioni e densità dello schermo, come una
+  sessione vera: le app (mappa di Vela, Plancia) disegnano alla densità dell'auto.
+  Assistente: `assistant/` (Impostazioni al posto di un assistente-activity, `phone-screen.png`),
+  `assistant-google/` (l'app Google dell'emulatore: schermo del telefono dopo il microfono e dopo lo
+  scorrimento dall'angolo, `phone-mic.png` / `phone-swipe.png`), `assistant-mic/` +
+  `assistant-gesture/` (l'assistente finto del debug, `debug/TestAssistant.kt`, scrive nel log
+  flag e argomenti con cui Android lo mostra: il log della CI li confronta). L'assistente finto
+  diventa predefinito solo dopo l'avvio dello scatto: un force-stop dell'app che fa da
+  assistente fa tornare Android all'app Google.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
@@ -199,7 +208,9 @@ Tutti i token in un solo posto, `car/design/`:
   un angolo in basso** (`AssistGesture`): chiama `launchAssist` del servizio di ricerca via
   `ServiceManager` + `Parcel` (transazione 6, dopo cinque getter; uguale da Android 12 a 16; non
   chiede permessi), che passa per l'interfaccia di sistema e mostra l'assistente in ascolto, non
-  in chat scritta. È così che Claude si apre in voce dove un ASSIST aprirebbe la tastiera. Se non
+  in chat scritta. Gli argomenti sono quelli che il launcher dà per lo scorrimento
+  (`triggered_by` = 83, `invocation_type` = 1). È così che Claude si apre in voce dove un ASSIST
+  aprirebbe la tastiera. Se non
   va, ripiega sugli intent: prima VOICE_SEARCH_HANDS_FREE, poi VOICE_COMMAND / VOICE_ASSIST,
   ASSIST per ultimo (ora con gli stessi extra del gesto). "L'assistente del telefono" è l'app
   letta da `Settings.Secure` "assistant"; l'app di Gemini (`com.google.android.apps.bard`) la

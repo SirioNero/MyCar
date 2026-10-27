@@ -1,12 +1,15 @@
-myCar 0.5.04-alpha: the phone's assistant wakes as with the corner swipe, moving wallpapers, and a new icon.
+myCar 0.5.04-alpha: an app of your choice beside the map, the microphone always in the dock, the phone's assistant woken as with the corner swipe, moving wallpapers, and a new icon.
 
 ## New
+- Beside the map, under the car's Settings: Music, the default, puts the player beside the map while something plays, as before. Or pick an app to stay there instead. A car app such as Plancia runs in that space, under a bar with its name and Close; a music app such as Xonos shows its player there, ready to play, and becomes the car's music app only if no other is in use. Close puts it away for the drive, and the button at the foot of the dock brings it back from the app grid.
+- The microphone now sits at the foot of the dock, just above the app grid button, always in the same place. Before, a dock full of apps pushed it out of sight.
 - The phone's assistant now wakes the way the swipe up from a bottom corner of the phone's screen wakes it: myCar asks Android to start it exactly as that gesture does, so it opens just as it does for the gesture, rather than in a typed chat. Choose your assistant under the car's Settings > Voice assistant.
 - Moving wallpapers: Lava and Polar (slow drifting colour), Waves (rolling bands) and Fireflies (lights rising), under Wallpaper in the car's settings, below the still ones. They are drawn by myCar, so they stay myCar's own, with no pictures or videos from elsewhere.
 - A new myCar icon.
 
 ## Fixed
 - Vela Maps no longer carries the yellow "works in part" mark. It connects, draws the map and navigates with myCar; its map moving in steps is how Vela draws it in the car, not a fault in myCar.
+- Home no longer shows "Map stopped." for a moment as the car connects, before the map starts by itself.
 
 ## Also in 0.5.03-alpha
 - Gemini: when chosen as the assistant, myCar asks the Google app, which serves Gemini's voice, before falling back to its typed chat.

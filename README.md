@@ -69,9 +69,10 @@ behind it all — still or moving.
   default; choose light or follow the phone.
 - **Wallpapers.** Pick one of myCar's own behind the grid and the dashboard — still, or moving
   (Lava, Polar, Waves, Fireflies). They're drawn by myCar, not shipped as pictures.
-- **The player beside the map.** When music plays, the player shares the screen with the map,
-  its cover filling its side on frosted glass. Tap the song in the dock to put it away or bring
-  it back; the dock's foot brings map and music back from the app grid.
+- **Beside the map.** When music plays, the player shares the screen with the map, its cover
+  filling its side on frosted glass. Tap the song in the dock to put it away or bring it back;
+  the dock's foot brings map and music back from the app grid. Or pick an app to stay beside
+  the map instead, such as Plancia for your home or Xonos for your music.
 - **Pick your size.** Scale the whole car screen from Extra small to Extra large, for the car's
   display and your eyes.
 - **Themes.** Choose flat buttons or skeuomorphic ones that look like real keys.
@@ -182,8 +183,8 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
 - The About screen credits Gearslip and shows the license; donations go to myCar's Bitcoin address.
 
 **A new design (the `car/design` system)**
-- A side dock with the clock, the dashboard, the map, what's playing, your pinned and open apps,
-  the assistant, and the app-grid button at its foot.
+- A side dock with the clock, the dashboard, the map, what's playing, and your pinned and open
+  apps, with the assistant's microphone and the app-grid button always in place at its foot.
 - A paged app grid, with real app icons in a rounded-square (squircle) frame, and a soft glass
   shine on icons and on the player's controls.
 - The Inter typeface, a dark theme by default (light or follow-the-phone optional), and myCar's
@@ -191,7 +192,8 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
 - Wallpapers drawn by myCar — still (Aurora and six more) or moving (Lava, Polar, Waves,
   Fireflies) — behind the grid and the dashboard, with the dock in glass over them.
 - The player sits beside the map when music plays, its cover filling its side on frosted glass;
-  the dock's foot returns to map-and-music from the grid.
+  the dock's foot returns to map-and-music from the grid. An app of your choice can take that
+  place instead: a car app runs there, or a music app shows its player.
 - The whole car screen scales from Extra small to Extra large.
 - Material Symbols icons and the Inter typeface ship as files inside the app, with no new
   dependencies.
