@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,13 +40,12 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -152,11 +153,10 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                     }
                     TransportRow(now, media, skip = 48.dp, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(8.dp))
-                    PlayModeRow(now, media, size = 42.dp, modifier = Modifier.fillMaxWidth()) {
-                        GsIconButton(
-                            ImageVector.vectorResource(R.drawable.lyrics_24), "Lyrics", navigator::showSideLyrics,
-                            size = 42.dp, iconSize = 22.dp,
-                        )
+                    PlayModeRow(now, media, size = 44.dp, modifier = Modifier.fillMaxWidth()) {
+                        PlainButton(navigator::showSideLyrics, "Lyrics", 44.dp) {
+                            Icon(painterResource(R.drawable.sym_lyrics), null, Modifier.size(23.dp))
+                        }
                     }
                 }
             }

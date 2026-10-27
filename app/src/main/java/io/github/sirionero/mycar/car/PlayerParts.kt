@@ -7,14 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.car.design.MyCarPalette
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,11 +39,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import io.github.sirionero.mycar.car.theme.GsIconBox
-import io.github.sirionero.mycar.car.theme.GsIconButton
-import io.github.sirionero.mycar.car.theme.GsSeekBar
-import io.github.sirionero.mycar.car.theme.GsTone
-import io.github.sirionero.mycar.car.theme.gsColors
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.CustomAction
 import io.github.sirionero.mycar.media.NowPlaying
@@ -57,7 +51,7 @@ import kotlinx.coroutines.withContext
  * the map - so a button looks and behaves the same wherever it turns up.
  */
 
-/** The seek bar, with elapsed and total time under it when [showTimes]. */
+/** The seek line, with the time played and the time left under it when [showTimes]. */
 @Composable
 internal fun PlayerProgress(now: NowPlaying, media: CarMedia, modifier: Modifier = Modifier, showTimes: Boolean = true) {
     if (now.durationMs <= 0) return
@@ -70,20 +64,23 @@ internal fun PlayerProgress(now: NowPlaying, media: CarMedia, modifier: Modifier
         }
     }
     Column(modifier) {
-        GsSeekBar(
+        ThinSeekBar(
             fraction = position.toFloat() / now.durationMs,
             onSeek = { media.seek((it * now.durationMs).toLong()) },
             enabled = now.canDo(PlaybackState.ACTION_SEEK_TO),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         )
         if (showTimes) {
+            val faint = LocalContentColor.current.copy(alpha = TIME_ALPHA)
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(formatDuration(position), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(formatDuration(now.durationMs), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(formatDuration(position), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = faint)
+                Text("-" + formatDuration(now.durationMs - position), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold, color = faint)
             }
         }
     }
 }
+
+/** How strongly the times under the seek line show: there to read, not to look at. */
+private const val TIME_ALPHA = 0.7f
 
 /** "1:05" for under a minute past the hour, "1:01:05" once an hour is involved. */
 internal fun formatDuration(ms: Long): String {
@@ -94,25 +91,23 @@ internal fun formatDuration(ms: Long): String {
     return if (hours > 0) "%d:%02d:%02d".format(hours, minutes, seconds) else "%d:%02d".format(minutes, seconds)
 }
 
-/** Previous, play/pause, next. [skip] sizes the outer two; play is a step bigger. */
+/**
+ * Back, play or pause, forward, as big plain glyphs with nothing under them. [skip] sizes the room
+ * for the outer two; play's is a step bigger, and its glyph biggest of all.
+ */
 @Composable
 internal fun TransportRow(now: NowPlaying, media: CarMedia, skip: Dp, modifier: Modifier = Modifier) {
     val play = skip * 1.25f
     Row(modifier, horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-        GsIconButton(
-            MediaIcons.Previous, "Previous", media::previous,
-            enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_PREVIOUS), size = skip, iconSize = skip * 0.58f, shape = CircleShape,
-        )
-        GsIconButton(
-            if (now.playing) MediaIcons.Pause else Icons.Filled.PlayArrow,
-            if (now.playing) "Pause" else "Play",
-            media::togglePlay,
-            tone = GsTone.Primary, size = play, iconSize = play * 0.58f, shape = CircleShape,
-        )
-        GsIconButton(
-            MediaIcons.Next, "Next", media::next,
-            enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_NEXT), size = skip, iconSize = skip * 0.58f, shape = CircleShape,
-        )
+        PlainButton(media::previous, "Previous", skip, enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_PREVIOUS)) {
+            Icon(painterResource(R.drawable.sym_fast_rewind), null, Modifier.size(skip * 0.7f))
+        }
+        PlainButton(media::togglePlay, if (now.playing) "Pause" else "Play", play) {
+            Icon(painterResource(if (now.playing) R.drawable.sym_pause else R.drawable.sym_play_arrow), null, Modifier.size(play * 0.82f))
+        }
+        PlainButton(media::next, "Next", skip, enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_NEXT)) {
+            Icon(painterResource(R.drawable.sym_fast_forward), null, Modifier.size(skip * 0.7f))
+        }
     }
 }
 
@@ -145,39 +140,37 @@ internal fun PlayModeRow(
         if (likeAction != null) {
             CustomActionButton(likeAction, media, size, toggle = true)
         } else {
-            GsIconButton(
-                if (liked == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                if (liked == true) "Unlike" else "Like",
-                media::toggleLike,
-                enabled = liked != null,
-                tone = if (liked == true) GsTone.Primary else GsTone.Neutral,
-                size = size, iconSize = icon,
-            )
+            PlainButton(media::toggleLike, if (liked == true) "Unlike" else "Like", size, enabled = liked != null) {
+                Icon(
+                    painterResource(if (liked == true) R.drawable.sym_favorite_fill else R.drawable.sym_favorite),
+                    null,
+                    Modifier.size(icon),
+                    tint = if (liked == true) MyCarPalette.Negative else LocalContentColor.current,
+                )
+            }
         }
         val shuffleAction = now.shuffleAction
         if (shuffleAction != null) {
             CustomActionButton(shuffleAction, media, size, toggle = true)
         } else {
-            GsIconButton(
-                MediaIcons.Shuffle, if (shuffleOn) "Shuffle off" else "Shuffle on",
-                media::toggleShuffle,
-                enabled = shuffleKnown,
-                tone = if (shuffleOn) GsTone.Primary else GsTone.Neutral,
-                size = size, iconSize = icon,
-            )
+            PlainButton(
+                media::toggleShuffle, if (shuffleOn) "Shuffle off" else "Shuffle on", size,
+                enabled = shuffleKnown, lit = shuffleOn,
+            ) {
+                Icon(painterResource(R.drawable.sym_shuffle), null, Modifier.size(icon))
+            }
         }
         val repeatAction = now.repeatAction
         if (repeatAction != null) {
             CustomActionButton(repeatAction, media, size, toggle = true)
         } else {
-            GsIconButton(
-                if (modes.repeat == PlaybackStateCompat.REPEAT_MODE_ONE) MediaIcons.RepeatOne else MediaIcons.Repeat,
-                "Repeat",
-                media::cycleRepeat,
-                enabled = repeatKnown,
-                tone = if (repeatOn) GsTone.Primary else GsTone.Neutral,
-                size = size, iconSize = icon,
-            )
+            PlainButton(media::cycleRepeat, "Repeat", size, enabled = repeatKnown, lit = repeatOn) {
+                Icon(
+                    painterResource(if (modes.repeat == PlaybackStateCompat.REPEAT_MODE_ONE) R.drawable.sym_repeat_one else R.drawable.sym_repeat),
+                    null,
+                    Modifier.size(icon),
+                )
+            }
         }
         now.otherActions.take(maxOther).forEach { CustomActionButton(it, media, size) }
         trailing()
@@ -191,13 +184,9 @@ internal fun PlayModeRow(
 @Composable
 private fun CustomActionButton(action: CustomAction, media: CarMedia, size: Dp, toggle: Boolean = false) {
     val icon = rememberActionIcon(action)
-    GsIconBox(
-        onClick = { media.custom(action) },
-        modifier = Modifier.size(size),
-        colors = gsColors(if (toggle && action.on) GsTone.Primary else GsTone.Neutral),
-    ) {
+    PlainButton({ media.custom(action) }, action.name, size, lit = toggle && action.on) {
         if (icon != null) {
-            Icon(icon, action.name, Modifier.size(size * 0.52f))
+            Icon(icon, null, Modifier.size(size * 0.52f))
         } else {
             Text(action.name, style = MaterialTheme.typography.labelSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
