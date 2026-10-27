@@ -93,7 +93,13 @@ object SpeechEngine {
         // Kroko first, alone: loading both at once slowed it from a fraction of a second to six.
         worker.execute {
             ensureLoaded(app)
-            finalWorker.execute { ensureFinalLoaded(app) }
+            finalWorker.execute {
+                ensureFinalLoaded(app)
+                // A drive may never use it: it goes after the same idle minutes as after a command,
+                // instead of holding its memory until the car disconnects.
+                main.removeCallbacks(idleUnload)
+                main.postDelayed(idleUnload, IDLE_UNLOAD_MS)
+            }
         }
     }
 

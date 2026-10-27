@@ -42,6 +42,12 @@ object CarAudio {
     /** Whether the driver has asked for the car to be fed at all; see CarSettings.pipeAudio. */
     @Volatile private var wanted = false
 
+    /**
+     * Still wanted when the consent dialog comes back: it may be answered long after it went up,
+     * once the drive is over or the sound has gone to Bluetooth, and then must start nothing.
+     */
+    val stillWanted: Boolean get() = wanted
+
     @Volatile private var link: Link? = null
 
     /** Rate and channel count the capture should use: the car's, or a sensible default. */

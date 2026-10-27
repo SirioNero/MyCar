@@ -63,6 +63,8 @@ object SessionReport {
     @Volatile private var profile = ""
     @Volatile private var video = ""
     @Volatile private var audio = ""
+    /** The car audio route chosen, and for Automatic the way this drive went; see CarAudioRoute. */
+    @Volatile private var audioRoute = ""
     @Volatile private var lastStream = ""
     @Volatile private var lastState = ""
     private var printed = false
@@ -84,6 +86,7 @@ object SessionReport {
         startedAt = System.currentTimeMillis()
         link = if (wireless) "wireless" else "usb"
         audioMode = io.github.sirionero.mycar.car.CarSettings.audioRoute.value.id
+        audioRoute = audioMode
         category = Category.NONE
         failure = ""; protocolVersion = ""; certSource = ""; certIssuer = ""
         stage = Stage.USB; failCode = ""; failedAfter = 0
@@ -114,6 +117,8 @@ object SessionReport {
     fun profile(name: String?) { profile = name ?: "none matched" }
     fun video(summary: String) { video = summary }
     fun audio(summary: String) { audio = summary }
+
+    fun audioRoute(summary: String) { audioRoute = summary }
     fun stream(summary: String) { lastStream = summary; reached(Stage.STREAMING) }
 
     /**
@@ -203,6 +208,7 @@ object SessionReport {
             append("\n")
             append(row("video", video))
             append(row("audio", audio))
+            append(row("audio route", audioRoute))
             append(row("last stream stat", lastStream))
             append("=".repeat(60))
         }

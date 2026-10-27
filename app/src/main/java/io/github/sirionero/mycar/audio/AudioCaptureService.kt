@@ -50,6 +50,9 @@ class AudioCaptureService : Service() {
             getSystemService(android.media.AudioManager::class.java)
                 .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_MUTE, 0)
             mutedPhone = true
+            // Remembered past this process: killed mid-drive, nothing here runs to unmute, and the
+            // next start does it instead (see restorePhoneIfLeftMuted).
+            io.github.sirionero.mycar.AppSettings.putString(this, KEY_LEFT_MUTED, "true")
             MyCarLog.i("audio: muted the phone's speaker for the drive")
         }.onFailure { MyCarLog.w("audio: could not mute the phone: ${it.message}") }
     }
@@ -57,11 +60,7 @@ class AudioCaptureService : Service() {
     private fun unmutePhone() {
         if (!mutedPhone) return
         mutedPhone = false
-        runCatching {
-            getSystemService(android.media.AudioManager::class.java)
-                .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
-            MyCarLog.i("audio: gave the phone's speaker back")
-        }.onFailure { MyCarLog.w("audio: could not unmute the phone: ${it.message}") }
+        unmute(this)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -251,6 +250,28 @@ class AudioCaptureService : Service() {
         private const val SILENCE_MS = 5_000L
 
         private var appContext: Context? = null
+
+        private const val KEY_LEFT_MUTED = "audio_phone_left_muted"
+
+        private fun unmute(context: Context) {
+            runCatching {
+                context.getSystemService(android.media.AudioManager::class.java)
+                    .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
+                io.github.sirionero.mycar.AppSettings.putString(context, KEY_LEFT_MUTED, "false")
+                MyCarLog.i("audio: gave the phone's speaker back")
+            }.onFailure { MyCarLog.w("audio: could not unmute the phone: ${it.message}") }
+        }
+
+        /**
+         * A capture that ended without its service shutting down - myCar closed by a crash, or by
+         * Android - left the phone's music muted. Gives it back at the next start.
+         */
+        fun restorePhoneIfLeftMuted(context: Context) {
+            if (running) return
+            if (io.github.sirionero.mycar.AppSettings.getString(context, KEY_LEFT_MUTED, "false") != "true") return
+            MyCarLog.i("audio: the phone was left muted by an earlier drive")
+            unmute(context.applicationContext)
+        }
 
         /** True between onCreate and onDestroy; lets the activity tell a live capture from a crashed one. */
         @Volatile var running = false

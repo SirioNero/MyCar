@@ -1,11 +1,5 @@
 package io.github.sirionero.mycar.car.theme
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -101,14 +95,11 @@ fun GsProgressBar(
 
 /**
  * Material 3's wavy progress bar, drawn here because the stable library doesn't offer it yet: the
- * filled part is a sine wave that drifts along, then a gap, then a straight track and a stop dot
- * at the end.
+ * filled part is a sine wave that moves along with the progress, then a gap, then a straight
+ * track and a stop dot at the end.
  */
 @Composable
 private fun WavyBar(fraction: Float, color: Color, track: Color, modifier: Modifier) {
-    val phase by rememberInfiniteTransition(label = "wave").animateFloat(
-        0f, 1f, infiniteRepeatable(tween(1_000, easing = LinearEasing), RepeatMode.Restart), label = "phase",
-    )
     Canvas(modifier) {
         val stroke = 4.dp.toPx()
         val amplitude = (size.height / 2 - stroke).coerceIn(0f, 3.dp.toPx())
@@ -122,7 +113,10 @@ private fun WavyBar(fraction: Float, color: Color, track: Color, modifier: Modif
         if (split > start) {
             val wave = Path()
             var x = start
-            val shift = phase * wavelength
+            // Anchored to the bar's leading edge, so the wave travels as the song plays and stands
+            // still when it's paused. A wave drifting on its own redrew the car's screen every
+            // frame, which the video to the car then had to encode.
+            val shift = split
             while (x <= split) {
                 val y = mid + amplitude * sin(2 * Math.PI * (x - shift) / wavelength).toFloat()
                 if (x == start) wave.moveTo(x, y) else wave.lineTo(x, y)
