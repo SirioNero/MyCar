@@ -122,10 +122,11 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `LocalNetworkAccess` (permesso della rete di casa), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
+| `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma"), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono) |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
 | `xonos/` | Xonos integrato: `Xonos` (account, connessione, libreria), `XonosAccount` (import dall'app Xonos), il motore di Xonos (`data/`, `sendspin/`, `playback/`: Music Assistant, Sendspin, lettore Media3 `PlaybackService`), `sendspin/CarLinkOutput` (uscita dritta verso l'auto) |
@@ -273,6 +274,30 @@ Tutti i token in un solo posto, `car/design/`:
   avanza; accanto alla mappa la scelta fatta con l'app passa a lui. L'uscita diretta verso l'auto
   ha solo i test (`DirectFeedTest`): l'emulatore non ha un canale Android Auto. Lo scatto ferma la
   musica alla fine: una volta l'emulatore è caduto un minuto dopo, con l'album ancora in corso.
+- **Cinema** (0.5.13; `cinema/`, `car/CinemaApp.kt`, `car/CarDriving.kt`, `ui/CinemaSettings.kt`,
+  nome scelto dall'utente): l'app video, che in realtà è un browser fatto per il video. In auto i
+  siti come riquadri con l'icona che il sito dà di sé (manifest, apple-touch-icon, `<link rel=icon>`,
+  `/apple-touch-icon.png`, o quella che il WebView riceve; tenute in `filesDir/cinema-icons`):
+  nessun logo nel pacchetto; finché non c'è, l'iniziale su un colore. Un sito si apre in un WebView
+  con barra sottile (indietro, nome, Close), schermo intero quando il player lo chiede
+  (`onShowCustomView`), la tastiera dell'auto per cercare, e a scelta il layout da computer (user
+  agent Linux con la stessa versione di Chrome). Siti suggeriti finché il guidatore non cambia
+  l'elenco: YouTube, RaiPlay, Twitch; si aggiungono e tolgono sul telefono (chiave `cinema_sites`).
+  Video protetto (DRM: Netflix, Prime Video, Disney+, DAZN…): si lascia provare
+  (`RESOURCE_PROTECTED_MEDIA_ID`) ma quasi certamente esce nero (il display virtuale non è sicuro),
+  e i riquadri e le impostazioni lo dicono. Camera e microfono ai siti mai.
+  **"Video only when parked"** (chiave `cinema_parked_only`) è **acceso di predefinito**: mentre
+  l'auto si muove l'immagine è coperta (`ParkedCover`) e il suono continua. Quando si muove lo dice
+  l'auto stessa, come ad Android Auto: `CarDriving` legge il DrivingStatus (campo 13 degli eventi
+  dei sensori, bit NO_VIDEO); se l'auto non lo dice, la velocità GPS (`CarMotion`). Si può spegnere
+  solo dalle impostazioni del telefono, e prima compare un avviso: myCar lo sconsiglia vivamente,
+  guardare video guidando è pericoloso e in molti paesi è illegale, la responsabilità è solo del
+  conducente ("Turn it off" / "Keep it on"). Decisione dell'utente: solo l'impostazione predefinita
+  e l'avviso; **non scrivere da nessuna parte (app, README, note) frasi sulla "filosofia" di myCar**
+  (tipo "myCar è del proprietario dell'auto"). I siti di casa (Jellyfin) hanno bisogno del permesso
+  della rete di casa (vedi "Rete di casa con Android 17"): chiesto aggiungendo il sito, e in auto
+  una copertura dice cosa concedere. Anteprima: `--ez moving true` (`CarDriving.override`), scatti
+  `cinema/` (griglia, siti, YouTube) e `cinema-moving/`.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -403,10 +428,7 @@ Tutti i token in un solo posto, `car/design/`:
   endpoint tolti. Il motore ufficiale per terze parti (Spotify Soloist, quello di Music
   Assistant) esiste solo per Linux: non gira sul telefono. librespot non suona con gli account
   creati da dicembre 2024.
-- **Cinema** (nome scelto dall'utente): video solo a macchina ferma (freno a mano, velocità e
-  stato di guida dall'auto, GPS come riserva) con fonti senza DRM: YouTube, Twitch, RaiPlay senza
-  DRM, Jellyfin/Plex/Emby, video del telefono, IPTV. Netflix, DAZN, Prime, Disney+ esclusi: il
-  video protetto su un display virtuale non sicuro esce nero, più i loro termini e F-Droid.
+- **Cinema, il resto**: video del telefono e IPTV; un elenco di siti suggeriti più lungo.
 
 ## Note F-Droid
 
