@@ -71,10 +71,12 @@ internal fun demoSong() = NowPlaying(
 /**
  * Debug only, for CarPreviewActivity's demoSong mode: the car's media looks as if [demoSong] were
  * playing, so the real Home shows the player beside the real map and the dock shows the song.
- * CarMedia keeps its state private for good reason; a preview reaching in by reflection is the
- * price of leaving the app's own code alone. False until CarUi has started the car's services.
+ * A music app on the phone (Xonos, when there) stands as the one playing it, so the full player
+ * opens on it too, with the made-up song. CarMedia keeps its state private for good reason; a
+ * preview reaching in by reflection is the price of leaving the app's own code alone. False until
+ * CarUi has started the car's services.
  */
-internal fun showDemoSong(): Boolean {
+internal fun showDemoSong(context: android.content.Context): Boolean {
     val media = CarServices.mediaOrNull() ?: return false
     @Suppress("UNCHECKED_CAST")
     fun <T> state(name: String): MutableStateFlow<T> {
@@ -83,6 +85,13 @@ internal fun showDemoSong(): Boolean {
     }
     state<NowPlaying>("_now").value = demoSong()
     state<CarMedia.Phase>("_phase").value = CarMedia.Phase.READY
+    val apps = io.github.sirionero.mycar.media.MediaCatalog.installed(context)
+    apps.firstOrNull { it.component.packageName == "it.xonos.ma" }?.let { app ->
+        @Suppress("UNCHECKED_CAST")
+        val playing = CarServices::class.java.getDeclaredField("_mediaApp").apply { isAccessible = true }
+            .get(null) as MutableStateFlow<io.github.sirionero.mycar.media.MediaApp?>
+        playing.value = app
+    }
     return true
 }
 

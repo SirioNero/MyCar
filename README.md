@@ -48,7 +48,8 @@ behind it all — still or moving.
   Organic Maps, OsmAnd, Flitsmeister, and Vela Maps work today.
 - **Music.** Browse, play, and queue tracks from a car-enabled media app, with a Now
   Playing view, an Up Next queue, and lyrics. Type a search, and apps that accept one
-  play the best match.
+  play the best match. The player looks like a recent phone's: plain controls, a thin line
+  to seek, the cover's colours behind it, and the cover in sight while you browse.
 - **The web.** A browser template with its own on-screen keyboard, for anything that
   doesn't ship a car interface of its own.
 - **Weather and the day ahead.** A dashboard screen shows the week's calendar next to
@@ -58,6 +59,8 @@ behind it all — still or moving.
   Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
   assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
   the way the swipe up from a bottom corner of the phone does, rather than in a typed chat.
+  With the phone locked, myCar lights it and asks you to unlock it, and the assistant starts
+  listening as soon as it opens.
 - **Messages.** New messages appear as a small card on the car screen. myCar reads
   each one aloud, and you reply by voice or with a quick reply. Music pauses while
   myCar speaks or listens. Speech runs on the phone, so it needs no Google account.
@@ -108,7 +111,8 @@ behind it all — still or moving.
   myCar's own link to the car, over the cable or Wi-Fi, as Android Auto does: many cars take
   only calls over Bluetooth while Android Auto runs. Bluetooth never needs a permission, and
   your map app's voice reaches the car too. Through myCar, Android shows a screen-share
-  consent dialog once per drive, which a one-time adb command removes. myCar never reads the
+  consent dialog once per drive, one tap with no app to pick, which a one-time adb command
+  removes. When the car takes its speakers for a call or a prompt, the music comes back after. myCar never reads the
   screen; capturing playback is the only way an ordinary app can pass another app's audio along.
 - **myCar needs no adb, root, or Shizuku.** Every feature relies on an ordinary
   Android permission or an on-device consent dialog. For sound through myCar, setup offers two
@@ -199,6 +203,8 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
   own colours, radii, and motion, all from one place.
 - Wallpapers drawn by myCar — still (Aurora and six more) or moving (Lava, Polar, Waves,
   Fireflies) — behind the grid and the dashboard, with the dock in glass over them.
+- A player in the style of recent phones: plain controls, a thin seek line, and the cover's
+  colours behind the full-screen player, with the cover in sight while you browse.
 - The player sits beside the map when music plays, its cover filling its side on frosted glass;
   the dock's foot returns to map-and-music from the grid. An app of your choice can take that
   place instead: a car app runs there, or a music app shows its player.
@@ -213,9 +219,11 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
   declined call no longer leaves its card stuck. myCar says when call audio stays on the phone
   because the car's Bluetooth hands-free isn't connected.
 - A choice of voice assistant: myCar's own, the phone's, or another assistant app. The phone's
-  is woken the way the swipe up from a bottom corner wakes it, rather than in a typed chat.
+  is woken the way the swipe up from a bottom corner wakes it, rather than in a typed chat, and
+  with the phone locked myCar asks you to unlock it first, then starts the assistant.
 - Car audio finds its way each drive: Bluetooth when the car takes the phone's music that way,
-  otherwise through myCar's own link to the car, over the cable or Wi-Fi.
+  otherwise through myCar's own link to the car, over the cable or Wi-Fi. The music comes back
+  after a call or the assistant, where it used to stay off until the next drive.
 - Screen sharing turns the phone landscape while it shows in the car, so apps fill the wide
   screen instead of standing upright between two bars.
 - Car apps show their own icons again, instead of another app's.

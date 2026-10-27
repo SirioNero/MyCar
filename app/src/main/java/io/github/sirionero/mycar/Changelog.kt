@@ -11,6 +11,15 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            22, "0.5.09-alpha",
+            listOf(
+                "The music comes back after a call or the phone's assistant. Before, once the car took its speakers for a moment, the music stayed off until the next drive.",
+                "A new player: plain controls, a thin line to seek, the cover's colours behind it. The cover stays in sight while you browse.",
+                "With the phone locked, the microphone lights the phone and asks you to unlock it; your assistant starts listening as soon as it opens.",
+                "Android's question for the car audio is one tap: no app to pick, and every app's sound reaches the car.",
+            ),
+        ),
+        Release(
             21, "0.5.08-alpha",
             listOf(
                 "Pages beside the map: swipe across Home, or tap the dots at its foot. Ready-made, the weather and your agenda left of the map, and Plancia's dashboard beside the browser right of it.",

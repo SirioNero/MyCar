@@ -47,6 +47,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import io.github.sirionero.mycar.car.design.MyCarCarTheme
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.PathFillType
@@ -96,8 +98,12 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
 
     val art = rememberArt(now)
 
-    // The art's colour behind everything, header included; the buttons keep their own.
-    Surface(Modifier.fillMaxSize(), color = rememberArtColor(art, MaterialTheme.colorScheme.background, darkLightness = 0.15f, lightLightness = 0.9f)) {
+    // The cover itself, blurred, behind everything, header included, as recent phones show their
+    // player: dark whatever the app theme, since all of it sits on the picture.
+    MyCarCarTheme(dark = true) {
+    Box(Modifier.fillMaxSize()) {
+    CoverBackdrop(art, Modifier.matchParentSize())
+    Surface(Modifier.fillMaxSize(), color = Color.Transparent, contentColor = MaterialTheme.colorScheme.onSurface) {
         if (phase != CarMedia.Phase.READY) {
             Column(Modifier.fillMaxSize()) {
                 AppIdentity(app, onExit, Modifier.padding(horizontal = 16.dp, vertical = 10.dp))
@@ -169,7 +175,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                 if (tab == Tab.NOW_PLAYING) {
                     CoverArt(art, Modifier.weight(1f).fillMaxWidth())
                 } else {
-                    CompactPlayer(now, media, Modifier.weight(1f).fillMaxWidth())
+                    CompactPlayer(now, media, art, Modifier.weight(1f).fillMaxWidth())
                 }
             }
             Column(Modifier.weight(1.2f).fillMaxHeight()) {
@@ -183,7 +189,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                             Icons.Filled.Search,
                             "Search ${app.label}",
                             { searching = true },
-                            colors = GsColors(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurface),
+                            colors = GsColors(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA), MaterialTheme.colorScheme.onSurface),
                             size = 44.dp,
                             shape = MaterialTheme.shapes.large,
                         )
@@ -202,6 +208,8 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
             }
         }
     }
+    }
+    }
 }
 
 /**
@@ -212,7 +220,10 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
 private fun AppIdentity(app: MediaApp, onExit: () -> Unit, modifier: Modifier = Modifier) {
     val icon = remember(app) { findEntry(app.component.flattenToString())?.icon }
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        GsIconButton(Icons.Filled.ArrowBack, "Back", onExit, size = 44.dp)
+        GsIconButton(
+            Icons.Filled.ArrowBack, "Back", onExit, size = 44.dp,
+            colors = GsColors(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA), MaterialTheme.colorScheme.onSurface),
+        )
         Spacer(Modifier.width(14.dp))
         icon?.let {
             Image(it, null, Modifier.size(26.dp).clip(RoundedCornerShape(7.dp)))
@@ -360,20 +371,23 @@ private fun SearchStatus(search: CarMedia.Search, appLabel: String, onDismiss: (
 }
 
 /** A bigger, easier-to-hit tab than a plain [TextButton] - this row is the only navigation on the screen. */
+/** A tab as a capsule of frosted glass over the cover: brighter, and in bold, when it's the one shown. */
 @Composable
 private fun MediaTab(label: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    GsIconBox(
-        onClick = onClick,
-        modifier = modifier.height(44.dp),
-        colors = if (selected) GsColors(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer)
-        else GsColors(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurface),
-        shape = MaterialTheme.shapes.large,
-        latched = selected,
+    val tint = MaterialTheme.colorScheme.onSurface
+    Box(
+        modifier
+            .height(44.dp)
+            .clip(CircleShape)
+            .background(tint.copy(alpha = if (selected) 0.24f else 0.08f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             label,
             style = MaterialTheme.typography.titleSmall,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            color = tint.copy(alpha = if (selected) 1f else 0.75f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -526,20 +540,19 @@ private fun NowPlayingControls(now: NowPlaying, media: CarMedia, modifier: Modif
 }
 
 /**
- * The player beside the browse list, the queue and the lyrics: no art, which the list needs the
- * room for, just what's playing, the seek bar and the controls.
+ * The player beside the browse list, the queue and the lyrics: the cover, as big as the room under
+ * it allows, so what's playing stays in sight while browsing, then the song, the seek line and the
+ * controls. Like, shuffle and repeat wait on the Now playing tab.
  */
 @Composable
-private fun CompactPlayer(now: NowPlaying, media: CarMedia, modifier: Modifier) {
-    Column(
-        modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
-    ) {
+private fun CompactPlayer(now: NowPlaying, media: CarMedia, art: android.graphics.Bitmap?, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        CoverArt(art, Modifier.weight(1f).fillMaxWidth())
         Column {
             Text(
                 now.title.ifEmpty { "Nothing playing" },
                 style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
-                maxLines = 2, overflow = TextOverflow.Ellipsis,
+                maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
             Text(
                 now.artist,
@@ -547,9 +560,8 @@ private fun CompactPlayer(now: NowPlaying, media: CarMedia, modifier: Modifier) 
                 maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
         }
-        PlayerProgress(now, media, Modifier.fillMaxWidth())
+        PlayerProgress(now, media, Modifier.fillMaxWidth(), showTimes = false)
         TransportRow(now, media, skip = 52.dp, modifier = Modifier.fillMaxWidth())
-        PlayModeRow(now, media, size = 48.dp, modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -627,11 +639,11 @@ private fun QueueRow(track: QueueTrack, media: CarMedia) {
     Surface(
         onClick = { media.playQueueItem(track) },
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(62.dp).clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surface)) {
+            Box(Modifier.size(62.dp).clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA))) {
                 icon?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
             }
             Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
@@ -654,11 +666,11 @@ private fun EntryRow(entry: MediaEntry, media: CarMedia, onClick: () -> Unit = {
     Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(62.dp).clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surface)) {
+            Box(Modifier.size(62.dp).clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA))) {
                 icon?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
             }
             Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
@@ -674,6 +686,9 @@ private fun EntryRow(entry: MediaEntry, media: CarMedia, onClick: () -> Unit = {
         }
     }
 }
+
+/** How strongly a row of a list shows over the cover behind it: a pane of glass, not a card. */
+private const val ROW_ALPHA = 0.08f
 
 /** Material's transport icons, from their published path data (they live in the extended set). */
 internal object MediaIcons {

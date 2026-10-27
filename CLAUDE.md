@@ -79,6 +79,12 @@ Rispondi sempre in **italiano**.
   riceve `invocation_type=1`, `triggered_by=83` e la sorgente "assist gesture", come dal launcher;
   l'app Google si apre in ascolto. Lo scorrimento simulato con `input` invece l'emulatore non lo
   prende per il gesto dell'assistente (né veloce né passo-passo): `assistant-gesture/` resta vuoto.
+  `media/` è il player a tutto schermo col brano finto (anche il browse con la copertina);
+  `assistant-locked/` blocca l'emulatore con un PIN, tocca il microfono, fotografa la richiesta di
+  sblocco, digita il PIN e controlla nel log che l'assistente di prova si apra dopo lo sblocco.
+  Lanciato a mano, il workflow accetta `shots` (nomi degli scatti separati da spazi, vuoto = tutti)
+  per provare una cosa sola in pochi minuti; nello script `BEFORE` è un comando eseguito subito
+  prima di aprire l'anteprima (es. accendere myCar in Accessibilità, che il force-stop spegne).
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
@@ -214,6 +220,13 @@ Tutti i token in un solo posto, `car/design/`:
   il player a tutto schermo. Non nasconderlo dietro gesti poco scopribili.
 - **Dimensioni**: Extra small 83%, Small 90%, Normal, Large 125%, Extra large 150% (scala la
   densità di tutta la UI dell'auto, `CarSettings.scale`).
+- **Player in stile telefono recente** (0.5.09): comandi semplici senza bottoni sotto
+  (`PlayerGlyphs.kt`: `PlainButton`, che si stringe alla pressione e mostra un quadrato tenue per
+  casuale/ripeti accesi, e `ThinSeekBar`, linea sottile che si ingrossa trascinando), tempo
+  trascorso e "-restante"; il player a tutto schermo (`MediaScreen`) è sempre scuro, sopra la
+  copertina sfocata con velo e grana (`CoverBackdrop.kt`), e nel browse la copertina resta in
+  vista (`CompactPlayer`). Il player accanto alla mappa forza il bianco sui comandi
+  (`LocalContentColor`), perché il vetro è scuro anche col tema chiaro.
 
 ## Decisioni prese
 
@@ -239,6 +252,20 @@ Tutti i token in un solo posto, `car/design/`:
   restava sul telefono. Migrazione: il vecchio "USB" diventa Tramite myCar, il vecchio
   "Bluetooth" (quasi tutti: era il default del setup) diventa Automatico. In Automatico sul
   Bluetooth le indicazioni vocali di myCar tacciono: la voce del navigatore arriva già per quella via.
+- Focus audio con l'auto (`AudioLink.onFocus`, 0.5.09): LOSS_TRANSIENT (chiamata, assistente in
+  Bluetooth, voce dell'auto) ferma lo stream **tenendo** il focus e il GAIN dell'auto lo riprende;
+  LOSS_TRANSIENT_CAN_DUCK lascia suonare; solo LOSS (l'autista sceglie la radio) restituisce il
+  focus e mette in pausa il telefono, e la musica che riparte dopo almeno 1,5 s di silenzio
+  (misurati sull'audio catturato) richiede il focus all'auto. Prima ogni interruzione, anche un
+  avviso che abbassa, restituiva il focus per sempre e la musica non tornava fino al viaggio dopo.
+  Test: `AudioLinkFocusTest`.
+- Domanda di Android per l'audio tramite myCar: myCar chiede l'**intero schermo** come unica
+  scelta (`MediaProjectionConfig.createConfigForDefaultDisplay()`, Android 14+): un tocco su
+  Avvia, nessuna app da scegliere, passa l'audio di tutte. **Non** si fa premere Avvia a myCar
+  (accessibilità o altro): è una protezione di sicurezza, ed è il trucco delle app spia; il
+  tentativo (`fix/audio-consent`) è abbandonato e non va unito. Per non avere la domanda: il
+  comando adb una tantum (PROJECT_MEDIA) già spiegato nell'aiuto, il Bluetooth, o la musica
+  suonata da myCar stesso (Xonos integrato, nel backlog).
 - App fatte per Gearslip: Plancia (`it.plancia.ha`, repository `SirioNero/Home-Assistant-on-Gearslip`)
   e Xonos (`it.xonos.ma`, `SirioNero/Music-Assistant-on-Gearslip`) funzionano con myCar. Xonos
   accetta qualsiasi app che lo comanda; Plancia **debug** accetta qualsiasi host, la **release** solo
@@ -263,6 +290,19 @@ Tutti i token in un solo posto, `car/design/`:
   ASSIST per ultimo (ora con gli stessi extra del gesto). "L'assistente del telefono" è l'app
   letta da `Settings.Secure` "assistant"; l'app di Gemini (`com.google.android.apps.bard`) la
   voce la dà tramite l'app Google (`com.google.android.googlequicksearchbox`).
+  Col telefono bloccato o spento (`car/AssistantUnlock.kt`, 0.5.09) gli assistenti (Claude come
+  quasi tutti) non ascoltano, e nessuna app può superare il blocco: myCar apre una schermata
+  trasparente sopra il blocco (`showWhenLocked`, `turnScreenOn`) che chiede ad Android di aprire
+  il telefono (`requestDismissKeyguard`: subito senza blocco o con un dispositivo attendibile,
+  altrimenti volto/impronta/PIN) e, aperto, fa ripartire `CarAssistant.start()`, che ora trova il
+  telefono sbloccato. Aprire una schermata dal background lo permette il servizio di
+  accessibilità di myCar (Android lo collega con `BIND_ALLOW_BACKGROUND_ACTIVITY_STARTS`): senza,
+  dopo 2,5 s l'auto dice di sbloccare e ritoccare il microfono. La richiesta di sblocco parte
+  quando la schermata ha il focus (schermo già acceso) o dopo 1,5 s: chiesta a schermo ancora
+  spento, Android la annulla subito (lo ha mostrato la prima prova); se la scarta entro 1,5 s la
+  si ripete una volta. Verificato (0.5.09, scatto `assistant-locked`): PIN sul telefono, avviso
+  sull'auto, e dopo lo sblocco l'assistente di prova si apre con `invocation_type=1`,
+  `triggered_by=83`.
 - Condivisione schermo (`mirror/`): mentre il telefono è copiato in auto, `TouchRelayService`
   (accessibilità, già usato per i tocchi) aggiunge un pixel trasparente
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
@@ -276,6 +316,24 @@ Tutti i token in un solo posto, `car/design/`:
 
 - Voce offline nella build F-Droid: compilare sherpa-onnx (+ onnxruntime) da sorgente nella
   ricetta F-Droid invece del `.so` precompilato.
+- **Plancia integrata** in myCar (richiesta dell'utente): Home Assistant configurato dal telefono
+  (o importato da Plancia installata, con un'esportazione che risponde solo alla firma di myCar),
+  plancia pre-caricata e collegata da inizio viaggio, così si apre all'istante; comandi rapidi
+  nativi (cancello, garage) come widget. Dipendenze da approvare: OkHttp, androidx.webkit.
+- **Xonos integrato**: motore Music Assistant + Sendspin di Xonos dentro myCar, con l'interfaccia
+  di myCar e il PCM direttamente su `AudioLink` (niente cattura né domanda di Android).
+  Configurazione dal telefono come in Xonos (scoperta mDNS, utente e password, token creato da
+  sé) o import da Xonos installata. Xonos e Plancia restano app a sé per Gearslip.
+- **Spotify con Client ID personale**: Web API (PKCE) per libreria, salvati e ricerca nell'auto
+  e per far suonare l'app Spotify del telefono; l'audio arriva via myCar o Bluetooth. Regole di
+  Spotify da febbraio 2026: Premium del proprietario, massimo 5 utenti per Client ID, alcuni
+  endpoint tolti. Il motore ufficiale per terze parti (Spotify Soloist, quello di Music
+  Assistant) esiste solo per Linux: non gira sul telefono. librespot non suona con gli account
+  creati da dicembre 2024.
+- **Cinema** (nome scelto dall'utente): video solo a macchina ferma (freno a mano, velocità e
+  stato di guida dall'auto, GPS come riserva) con fonti senza DRM: YouTube, Twitch, RaiPlay senza
+  DRM, Jellyfin/Plex/Emby, video del telefono, IPTV. Netflix, DAZN, Prime, Disney+ esclusi: il
+  video protetto su un display virtuale non sicuro esce nero, più i loro termini e F-Droid.
 
 ## Note F-Droid
 

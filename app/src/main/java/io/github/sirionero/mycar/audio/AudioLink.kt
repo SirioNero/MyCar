@@ -38,6 +38,15 @@ class AudioLink(
     @Volatile private var started = false
     @Volatile private var focusGranted = false
     @Volatile private var focusRequested = false
+    /**
+     * The car has the speakers for a while - a call, its own voice, the phone's assistant over
+     * Bluetooth - and will give them back: the stream waits, the focus still asked for.
+     */
+    @Volatile private var heldBack = false
+    /** While the car isn't taking the sound: how much quiet, then sound, the capture has had (see [listenForPlayback]). */
+    private var quietBytes = 0L
+    private var soundBytes = 0L
+    private var armed = false
     @Volatile private var inFlight = 0
     // The Uconnect asks for 4 on its video channel; assume the same until its Config says otherwise.
     @Volatile private var maxUnacked = 4
@@ -154,23 +163,44 @@ class AudioLink(
     }
 
     /**
-     * The head unit's answer to our AudioFocusRequest. Until it grants focus the sink is wired to
-     * whatever else the car is playing - the radio, usually - and anything we send is discarded,
-     * so [start] waits here rather than streaming into nothing.
+     * The head unit's answer to our AudioFocusRequest, and its word whenever that changes. Until
+     * it grants focus the sink is wired to whatever else the car is playing - the radio, usually -
+     * and anything we send is discarded, so [start] waits here rather than streaming into nothing.
+     *
+     * A car that takes the speakers for a while (a call, the phone's assistant over Bluetooth, its
+     * own voice) gives them back with a GAIN, so the stream waits for it with the focus still
+     * asked for. Letting go there, as myCar used to, told the car the phone was done: no GAIN came,
+     * and the music stayed off for the rest of the drive. Ducking keeps it playing under the car's
+     * own sound. Only a LOSS - the driver picked the radio - lets go, and then the phone playing
+     * again asks once more ([listenForPlayback]).
      */
     fun onFocus(state: Int) {
         val name = FOCUS_STATES[state] ?: "unknown($state)"
         MyCarLog.i("$tag: <- AudioFocusResponse state=$name")
-        val had = focusGranted
-        focusGranted = state == FOCUS_STATE_GAIN || state == FOCUS_STATE_GAIN_TRANSIENT ||
-            state == FOCUS_STATE_GAIN_MEDIA_ONLY
-        if (focusGranted) startStream() else stop()
-        // A ducking request leaves the music playing; a loss means another source has the speakers.
-        if (had && (state == FOCUS_STATE_LOSS || state == FOCUS_STATE_LOSS_TRANSIENT)) onTakenBack()
+        val ours = focusGranted || heldBack
+        when (state) {
+            FOCUS_STATE_GAIN, FOCUS_STATE_GAIN_TRANSIENT, FOCUS_STATE_GAIN_MEDIA_ONLY -> {
+                focusGranted = true
+                heldBack = false
+                startStream()
+            }
+            FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK -> Unit
+            FOCUS_STATE_LOSS_TRANSIENT, FOCUS_STATE_GAIN_TRANSIENT_GUIDANCE_ONLY -> {
+                focusGranted = false
+                hold()
+            }
+            else -> {
+                stop()
+                // Another source has the speakers for good: the phone's music shouldn't play on to no one.
+                if (ours && state == FOCUS_STATE_LOSS) onTakenBack()
+            }
+        }
     }
 
     override fun start() {
         if (!ready || started) return
+        // The car has the speakers for now; its GAIN starts the stream.
+        if (heldBack) return
         if (asksFocus && !focusRequested) {
             focusRequested = true
             sendControl(MSG_FOCUS_REQUEST, Protobuf.varintField(1, FOCUS_GAIN.toLong()))
@@ -196,15 +226,19 @@ class AudioLink(
                 .getOrNull()
         }
         started = true
+        armed = false
         MyCarLog.i("$tag: -> Start(session=$sessionId, config=$configIndex) - streaming ${sampleRate}Hz x$channels")
     }
 
     override fun stop() {
-        if (!started) return
+        val streaming = started
+        // Held back, the stream is already stopped but the focus is still asked for: give it back.
+        if (!streaming && !focusRequested) return
         started = false
+        heldBack = false
         synchronized(ackLock) { ackLock.notifyAll() }
         runCatching {
-            sendOnChannel(MSG_STOP, Protobuf.varintField(1, sessionId.toLong()))
+            if (streaming) sendOnChannel(MSG_STOP, Protobuf.varintField(1, sessionId.toLong()))
             if (focusRequested) sendControl(MSG_FOCUS_REQUEST, Protobuf.varintField(1, FOCUS_RELEASE.toLong()))
         }
         focusRequested = false
@@ -216,8 +250,25 @@ class AudioLink(
         bytes = 0
     }
 
-    override fun write(pcm: ByteArray, size: Int) {
+    /** The car has the speakers for a while: stop sending, keeping the focus asked for. */
+    private fun hold() {
+        if (focusRequested) heldBack = true
         if (!started) return
+        started = false
+        synchronized(ackLock) { ackLock.notifyAll() }
+        runCatching { sendOnChannel(MSG_STOP, Protobuf.varintField(1, sessionId.toLong())) }
+        aac?.release()
+        aac = null
+        MyCarLog.i("$tag: -> Stop, the focus kept for the car's GAIN, after $chunks chunks / $bytes bytes")
+        chunks = 0
+        bytes = 0
+    }
+
+    override fun write(pcm: ByteArray, size: Int) {
+        if (!started) {
+            if (asksFocus && ready) listenForPlayback(pcm, size)
+            return
+        }
         val encoder = aac
         if (encoder == null) {
             send(pcm.copyOf(size))
@@ -282,6 +333,42 @@ class AudioLink(
         }
     }
 
+    /**
+     * The capture runs on while the car isn't taking the sound: it let go of it, or has it for a
+     * call. Sound after a quiet spell is the phone playing again - the driver pressed play, the
+     * music came back after the call - so ask the car for the speakers, as Android Auto does when
+     * a media app starts. A car still busy says so, and the next ask waits for the next quiet
+     * spell and the sound after it. Timed by the audio itself, which the capture delivers as it plays.
+     */
+    private fun listenForPlayback(pcm: ByteArray, size: Int) {
+        if (!heard(pcm, size)) {
+            soundBytes = 0
+            quietBytes += size
+            if (millis(quietBytes) >= QUIET_MS) armed = true
+            return
+        }
+        quietBytes = 0
+        soundBytes += size
+        if (!armed || millis(soundBytes) < SOUND_MS) return
+        armed = false
+        focusRequested = true
+        runCatching { sendControl(MSG_FOCUS_REQUEST, Protobuf.varintField(1, FOCUS_GAIN.toLong())) }
+        MyCarLog.i("$tag: the phone is playing again - -> AudioFocusRequest(GAIN)")
+    }
+
+    /** Anything above a whisper in this 16-bit PCM: a paused player hands the capture zeros. */
+    private fun heard(pcm: ByteArray, size: Int): Boolean {
+        var i = 0
+        while (i + 1 < size) {
+            val sample = ((pcm[i].toInt() and 0xFF) or (pcm[i + 1].toInt() shl 8)).toShort().toInt()
+            if (sample > WHISPER || sample < -WHISPER) return true
+            i += 2
+        }
+        return false
+    }
+
+    private fun millis(pcmBytes: Long) = pcmBytes * 1000 / (sampleRate * channels * 2)
+
     fun close() {
         configTimer?.interrupt()
         configTimer = null
@@ -309,6 +396,14 @@ class AudioLink(
         private const val FOCUS_STATE_GAIN_MEDIA_ONLY = 6
         private const val FOCUS_STATE_LOSS = 3
         private const val FOCUS_STATE_LOSS_TRANSIENT = 5
+        private const val FOCUS_STATE_LOSS_TRANSIENT_CAN_DUCK = 4
+        private const val FOCUS_STATE_GAIN_TRANSIENT_GUIDANCE_ONLY = 7
+        /** Quiet long enough to be a pause, not a gap between songs, before sound counts as playing again. */
+        private const val QUIET_MS = 1_500L
+        /** Sound long enough not to be a click. */
+        private const val SOUND_MS = 300L
+        /** About -54 dB: below it, a sample is silence or noise. */
+        private const val WHISPER = 64
         private const val SESSION_ID = 2
         private const val STALL_MS = 2_000L
         private const val CHUNK_LOG_EVERY = 200 // about every four seconds
