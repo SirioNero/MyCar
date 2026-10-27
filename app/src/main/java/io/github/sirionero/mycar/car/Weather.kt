@@ -115,7 +115,9 @@ object Weather {
         val latch = CountDownLatch(1)
         var fresh: Location? = null
         runCatching {
-            manager.getCurrentLocation(provider, null, io) { fresh = it; latch.countDown() }
+            // Delivered on the thread that brings it, not on [io]: that's this thread, busy
+            // waiting below, so the fix would only have landed after the wait gave up.
+            manager.getCurrentLocation(provider, null, Runnable::run) { fresh = it; latch.countDown() }
             latch.await(FIX_TIMEOUT_S, TimeUnit.SECONDS)
         }.onFailure { MyCarLog.w("weather: fresh fix failed: ${it.message}") }
         // A stale fix still gives the right city, which is all a forecast needs.
