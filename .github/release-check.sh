@@ -131,7 +131,7 @@ PY
         reg=$(adb logcat -d | grep -oE "/register/[A-Za-z0-9_-]+" | tail -1 | sed 's,/register/,,')
         if [ -n "$reg" ]; then
             echo "registering the phone by hand ($reg)"
-            $HEADSCALE nodes register --user driver --key "$reg" || true
+            $HEADSCALE nodes register --user "$TS_USER" --key "$reg" || true
             sleep 15
             shot ts-6b-registered
         fi

@@ -39,7 +39,9 @@ if ! curl -sf http://10.0.2.2:8080/health >/dev/null; then
 fi
 hs() { "$W/headscale" -c "$W/config.yaml" "$@"; }
 hs users create driver >/dev/null
-key=$(hs preauthkeys create -u driver --reusable -e 3h -o json | jq -r .key)
+# The user by its number: released headscale takes only that.
+uid=$(hs users list -o json | jq -r '.[] | select(.name == "driver") | .id')
+key=$(hs preauthkeys create -u "$uid" --reusable -e 3h -o json | jq -r .key)
 echo "::add-mask::$key"
 
 # The runner joins as "umbrel", as the driver's home server would.
@@ -52,4 +54,5 @@ curl -sf -o /dev/null "http://$ip4:8095/" && echo "Music Assistant answers at $i
 
 echo "HEADSCALE=$W/headscale -c $W/config.yaml" >> "$GITHUB_ENV"
 echo "TS_AUTHKEY=$key" >> "$GITHUB_ENV"
+echo "TS_USER=$uid" >> "$GITHUB_ENV"
 echo "HEADSCALE_LOG=$W/headscale.log" >> "$GITHUB_ENV"
