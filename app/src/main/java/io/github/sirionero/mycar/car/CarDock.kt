@@ -319,10 +319,13 @@ private fun DockNowPlaying(navigator: CarNavigator) {
     val context = LocalContext.current
     val art by produceState(now.art, now.art, now.artUri) { value = now.art ?: MediaArt.load(context, now.artUri) }
     val appIcon = remember(mediaApp) { mediaApp?.let { findEntry(it.component.flattenToString())?.icon } }
+    // With an app chosen to sit beside the map instead, the player isn't there to show or hide:
+    // the song opens the full player.
+    val appBesideMap = rememberSidePaneApp()?.template != null
     DockItem(
         selected = navigator.current == CarScreen.Media ||
-            (navigator.current == CarScreen.Home && navigator.sidePanel == SidePanel.CONTROLS),
-        onClick = { navigator.togglePlayerDock() },
+            (!appBesideMap && navigator.current == CarScreen.Home && navigator.sidePanel == SidePanel.CONTROLS),
+        onClick = { if (appBesideMap) navigator.media() else navigator.togglePlayerDock() },
         description = listOf(now.title, now.artist).filter { it.isNotBlank() }.joinToString(" - ").ifEmpty { "Now playing" },
         onLongClick = { navigator.media() },
     ) {

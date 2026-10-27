@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,8 +28,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.car.design.MyCarRadius
+import io.github.sirionero.mycar.car.theme.GsButton
 import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
+import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.host.TemplateApp
 import io.github.sirionero.mycar.media.MediaApp
@@ -81,9 +85,11 @@ internal fun rememberSidePaneApp(): Entry? {
 internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier: Modifier) {
     val navigator = LocalCarNavigator.current
     val status by CarServices.browse.status.collectAsState()
+    var started by remember { mutableStateOf(false) }
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE
         if (!live || CarServices.browse.connectedComponent != app.component) CarServices.connectBrowse(app, frame)
+        started = true
     }
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {
         if (status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
@@ -93,6 +99,12 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(24.dp),
             )
+        } else if (started && status.phase == CarAppConnection.Phase.IDLE) {
+            // Closed from the dock's app menu: the pane waits to be asked, rather than starting
+            // the app straight back up against the driver's wishes.
+            GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) {
+                Text("Open ${app.label}")
+            }
         } else {
             CarAppStage(CarServices.browse, status, frame, endLabel = "Close", onDisconnect = navigator::closeSidePanel)
         }
