@@ -208,6 +208,8 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
   because the car's Bluetooth hands-free isn't connected.
 - A choice of voice assistant: myCar's own, the phone's, or another assistant app. The phone's
   is woken the way the swipe up from a bottom corner wakes it, rather than in a typed chat.
+- Car audio finds its way each drive: Bluetooth when the car takes the phone's music that way,
+  otherwise through myCar's own link to the car, over the cable or Wi-Fi.
 - Screen sharing turns the phone landscape while it shows in the car, so apps fill the wide
   screen instead of standing upright between two bars.
 - Car apps show their own icons again, instead of another app's.

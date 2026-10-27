@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            18, "0.5.05-alpha",
+            listOf(
+                "Car audio: Automatic, now the default, plays over Bluetooth when the car takes the phone's music that way, and through myCar otherwise, over the cable or Wi-Fi.",
+                "USB audio is now called Through myCar: it works over Wi-Fi too.",
+            ),
+        ),
+        Release(
             17, "0.5.04-alpha",
             listOf(
                 "Beside the map: the music player while something plays, as before, or an app of your choice, such as Plancia or Xonos, always there. Pick it in the car's settings.",
