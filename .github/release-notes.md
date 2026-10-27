@@ -1,10 +1,15 @@
-myCar 0.5.05-alpha: car audio that finds its way to the car.
+myCar 0.5.06-alpha: fixes from a bug hunt, and less memory on long drives.
 
-## New
+## Fixed
+- myCar could close at the end of a drive. With the phone locked and the music on Bluetooth, stopping the car audio or screen sharing that never started was refused by Android, and the refusal closed the app. Now only what started is stopped.
+- The weather waited twelve seconds for a fresh location that could never arrive in time, then used an old one or none. It now gets the fresh location.
+- Long drives with lots of music could run out of memory: cover art was decoded at full size, up to 36 MB a cover, and up to 48 kept. Covers and app images are now sized for the car's screen, and kept by weight.
+- Spoken directions could be watched twice when the car reconnected within half a second.
+- The log's times could come out garbled when several parts of myCar wrote at once.
+
+## Also in 0.5.05-alpha
 - Car audio: Automatic, now the default. When the car shows myCar, myCar checks whether the car takes the phone's music over Bluetooth. If it does, the phone plays over Bluetooth as before, and Android never asks. If it doesn't, as many cars do while Android Auto runs, keeping Bluetooth for calls, myCar sends the sound through its own link to the car, over the cable or Wi-Fi, as Android Auto does. Android then asks once each drive to share the audio; the one-time adb command in Help stops that. If the Bluetooth music connection drops mid-drive, the sound moves to myCar's link.
 - USB audio is now called Through myCar: it always worked over Wi-Fi too. Bluetooth and Through myCar can still be picked by hand, in the car's settings or the phone's.
-
-## Changed
 - If you had Bluetooth picked, setup's old default, you're on Automatic now, which still uses Bluetooth whenever your car plays the phone's music that way. USB carries over as Through myCar.
 
 ## Also in 0.5.04-alpha
