@@ -3,6 +3,8 @@ package io.github.sirionero.mycar
 import android.content.Context
 import android.util.Log
 import java.io.File
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,7 +26,9 @@ object MyCarLog {
 
     const val TAG = "myCar"
 
-    private val stamp = SimpleDateFormat("HH:mm:ss.SSS", Locale.US)
+    // Shared by every thread that logs, so a thread-safe formatter: SimpleDateFormat garbles
+    // timestamps when two threads format at once.
+    private val stamp = DateTimeFormatter.ofPattern("HH:mm:ss.SSS", Locale.US)
     private val io = Executors.newSingleThreadExecutor()
 
     private const val MAX_LIVE_LINES = 3000
@@ -183,7 +187,7 @@ object MyCarLog {
             "E" -> Log.e(TAG, message)
             else -> if (debug) Log.i(TAG, message)
         }
-        val line = "${stamp.format(Date())} $level ${tag.padEnd(5)} $message"
+        val line = "${stamp.format(LocalTime.now())} $level ${tag.padEnd(5)} $message"
         synchronized(live) {
             live.addLast(line)
             while (live.size > MAX_LIVE_LINES) live.removeFirst()
