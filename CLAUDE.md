@@ -120,10 +120,11 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
 | `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
-| `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `CarMic`) |
+| `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
+| `xonos/` | Xonos integrato: `Xonos` (account, connessione, libreria), `XonosAccount` (import dall'app Xonos), il motore di Xonos (`data/`, `sendspin/`, `playback/`: Music Assistant, Sendspin, lettore Media3 `PlaybackService`), `sendspin/CarLinkOutput` (uscita dritta verso l'auto) |
 | `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
 | `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
 
@@ -241,6 +242,29 @@ Tutti i token in un solo posto, `car/design/`:
   risponde solo ai pacchetti myCar della sua `hosts_allowlist` firmati col certificato di myCar
   (non alla build debug, firmata con la chiave di debug). myCar lo chiede da sé finché non è
   configurata, all'avvio e a ogni viaggio; sul telefono c'è "Use the Plancia app's account".
+- **Xonos integrato** (0.5.11; `xonos/`): Music Assistant dentro myCar, col nome Xonos. Lo stesso
+  motore dell'app Xonos (`SirioNero/Music-Assistant-on-Gearslip`: `data/`, `sendspin/`, `playback/`
+  copiati, senza le schermate del telefono di Xonos; le correzioni fatte là vanno portate qui), in
+  inglese come il resto dello schermo dell'auto, lettore "myCar" in Music Assistant, servizio Media3
+  `PlaybackService` e provider delle copertine `${applicationId}.xonos.art` non esportati. In auto è
+  una delle app musicali (`MediaCatalog` lo aggiunge solo se configurato, e allora toglie l'app Xonos;
+  la scelta "accanto alla mappa" e l'ultima app musicale salvate con l'app passano a lui:
+  `withXonosInside`, `CarServices.xonosFor`). Si configura sul telefono (`ui/XonosSettings.kt`:
+  indirizzo, utente e password → un token suo, la password non si tiene) o dall'app Xonos (da 0.1.39:
+  `content://it.xonos.ma.account`, metodo `account`, risponde solo a myCar firmata col suo
+  certificato), da sola a ogni viaggio finché myCar non ha un account (`XonosAccount.adoptIfUnset`).
+  **Audio**: con l'audio tramite myCar il PCM va dritto nel canale musicale di Android Auto
+  (`CarLinkOutput` → `CarAudio.openDirect` → `audio/DirectFeed.kt`): pezzi da 20 ms al ritmo
+  dell'orologio del telefono, 60 ms avanti, 250 ms in coda, silenzio quando non c'è musica (come la
+  cattura di un telefono muto, così l'auto tiene le casse); la cattura cede finché Xonos suona e per
+  2 s dopo; le scritture nel canale sono una alla volta (AAC); conversione di frequenza e canali se
+  l'auto non prende 48 kHz stereo. Se la strada cambia a metà brano `AudioEngine.reroute()` apre
+  un'uscita nuova senza buttare l'audio in coda. Finché la musica in auto è Xonos (aperto, ultimo
+  usato o nessun altro) Android non fa la domanda (`CarAudio.consentWaits`); la fa quando si apre
+  un'altra app musicale. Col Bluetooth Xonos suona con l'AudioTrack, come l'app.
+  Anteprima: `.github/music-assistant.sh` (Music Assistant 2.10.8 in Docker, un album di tre toni
+  fatti con ffmpeg, token in `MA_TOKEN`), `--es maUrl` / `--es maToken`, scatti `xonos-inside/`
+  (griglia, Browse, Albums, play dell'album, Now playing) e `xonos-side/`; log con il tag `Xonos`.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -292,7 +316,7 @@ Tutti i token in un solo posto, `car/design/`:
   (accessibilità o altro): è una protezione di sicurezza, ed è il trucco delle app spia; il
   tentativo (`fix/audio-consent`) è abbandonato e non va unito. Per non avere la domanda: il
   comando adb una tantum (PROJECT_MEDIA) già spiegato nell'aiuto, il Bluetooth, o la musica
-  suonata da myCar stesso (Xonos integrato, nel backlog).
+  suonata da myCar stesso (Xonos integrato, 0.5.11: nessuna domanda finché si ascolta lui).
 - App fatte per Gearslip: Plancia (`it.plancia.ha`, repository `SirioNero/Home-Assistant-on-Gearslip`)
   e Xonos (`it.xonos.ma`, `SirioNero/Music-Assistant-on-Gearslip`) funzionano con myCar. Xonos
   accetta qualsiasi app che lo comanda; Plancia **debug** accetta qualsiasi host, la **release** (da
@@ -348,10 +372,10 @@ Tutti i token in un solo posto, `car/design/`:
   ricetta F-Droid invece del `.so` precompilato.
 - **Comandi rapidi di Home Assistant** come widget nelle pagine (cancello, garage), sul
   collegamento di Plancia integrata (`HomeAssistant`).
-- **Xonos integrato**: motore Music Assistant + Sendspin di Xonos dentro myCar, con l'interfaccia
-  di myCar e il PCM direttamente su `AudioLink` (niente cattura né domanda di Android).
-  Configurazione dal telefono come in Xonos (scoperta mDNS, utente e password, token creato da
-  sé) o import da Xonos installata. Xonos e Plancia restano app a sé per Gearslip.
+- **Xonos integrato, il resto**: server trovati in rete (mDNS `_mass._tcp`, `NsdFinder` di Xonos)
+  e primo account di un Music Assistant nuovo nelle impostazioni del telefono; mettere in pausa
+  Xonos mentre l'auto tiene le casse per un momento (LOSS_TRANSIENT), invece di perdere quei secondi.
+  Xonos e Plancia restano app a sé per Gearslip.
 - **Spotify con Client ID personale**: Web API (PKCE) per libreria, salvati e ricerca nell'auto
   e per far suonare l'app Spotify del telefono; l'audio arriva via myCar o Bluetooth. Regole di
   Spotify da febbraio 2026: Premium del proprietario, massimo 5 utenti per Client ID, alcuni
