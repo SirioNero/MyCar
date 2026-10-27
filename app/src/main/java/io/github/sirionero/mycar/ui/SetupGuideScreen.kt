@@ -44,6 +44,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.key
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.LocalNetwork
 import android.Manifest
 import android.app.AppOpsManager
 import android.app.NotificationManager
@@ -229,14 +230,25 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
             ),
         )
     }
-    if (!granted(context, arrayOf(Manifest.permission.BLUETOOTH_CONNECT))) {
+    // From Android 17 the home network goes with Bluetooth: both are "Nearby devices" (LocalNetwork).
+    val nearbyPermissions = listOfNotNull(
+        Manifest.permission.BLUETOOTH_CONNECT,
+        LocalNetwork.PERMISSION.takeIf { LocalNetwork.asked },
+    ).toTypedArray()
+    if (!granted(context, nearbyPermissions)) {
         add(
             GuidePage(
-                title = "Bluetooth.",
+                title = if (LocalNetwork.asked) "Nearby devices." else "Bluetooth.",
                 explanation = "The first time you plug in, myCar offers to pair your phone with the " +
-                    "car, so calls play through its speakers.",
+                    "car, so calls play through its speakers." +
+                    if (LocalNetwork.asked) {
+                        " The same permission lets Plancia and Xonos reach Home Assistant and Music " +
+                            "Assistant on your home network."
+                    } else {
+                        ""
+                    },
                 icon = glyph(Icons.Filled.Call),
-                permissions = arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                permissions = nearbyPermissions,
             ),
         )
     }

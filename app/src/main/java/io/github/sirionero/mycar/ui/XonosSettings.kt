@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
 import io.github.sirionero.mycar.xonos.data.Account
@@ -58,6 +59,7 @@ internal fun XonosSection() {
     var password by remember { mutableStateOf("") }
     var status by remember { mutableStateOf<String?>(null) }
     val xonosApp = remember { XonosAccount.xonosAppCanShare(context) }
+    val askLocalNetwork = rememberLocalNetworkAsk()
 
     /** Tries the account kept, at home and away, and says what answered. */
     fun test(config: Settings.Config) {
@@ -73,7 +75,7 @@ internal fun XonosSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    "$place: ${describe(context, e)}"
+                    if (LocalNetwork.blocks(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(context, e)}"
                 } finally {
                     client.close()
                 }
@@ -87,6 +89,7 @@ internal fun XonosSection() {
         footer = "Your Music Assistant library among the car's music apps. With the car audio through myCar, " +
             "its music goes straight to the car, and Android doesn't ask to share the audio while you listen to it.",
     ) {
+        if (setUp) LocalNetworkRow(saved.urls)
         if (xonosApp) {
             SettingsRow(
                 "Use the Xonos app's account",
@@ -98,7 +101,7 @@ internal fun XonosSection() {
                             status = "Xonos has no account to share yet: sign in in Xonos first, or below."
                         } else {
                             Xonos.save(context, imported.config, imported.username)
-                            test(imported.config)
+                            askLocalNetwork(imported.config.urls) { test(imported.config) }
                         }
                     }
                 },
@@ -158,17 +161,20 @@ internal fun XonosSection() {
                         return@Button
                     }
                     status = "Signing in…"
-                    scope.launch {
-                        try {
-                            val login = Account(Xonos.repo).login(url, username.trim(), password, "myCar (${Build.MODEL})")
-                            password = ""
-                            val config = Settings.Config(homeUrl, remoteUrl, login.token)
-                            Xonos.save(context, config, login.user)
-                            test(config)
-                        } catch (e: CancellationException) {
-                            throw e
-                        } catch (e: Exception) {
-                            status = describe(context, e)
+                    // Signing in already goes to the address: the home network first, if it's there.
+                    askLocalNetwork(listOf(url)) {
+                        scope.launch {
+                            try {
+                                val login = Account(Xonos.repo).login(url, username.trim(), password, "myCar (${Build.MODEL})")
+                                password = ""
+                                val config = Settings.Config(homeUrl, remoteUrl, login.token)
+                                Xonos.save(context, config, login.user)
+                                test(config)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                status = if (LocalNetwork.blocks(context, listOf(url))) LOCAL_NETWORK_REFUSED else describe(context, e)
+                            }
                         }
                     }
                 }) { Text("Sign in") }
