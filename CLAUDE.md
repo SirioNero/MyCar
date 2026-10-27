@@ -66,6 +66,9 @@ Rispondi sempre in **italiano**.
   `showDemoSong`), scattata per 15 s perché la mappa ci mette qualche secondo a comparire.
   L'anteprima passa a `CarEnvironment.setDisplay` dimensioni e densità dello schermo, come una
   sessione vera: le app (mappa di Vela, Plancia) disegnano alla densità dell'auto.
+  Pagine della Home: `pages/` (dal tasto mappa del dock, che risveglia i puntini, alla pagina di
+  sinistra e poi a quella di destra), `pages-800x480/`, `pages-edit/` (matita e elenco delle
+  scelte); l'anteprima riparte ogni volta dalle pagine pronte (`HomePages.reset()`).
   Assistente: `assistant/` (Impostazioni al posto di un assistente-activity, `phone-screen.png`),
   `assistant-google/` (l'app Google dell'emulatore: schermo del telefono dopo il microfono e dopo lo
   scorrimento dall'angolo, `phone-mic.png` / `phone-swipe.png`), `assistant-mic/` +
@@ -104,7 +107,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
@@ -182,6 +185,26 @@ Tutti i token in un solo posto, `car/design/`:
   diventa l'app musicale solo se non ne suona già un'altra. Il pannello di un'app esiste solo
   mentre la Home è visibile: un'app aperta a tutto schermo usa lo stesso collegamento.
   Anteprima: `--es sidePane <pacchetto>`, cartelle `split-plancia/`, `split-xonos/`.
+- **Pagine accanto alla mappa** (`HomePager.kt`, `HomePages.kt`, `HomeWidgets.kt`, chiave
+  `car_home_pages`): la Home è una fila di pagine; quella della mappa (mappa + musica o app scelta,
+  invariata) e quelle del guidatore ai suoi lati, ognuna in **due metà** o **quattro parti**. Ogni
+  parte: meteo, agenda, browser di myCar o un'app per auto con template non di navigazione (es.
+  Plancia: mostra la sua plancia predefinita, coi comandi). Pagine pronte finché il guidatore non ne
+  cambia una (`readyMade`): Meteo + Agenda a sinistra, Plancia + Browser a destra se Plancia è
+  installata; la prima modifica le salva tutte. Si cambia pagina scorrendo dove il dito non sposta
+  già qualcosa (mappa, browser e app per auto lo prendono per sé: si scorre su widget, barre e
+  spazi) o con i puntini in basso (sulla mappa svaniscono coi suoi tasti, `MapControlsWake`); la
+  matita accanto ai puntini apre la modifica: due metà / quattro parti, sposta a sinistra/destra
+  (anche oltre la mappa), nuova pagina, elimina (secondo tocco di conferma), Fatto; un tocco su una
+  parte apre l'elenco di cosa metterci. Tenere premuto un widget o la barra di un riquadro apre la
+  modifica. Tutte le pagine restano composte (`beyondViewportPageCount`): la mappa non perde mai la
+  superficie e il browser resta dov'era; un'app per auto gira solo nella pagina ferma in vista
+  (`settledPage`), una per pagina, perché il collegamento `browse` disegna in un posto solo (fuori
+  vista: icona e nome, `AppPlaceholder`). Il tasto mappa del dock, il tasto mappa dell'auto e
+  Indietro su una pagina del guidatore tornano alla pagina della mappa (`CarNavigator.home()` /
+  `mapPageRequests`). La tastiera del browser in un riquadro occupa tutta la larghezza della pagina.
+  Impostazioni dell'auto → "Pages beside the map": aggiungi una pagina (si apre in modifica) o
+  torna a quelle pronte.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
