@@ -530,6 +530,13 @@ setup_phone() {
     adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
     sleep 5; tap_text "How to connect"; sleep 3
     tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/08-partial.png
+    # The intro, as after an update: its first page, the pirate flag hoisted and then in the wind.
+    adb shell am force-stop "$PKG"
+    adb shell run-as "$PKG" rm -f shared_prefs/intro.xml
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 1; adb exec-out screencap -p > $d/09-intro-hoist.png
+    sleep 2; adb exec-out screencap -p > $d/09-intro-wind-1.png
+    sleep 1; adb exec-out screencap -p > $d/09-intro-wind-2.png
     adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
     adb logcat -d -b crash > $d/crash.txt 2>&1
     echo "--- setup on the phone ---"
