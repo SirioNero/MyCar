@@ -428,10 +428,16 @@ Tutti i token in un solo posto, `car/design/`:
   fa sempre il prossimo passo. Lo stato si legge dal telefono ogni volta (`SetupSignals`;
   `SetupSteps` senza Android, `SetupStepsTest`): tornarci non cancella né azzera niente.
   `FirstSetup` ricorda solo Android Auto tenuto, passi saltati, permessi chiesti; all'uscita la
-  guida conta come vista e l'auto non apre le Novità al primo viaggio. Su Home "Finish setting up"
-  (`SetupLeftCard`) finché manca qualcosa per collegarsi. Tolta la domanda delle notifiche a ogni
-  avvio. Scatti in CI: `setup-phone` (installa senza permessi, scarica davvero i certificati, tocca
-  i tasti per testo con uiautomator).
+  guida conta come vista (le Novità al primo viaggio le salta già `CarSettings.init`). Su Home
+  "Finish setting up" (`SetupLeftCard`) finché manca qualcosa per collegarsi. Tolta la domanda delle
+  notifiche a ogni avvio. La scheda del passo successivo scorre in vista quando lo diventa (non
+  all'apertura); aperta la pagina di Android Auto, al ritorno "Keep Android Auto" è già aperto.
+  Nelle schede i tasti stanno uno sotto l'altro: affiancati, su un telefono stretto il secondo
+  diventava una colonna di lettere. Scatti in CI: `setup-phone` (installa senza permessi, scarica
+  davvero i certificati, tocca i tasti per testo con uiautomator, scorre a piccoli passi; schermo
+  dell'emulatore 320×640). Verificato (0.5.14): lista dal titolo, certificati scaricati e
+  controllati, Android Auto tenuto, un "Allow" con sei domande di Android in fila, tutto spuntato,
+  Home senza "Finish setting up", ritorno dalla Guida, e con i contatti tolti di nuovo "Allow".
 - **Certificati** (`CertCatalog`, `CertChecks`, `CertRotation`, `CertRotationPolicy`): due
   certificati pubblici, scaricati solo dopo un tocco e mai dentro l'APK: aasdk (consigliato, chiave
   PKCS#1, SHA-256 `1C0E0EF9…3C35`) e Headunit Revived (riserva, valido fino al 2044, chiave PKCS#8,
