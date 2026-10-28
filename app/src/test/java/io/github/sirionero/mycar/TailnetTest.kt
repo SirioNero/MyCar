@@ -1,7 +1,6 @@
 package io.github.sirionero.mycar
 
 import io.github.sirionero.mycar.home.HaException
-import io.github.sirionero.mycar.home.HomeAssistant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -67,8 +66,8 @@ class TailnetTest {
     @Test
     fun homeAssistantFailures() {
         val lookup = HaException("Unable to resolve host \"umbrel\"", HaException.Reason.NETWORK, UnknownHostException("umbrel"))
-        assertEquals(Tailnet.Failure.NO_SUCH_HOST, HomeAssistant.failureOf(lookup))
-        assertEquals(Tailnet.Failure.TIMEOUT, HomeAssistant.failureOf(HaException("No answer from x", HaException.Reason.NO_RESPONSE)))
-        assertEquals(Tailnet.Failure.OTHER, HomeAssistant.failureOf(HaException("The token isn't valid", HaException.Reason.INVALID_TOKEN)))
+        assertEquals(Tailnet.Failure.NO_SUCH_HOST, HaException.failureOf(lookup))
+        assertEquals(Tailnet.Failure.TIMEOUT, HaException.failureOf(HaException("No answer from x", HaException.Reason.NO_RESPONSE)))
+        assertEquals(Tailnet.Failure.OTHER, HaException.failureOf(HaException("The token isn't valid", HaException.Reason.INVALID_TOKEN)))
     }
 }

@@ -71,7 +71,7 @@ internal fun PlanciaSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    "$place: " + Tailnet.why(context, listOf(url), HomeAssistant.failureOf(e), describe(e), LOCAL_NETWORK_REFUSED)
+                    "$place: " + Tailnet.why(context, listOf(url), HaException.failureOf(e), describe(e), LOCAL_NETWORK_REFUSED)
                 } finally {
                     client.close()
                 }

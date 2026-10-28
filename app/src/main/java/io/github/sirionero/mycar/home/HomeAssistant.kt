@@ -230,7 +230,7 @@ object HomeAssistant {
                 // Tailscale leaving myCar out, or Android 17 keeping it off the home network, look like
                 // an address that doesn't answer: say which.
                 app?.let { context ->
-                    val failure = failureOf(lastException)
+                    val failure = HaException.failureOf(lastException)
                     if (failures == 0) {
                         MyCarLog.w("plancia: can't reach Home Assistant at ${config.urls}: ${lastException?.javaClass?.simpleName}: " +
                             "${lastException?.cause?.message ?: lastException?.message} - $failure, ${Tailnet.describe(context)}")
@@ -307,13 +307,6 @@ object HomeAssistant {
     private fun strings(array: JSONArray?): List<String> {
         if (array == null) return emptyList()
         return (0 until array.length()).mapNotNull { i -> array.optString(i).takeIf { it.isNotEmpty() } }
-    }
-
-    /** How a connection to Home Assistant failed, as far as the network goes. */
-    fun failureOf(e: Throwable?): Tailnet.Failure = when {
-        e is HaException && e.reason == HaException.Reason.NO_RESPONSE -> Tailnet.Failure.TIMEOUT
-        e is HaException && e.reason != HaException.Reason.NETWORK -> Tailnet.Failure.OTHER
-        else -> Tailnet.failureOf(e)
     }
 
     fun normalizeUrl(raw: String): String {
