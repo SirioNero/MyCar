@@ -2,7 +2,6 @@ package io.github.sirionero.mycar.ui
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
@@ -165,10 +164,8 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
         refresh()
     }
     fun allowDrive() {
-        val missing = SetupSignals.drivePermissions().filter {
-            context.checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (missing.isEmpty()) refresh() else driveLauncher.launch(missing.toTypedArray())
+        val missing = SetupSignals.missingDrivePermissions(context)
+        if (missing.isEmpty()) refresh() else driveLauncher.launch(missing)
     }
     fun openAppSettings() {
         runCatching {

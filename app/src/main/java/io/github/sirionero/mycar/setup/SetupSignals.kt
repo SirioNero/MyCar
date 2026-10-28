@@ -36,8 +36,14 @@ object SetupSignals {
         ),
     )
 
-    /** Everything the drive's one "Allow" asks for. */
-    fun drivePermissions(): Array<String> = driveGroups().flatMap { it.second }.distinct().toTypedArray()
+    /**
+     * What the drive's one "Allow" asks for: the permissions of the groups still off. Not the
+     * precise location once the approximate one is allowed, which Android would ask about again.
+     */
+    fun missingDrivePermissions(context: Context): Array<String> =
+        driveGroups().filterNot { (name, permissions) -> groupOn(context, name, permissions) }
+            .flatMap { (_, permissions) -> permissions.filterNot { granted(context, it) } }
+            .distinct().toTypedArray()
 
     private fun granted(context: Context, permission: String) =
         context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
