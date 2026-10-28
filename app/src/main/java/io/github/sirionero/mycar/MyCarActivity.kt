@@ -170,7 +170,8 @@ class MyCarActivity : ComponentActivity(), Projection {
         // the session with it. Added before the screens' own Back handlers, which come first.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (runner != null) {
+                // Also while a car is connecting: the wireless start-up lives with this screen.
+                if (runner != null || SessionStatus.state.value.phase == SessionStatus.Phase.CONNECTING) {
                     moveTaskToBack(true)
                     return
                 }
