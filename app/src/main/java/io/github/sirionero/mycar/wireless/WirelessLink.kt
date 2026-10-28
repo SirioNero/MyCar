@@ -86,7 +86,21 @@ object WirelessLink {
     @Volatile private var lostNetwork: Network? = null
     /** Bumped on each Wi-Fi join and on stop, so an older run of TCP tries ends instead of racing the new one. */
     @Volatile private var tcpRun = 0
+
+    /**
+     * Which start-up is the current one. A Bluetooth connect or accept can't be interrupted, so a
+     * start-up stopped while in one carried on once it returned: it took the channel, or the car,
+     * from the start-up that replaced it.
+     */
+    @Volatile private var startRun = 0
     private val writeLock = Any()
+
+    /** Guards [channelOver] and [releaseWithChannel], set from the session's end and the channel's. */
+    private val ends = Any()
+    /** The current start-up's Bluetooth channel is over. */
+    private var channelOver = false
+    /** The car ended the session on Wi-Fi with the channel still open: the car's network goes with the channel. */
+    private var releaseWithChannel = false
 
     /** Paired Bluetooth devices, cars or not: the driver picks theirs. Needs BLUETOOTH_CONNECT. */
     @SuppressLint("MissingPermission")
@@ -100,11 +114,17 @@ object WirelessLink {
 
     fun start(context: Context, device: BluetoothDevice) {
         stop(context)
+        synchronized(ends) {
+            channelOver = false
+            releaseWithChannel = false
+        }
         val app = context.applicationContext
+        // Taken here, not in the thread: a start-up stopped before its thread ran is old already.
+        val mine = startRun
         worker = Thread({
             // A test feature: anything unexpected ends the attempt, not the app.
             try {
-                run(app, device)
+                run(app, device, mine)
             } catch (e: Exception) {
                 log.e("wireless start-up failed", e)
                 SessionStatus.failed("Wireless start-up failed", "${e.javaClass.simpleName}: ${e.message}")
@@ -112,9 +132,45 @@ object WirelessLink {
         }, "mycar-wireless").apply { isDaemon = true; start() }
     }
 
+    /**
+     * The car ended the session over Wi-Fi. With the Bluetooth channel over too (its worker gone),
+     * the request for the car's Wi-Fi goes as well: it kept Android looking for the car until the
+     * next tap. While the channel is open the car may start over on it, so it stays.
+     */
+    fun sessionEnded(context: Context) {
+        synchronized(ends) {
+            tcp = null
+            if (worker?.isAlive == true && !channelOver) {
+                releaseWithChannel = true
+                return
+            }
+            releaseNetwork(context)
+        }
+    }
+
+    /**
+     * The Bluetooth channel is over. If the car had ended the session on Wi-Fi first, the request
+     * for its network goes now: it stayed until the next tap, with Android looking for the car.
+     */
+    private fun channelEnded(context: Context, mine: Int) {
+        synchronized(ends) {
+            if (mine != startRun) return
+            channelOver = true
+            if (releaseWithChannel && tcp == null) releaseNetwork(context)
+        }
+    }
+
+    private fun releaseNetwork(context: Context) {
+        network?.let { cb ->
+            runCatching { context.getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) }
+        }
+        network = null
+    }
+
     /** Closes the Bluetooth channel, the socket and the Wi-Fi request. Safe to call any time. */
     fun stop(context: Context) {
         tcpRun++
+        startRun++
         val starting = worker != null && SessionStatus.state.value.phase == SessionStatus.Phase.CONNECTING
         worker?.interrupt()
         worker = null
@@ -141,7 +197,7 @@ object WirelessLink {
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "mycar"
 
     @SuppressLint("MissingPermission")
-    private fun run(context: Context, device: BluetoothDevice) {
+    private fun run(context: Context, device: BluetoothDevice, mine: Int) {
         val name = name(device)
         log.i("--- wireless start-up with $name (${device.address}) ---")
         SessionStatus.connecting("Bluetooth: reaching $name")
@@ -162,7 +218,14 @@ object WirelessLink {
             // Most factory head units publish no service of their own: they look for the phone's
             // and connect to it, so wait for the car instead.
             log.i("Bluetooth: $name has no Android Auto service to call (${e.message}); waiting for it to call us")
-            waitForCar(context, name) ?: return
+            // Replaced while its connect hung: the newer start-up does the waiting.
+            if (mine != startRun) return
+            waitForCar(context, name, mine) ?: return
+        }
+        if (mine != startRun) {
+            log.i("Bluetooth: a newer start-up took over - closing this one's channel")
+            runCatching { socket.close() }
+            return
         }
         rfcomm = socket
         log.i("Bluetooth: channel open")
@@ -242,6 +305,8 @@ object WirelessLink {
             }
         } catch (e: IOException) {
             if (rfcomm != null) log.w("Bluetooth: channel closed (${e.message})")
+        } finally {
+            channelEnded(context, mine)
         }
     }
 
@@ -251,8 +316,9 @@ object WirelessLink {
      * Bluetooth, so the driver may have to reconnect the phone from the car's menu.
      */
     @SuppressLint("MissingPermission")
-    private fun waitForCar(context: Context, name: String): BluetoothSocket? {
+    private fun waitForCar(context: Context, name: String, mine: Int): BluetoothSocket? {
         val adapter = context.getSystemService(BluetoothManager::class.java)?.adapter ?: return null
+        if (mine != startRun) return null
         val server = try {
             adapter.listenUsingRfcommWithServiceRecord("Android Auto", AA_UUID)
         } catch (e: Exception) {
@@ -261,6 +327,12 @@ object WirelessLink {
             return null
         }
         listener = server
+        // Stopped in the moment it took to publish: stop() found nothing to close yet.
+        if (mine != startRun) {
+            runCatching { server.close() }
+            if (listener === server) listener = null
+            return null
+        }
         SessionStatus.connecting("Waiting for $name. If nothing happens, disconnect the phone in the car's Bluetooth menu and connect it again")
         log.i("Bluetooth: Android Auto service published, waiting ${LISTEN_MS / 1000}s for $name")
         return try {
@@ -269,7 +341,8 @@ object WirelessLink {
                 log.i("Bluetooth: $from connected to the Android Auto service")
             }
         } catch (e: IOException) {
-            if (listener == null) return null // stopped
+            // Stopped, or replaced by a newer start-up: that one says what's going on.
+            if (mine != startRun || listener !== server) return null
             log.w("Bluetooth: no car connected within ${LISTEN_MS / 1000}s (${e.message})")
             SessionStatus.failed(
                 "Car didn't connect over Bluetooth",
@@ -279,7 +352,8 @@ object WirelessLink {
             null
         } finally {
             runCatching { server.close() }
-            listener = null
+            // Only this one's: a newer start-up may have published its own by now.
+            if (listener === server) listener = null
         }
     }
 
@@ -361,6 +435,8 @@ object WirelessLink {
         }
         network?.let { runCatching { manager.unregisterNetworkCallback(it) } }
         network = callback
+        // The car started over on the channel: this network is for the new session.
+        synchronized(ends) { releaseWithChannel = false }
         manager.requestNetwork(request, callback, WIFI_WAIT_MS)
     }
 
@@ -384,7 +460,9 @@ object WirelessLink {
                     "active network ${manager?.activeNetwork}, car network $net, VPN ${if (vpnActive(context)) "on" else "off"}",
             )
         }.onFailure { log.w("probe: couldn't read the link (${it.message})") }
-        for (p in listOf(port, 5288, 5277, 80, 443).distinct()) {
+        // Never the car's own port: a car that just got ready would take the probe for the phone,
+        // see it hang up at once, and some stop listening.
+        for (p in listOf(5288, 5277, 80, 443).filter { it != port }) {
             val result = try {
                 net.socketFactory.createSocket().use { it.connect(InetSocketAddress(ip, p), 1_500) }
                 "open"
@@ -442,13 +520,25 @@ object WirelessLink {
                 // opens for myCar's request.
                 val main = mainOnCarNetwork(context, ip, net)
                 if (main != null && attempt == 0) log.i("TCP: the phone's main Wi-Fi is on the car's network, using it")
+                // Once Android has refused a bind - a VPN that apps can't get past, like Tailscale,
+                // refuses one to the main Wi-Fi as well - the ordinary route is the only one left.
+                // Every other try goes over the car's own network all the same: a home Wi-Fi with
+                // addresses like the car's (both 192.168.1.x) looked like the car's to the test above,
+                // and every try went there.
                 val socket = when {
-                    main != null -> main.socketFactory.createSocket()
                     lostNetwork == net || bindRefused -> Socket()
+                    main != null && attempt % 2 == 0 -> main.socketFactory.createSocket()
                     else -> net.socketFactory.createSocket()
                 }
                 socket.tcpNoDelay = true
                 socket.connect(InetSocketAddress(ip, port), 5_000)
+                // Stopped while it connected (the cable went in meanwhile): handing it on would
+                // close the session that just started on the cable.
+                if (run != tcpRun) {
+                    log.i("TCP: connected after a stop - closing it")
+                    socket.close()
+                    return
+                }
                 tcp = socket
                 log.i("TCP: connected to $ip:$port (try ${attempt + 1})")
                 val start = onConnected
@@ -474,8 +564,9 @@ object WirelessLink {
         if (vpnActive(context)) {
             SessionStatus.failed(
                 "A VPN is blocking the car",
-                "myCar joined $name's network, but a VPN on this phone won't let it reach the car. " +
-                    "Turn the VPN off, or exclude myCar in its settings, then try again.",
+                "myCar joined $name's network, but a VPN on this phone (Tailscale, for one) won't let it reach the car. " +
+                    "Connect with the cable, turn the VPN off, or leave myCar out of it in its settings - then Plancia " +
+                    "and Xonos inside myCar can't use the VPN's addresses, like Tailscale names.",
             )
             return
         }

@@ -103,6 +103,15 @@ class MaPlayer(
     private var drop: Drop? = null
     private var lastPlayingAt = 0L
 
+    /** Una pausa chiesta mentre Music Assistant forse non poteva sentirla: si rimanda appena si ricollega. */
+    private var pauseWanted = false
+
+    /** In pausa per una telefonata: la ripresa dopo una caduta di rete aspetta la sua fine ([resumeFromSystem]). */
+    private var heldByCall = false
+
+    /** Il guidatore ha messo in pausa o fermato: una ripresa decisa dal telefono non vale più. */
+    var onUserPause: (() -> Unit)? = null
+
     private class Expectation(val test: (QueueState?) -> Boolean, val future: SettableFuture<Void?>)
     private val expectations = mutableListOf<Expectation>()
 
@@ -291,7 +300,7 @@ class MaPlayer(
     private fun apply(q: QueueState, itemsChanged: Boolean = false) {
         val old = queue
         queue = q
-        if (q.playing) lastPlayingAt = SystemClock.elapsedRealtime()
+        if (q.playing) lastPlayingAt = SystemClock.elapsedRealtime() else pauseWanted = false
         val jumped = old == null || old.currentIndex != q.currentIndex || old.current?.id != q.current?.id
         setElapsed(q.elapsedSec, fromServer = !jumped)
         val index = q.currentIndex
@@ -354,7 +363,25 @@ class MaPlayer(
     }
 
     private fun onReady() {
-        fetchQueue { resumeAfterDrop() }
+        fetchQueue {
+            if (pauseWanted && queue?.playing == true) {
+                Log.i(TAG, "Rimando la pausa chiesta mentre Music Assistant non rispondeva")
+                // Fermata qui: la ripresa, se c'è, la fa chi ha chiesto la pausa (fine telefonata).
+                drop = null
+                command("player_queues/pause") { it?.playing != true }
+            } else if (!heldByCall) {
+                // Durante una telefonata no: la coda ripartiva muta e la chiamata si mangiava il brano.
+                resumeAfterDrop()
+            }
+        }
+    }
+
+    /** La musica va fermata: niente ripresa dopo una caduta di rete, e la pausa si ripete se serve. */
+    private fun wantPaused() {
+        drop = null
+        lastPlayingAt = 0L
+        pauseWanted = true
+        heldByCall = false
     }
 
     /** La rete è caduta: se stava suonando, ci si ricorda dove, per riprendere lì. */
@@ -369,12 +396,12 @@ class MaPlayer(
      * Music Assistant ferma la coda quando il telefono sparisce. Al ritorno si riparte da dove la
      * musica sarebbe arrivata: nel frattempo il telefono ha suonato quello che aveva già ricevuto.
      */
-    private fun resumeAfterDrop() {
-        val d = drop ?: return
+    private fun resumeAfterDrop(): Boolean {
+        val d = drop ?: return false
         drop = null
-        val q = queue ?: return
+        val q = queue ?: return false
         val away = SystemClock.elapsedRealtime() - d.at
-        if (away > RESUME_WINDOW_MS || q.playing || q.currentIndex != d.index) return
+        if (away > RESUME_WINDOW_MS || q.playing || q.currentIndex != d.index) return false
         val target = d.positionMs + min(away, BUFFER_GUESS_MS)
         val duration = (q.current?.durationSec ?: 0) * 1000L
         Log.i(TAG, "Riprendo dopo ${away / 1000} s senza rete")
@@ -393,11 +420,21 @@ class MaPlayer(
                 Log.w(TAG, "Ripresa non riuscita: ${e.message}")
             }
         }
+        return true
     }
 
     // ---------- Comandi ----------
 
     override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
+        // Prima di tutto, anche se la coda risulta già ferma (in pausa per l'assistente o una
+        // telefonata): la pausa del guidatore vince sulla ripresa automatica.
+        if (playWhenReady) {
+            pauseWanted = false
+            heldByCall = false
+        } else {
+            wantPaused()
+            onUserPause?.invoke()
+        }
         val q = queue ?: return Futures.immediateVoidFuture()
         if (q.playing == playWhenReady) return Futures.immediateVoidFuture()
         return command(if (playWhenReady) "player_queues/play" else "player_queues/pause") { it?.playing == playWhenReady }
@@ -408,7 +445,11 @@ class MaPlayer(
         return Futures.immediateVoidFuture()
     }
 
-    override fun handleStop(): ListenableFuture<*> = command("player_queues/stop") { it?.playing != true }
+    override fun handleStop(): ListenableFuture<*> {
+        wantPaused()
+        onUserPause?.invoke()
+        return command("player_queues/stop") { it?.playing != true }
+    }
 
     override fun handleSeek(mediaItemIndex: Int, positionMs: Long, seekCommand: Int): ListenableFuture<*> {
         val q = queue ?: return Futures.immediateVoidFuture()
@@ -568,14 +609,30 @@ class MaPlayer(
         return Futures.immediateVoidFuture()
     }
 
-    /** Lo stesso play o pausa, ma deciso dal telefono (chiamata in arrivo, cuffie staccate). */
-    fun pauseFromSystem() {
+    /**
+     * Lo stesso play o pausa, ma deciso dal telefono (chiamata in arrivo, cuffie staccate).
+     * [transient]: una pausa che finisce da sola (una telefonata). Non cancella la ripresa dopo una
+     * caduta di rete: senza rete durante la chiamata, la musica ripartiva più solo a mano.
+     */
+    fun pauseFromSystem(transient: Boolean = false) {
         val q = queue ?: return
-        if (q.playing) command("player_queues/pause") { it?.playing != true }
+        if (!q.playing) return
+        if (transient) {
+            pauseWanted = true
+            heldByCall = true
+        } else {
+            wantPaused()
+        }
+        command("player_queues/pause") { it?.playing != true }
     }
 
     fun resumeFromSystem() {
+        pauseWanted = false
+        val held = heldByCall
+        heldByCall = false
         val q = queue ?: return
+        // La rete è tornata durante la telefonata: si riprende ora da dove la caduta l'aveva fermata.
+        if (held && ready.value && resumeAfterDrop()) return
         if (!q.playing && q.current != null) command("player_queues/play") { it?.playing == true }
     }
 

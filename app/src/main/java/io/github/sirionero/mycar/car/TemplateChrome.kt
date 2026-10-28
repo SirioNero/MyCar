@@ -102,7 +102,7 @@ fun visibleAreaFor(template: Template?, width: Int, height: Int): Rect = when (t
 
 @Composable
 private fun NavigationChrome(template: NavigationTemplate, modifier: Modifier) {
-    val pan by CarServices.nav.panMode.collectAsState()
+    val pan by templateConnection().panMode.collectAsState()
     Box(modifier.fillMaxWidth()) {
         if (!pan) (template.navigationInfo as? RoutingInfo)?.let {
             RoutingCard(it, Modifier.align(Alignment.TopStart).padding(12.dp).width(320.dp))
@@ -253,6 +253,7 @@ private fun LaneDirection?.turnDegrees(): Float = when (this?.shape) {
  */
 @Composable
 private fun TravelEstimateBar(estimate: TravelEstimate, modifier: Modifier = Modifier) {
+    val connection = templateConnection()
     val time = remainingTime(estimate.remainingTimeSeconds)
     val distance = estimate.remainingDistance.display()
     val arrival = estimate.arrivalTimeAtDestination.clockTime()
@@ -281,7 +282,7 @@ private fun TravelEstimateBar(estimate: TravelEstimate, modifier: Modifier = Mod
             GsIconButton(
                 Icons.Filled.Close,
                 "Stop navigating",
-                { CarServices.nav.stopNavigating() },
+                { connection.stopNavigating() },
                 colors = GsColors(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.colorScheme.onSurface),
                 size = 40.dp,
                 iconSize = 20.dp,
@@ -322,7 +323,7 @@ private fun MapPaneLayout(
     pane: @Composable () -> Unit,
 ) {
     // Pan mode hands the whole screen to the map, leaving only its own controls.
-    val pan by CarServices.nav.panMode.collectAsState()
+    val pan by templateConnection().panMode.collectAsState()
     val edgeActions = (actionStrip?.actions.orEmpty() + mapActionStrip?.actions.orEmpty()).map { it.identity() }.toSet()
     androidx.compose.foundation.layout.BoxWithConstraints(modifier.fillMaxWidth()) {
         if (!pan) {

@@ -18,11 +18,13 @@ import android.view.MotionEvent
 import android.view.Surface
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.content.IntentCompat
 import android.content.res.Configuration
 import io.github.sirionero.mycar.audio.AudioCaptureService
 import io.github.sirionero.mycar.audio.CarAudio
@@ -57,6 +59,9 @@ class MyCarActivity : ComponentActivity(), Projection {
     private var screenProjector: ScreenProjector? = null
     private var worker: Thread? = null
 
+    /** Whether this session holds the drive's services (CarServices.init) - from its first picture to its end. */
+    private var holdsServices = false
+
     /** The encoder's input Surface, kept so the car's picture can be switched to the mirror. */
     private var surface: Surface? = null
     private var frameWidth = 0
@@ -68,11 +73,22 @@ class MyCarActivity : ComponentActivity(), Projection {
      * so the car UI asks, and the request surfaces here on the phone.
      */
     private val captureConsent = registerForActivityResult(StartActivityForResult()) { result ->
+        questionUp = false
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             // Answered once the car had gone: there's no screen to share with.
-            if (surface != null) MirrorService.start(this, result.resultCode, data)
-            else MyCarLog.i("screen capture allowed, but the car is gone")
+            if (surface != null) {
+                // Android keeps one projection: sharing the screen ends the one that sends the
+                // phone's sound to the car, which unmutes the phone. The music pauses first, rather
+                // than carrying on out of the phone's speaker for the whole sharing.
+                if (CarAudio.capture.value == CarAudio.Capture.ON) {
+                    io.github.sirionero.mycar.car.CarServices.pausePhoneMedia("screen sharing", keep = packageName)
+                    io.github.sirionero.mycar.car.CarToasts.show(this, "The phone's music pauses while its screen is shared", androidx.car.app.CarToast.LENGTH_LONG)
+                }
+                MirrorService.start(this, result.resultCode, data)
+            } else {
+                MyCarLog.i("screen capture allowed, but the car is gone")
+            }
         } else {
             MyCarLog.w("screen capture consent declined")
         }
@@ -82,8 +98,14 @@ class MyCarActivity : ComponentActivity(), Projection {
     private val audioPermission = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
     ) { granted ->
+        questionUp = false
+        // Android answers "no" without a dialog both when it has stopped asking (refused twice) and
+        // when the question was dropped (another permission dialog was up). Only the first counts
+        // as blocked, so only once myCar has asked before.
+        val askedBefore = AppSettings.getString(this, KEY_MIC_ASKED, "") == "1"
+        if (!granted) AppSettings.putString(this, KEY_MIC_ASKED, "1")
         if (granted) askAudioCapture()
-        else if (!shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
+        else if (askedBefore && !shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
             // Refused twice: Android now says no without showing anything, so the phone must.
             MyCarLog.w("audio: record permission blocked - Android no longer asks")
             CarAudio.micBlocked()
@@ -95,6 +117,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     private val audioConsent = registerForActivityResult(StartActivityForResult()) { result ->
+        questionUp = false
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             // Answered after the car went away, or after the sound moved to Bluetooth: starting now
@@ -104,7 +127,10 @@ class MyCarActivity : ComponentActivity(), Projection {
         } else {
             MyCarLog.w("audio: capture consent declined")
             CarAudio.denied()
-            if (!CarSettings.audioChoiceAsked) offerBluetooth.value = true
+            // Only when the driver picked "through myCar" by hand. Automatic chose it because the car
+            // takes no music over Bluetooth: offering Bluetooth would leave every drive silent.
+            val chosen = CarSettings.audioRoute.value == io.github.sirionero.mycar.audio.AudioRoute.CAR_LINK
+            if (chosen && !CarSettings.audioChoiceAsked) offerBluetooth.value = true
         }
     }
 
@@ -157,6 +183,22 @@ class MyCarActivity : ComponentActivity(), Projection {
         Prefetch.warm(this)
         CarEnvironment.setPhoneTheme(resources.configuration)
 
+        // Back on the phone's Home with a car connected: myCar steps aside and the drive goes on.
+        // Opened by the cable, myCar's task isn't the launcher's, so Android would close it - and
+        // the session with it. Added before the screens' own Back handlers, which come first.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Also while a car is connecting: the wireless start-up lives with this screen.
+                if (runner != null || SessionStatus.state.value.phase == SessionStatus.Phase.CONNECTING) {
+                    moveTaskToBack(true)
+                    return
+                }
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
+
         setContent {
             MyCarTheme {
                 MyCarApp(onDisconnect = { closeAccessory() }, onRequestCallScreening = ::requestCallScreeningRole)
@@ -195,7 +237,9 @@ class MyCarActivity : ComponentActivity(), Projection {
         CarAudio.onConsentRequested = { runOnUiThread { requestAudioCapture() } }
 
         registerReceiver(detachReceiver, IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED), RECEIVER_NOT_EXPORTED)
-        handleIntent(intent)
+        // Opened again from Recents, or recreated, the task still carries the attach that once
+        // started it: that car is long gone.
+        if (savedInstanceState == null && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) handleIntent(intent)
     }
 
     // The manifest opts out of recreation on uiMode changes, so a light/dark switch on the phone
@@ -208,12 +252,30 @@ class MyCarActivity : ComponentActivity(), Projection {
     // Throttled inside Prefetch, so this only does work if the last run was a while ago.
     override fun onStart() {
         super.onStart()
+        // On screen, Android lets myCar give the phone its sound back, if a drive left it muted.
+        if (!AudioCaptureService.running) AudioCaptureService.restorePhoneIfLeftMuted(this)
         Prefetch.warm(this)
         UsageStats.onAppOpened(this)
         io.github.sirionero.mycar.update.UpdateChecker.onAppOpened(this)
         // Back from the app's settings with the microphone turned on: try car audio again.
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             CarAudio.micAllowed()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refused at the car's arrival (the phone locked, or the wireless link made it minutes after
+        // the tap): on screen, Android lets the drive's foreground service start.
+        if (runner != null && !SessionService.running) SessionService.start(this, wireless = wirelessSocket != null)
+        io.github.sirionero.mycar.host.LocationKeepAlive.retry(this)
+        // The capture question that waited for myCar to be on screen. Not from onStart: there the
+        // lifecycle still reads CREATED - it moves to STARTED only once onStart has returned.
+        if (consentPending) {
+            if (CarAudio.stillWanted) requestAudioCapture() else consentPending = false
+        }
+        if (capturePending) {
+            if (runner != null) requestCapture() else capturePending = false
         }
     }
 
@@ -251,11 +313,51 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     // --- Media audio --------------------------------------------------------------------
 
+    /**
+     * The capture question, asked while myCar wasn't in front (the phone locked as the car chose
+     * myCar for its sound): Android drops it as if refused, and the car stayed without music for
+     * the whole drive. It waits for the phone to open instead, and the car says so.
+     */
+    private var consentPending = false
+
+    /**
+     * One of Android's questions is up on the phone (the microphone, the audio, the screen sharing):
+     * the next waits for its answer, and is asked in onResume. Both at once, the projection accepted
+     * last ended the other - Android keeps one.
+     */
+    private var questionUp = false
+
     private fun requestAudioCapture() {
+        // The phone's screen is shared with the car: accepting the audio now would end the sharing,
+        // Android keeping one projection. The car asks again when the sharing ends.
+        if (MirrorService.sharing) {
+            consentPending = false
+            CarAudio.askLater()
+            return
+        }
+        if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+            if (!consentPending) {
+                consentPending = true
+                MyCarLog.i("audio: myCar isn't on the phone's screen - the capture question waits for it")
+                io.github.sirionero.mycar.car.CarToasts.show(this, "Open myCar on the phone to send its music to the car", androidx.car.app.CarToast.LENGTH_LONG)
+            }
+            return
+        }
+        if (questionUp) {
+            consentPending = true
+            return
+        }
+        consentPending = false
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             askAudioCapture()
         } else {
-            audioPermission.launch(android.Manifest.permission.RECORD_AUDIO)
+            questionUp = true
+            runCatching { audioPermission.launch(android.Manifest.permission.RECORD_AUDIO) }
+                .onFailure {
+                    questionUp = false
+                    MyCarLog.e("could not ask for the microphone", it)
+                    CarAudio.denied()
+                }
         }
     }
 
@@ -268,8 +370,10 @@ class MyCarActivity : ComponentActivity(), Projection {
         } else {
             manager.createScreenCaptureIntent()
         }
+        questionUp = true
         runCatching { audioConsent.launch(intent) }
             .onFailure {
+                questionUp = false
                 MyCarLog.e("could not ask for audio capture", it)
                 CarAudio.denied()
             }
@@ -277,10 +381,39 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     // --- Phone mirroring ----------------------------------------------------------------
 
+    /** The screen-sharing question, waiting for myCar to be on the phone's screen; see [consentPending]. */
+    private var capturePending = false
+
     private fun requestCapture() {
+        // Asked from the background, Android blocks the dialog and says nothing: it waits for
+        // myCar to be opened instead, and the car says so.
+        if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+            if (!capturePending) {
+                capturePending = true
+                MyCarLog.i("mirror: myCar isn't on the phone's screen - the sharing question waits for it")
+                io.github.sirionero.mycar.car.CarToasts.show(this, "Open myCar on the phone to share its screen", androidx.car.app.CarToast.LENGTH_LONG)
+            }
+            return
+        }
+        if (questionUp) {
+            capturePending = true
+            return
+        }
+        capturePending = false
         val manager = getSystemService(MediaProjectionManager::class.java)
-        runCatching { captureConsent.launch(manager.createScreenCaptureIntent()) }
-            .onFailure { MyCarLog.e("could not ask for screen capture", it) }
+        // The whole screen, as for the audio: with "a single app" Android shares the app picked
+        // there, and the car would show it frozen behind the one opened from the car.
+        val intent = if (Build.VERSION.SDK_INT >= 34) {
+            manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+        } else {
+            manager.createScreenCaptureIntent()
+        }
+        questionUp = true
+        runCatching { captureConsent.launch(intent) }
+            .onFailure {
+                questionUp = false
+                MyCarLog.e("could not ask for screen capture", it)
+            }
     }
 
     /** A Surface has a single producer, so our own display must go before the mirror arrives. */
@@ -305,12 +438,18 @@ class MyCarActivity : ComponentActivity(), Projection {
         projector.start(target, frameWidth, frameHeight, frameDensity) { CarUi() }
     }
 
+    /** Whether the touch under way went down on the mirrored phone, rather than on the bars. */
+    private var mirrorTouchOnPhone = false
+
     /**
      * Sends a head-unit touch to the phone. Anything landing on the mirror's letterbox padding
      * maps to nothing on the phone and is dropped rather than clamped onto a screen edge.
      */
     private fun relayTouch(action: Int, x: Float, y: Float) {
-        val point = PhoneMirror.mapToPhone(this, x, y)
+        if (action == MotionEvent.ACTION_DOWN) mirrorTouchOnPhone = PhoneMirror.mapToPhone(this, x, y) != null
+        // A finger that went down on the phone's picture stays on it, held at its edge, until it
+        // lifts: a scroll ending on the bars neither leaves the mirror nor leaves the finger down.
+        val point = PhoneMirror.mapToPhone(this, x, y, clamp = mirrorTouchOnPhone)
         if (point == null) {
             // The letterbox bars belong to no window, which makes them a safe way back: a tap
             // on the padding leaves the mirror and returns the car to myCar's own UI.
@@ -333,7 +472,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             MyCarLog.i("accessory attached, but myCar is switched off - not connecting")
             return
         }
-        val accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
+        val accessory = IntentCompat.getParcelableExtra(intent, UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
         if (accessory == null) {
             MyCarLog.e("attach intent carried no accessory")
             SessionStatus.failed("Accessory missing", "The system reported a USB attach but did not include the accessory.")
@@ -350,11 +489,24 @@ class MyCarActivity : ComponentActivity(), Projection {
         // point anyway (its read loop already died when the head unit dropped the transport),
         // but the accessory it opened was never explicitly closed, which is what actually blocks
         // a re-open - a dead thread does not release the file descriptor on its own.
+        val manager = getSystemService(UsbManager::class.java)
+        // Only for an accessory that's really there: an attach intent any app can send used to end
+        // the drive under way before anything was checked.
+        if (manager.accessoryList?.contains(accessory) != true) {
+            MyCarLog.w("accessory attach for an accessory that isn't connected - ignored")
+            return
+        }
         closeAccessory()
         describe(accessory)
 
-        val manager = getSystemService(UsbManager::class.java)
-        val pfd = manager.openAccessory(accessory)
+        // An attach that's no longer true - the cable already out - makes Android throw.
+        val pfd = try {
+            manager.openAccessory(accessory)
+        } catch (e: RuntimeException) {
+            MyCarLog.e("openAccessory refused: ${e.message}")
+            SessionStatus.failed("The car isn't connected", "The cable was unplugged before myCar could open the connection. Plug it in again.")
+            return
+        }
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
             SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before myCar could open it.")
@@ -370,12 +522,35 @@ class MyCarActivity : ComponentActivity(), Projection {
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
         )
         this.runner = runner
-        worker = Thread { runner.run() }.apply { name = "mycar"; start() }
+        worker = runSession(runner)
+        SessionService.start(this)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
+    /**
+     * The session's thread. A session the car ends by itself - the engine off, its Wi-Fi gone,
+     * Android Auto closed on the car - is taken down as an unplugged cable is: otherwise the
+     * encoder, the car UI and the audio capture (with the phone muted) would go on for nobody.
+     */
+    private fun runSession(runner: MyCarRunner): Thread = Thread {
+        runner.run()
+        runOnUiThread {
+            if (this.runner === runner) {
+                MyCarLog.i("the car ended the session")
+                if (wirelessSocket != null) io.github.sirionero.mycar.wireless.WirelessLink.sessionEnded(this)
+                closeAccessory(stopWireless = false)
+            }
+        }
+    }.apply { name = "mycar"; start() }
+
     /** A wireless session: the same runner, on the socket [WirelessLink] opened to the car. */
     private fun startWireless(socket: java.net.Socket) {
+        // Closed by a stop that came first (the cable plugged in, Connect tapped again): starting
+        // would end the session that replaced it, and reading a closed socket threw, closing myCar.
+        if (socket.isClosed) {
+            MyCarLog.i("wireless: the car's socket was closed before its session began - ignored")
+            return
+        }
         closeAccessory(stopWireless = false)
         if (!AppSettings.myCarEnabled(this)) {
             MyCarLog.i("wireless: myCar is switched off - not connecting")
@@ -393,7 +568,8 @@ class MyCarActivity : ComponentActivity(), Projection {
             wireless = true,
         )
         this.runner = runner
-        worker = Thread { runner.run() }.apply { name = "mycar"; start() }
+        worker = runSession(runner)
+        SessionService.start(this, wireless = true)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
@@ -406,6 +582,9 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     /** Ends the session, wired or wireless. [stopWireless] also drops the car's Bluetooth and Wi-Fi. */
     private fun closeAccessory(stopWireless: Boolean) {
+        // Questions waiting for myCar to be opened belong to this drive: the next one asks (and says so) afresh.
+        consentPending = false
+        capturePending = false
         runner?.stop()
         SessionReport.print()
         runCatching { descriptor?.close() }
@@ -413,6 +592,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         runCatching { wirelessSocket?.close() }
         wirelessSocket = null
         if (stopWireless) io.github.sirionero.mycar.wireless.WirelessLink.stop(this)
+        if (runner != null) SessionService.stop(this)
         runner = null
     }
 
@@ -420,12 +600,30 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     override fun onSurfaceReady(surface: Surface, width: Int, height: Int, densityDpi: Int) {
         runOnUiThread {
+            // The session ended while its video was starting: nothing to show it on.
+            if (runner == null) return@runOnUiThread
+            // A new encoder after one died: the car UI moves to its surface.
+            if (this.surface != null && this.surface !== surface) {
+                screenProjector?.stop()
+                screenProjector = null
+                // The phone's shared screen was drawing on the old one: it ends, or the car showed
+                // myCar while every touch still went to the phone.
+                if (PhoneMirror.active.value) {
+                    PhoneMirror.end()
+                    PhoneMirror.requestStop()
+                }
+            }
             this.surface = surface
             frameWidth = width
             frameHeight = height
             frameDensity = densityDpi
             CarEnvironment.setDisplay(width, height, densityDpi)
             CarEnvironment.start(this)
+            // The session holds the drive's services too, so they outlast its car UI (see CarServices.init).
+            if (!holdsServices) {
+                holdsServices = true
+                io.github.sirionero.mycar.car.CarServices.init(applicationContext)
+            }
             showCarUi()
             io.github.sirionero.mycar.car.CarKeys.focusSink = { code, down ->
                 runOnUiThread { screenProjector?.dispatchKey(code, down) }
@@ -433,13 +631,35 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
+    private class Touch(val action: Int, val actionIndex: Int, val points: List<TouchPoint>)
+
+    private val touches = java.util.concurrent.ConcurrentLinkedQueue<Touch>()
+
+    /** Every touch waiting, in the order the car sent them. */
+    private val dispatchTouches = Runnable {
+        while (true) {
+            val touch = touches.poll() ?: break
+            // Mirroring drives one phone touch at a time, so it follows the first finger only.
+            if (PhoneMirror.active.value) touch.points.firstOrNull()?.let { relayTouch(touch.action, it.x, it.y) }
+            else screenProjector?.dispatchTouch(touch.action, touch.actionIndex, touch.points)
+        }
+    }
+
     override fun onTouch(action: Int, actionIndex: Int, points: List<TouchPoint>) {
         // To the front of the main thread's queue: a touch waiting behind other work is lag the
-        // driver feels, while the work it jumps ahead of can wait a frame.
-        mainHandler.postAtFrontOfQueue {
-            // Mirroring drives one phone touch at a time, so it follows the first finger only.
-            if (PhoneMirror.active.value) points.firstOrNull()?.let { relayTouch(action, it.x, it.y) }
-            else screenProjector?.dispatchTouch(action, actionIndex, points)
+        // driver feels, while the work it jumps ahead of can wait a frame. One runnable for all
+        // that are waiting, though: posted one by one at the front, they would run newest first,
+        // a lift before its press.
+        touches.add(Touch(action, actionIndex, points))
+        mainHandler.removeCallbacks(dispatchTouches)
+        mainHandler.postAtFrontOfQueue(dispatchTouches)
+    }
+
+    override fun onRefresh() {
+        runOnUiThread {
+            // Sharing the phone's screen: myCar's UI isn't there to redraw, so the shared display
+            // sends its picture again - a still phone screen gave the car no frame to start from.
+            if (PhoneMirror.active.value) PhoneMirror.refresh() else screenProjector?.refresh()
         }
     }
 
@@ -452,7 +672,14 @@ class MyCarActivity : ComponentActivity(), Projection {
             screenProjector?.stop()
             screenProjector = null
             surface = null
+            if (holdsServices) {
+                holdsServices = false
+                io.github.sirionero.mycar.car.CarServices.shutdown()
+            }
             CarEnvironment.stop()
         }
     }
 }
+
+/** Set once myCar has asked for the microphone, for the car audio or in the setup guide, and been told no. */
+internal const val KEY_MIC_ASKED = "record_audio_asked"

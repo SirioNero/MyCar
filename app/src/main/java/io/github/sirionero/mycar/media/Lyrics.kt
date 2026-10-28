@@ -44,12 +44,15 @@ object Lyrics {
             return fromDisk
         }
 
-        val result = withContext(Dispatchers.IO) {
+        val lookup = withContext(Dispatchers.IO) {
             runCatching {
                 exact(title, artist, album, durationMs) ?: search(title, artist)
-            }.onFailure { MyCarLog.w("lyrics: lookup failed: ${it.message}") }.getOrNull()
+            }.onFailure { MyCarLog.w("lyrics: lookup failed: ${it.message}") }
         }
-        synchronized(cache) { cache[key] = result }
+        val result = lookup.getOrNull()
+        // Only an answer is kept: a lookup that failed (no signal in a tunnel) is asked again next
+        // time, rather than standing as "no lyrics" for as long as myCar runs.
+        if (lookup.isSuccess) synchronized(cache) { cache[key] = result }
         if (result != null) withContext(Dispatchers.IO) { writeDisk(context, key, result) }
         return result
     }

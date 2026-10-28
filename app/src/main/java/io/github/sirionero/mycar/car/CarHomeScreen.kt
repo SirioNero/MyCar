@@ -173,7 +173,16 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
                 }
             } else {
                 // Autostart is still picking one - a navigation app is installed, so this resolves
-                // to a "Starting..." state itself, in the next frame or two.
+                // to a "Starting..." state itself, in the next frame or two. If it doesn't (the only
+                // map apps installed are ones known not to work here), the choice, not an empty half.
+                val nothing by produceState(false) {
+                    delay(MAP_START_GRACE_MS)
+                    value = true
+                }
+                if (nothing) {
+                    Text("Choose a map app.", style = MaterialTheme.typography.titleMedium)
+                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                }
             }
         }
     }

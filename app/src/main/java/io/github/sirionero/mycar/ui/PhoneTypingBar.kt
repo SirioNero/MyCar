@@ -41,8 +41,12 @@ fun PhoneTypingBar(modifier: Modifier = Modifier) {
     val field by PhoneTyping.field.collectAsState()
     val open = field ?: return
     var value by remember(open.id) { mutableStateOf(TextFieldValue(open.text, TextRange(open.text.length))) }
-    // The car keyboard typed too: take its text, cursor at the end.
-    if (open.text != value.text) value = TextFieldValue(open.text, TextRange(open.text.length))
+    // The car keyboard typed too: take its text, cursor at the end. Only when the car's text
+    // changes: checked on every recomposition, the phone's own keystroke was undone for a frame
+    // until the car caught up, the cursor jumped to the end and quick letters were lost.
+    LaunchedEffect(open.text) {
+        if (open.text != value.text) value = TextFieldValue(open.text, TextRange(open.text.length))
+    }
     val focus = remember { FocusRequester() }
     LaunchedEffect(open.id) { runCatching { focus.requestFocus() } }
 

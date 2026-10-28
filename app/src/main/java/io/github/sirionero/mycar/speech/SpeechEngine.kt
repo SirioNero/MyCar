@@ -54,6 +54,8 @@ object SpeechEngine {
     private const val MAX_S = 15f
     /** Quiet before the first word that counts as "nobody spoke". */
     private const val NO_SPEECH_S = 6f
+    /** How long the phone's microphone may give only exact zeros before myCar takes it as silenced. */
+    private const val SILENCED_MS = 1_500L
     /** Quiet after the last word that ends the phrase. */
     private const val END_SILENCE_S = 1.0f
     private const val CUE_VOLUME = 80
@@ -169,6 +171,9 @@ object SpeechEngine {
                 if (id != run) return@execute
                 post(onListening)
                 stream(app, r, id, onSpeaking = { post(onSpeaking) }, onPartial = { post { onPartial(it) } }, onStopped = { post(onHeard) })
+            } catch (e: MicSilenced) {
+                MyCarLog.w("speech: the phone's microphone gives only silence - Android keeps it from myCar now")
+                return@execute post { onError("The phone's microphone is silenced. Unlock the phone and try again.") }
             } catch (t: Throwable) {
                 MyCarLog.e("speech: listening failed", t)
                 return@execute post { onError("The microphone isn't available right now.") }
@@ -198,7 +203,8 @@ object SpeechEngine {
         onPartial: (String) -> Unit,
         onStopped: () -> Unit,
     ): String {
-        val mic = carMic() ?: phoneMic()
+        val car = carMic()
+        val mic = car ?: phoneMic()
         val s = r.createStream()
         val frame = ShortArray(CHUNK)
         val samples = FloatArray(CHUNK)
@@ -209,11 +215,19 @@ object SpeechEngine {
         var spoke = false
         var audioMs = 0L
         var decodeMs = 0L
+        var anySound = false
         try {
             while (id == run) {
                 val n = mic.read(frame)
                 if (n < 0) break
                 if (n == 0) continue
+                // A real microphone is never exactly zero: the phone's, all zeros, is one Android has
+                // silenced for an app in the background (the phone locked). Said at once, rather
+                // than "Didn't catch that" six seconds on.
+                if (!anySound) {
+                    for (i in 0 until n) if (frame[i].toInt() != 0) { anySound = true; break }
+                    if (!anySound && car == null && audioMs >= SILENCED_MS) throw MicSilenced()
+                }
                 for (i in 0 until n) samples[i] = frame[i] / 32768f
                 val keep = minOf(n, phrase.size - held)
                 System.arraycopy(samples, 0, phrase, held, keep)
@@ -382,6 +396,9 @@ object SpeechEngine {
     // --- microphones -----------------------------------------------------------------------
 
     /** Where a phrase is heard from: [read] fills [frame] and returns how many samples it got, -1 at the end. */
+    /** The phone's microphone hands back nothing but zeros: Android is keeping it from myCar. */
+    private class MicSilenced : Exception()
+
     private interface Mic {
         fun read(frame: ShortArray): Int
         fun close()
@@ -394,7 +411,12 @@ object SpeechEngine {
             MediaRecorder.AudioSource.VOICE_RECOGNITION, RATE,
             AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, max(min, CHUNK * 4),
         )
-        check(recorder.state == AudioRecord.STATE_INITIALIZED) { "AudioRecord didn't initialize" }
+        // Let go at once when it can't start (the microphone taken): left to the garbage collector,
+        // each press of the voice key held another one.
+        if (recorder.state != AudioRecord.STATE_INITIALIZED) {
+            recorder.release()
+            error("AudioRecord didn't initialize")
+        }
         recorder.startRecording()
         MyCarLog.i("speech: listening through the phone's microphone")
         return object : Mic {

@@ -45,6 +45,13 @@ class LocationKeepAlive : Service() {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         }.onSuccess {
             settle(State.ON)
+            // Every hold went while it was starting: stop now, as it may only once in the foreground.
+            main.post {
+                if (holders == 0) {
+                    stopSelf()
+                    state = State.OFF
+                }
+            }
         }.onFailure {
             MyCarLog.w("location keep-alive: could not start the foreground service - ${it.message}")
             settle(State.FAILED)
@@ -106,14 +113,32 @@ class LocationKeepAlive : Service() {
             main.post {
                 holders = (holders - 1).coerceAtLeast(0)
                 if (holders > 0) return@post
+                // Stopped before it calls startForeground, Android takes myCar down with it: it
+                // stops itself once started (see onStartCommand).
+                if (state == State.STARTING) return@post
                 context.stopService(Intent(context, LocationKeepAlive::class.java))
                 state = State.OFF
             }
         }
 
+        /**
+         * Tries again after a refusal, for a car map that is still connected: Android refuses this
+         * service while the phone is locked, and lets it start once myCar is on screen.
+         */
+        fun retry(context: Context) {
+            main.post {
+                if (holders > 0 && state == State.FAILED) {
+                    MyCarLog.i("location keep-alive: myCar is on screen, trying again")
+                    begin(context.applicationContext)
+                }
+            }
+        }
+
         private fun begin(context: Context) {
+            // Approximate location is enough for the service to lend: the map asks for what it needs.
             val granted = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED
+                PackageManager.PERMISSION_GRANTED ||
+                context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (!granted) {
                 MyCarLog.w("location keep-alive: no location permission, car maps won't get a fix in the background")
                 settle(State.FAILED)

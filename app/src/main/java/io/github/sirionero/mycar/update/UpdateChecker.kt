@@ -130,7 +130,8 @@ object UpdateChecker {
             install(context)
             return
         }
-        if (current != State.Idle) return
+        // A check that failed before is tried again, like a fresh start.
+        if (current != State.Idle && !(current is State.Failed && current.release == null)) return
         // A release found earlier still shows after Android closed the app.
         savedRelease(context)?.let { flow.value = State.Available(it) }
         if (dueForCheck(context)) check(context)
@@ -246,7 +247,9 @@ object UpdateChecker {
         },
         onFailure = {
             MyCarLog.w("update: could not check: ${it.message}")
-            State.Failed("Couldn't reach GitHub. Check the connection and try again.")
+            // A version found before stays on show: no signal in the garage doesn't take it away.
+            savedRelease(app)?.let { found -> State.Available(found) }
+                ?: State.Failed("Couldn't reach GitHub. Check the connection and try again.")
         },
     )
 

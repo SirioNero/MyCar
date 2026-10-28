@@ -68,13 +68,15 @@ object CarKeys {
             return true
         }
         if (!down) return keyCode in WANTED
-        val media = CarServices.media
+        // Null until the car UI has started the drive's services: a key pressed before that (the
+        // car still on its own screen) used to throw, and the exception ended the session.
+        val media = CarServices.mediaOrNull()
         when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> media.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_PLAY -> if (!media.now.value.playing) media.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.KEYCODE_MEDIA_STOP -> if (media.now.value.playing) media.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_NEXT -> media.next()
-            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> media.previous()
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> media?.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_PLAY -> if (media != null && !media.now.value.playing) media.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.KEYCODE_MEDIA_STOP -> if (media != null && media.now.value.playing) media.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_NEXT -> media?.next()
+            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> media?.previous()
             KeyEvent.KEYCODE_SEARCH, KeyEvent.KEYCODE_VOICE_ASSIST -> voice()
             KeyEvent.KEYCODE_CALL -> call()
             KeyEvent.KEYCODE_ENDCALL -> endCall()
@@ -123,7 +125,15 @@ object CarKeys {
         }
     }
 
-    private fun screen(key: ScreenKey) { _screenKeys.tryEmit(key) }
+    private fun screen(key: ScreenKey) {
+        // While the phone's screen is shared there's no car UI to take the key: it ends the
+        // sharing instead - the only way back on cars that crop the bars meant for a tap.
+        if (io.github.sirionero.mycar.mirror.PhoneMirror.active.value) {
+            io.github.sirionero.mycar.mirror.PhoneMirror.requestStop()
+            return
+        }
+        _screenKeys.tryEmit(key)
+    }
 
     // aap_protobuf's KeyCode.proto: car-only keys past the end of Android's own range.
     const val KEYCODE_ROTARY_CONTROLLER = 65536

@@ -96,6 +96,8 @@ fun LogsScreen(onBack: () -> Unit) {
                     Button(
                         onClick = {
                             scope.launch {
+                            // A full phone (the file can't be written) must not close myCar, and the car's session with it.
+                            runCatching {
                             val uri = withContext(Dispatchers.IO) { MyCarLog.shareableFile(context) }
                             val send = Intent(Intent.ACTION_SEND)
                                 .setType("text/plain")
@@ -103,6 +105,7 @@ fun LogsScreen(onBack: () -> Unit) {
                                 .putExtra(Intent.EXTRA_STREAM, uri)
                                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             context.startActivity(Intent.createChooser(send, "Share log"))
+                            }.onFailure { MyCarLog.w("logs: couldn't share the log: ${it.message}") }
                         }
                         },
                         modifier = Modifier.weight(1f).height(56.dp),

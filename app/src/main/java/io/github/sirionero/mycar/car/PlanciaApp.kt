@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.car
 
+import android.content.Context
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
 import io.github.sirionero.mycar.car.design.MyCarSpace
@@ -52,6 +55,8 @@ import io.github.sirionero.mycar.home.Dashboard
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
 import io.github.sirionero.mycar.home.Panels
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 
 /*
  * Plancia, Home Assistant in the car, as one of myCar's own apps: full screen from the app grid,
@@ -65,7 +70,9 @@ internal fun PlanciaView(modifier: Modifier) {
     val web = LocalPlanciaWeb.current
     val connection by HomeAssistant.connection.collectAsState()
     Box(modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest)) {
-        if (web != null) {
+        // Keyed on the page: a new one (the light changed, so the theme did) gets a new place here.
+        // Without it the place stayed the old page's, and Plancia an empty box.
+        if (web != null) key(web) {
             AndroidView(
                 factory = { context -> FrameLayout(context).also(web::show) },
                 onRelease = web::hide,
@@ -73,11 +80,11 @@ internal fun PlanciaView(modifier: Modifier) {
             )
         }
         val page = web?.page?.collectAsState()?.value
-        // Trying an address at home that Android 17 keeps myCar from: say so the whole time, not
-        // only in the moments between one try and the next.
+        // Trying an address that Tailscale leaves myCar out of, or one at home that Android 17 keeps
+        // myCar from: say so the whole time, not only in the moments between one try and the next.
         val context = LocalContext.current
-        val offHomeNetwork = (connection as? HaConnection.Connecting)?.let { LocalNetwork.blocks(context, listOf(it.url)) } == true
-        val (title, detail) = planciaMessage(connection, page, offHomeNetwork) ?: return@Box
+        val blocked = (connection as? HaConnection.Connecting)?.let { connectingHint(context, it.url) }
+        val (title, detail) = planciaMessage(connection, page, blocked) ?: return@Box
         Column(
             Modifier
                 .fillMaxSize()
@@ -100,14 +107,24 @@ internal fun PlanciaView(modifier: Modifier) {
     }
 }
 
+/** Why [url] won't answer, known while still trying it: Tailscale leaving myCar out, or Android 17's home network. */
+private fun connectingHint(context: Context, url: String): String? = when {
+    Tailnet.reach(context) == Tailnet.Reach.VPN_LEAVES_MYCAR_OUT -> Tailnet.explain(context, listOf(url), Tailnet.Failure.NO_SUCH_HOST)
+    LocalNetwork.mayBlock(context, listOf(url)) -> LocalNetwork.HINT
+    else -> null
+}
+
 /** What to say over the page while it can't show, as a title and a line; null once it shows. */
-private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, offHomeNetwork: Boolean): Pair<String, String?>? = when {
-    connection is HaConnection.NotConfigured || page == null ->
+private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, blocked: String?): Pair<String, String?>? = when {
+    // Not "not configured" only because the drive's connection hasn't started yet.
+    connection is HaConnection.NotConfigured && !HomeAssistant.config.value.isComplete ->
         "Set up Plancia on the phone" to "In myCar on the phone: Settings, then Plancia - your Home Assistant's address and a token."
+    // Set up, but the dashboard is made a moment after the car connects (PLANCIA_AFTER_MS).
+    page == null -> "Connecting to Home Assistant" to null
     page.error != null -> "Couldn't open the dashboard" to "${page.error}\nTap to try again."
     page.base != null -> null
     connection is HaConnection.Failed -> "Home Assistant isn't answering" to connection.message
-    connection is HaConnection.Connecting -> "Connecting to Home Assistant" to if (offHomeNetwork) LocalNetwork.HINT else connection.url
+    connection is HaConnection.Connecting -> "Connecting to Home Assistant" to (blocked ?: connection.url)
     else -> "Connecting to Home Assistant" to null
 }
 
@@ -119,6 +136,10 @@ internal fun PlanciaScreen() {
     val menu = web?.menu?.collectAsState()?.value == true
     val dashboards by HomeAssistant.dashboards.collectAsState()
     val haDefault by HomeAssistant.haDefault.collectAsState()
+    // Leaving Plancia closes its menu: nothing stays open out of sight.
+    DisposableEffect(web) {
+        onDispose { web?.closeMenu() }
+    }
     // Back closes the menu, then steps back inside the page, then leaves.
     DisposableEffect(web, menu) {
         navigator.backInterceptor = {
@@ -338,13 +359,18 @@ internal fun PlanciaPane(modifier: Modifier) {
     }
 }
 
-/** Where the dashboard has little room, its menu opens with Plancia full screen. */
+/**
+ * Where the dashboard has little room, its menu opens with Plancia full screen. Only a menu that
+ * opens here, though: one left open when Plancia closed pulled the driver back to it every time
+ * the Home showed - right as a route started, too.
+ */
 @Composable
 private fun MenuOpensFullScreen(web: PlanciaWeb?) {
     val navigator = LocalCarNavigator.current
-    val menu = web?.menu?.collectAsState()?.value == true
-    LaunchedEffect(menu) {
-        if (menu && navigator.current != CarScreen.App(BuiltInApps.Plancia.id)) navigator.open(BuiltInApps.Plancia.id)
+    LaunchedEffect(web) {
+        web?.menu?.drop(1)?.filter { it }?.collect {
+            if (navigator.current != CarScreen.App(BuiltInApps.Plancia.id)) navigator.open(BuiltInApps.Plancia.id)
+        }
     }
 }
 

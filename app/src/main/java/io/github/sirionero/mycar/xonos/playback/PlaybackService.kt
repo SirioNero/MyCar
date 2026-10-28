@@ -47,11 +47,13 @@ import io.github.sirionero.mycar.xonos.sendspin.CarLinkOutput
 import io.github.sirionero.mycar.xonos.sendspin.SendspinClient
 import io.github.sirionero.mycar.xonos.sendspin.StreamFormat
 import io.github.sirionero.mycar.xonos.sendspin.TimeFilter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.min
 
 /**
@@ -109,6 +111,11 @@ class PlaybackService : MediaLibraryService() {
         }
         tree = BrowseTree(Menu(app.library, ResourceLabels(this)) { settings.playerId }, artwork)
         player.onPlayRequest = { item -> tree.play(item) }
+        player.onUserPause = {
+            resumeAfterInterruption = false
+            // Music Assistant non sente la pausa senza rete: l'audio già ricevuto si ferma qui.
+            if (app.repo.connection.value !is Connection.Connected) engine.end()
+        }
 
         // Toccando la notifica si apre myCar sul telefono.
         val openPlayer = PendingIntent.getActivity(
@@ -134,6 +141,14 @@ class PlaybackService : MediaLibraryService() {
         }
         scope.launch { engine.outputting.collect(::onOutputting) }
         // L'auto si collega o se ne va, o l'audio passa al Bluetooth: l'uscita cambia strada.
+        // L'auto se ne va col suo canale: l'audio in coda si ferma qui, invece di finire
+        // sull'altoparlante del telefono finché Music Assistant non sente la pausa.
+        scope.launch {
+            CarAudio.linkGone.collect {
+                engine.end()
+                player.pauseFromSystem()
+            }
+        }
         scope.launch { CarAudio.direct.drop(1).collect { engine.reroute() } }
         connectivity.registerDefaultNetworkCallback(networkCallback)
     }
@@ -146,6 +161,7 @@ class PlaybackService : MediaLibraryService() {
         main.removeCallbacksAndMessages(null)
         setNoisyReceiver(false)
         releaseLocks()
+        watchCalls(false)
         focus.abandon()
         session.release()
         player.release()
@@ -204,8 +220,20 @@ class PlaybackService : MediaLibraryService() {
             acquireLocks()
             setNoisyReceiver(true)
             if (!focus.request()) {
-                Log.i(TAG, "Un'altra app ha l'audio (telefonata?): metto in pausa")
-                player.pauseFromSystem()
+                when {
+                    // Dritto nel canale dell'auto il focus di Android non serve; Android 17 lo nega
+                    // anche a un'app non in vista, col telefono in tasca: si continua a suonare.
+                    CarAudio.direct.value -> Log.i(TAG, "Focus audio negato, ma la musica va dritta all'auto: continuo")
+                    inCall() -> {
+                        Log.i(TAG, "Focus audio negato durante una telefonata: metto in pausa")
+                        player.pauseFromSystem()
+                    }
+                    else -> Log.w(TAG, "Focus audio negato senza telefonate (Android 17 in background?): continuo")
+                }
+                // Senza focus Android non avvisa delle telefonate: le si guarda dal modo dell'audio.
+                if (!inCall()) watchCalls(true)
+            } else {
+                watchCalls(false)
             }
         } else {
             releaseLocks()
@@ -215,13 +243,51 @@ class PlaybackService : MediaLibraryService() {
         }
     }
 
+    private var watchingCalls = false
+
+    private val modeListener = AudioManager.OnModeChangedListener { onModeChanged() }
+
+    /**
+     * Mentre si suona senza focus (negato in background su Android 17): una telefonata non arriva
+     * come perdita del focus, e la musica andava avanti per tutta la chiamata, senza riprendere dopo.
+     */
+    private fun watchCalls(on: Boolean) {
+        if (on == watchingCalls) return
+        val audio = getSystemService(AudioManager::class.java) ?: return
+        runCatching {
+            if (on) audio.addOnModeChangedListener(mainExecutor, modeListener) else audio.removeOnModeChangedListener(modeListener)
+            watchingCalls = on
+        }
+    }
+
+    private fun onModeChanged() {
+        if (inCall()) {
+            onFocusChange(AudioFocus.Change.PAUSED)
+            return
+        }
+        // Finita: se la chiamata aveva fermato Xonos si riprova il focus (myCar può essere in vista
+        // ora) e si riprende. Da fermo no: il focus andava tolto all'app che suona adesso, che
+        // non riprendeva più dopo la chiamata.
+        if (!resumeAfterInterruption) return
+        if (focus.request()) watchCalls(false)
+        onFocusChange(AudioFocus.Change.RESUMED)
+    }
+
+    /** Una telefonata in corso, o che squilla: l'unico motivo per cui Xonos cede la musica da sé. */
+    private fun inCall(): Boolean = getSystemService(AudioManager::class.java)?.mode in setOf(
+        AudioManager.MODE_IN_CALL,
+        AudioManager.MODE_IN_COMMUNICATION,
+        AudioManager.MODE_RINGTONE,
+        AudioManager.MODE_CALL_SCREENING,
+    )
+
     private fun onFocusChange(change: AudioFocus.Change) {
         when (change) {
             AudioFocus.Change.PAUSED -> if (player.isPlayingOnServer) {
                 // Subito zitto, poi la pausa vera; riprende da sola alla fine della telefonata.
                 engine.setDuck(0f)
                 resumeAfterInterruption = true
-                player.pauseFromSystem()
+                player.pauseFromSystem(transient = true)
             }
             AudioFocus.Change.RESUMED -> {
                 engine.setDuck(1f)
@@ -294,6 +360,12 @@ class PlaybackService : MediaLibraryService() {
         }
     }
 
+    /**
+     * Il menu fuori dal thread principale, che in myCar disegna anche l'auto: con una libreria grande
+     * raggruppare migliaia di voci e firmare l'indirizzo di ogni copertina fermava lo schermo.
+     */
+    private suspend fun <T> offMain(block: suspend () -> T): T = withContext(Dispatchers.Default) { block() }
+
     private inner class Callback : MediaLibrarySession.Callback {
 
         // Gearslip non è un'app di sistema: senza questo Media3 gli lascerebbe solo guardare, non comandare.
@@ -329,7 +401,7 @@ class PlaybackService : MediaLibraryService() {
             params: LibraryParams?,
         ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = scope.future {
             try {
-                LibraryResult.ofItemList(tree.children(parentId).page(page, pageSize), params)
+                LibraryResult.ofItemList(offMain { tree.children(parentId) }.page(page, pageSize), params)
             } catch (e: Exception) {
                 Log.w(TAG, "Elenco $parentId non disponibile: ${e.message}")
                 LibraryResult.ofError(SessionError.ERROR_IO)
@@ -343,7 +415,7 @@ class PlaybackService : MediaLibraryService() {
             params: LibraryParams?,
         ): ListenableFuture<LibraryResult<Void>> = scope.future {
             val results = try {
-                tree.search(query)
+                offMain { tree.search(query) }
             } catch (e: Exception) {
                 Log.w(TAG, "Ricerca non riuscita: ${e.message}")
                 emptyList()
@@ -362,7 +434,7 @@ class PlaybackService : MediaLibraryService() {
             params: LibraryParams?,
         ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = scope.future {
             try {
-                val results = searches[query] ?: tree.search(query)
+                val results = searches[query] ?: offMain { tree.search(query) }
                 LibraryResult.ofItemList(results.page(page, pageSize), params)
             } catch (e: Exception) {
                 LibraryResult.ofError(SessionError.ERROR_IO)

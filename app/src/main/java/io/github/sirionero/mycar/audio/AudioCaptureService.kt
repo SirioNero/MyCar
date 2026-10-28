@@ -18,6 +18,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.os.Process
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.mirror.MirrorService
 import kotlin.math.abs
 
 /**
@@ -65,6 +66,20 @@ class AudioCaptureService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+
+    /** The capture was started again once after ending on its own; see beginCapture. */
+    private var restarted = false
+
+    /**
+     * Android ended the projection: sharing the phone's screen took it (Android keeps one), or the
+     * driver stopped it. Nothing more can be recorded on it, and no question is asked now.
+     */
+    private var projectionStopped = false
+
+    /** Which capture is the current one, so an old capture's end doesn't stop a new one. */
+    @Volatile private var captureRun = 0
+
     override fun onCreate() {
         super.onCreate()
         running = true
@@ -72,11 +87,14 @@ class AudioCaptureService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
+            // While still in the foreground: Android 17 ignores volume calls from an app that
+            // isn't, and the phone stayed muted after the drive.
+            unmutePhone()
             stopSelf()
             return START_NOT_STICKY
         }
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
-        val data = intent?.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
+        val data = intent?.let { androidx.core.content.IntentCompat.getParcelableExtra(it, EXTRA_RESULT_DATA, Intent::class.java) }
         if (data == null) {
             MyCarLog.e("audio: started without a consent result")
             CarAudio.denied()
@@ -92,6 +110,15 @@ class AudioCaptureService : Service() {
             (if (micGranted) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else 0)
         startForeground(NOTIFICATION_ID, notification(), type)
         ScreenShareGuard.lift(this)
+        // Asked again while a capture was still here (the last one's reading had ended): let it go
+        // first. Android stops it anyway for the new one, and its end used to stop this service,
+        // the new capture with it.
+        projection?.let { old ->
+            reading = false
+            runCatching { thread?.join(500) }
+            projection = null
+            runCatching { old.stop() }
+        }
         projection = try {
             getSystemService(MediaProjectionManager::class.java).getMediaProjection(resultCode, data)
         } catch (t: Throwable) {
@@ -104,9 +131,13 @@ class AudioCaptureService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        projectionStopped = false
         token.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
+                if (token !== projection) return
                 MyCarLog.w("audio: projection stopped")
+                projectionStopped = true
+                unmutePhone()
                 stopSelf()
             }
         }, null)
@@ -114,7 +145,7 @@ class AudioCaptureService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun beginCapture(token: MediaProjection) {
+    private fun beginCapture(token: MediaProjection, again: Boolean = false) {
         val rate = CarAudio.sampleRate
         val channels = CarAudio.channels
         val record = try {
@@ -140,12 +171,15 @@ class AudioCaptureService : Service() {
                 .build()
         } catch (t: Throwable) {
             MyCarLog.e("audio: could not set up playback capture", t)
-            CarAudio.denied()
             stopSelf()
+            // Started again after ending on its own: this isn't the driver's "no", and DENIED would
+            // leave the car without music for the rest of the drive. The question starts clean instead.
+            if (!again) CarAudio.denied() else if (!MirrorService.sharing) CarAudio.captureNow()
             return
         }
 
         reading = true
+        val run = ++captureRun
         thread = Thread({
             // A busy phone (a map app drawing, the video encoder) would otherwise starve this
             // loop, and the car hears every late read as a skip.
@@ -198,6 +232,25 @@ class AudioCaptureService : Service() {
                 record.release()
                 unmutePhone()
                 CarAudio.captureStopped()
+                // Ended on its own (the audio server restarted). Once, a new recorder on the same
+                // projection carries on, with no new question and the microphone kept for voice
+                // replies. Otherwise the service goes, so the next question starts clean - and it's
+                // asked now, not only when a music app is opened again. Not when Android ended the
+                // projection: then the question comes with the next music app, or when the screen
+                // sharing that took it ends (asked during it, it would end the sharing).
+                if (reading && run == captureRun) main.post {
+                    if (run != captureRun) return@post
+                    val token = projection
+                    val ended = projectionStopped || MirrorService.sharing
+                    if (token != null && !restarted && !ended) {
+                        restarted = true
+                        MyCarLog.w("audio: capture ended on its own - starting it again on the same projection")
+                        beginCapture(token, again = true)
+                    } else {
+                        stopSelf()
+                        if (!ended) CarAudio.captureNow()
+                    }
+                }
             }
         }, "mycar-audio").apply { isDaemon = true; start() }
     }
@@ -255,10 +308,15 @@ class AudioCaptureService : Service() {
 
         private fun unmute(context: Context) {
             runCatching {
-                context.getSystemService(android.media.AudioManager::class.java)
-                    .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
-                io.github.sirionero.mycar.AppSettings.putString(context, KEY_LEFT_MUTED, "false")
-                MyCarLog.i("audio: gave the phone's speaker back")
+                val audio = context.getSystemService(android.media.AudioManager::class.java)
+                audio.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
+                // Android 17 can ignore the call without a word: the flag stays, for the next try.
+                if (audio.isStreamMute(android.media.AudioManager.STREAM_MUSIC)) {
+                    MyCarLog.w("audio: the phone's speaker is still muted - trying again when myCar opens")
+                } else {
+                    io.github.sirionero.mycar.AppSettings.putString(context, KEY_LEFT_MUTED, "false")
+                    MyCarLog.i("audio: gave the phone's speaker back")
+                }
             }.onFailure { MyCarLog.w("audio: could not unmute the phone: ${it.message}") }
         }
 

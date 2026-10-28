@@ -1,20 +1,25 @@
 package io.github.sirionero.mycar.home
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
-import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.Tailnet
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
@@ -69,12 +74,23 @@ object HomeAssistant {
         dashboardFlow.value = AppSettings.getString(app, KEY_DASHBOARD, "").ifBlank { null }
         // Plancia on the phone, set up, and nothing here yet: its account, without asking. Asked
         // off the main thread, as asking may have to start Plancia first.
-        if (!configFlow.value.isComplete) {
+        if (!configFlow.value.isComplete && !importOff()) {
             scope.launch { fromPlanciaApp(app)?.let { if (!configFlow.value.isComplete) use(it) } }
         }
     }
 
     fun save(config: Config) = save(config, dashboardFlow.value, zoomFlow.value)
+
+    /**
+     * "Remove" on the phone: Plancia off in myCar, and the Plancia app's account isn't taken over
+     * again by itself - otherwise the app, back in the car, was gone again at the next drive.
+     */
+    fun remove() {
+        app?.let { AppSettings.putString(it, KEY_IMPORT_OFF, "1") }
+        save(Config())
+    }
+
+    private fun importOff(): Boolean = app?.let { AppSettings.getString(it, KEY_IMPORT_OFF, "") == "1" } == true
 
     /** The Plancia app's account, with the dashboard it opens and its size. */
     fun use(imported: Imported) = save(imported.config, imported.dashboard, imported.zoom)
@@ -82,6 +98,7 @@ object HomeAssistant {
     private fun save(config: Config, dashboard: String?, zoom: Int) {
         val app = app ?: return
         configFlow.value = config
+        if (config.isComplete) AppSettings.putString(app, KEY_IMPORT_OFF, "")
         AppSettings.putString(app, KEY_HOME, config.homeUrl)
         AppSettings.putString(app, KEY_REMOTE, config.remoteUrl)
         AppSettings.putString(app, KEY_TOKEN, config.token)
@@ -150,6 +167,10 @@ object HomeAssistant {
     private var loop: Job? = null
     private var users = 0
 
+    /** Cuts a wait between tries short: a new network for myCar (Tailscale up, Wi-Fi to mobile). */
+    private val wake = Channel<Unit>(Channel.CONFLATED)
+    private var networkWatch: ConnectivityManager.NetworkCallback? = null
+
     fun newClient() = HaClient(http)
 
     /**
@@ -160,10 +181,19 @@ object HomeAssistant {
     fun acquire() {
         users++
         val app = app
-        if (!configFlow.value.isComplete && app != null) {
+        if (!configFlow.value.isComplete && app != null && !importOff()) {
             scope.launch { fromPlanciaApp(app)?.let { if (!configFlow.value.isComplete) use(it) } }
         }
         if (loop?.isActive != true) loop = scope.launch { connectLoop() }
+        if (networkWatch == null && app != null) {
+            val watch = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    wake.trySend(Unit)
+                }
+            }
+            runCatching { app.getSystemService(ConnectivityManager::class.java)?.registerDefaultNetworkCallback(watch) }
+                .onSuccess { networkWatch = watch }
+        }
     }
 
     /** The car went: the connection closes once nothing else needs it. */
@@ -175,6 +205,10 @@ object HomeAssistant {
             loop = null
             client?.close()
             client = null
+            networkWatch?.let { watch ->
+                runCatching { app?.getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(watch) }
+            }
+            networkWatch = null
         }
     }
 
@@ -207,6 +241,8 @@ object HomeAssistant {
             var version = ""
             var usedUrl = ""
             var lastError = "Home Assistant can't be reached"
+            var lastException: Exception? = null
+            var tokenRefused = false
             for (url in config.urls) {
                 _connection.value = HaConnection.Connecting(url)
                 val candidate = HaClient(http)
@@ -221,15 +257,43 @@ object HomeAssistant {
                 } catch (e: Exception) {
                     candidate.close()
                     lastError = e.message ?: lastError
+                    lastException = e
+                    val reason = (e as? HaException)?.reason
+                    // Only Home Assistant's own "auth_invalid" means the token. A 401/403 before the
+                    // socket opens comes from a proxy in front of it, or a banned address: tried
+                    // again like any failure, not given up on for the whole drive.
+                    if (reason == HaException.Reason.INVALID_TOKEN) tokenRefused = true
+                    if (reason == HaException.Reason.ACCESS_DENIED) {
+                        lastError = "The server turned myCar away: a proxy in front of Home Assistant, or an address it has banned."
+                    }
                 }
             }
 
+            if (session == null && tokenRefused) {
+                // Trying a refused token again and again counts as failed logins in Home Assistant,
+                // which can ban the phone's address: wait for a new one instead.
+                MyCarLog.w("plancia: Home Assistant refused the token - waiting for a new one")
+                _connection.value = HaConnection.Failed("Home Assistant refused the token: make a new one there, and set it in myCar on the phone.")
+                configFlow.first { it != config }
+                failures = 0
+                continue
+            }
+
             if (session == null) {
-                // Android 17 keeping myCar off the home network looks like an address that doesn't answer.
-                if (app?.let { LocalNetwork.blocks(it, config.urls) } == true) lastError = LocalNetwork.HINT
+                // Tailscale leaving myCar out, or Android 17 keeping it off the home network, look like
+                // an address that doesn't answer: say which.
+                app?.let { context ->
+                    val failure = HaException.failureOf(lastException)
+                    if (failures == 0) {
+                        MyCarLog.w("plancia: can't reach Home Assistant at ${config.urls}: ${lastException?.javaClass?.simpleName}: " +
+                            "${lastException?.cause?.message ?: lastException?.message} - $failure, ${Tailnet.describe(context)}")
+                    }
+                    lastError = Tailnet.why(context, config.urls, failure, lastError)
+                }
                 _connection.value = HaConnection.Failed(lastError)
                 failures++
-                delay((2_000L * failures).coerceAtMost(30_000L))
+                // Sooner when myCar gets a new network: Tailscale coming up, the Wi-Fi gone.
+                withTimeoutOrNull((2_000L * failures).coerceAtMost(15_000L)) { wake.receive() }
                 continue
             }
 
@@ -313,6 +377,7 @@ object HomeAssistant {
     private const val KEY_TOKEN = "ha_token"
     private const val KEY_DASHBOARD = "ha_dashboard"
     private const val KEY_ZOOM = "ha_zoom"
+    private const val KEY_IMPORT_OFF = "ha_import_off"
 
     /** The Plancia app's account, handed only to myCar (Plancia's AccountProvider). */
     private const val PLANCIA_ACCOUNT_AUTHORITY = "it.plancia.ha.account"

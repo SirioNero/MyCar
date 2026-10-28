@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,9 +49,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.ScreenProjector
+import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.TouchPoint
 import io.github.sirionero.mycar.car.CarEnvironment
 import io.github.sirionero.mycar.car.CarUi
@@ -80,6 +84,15 @@ fun CarPreviewScreen(onBack: () -> Unit) {
     val density = frame.densityDpi
 
     val projector = remember { ScreenProjector(context) }
+
+    // A second car UI, which mustn't run behind a real drive: a car arriving ends it, and so does
+    // leaving the phone screen - left open in the background, it took the car's size and ran on.
+    val status by SessionStatus.state.collectAsStateWithLifecycle()
+    val live = status.phase == SessionStatus.Phase.CONNECTING || status.phase == SessionStatus.Phase.PROJECTING
+    LaunchedEffect(live) { if (live) onBack() }
+    LifecycleStartEffect(Unit) {
+        onStopOrDispose { if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) onBack() }
+    }
 
     DisposableEffect(width, height, density) {
         CarEnvironment.start(context)

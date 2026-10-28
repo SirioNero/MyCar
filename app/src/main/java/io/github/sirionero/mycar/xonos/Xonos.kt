@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Process
 import androidx.core.content.ContextCompat
+import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.xonos.data.ArtCache
@@ -61,11 +62,24 @@ object Xonos {
     /** Keeps an account (or an empty one, to remove it) and reconnects with it. */
     fun save(context: Context, config: Settings.Config, username: String?) {
         init(context)
+        if (config.isComplete) AppSettings.putString(context, KEY_IMPORT_OFF, "")
         settings.save(config)
         settings.username = username
         _setUp.value = config.isComplete
         repo.reconnect()
     }
+
+    /**
+     * "Remove" on the phone: Xonos off in myCar, and the Xonos app's account isn't taken over again
+     * by itself - otherwise the app, back in the car, was gone again at the next drive.
+     */
+    fun remove(context: Context) {
+        AppSettings.putString(context, KEY_IMPORT_OFF, "1")
+        save(context, Settings.Config("", "", ""), null)
+    }
+
+    /** Whether "Remove" was the last word: no account taken from the Xonos app by itself. */
+    fun importOff(context: Context): Boolean = AppSettings.getString(context, KEY_IMPORT_OFF, "") == "1"
 
     /** The player, as the car's media screens connect to it. */
     fun component(context: Context) = ComponentName(context, PlaybackService::class.java)
@@ -91,4 +105,5 @@ object Xonos {
     const val LABEL = "Xonos"
 
     private const val ICON_BACKGROUND = 0xFF0E1420.toInt()
+    private const val KEY_IMPORT_OFF = "xonos_import_off"
 }

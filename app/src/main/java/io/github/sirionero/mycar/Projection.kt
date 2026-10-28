@@ -24,6 +24,9 @@ interface Projection {
     fun onTouch(action: Int, actionIndex: Int, points: List<TouchPoint>)
 
     fun onProjectionStopped()
+
+    /** Draw the whole picture again: the car took its screen back and needs a frame to show. */
+    fun onRefresh() {}
 }
 
 /** One finger on the car's screen: a stable [id] for as long as it stays down, and where it is. */
