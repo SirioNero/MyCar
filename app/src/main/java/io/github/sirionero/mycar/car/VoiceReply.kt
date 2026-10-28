@@ -8,8 +8,6 @@ import androidx.car.app.navigation.model.NavigationTemplate
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
-import io.github.sirionero.mycar.host.clockTime
-import io.github.sirionero.mycar.host.remainingTime
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -256,18 +254,21 @@ object VoiceReply {
     private fun words(text: String) = text.lowercase().split(Regex("[^a-z']+")).filter { it.isNotEmpty() }
 
     /**
-     * Ready-made replies for a tap instead of a voice reply. The first gives the arrival time when
-     * the map is following a route.
+     * Ready-made replies for a tap instead of a voice reply, in the phone's language (see
+     * [QuickReplyTexts]). The first gives the arrival time when the map is following a route.
      */
-    fun quickReplies(): List<String> = listOfNotNull(etaReply(), "Driving, I'll reply soon.", "On my way.")
+    fun quickReplies(): List<String> {
+        val texts = QuickReplyTexts.forPhone()
+        return listOfNotNull(etaReply(texts), texts.later, texts.onMyWay)
+    }
 
-    private fun etaReply(): String? {
+    private fun etaReply(texts: QuickReplyTexts.Texts): String? {
         val estimate = (CarServices.nav.template.value as? NavigationTemplate)?.destinationTravelEstimate ?: return null
-        val at = estimate.arrivalTimeAtDestination.clockTime()
-        val left = remainingTime(estimate.remainingTimeSeconds)
+        val at = QuickReplyTexts.arrival(estimate.arrivalTimeAtDestination)
+        val left = QuickReplyTexts.left(estimate.remainingTimeSeconds)
         return when {
-            at.isNotEmpty() -> "Driving, I'll be there around $at."
-            left.isNotEmpty() -> "Driving, I'll be there in about $left."
+            at.isNotEmpty() -> texts.around.format(at)
+            left.isNotEmpty() -> texts.inAbout.format(left)
             else -> null
         }
     }
