@@ -137,7 +137,11 @@ fun CarUi() {
     // is up rather than with it: making it takes the main thread, and the first frames and the map
     // app's start go first.
     val carContext = LocalContext.current
-    val homeSetUp = io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState().value.isComplete
+    // Not while the Plancia app takes its place (see InsideOrApp): a page nothing shows, and its start
+    // holds the car's screen up for a moment.
+    val homeComplete = io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState().value.isComplete
+    val planciaApp = io.github.sirionero.mycar.home.HomeAssistant.appTakesOver.collectAsState().value
+    val homeSetUp = homeComplete && !planciaApp
     var settled by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(PLANCIA_AFTER_MS)
