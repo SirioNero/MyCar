@@ -40,7 +40,7 @@ private fun rememberSetupSteps(): List<SetupSteps.Step> {
 
 private fun stepName(id: Id) = when (id) {
     Id.CERTIFICATE -> "car certificate"
-    Id.MYCAR_ON -> "myCar switched on"
+    Id.MYCAR_ON -> "turning myCar on"
     Id.ANDROID_AUTO -> "Android Auto"
     else -> id.name.lowercase()
 }
@@ -68,15 +68,17 @@ internal fun BackToSetupCard(onOpenSetup: () -> Unit) {
     }
 }
 
+/** "Not now" on [SetupLeftCard]: for as long as the app runs, not just until Home comes back. */
+private var setupLeftHidden by mutableStateOf(false)
+
 /**
  * On Home, while something needed to connect is still missing (left for later on the first run):
  * what it is, and the way back to the setup. "Not now" hides it until the app opens again.
  */
 @Composable
 internal fun SetupLeftCard(onOpenSetup: () -> Unit) {
-    var hidden by remember { mutableStateOf(false) }
     val left = SetupSteps.leftToConnect(rememberSetupSteps())
-    if (hidden || left.isEmpty()) return
+    if (setupLeftHidden || left.isEmpty()) return
     Spacer(Modifier.height(16.dp))
     Surface(
         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -91,7 +93,7 @@ internal fun SetupLeftCard(onOpenSetup: () -> Unit) {
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
                 Button(onClick = onOpenSetup) { Text("Continue setup") }
-                TextButton(onClick = { hidden = true }) { Text("Not now") }
+                TextButton(onClick = { setupLeftHidden = true }) { Text("Not now") }
             }
         }
     }
