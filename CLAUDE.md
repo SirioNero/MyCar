@@ -137,7 +137,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
 | `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
@@ -417,6 +417,36 @@ Tutti i token in un solo posto, `car/design/`:
   non riparte né richiede: a fine condivisione la chiede `CarUi`. Accanto alla mappa l'app musicale
   prende il posto solo della scelta automatica del viaggio quando non si collega
   (`mediaAutoPicked`), mai di un'app scelta dal guidatore.
+- **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
+  avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
+  la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial
+  setup" (in cima a "How to connect", `BackToSetupCard`) o da Impostazioni → "Initial setup". Tre
+  gruppi: per collegarsi (certificato, myCar accesa se era spenta, Android Auto da spegnere o da
+  tenere scegliendo myCar quando Android chiede), per il viaggio (chiamate, mappa e musica: un solo
+  "Allow" con tutti i permessi in una richiesta; bloccati: "Open settings"), "More" facoltativi
+  (messaggi, calendario, notifiche, filtro chiamate, audio in auto, note d'uso). Un tasto grande
+  fa sempre il prossimo passo. Lo stato si legge dal telefono ogni volta (`SetupSignals`;
+  `SetupSteps` senza Android, `SetupStepsTest`): tornarci non cancella né azzera niente.
+  `FirstSetup` ricorda solo Android Auto tenuto, passi saltati, permessi chiesti; all'uscita la
+  guida conta come vista e l'auto non apre le Novità al primo viaggio. Su Home "Finish setting up"
+  (`SetupLeftCard`) finché manca qualcosa per collegarsi. Tolta la domanda delle notifiche a ogni
+  avvio. Scatti in CI: `setup-phone` (installa senza permessi, scarica davvero i certificati, tocca
+  i tasti per testo con uiautomator).
+- **Certificati** (`CertCatalog`, `CertChecks`, `CertRotation`, `CertRotationPolicy`): due
+  certificati pubblici, scaricati solo dopo un tocco e mai dentro l'APK: aasdk (consigliato, chiave
+  PKCS#1, SHA-256 `1C0E0EF9…3C35`) e Headunit Revived (riserva, valido fino al 2044, chiave PKCS#8,
+  `E323CC6D…ED6D`), da `raw.githubusercontent.com` a un commit fissato, poi dai rami. Prima di
+  tenerli: impronta, chiave che corrisponde, RSA ≥ 2048, validità, stretta di mano TLS sul
+  telefono. Ognuno in `identity-catalog/<id>.p12`; quello in uso si copia nello slot che
+  `CertProvider` legge (`identity-downloaded/phone.p12`). `MyCarRunner` manda il verdetto
+  dell'auto (`onCertVerdict`) solo dopo averle mostrato il certificato: accettato, rifiutato
+  (allarme TLS, AuthComplete −2/−3), riaggancio durante la verifica (debole), data dell'auto
+  (−23/−24, "Check the car's date"). Rifiutato: si passa al successivo; tutti rifiutati: si torna al
+  primo e ci si ferma fino a "Try again from the first"; un riaggancio non conta per un certificato
+  già accettato; quello del guidatore non si cambia mai. Avvisi su Home (`CertNoticeCard`), scelta a
+  mano in Impostazioni (aasdk · Recommended, Headunit Revived · Spare). jsDelivr come terza fonte non
+  usato: non raggiungibile dalla sessione cloud per verificarlo. Senza fili non riprova da solo col
+  successivo: va provato in auto.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.
