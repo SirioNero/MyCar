@@ -2,6 +2,7 @@ package io.github.sirionero.mycar
 
 import android.os.Build
 import io.github.sirionero.mycar.audio.AudioLink
+import io.github.sirionero.mycar.audio.CarAudio
 import io.github.sirionero.mycar.audio.CarAudioRoute
 import io.github.sirionero.mycar.audio.CarMic
 import io.github.sirionero.mycar.media.CarMediaStatus
@@ -176,6 +177,7 @@ class MyCarRunner(
         synchronized(ackLock) { ackLock.notifyAll() } // free an encoder waiting on an ack
         videoSource?.stop()
         videoSource = null
+        CarAudio.openSink = null
         audioLink?.close()
         audioLink = null
         guidanceLink?.close()
@@ -590,7 +592,19 @@ class MyCarRunner(
             // as Android Auto does, instead of letting it play on to no one.
             onTakenBack = { CarServices.pausePhoneMedia("the car switched to another source") },
         )
-        openChannel(media.serviceId)
+        if (CarSettings.pipeAudio.value) {
+            openChannel(media.serviceId)
+        } else {
+            // Many cars switch their source to Android Auto the moment this channel opens, which
+            // cut off the music playing over Bluetooth. It opens once the sound goes through myCar:
+            // Automatic deciding so, or the driver choosing it (see CarAudio.request).
+            log.i("music goes over Bluetooth for now: the media channel stays closed, so the car keeps its own source")
+            CarAudio.openSink = {
+                CarAudio.openSink = null
+                log.i("the sound goes through myCar now: opening the media channel")
+                openChannel(media.serviceId)
+            }
+        }
     }
 
     /** The car's directions channel, where [DirectionsVoice] reads out each turn. */
