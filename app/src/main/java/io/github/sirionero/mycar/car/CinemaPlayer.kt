@@ -6,7 +6,12 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.ConnectivityManager
+import android.net.Network
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.view.Surface
 import android.view.TextureView
 import androidx.compose.animation.AnimatedVisibility
@@ -153,7 +158,7 @@ internal fun CinemaPlayer(media: CinemaMedia, onClose: () -> Unit) {
         )
         val problem = playback.problem
         if (problem != null) {
-            PlayerProblem(problem, onRetry = playback::retry)
+            PlayerProblem(problem, onRetry = { playback.retry() })
         } else if (playback.buffering) {
             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(56.dp))
         }
@@ -283,6 +288,23 @@ private class Playback(private val context: Context, private val media: CinemaMe
     private var surface: Surface? = null
     private var released = false
     private var pausedForFocus = false
+    private val main = Handler(Looper.getMainLooper())
+    /** A channel tries again by itself after a gap in the signal: how many times since it last played. */
+    private var autoRetries = 0
+    private val autoRetry = Runnable { if (problem != null) retry(auto = true) }
+    /** When a call paused a channel: back after a long one, it opens again at the live point. */
+    private var pausedAt = 0L
+    /** The network back (out of a tunnel): a video or channel that stopped tries again. */
+    private val network = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(net: Network) {
+            main.post { if (!released && problem != null && media.uri.scheme?.startsWith("http") == true) retry(auto = true) }
+        }
+    }
+    private val connectivity = context.getSystemService(ConnectivityManager::class.java)
+
+    init {
+        runCatching { connectivity?.registerDefaultNetworkCallback(network) }
+    }
 
     var prepared by mutableStateOf(false)
         private set
@@ -338,7 +360,10 @@ private class Playback(private val context: Context, private val media: CinemaMe
         prepared = true
         buffering = false
         durationMs = if (media.live) 0L else player.duration.toLong().coerceAtLeast(0L)
-        val resume = media.resumeKey?.let { PhoneVideos.resumeAt(context, it, durationMs) } ?: 0L
+        autoRetries = 0
+        // Where it was left last time, or, after "Try again", where it stopped.
+        val saved = media.resumeKey?.let { PhoneVideos.resumeAt(context, it, durationMs) } ?: 0L
+        val resume = if (media.live) 0L else maxOf(saved, positionMs)
         if (resume > 0) {
             player.seekTo(resume, MediaPlayer.SEEK_PREVIOUS_SYNC)
             positionMs = resume
@@ -347,11 +372,22 @@ private class Playback(private val context: Context, private val media: CinemaMe
     }
 
     private fun onEnd() {
-        if (released) return
+        // Android tells "finished" after an error too: the problem stays, and so does the point
+        // where it stopped (said "finished", a film started over from the beginning).
+        if (released || problem != null) return
         playing = false
+        val at = runCatching { player.currentPosition.toLong() }.getOrDefault(positionMs)
+        if (!media.live && durationMs > 0 && at < durationMs - EARLY_END_MS) {
+            // Well before its end: the stream stopped coming, it didn't finish.
+            positionMs = at
+            leave()
+            problem = "It stopped before the end: check the phone's connection."
+            return
+        }
         if (media.live) {
-            // A channel has no end: it stopped coming.
+            // A channel has no end: it stopped coming. It tries again by itself, as after an error.
             problem = "The channel stopped."
+            if (autoRetries < AUTO_RETRY_MS.size) main.postDelayed(autoRetry, AUTO_RETRY_MS[autoRetries++])
         } else {
             ended = true
             positionMs = durationMs
@@ -399,9 +435,11 @@ private class Playback(private val context: Context, private val media: CinemaMe
         runCatching { player.currentPosition.toLong() }.onSuccess { positionMs = it }
     }
 
-    /** After a problem: the same video or channel from the start, on the same picture. */
-    fun retry() {
+    /** After a problem: the same video (where it stopped) or channel, on the same picture. */
+    fun retry(auto: Boolean = false) {
         if (released) return
+        main.removeCallbacks(autoRetry)
+        if (!auto) autoRetries = 0
         problem = null
         prepared = false
         playing = false
@@ -427,6 +465,8 @@ private class Playback(private val context: Context, private val media: CinemaMe
         if (released) return
         leave()
         released = true
+        main.removeCallbacks(autoRetry)
+        runCatching { connectivity?.unregisterNetworkCallback(network) }
         audio.abandonAudioFocusRequest(focus)
         runCatching { player.release() }
         surface?.release()
@@ -440,8 +480,18 @@ private class Playback(private val context: Context, private val media: CinemaMe
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> if (playing) {
                 pause()
                 pausedForFocus = true
+                pausedAt = SystemClock.elapsedRealtime()
             }
-            AudioManager.AUDIOFOCUS_GAIN -> if (pausedForFocus) play()
+            AudioManager.AUDIOFOCUS_GAIN -> if (pausedForFocus) {
+                // A channel after a long call: minutes behind, often out of the stream's window
+                // by now - opened again at the live point instead.
+                if (media.live && SystemClock.elapsedRealtime() - pausedAt > LIVE_STALE_MS) {
+                    pausedForFocus = false
+                    retry(auto = true)
+                } else {
+                    play()
+                }
+            }
         }
     }
 
@@ -454,7 +504,14 @@ private class Playback(private val context: Context, private val media: CinemaMe
 
     private fun failed(what: Int, extra: Int) {
         MyCarLog.w("cinema: ${media.title} didn't play - error $what/$extra")
+        // Where it stopped (the last tick: in its error state the player can't be asked), for
+        // "Try again" and for next time.
+        leave()
         playing = false
+        // A channel through a gap in the signal: it tries again by itself, a few times.
+        if (media.live && autoRetries < AUTO_RETRY_MS.size) {
+            main.postDelayed(autoRetry, AUTO_RETRY_MS[autoRetries++])
+        }
         problem = when {
             media.uri.scheme?.startsWith("http") == true && LocalNetwork.blocks(context, listOf(media.uri.toString())) -> LocalNetwork.HINT
             extra == MediaPlayer.MEDIA_ERROR_IO -> "Couldn't reach it: check the phone's connection."
@@ -472,3 +529,12 @@ private val GLYPH = 36.dp
 private const val SKIP_MS = 10_000L
 private const val TICK_MS = 500L
 private const val CONTROLS_MS = 4_000L
+
+/** A film that "finishes" this long before its end stopped coming: shown as a problem, not the end. */
+private const val EARLY_END_MS = 10_000L
+
+/** A channel's own tries after a problem: 3, 10, then 30 seconds later. */
+private val AUTO_RETRY_MS = longArrayOf(3_000L, 10_000L, 30_000L)
+
+/** Paused for a call longer than this, a channel opens again at the live point. */
+private const val LIVE_STALE_MS = 20_000L
