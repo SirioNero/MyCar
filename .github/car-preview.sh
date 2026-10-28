@@ -282,5 +282,53 @@ echo "--- the microphone with the phone locked ---"
 grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
     echo "assistant-locked: nothing in the log"
 
+# The setup list on the phone, as a new user finds it: myCar's data cleared and no permissions
+# (the install above granted them all). Last, since it wipes myCar's data. 01 the list; 02 after
+# "Get certificates", a real download from GitHub checked against the fingerprints; 03-* Android's
+# dialogs after "Allow"; 04 the list after them; 05 Home after "Done"; 06 "How to connect" with the
+# way back; 07 the list again; 08 the list with the contacts taken away.
+tap_match() {
+    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+    local b
+    b=$(adb shell cat /sdcard/ui.xml | tr '>' '\n' | grep -m1 -F "$1" |
+        sed -nE 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/p')
+    if [ -z "$b" ]; then echo "setup-phone: nothing like $1 on screen"; return 1; fi
+    set -- $b
+    adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
+}
+tap_text() { tap_match "text=\"$1\""; }
+setup_phone() {
+    case " ${ONLY:-setup-phone} " in *" setup-phone "*) ;; *) return ;; esac
+    local d=previews/setup-phone i
+    mkdir -p $d
+    adb shell pm clear "$PKG" >/dev/null
+    adb logcat -c
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 6; adb exec-out screencap -p > $d/01-first.png
+    tap_text "Get certificates"; sleep 12; adb exec-out screencap -p > $d/02-certificates.png
+    # The big button at the foot, always in sight: the step's own may be scrolled away.
+    tap_text "Allow calls, map and music"
+    for i in 1 2 3 4 5 6 7; do
+        sleep 3
+        adb exec-out screencap -p > $d/03-dialog-$i.png
+        tap_match "permission_allow_foreground_only_button" || tap_match "permission_allow_button" || break
+    done
+    sleep 3; adb exec-out screencap -p > $d/04-after-allow.png
+    tap_text "Done"; sleep 3; adb exec-out screencap -p > $d/05-home.png
+    tap_text "How to connect"; sleep 3; adb exec-out screencap -p > $d/06-help.png
+    tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/07-return.png
+    # Taking a permission away stops the app: open it again, and go back to the list.
+    adb shell pm revoke "$PKG" android.permission.READ_CONTACTS
+    sleep 2
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 5; tap_text "How to connect"; sleep 3
+    tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/08-partial.png
+    adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
+    adb logcat -d -b crash > $d/crash.txt 2>&1
+    echo "--- setup on the phone ---"
+    grep -hE "CERT|DOWNL" $d/log.txt | tail -20 || echo "setup-phone: nothing in the log"
+}
+setup_phone
+
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews
