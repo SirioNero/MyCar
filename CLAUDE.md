@@ -358,6 +358,26 @@ Tutti i token in un solo posto, `car/design/`:
   della rete di casa (vedi "Rete di casa con Android 17"): chiesto aggiungendo il sito, e in auto
   una copertura dice cosa concedere. Anteprima: `--ez moving true` (`CarDriving.override`), scatti
   `cinema/` (griglia, siti, YouTube) e `cinema-moving/`.
+  **Scaffali di myCar** (0.5.19), prima dei siti: "On this phone" (`cinema/PhoneVideos.kt`: video dal
+  media store, i più nuovi prima, anteprime con `loadThumbnail`; permesso `READ_MEDIA_VIDEO` con
+  l'accesso limitato di Android 14, `READ_EXTERNAL_STORAGE` fino al 32, chiesto in auto con
+  `PermissionActivity` e sul telefono con "Videos on this phone") e un riquadro per ogni **lista TV**
+  (`cinema/TvLists.kt`, chiave `cinema_tv_lists`; formato M3U letto da `cinema/M3u.kt` + `M3uTest`:
+  `#EXTINF` con tvg-logo e group-title, `#EXTGRP`, intestazioni da `#EXTVLCOPT` e dopo "|", indirizzi
+  relativi; fuori i canali con licenza DRM in `#KODIPROP` e quelli udp/rtmp). Una lista si scarica
+  quando si apre il suo riquadro, al massimo ogni 6 ore, e resta in `filesDir/cinema-tv` (canali
+  subito, anche senza rete); con più gruppi prima i gruppi. Loghi: `ChannelLogos` (quattro alla
+  volta, in memoria). Si suonano col **MediaPlayer di Android** su una TextureView (`car/CinemaPlayer.kt`,
+  niente ExoPlayer: sarebbe una dipendenza nuova): comandi al tocco (-10 s, play/pausa, +10 s, linea),
+  via dopo 4 s; i video ripartono da dove erano (`cinema_resume`, ultimi 30); un film in una lista
+  (mp4, mkv...) si sposta e riparte come un video, un canale è "LIVE"; il focus audio del telefono
+  mette in pausa per una chiamata e riprende. "Video only when parked" copre anche qui, con la barra
+  (Indietro, Chiudi) sopra. Sul telefono "More sites" (`Cinema.MORE`: Dailymotion, Vimeo, La7, TED,
+  Arte, NASA+, Internet Archive, un tocco) e la sezione "Cinema: TV". Anteprima: un video di prova
+  nei Movies dell'emulatore e una lista dal runner (`10.0.2.2:8001`, HLS + mp4 + logo, fatti con
+  ffmpeg), `--es tvList <indirizzo>`, scatti `cinema-videos/`, `cinema-tv/`, `cinema-videos-moving/`.
+  Verificato in emulatore (API 34): anteprime, video che suona, gruppi e loghi, canale HLS in diretta,
+  copertura in movimento. Non provato: in auto, con liste IPTV vere.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -636,7 +656,6 @@ Tutti i token in un solo posto, `car/design/`:
   endpoint tolti. Il motore ufficiale per terze parti (Spotify Soloist, quello di Music
   Assistant) esiste solo per Linux: non gira sul telefono. librespot non suona con gli account
   creati da dicembre 2024.
-- **Cinema, il resto**: video del telefono e IPTV; un elenco di siti suggeriti più lungo.
 
 ## Note F-Droid
 

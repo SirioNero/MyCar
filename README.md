@@ -64,7 +64,10 @@ behind it all — still or moving.
 - **Cinema.** Your video sites as tiles, each with the icon it gives itself: YouTube, RaiPlay
   and Twitch to start with, and any you add on the phone, your own Jellyfin included. Each opens
   in a browser made for video: full screen when the player asks for it, the car's keyboard for
-  searching, a site's computer layout when you prefer it. Video shows only when the car is parked:
+  searching, a site's computer layout when you prefer it. Next to the sites, the videos on your
+  phone (they start again where you left them) and TV: add an IPTV list (M3U) from your provider, a
+  public list or a TV server at home, and its channels show with their logos and groups. Both play
+  on Android's own player, with nothing extra to install. Video shows only when the car is parked:
   while it moves the picture is covered and the sound carries on. That's a setting, on by default,
   which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN)
   most likely stays black in the car: Android hides it from a screen sent to the car as video.

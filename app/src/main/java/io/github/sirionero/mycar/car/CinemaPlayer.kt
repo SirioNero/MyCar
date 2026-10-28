@@ -173,7 +173,11 @@ internal fun CinemaPlayer(media: CinemaMedia, onClose: () -> Unit) {
                 }
             }
         }
-        if (!allowed) ParkedCover()
+        if (!allowed) {
+            ParkedCover()
+            // The way out stays in sight, as over a site.
+            Column(Modifier.fillMaxSize()) { CinemaBar(media.title, onBack = onClose, onClose = onClose) }
+        }
     }
     LaunchedEffect(Unit) { MyCarLog.i("cinema: playing ${if (media.live) "a TV channel" else "a video"}: ${media.title}") }
 }
