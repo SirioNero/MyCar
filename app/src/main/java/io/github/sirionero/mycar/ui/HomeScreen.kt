@@ -111,6 +111,7 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     StatusCard(status)
+                    if (!live) CertNoticeCard(onOpenHelp = onOpenHelp, onOpenSettings = onOpenSettings)
                     if (live) BluetoothMissingCard()
                     VoiceDownloadCard()
                     // The first drive that worked asks once to share it, right under the result.
