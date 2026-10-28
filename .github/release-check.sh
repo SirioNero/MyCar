@@ -155,7 +155,8 @@ PY
     # Settings -> App split tunneling, myCar ticked among the excluded apps).
     if [ "$NET" = tailscale-out ]; then
         adb shell am start -n $TAILSCALE/.MainActivity >/dev/null 2>&1; sleep 4
-        tap "Open settings" 3; sleep 3
+        # Signed in, the way to the settings is the account's picture, "Settings".
+        tap "Settings" 3 || tap "Open settings" 2; sleep 3
         tap "App split tunneling" 8; sleep 5
         shot ts-7-split
         row=$(find_scrolling "myCar" 30)
@@ -169,12 +170,21 @@ PY
         fi
         adb shell input keyevent KEYCODE_BACK; sleep 2; adb shell input keyevent KEYCODE_BACK; sleep 6
     fi
-    # What myCar itself can reach: the same probes run as myCar's user (the shell's own user is
-    # one Android lets through everything).
+    # Whether the VPN carries myCar's user: the shell's own user is one Android lets through everything.
     uid=$(adb shell pm list packages -U $PKG | tr -d '\r' | sed -n 's/.*uid://p' | head -1)
-    echo "--- umbrel as myCar (user $uid) ---" | tee -a "$OUT/tailnet.txt"
-    adb shell su "$uid" ping -c 2 -W 3 umbrel 2>&1 | tee -a "$OUT/tailnet.txt"
-    adb shell dumpsys connectivity 2>/dev/null | grep -oE "bypassable=[a-z]*|Uids: <[^>]*>" | sort -u | tee -a "$OUT/tailnet.txt"
+    vpn=$(adb shell dumpsys connectivity 2>/dev/null | grep -m1 "NetworkAgentInfo.*Transports: VPN")
+    echo "--- myCar (user $uid) and the VPN ---" | tee -a "$OUT/tailnet.txt"
+    python3 - "$uid" "$vpn" <<'PY' | tee -a "$OUT/tailnet.txt"
+import re, sys
+uid, line = int(sys.argv[1] or 0), sys.argv[2]
+m = re.search(r"Uids: <\{([^}]*)\}>", line)
+if not m:
+    print("no VPN carrying apps")
+else:
+    inside = any(int(a) <= uid <= int(b) for a, b in re.findall(r"(\d+)-(\d+)", m.group(1)))
+    print(f"the VPN carries users {m.group(1)}: myCar is {'INSIDE' if inside else 'LEFT OUT'}")
+print(" ".join(re.findall(r"bypassable=\w+", line)))
+PY
 fi
 
 # What a driver allowed through myCar's guide before 0.5.12 - not the home network, which only

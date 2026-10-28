@@ -91,7 +91,12 @@ jobs:
           # F-Droid's build of the Tailscale app: the one whose native code runs on the x86_64 emulator.
           info=$(curl -fsSL --retry 3 --max-time 60 https://f-droid.org/api/v1/packages/com.tailscale.ipn)
           for vc in $(echo "$info" | jq -r '.suggestedVersionCode, .packages[].versionCode' | awk '!seen[$0]++'); do
-            curl -fsSL --retry 2 --max-time 240 -o /tmp/tailscale.apk "https://f-droid.org/repo/com.tailscale.ipn_$vc.apk" || continue
+            # F-Droid itself, then two of its mirrors: a download from f-droid.org sometimes stalls.
+            ok=""
+            for repo in https://f-droid.org/repo https://ftp.fau.de/fdroid/repo https://mirror.cyberbits.eu/fdroid/repo; do
+              curl -fsSL --retry 2 --max-time 180 -o /tmp/tailscale.apk "$repo/com.tailscale.ipn_$vc.apk" && { ok=1; break; }
+            done
+            [ -n "$ok" ] || continue
             if unzip -l /tmp/tailscale.apk | grep -q "lib/x86_64/"; then
               mv /tmp/tailscale.apk third-party/tailscale.apk
               echo "Tailscale from F-Droid, version code $vc"
