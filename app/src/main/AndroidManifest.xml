@@ -184,7 +184,7 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density|locale|layoutDirection|fontScale">
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|touchscreen|uiMode|density|locale|layoutDirection|fontScale|fontWeightAdjustment|colorMode|mcc|mnc|grammaticalGender">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
