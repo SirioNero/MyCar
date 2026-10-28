@@ -1,13 +1,14 @@
 package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.car.theme.*
+import io.github.sirionero.mycar.MyCarLog
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Bundle
 import android.provider.ContactsContract
-import android.provider.Settings
+import android.telecom.TelecomManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -80,14 +81,20 @@ internal fun loadContacts(context: Context): List<Contact> {
     return out.distinctBy { it.number }
 }
 
+/**
+ * Through Telecom, not an ACTION_CALL activity: started from the car UI, whose context belongs to
+ * the car's display, Android refused to put the dialer there, and from the background it blocked
+ * the start - either way in silence, and no call left.
+ */
 internal fun placeCall(context: Context, number: String) {
     if (number.isBlank()) return
-    if (context.checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) return
-    runCatching {
-        context.startActivity(
-            Intent(Intent.ACTION_CALL, Uri.parse("tel:${Uri.encode(number)}")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-        )
+    if (context.checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+        MyCarLog.w("calls: no permission to place a call")
+        return
     }
+    runCatching {
+        context.getSystemService(TelecomManager::class.java).placeCall(Uri.fromParts("tel", number, null), Bundle())
+    }.onFailure { MyCarLog.e("calls: couldn't place the call", it) }
 }
 
 /** A call another car screen wants to place - a number on a place page - waiting on the driver. */
@@ -156,11 +163,7 @@ private fun MissingPermission(context: Context) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        GsButton(tone = GsTone.Tonal, onClick = {
-            context.startActivity(
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
-            )
-        }) { Text("Open app settings") }
+        GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text("Open app settings") }
     }
 }
 

@@ -106,10 +106,27 @@ object PhoneMirror {
         }
 
         _active.value = display != null
+        if (display == null) {
+            // Not left running: the phone stayed "casting" with its notification up, and the next
+            // try stopped this one - and with it, the sharing just started.
+            runCatching { token.stop() }
+            media = null
+            MirrorService.stop()
+        }
         if (display != null) {
             MyCarLog.i("mirroring the phone into ${width}x$height")
             // The car's screen is wide: the phone turns to match while it's shown there.
             TouchRelayService.instance?.holdLandscape(true)
+        }
+    }
+
+    /** Hands the display its surface again, so it draws a whole frame even if nothing on the phone moves. */
+    fun refresh() {
+        val d = display ?: return
+        val surface = d.surface ?: return
+        runCatching {
+            d.surface = null
+            d.surface = surface
         }
     }
 
@@ -132,7 +149,7 @@ object PhoneMirror {
      *
      * Returns null for a touch that landed on the padding.
      */
-    fun mapToPhone(context: Context, x: Float, y: Float): PointF? {
+    fun mapToPhone(context: Context, x: Float, y: Float, clamp: Boolean = false): PointF? {
         if (frameWidth == 0 || frameHeight == 0) return null
         // The display's own size, as turned right now. myCar's window is behind the mirrored app
         // and isn't told when the phone turns, so its metrics would still say upright.
@@ -148,6 +165,7 @@ object PhoneMirror {
 
         val px = (x - offsetX) / scale
         val py = (y - offsetY) / scale
+        if (clamp) return PointF(px.coerceIn(0f, phoneW), py.coerceIn(0f, phoneH))
         if (px < 0f || py < 0f || px > phoneW || py > phoneH) return null
         return PointF(px, py)
     }

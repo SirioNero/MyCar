@@ -80,6 +80,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.KEY_MIC_ASKED
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.car.CarSettings
 import androidx.compose.foundation.selection.selectable
@@ -198,7 +199,9 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
                 explanation = "The car's map and nearby searches need it. Without it, the dashboard " +
                     "shows no map.",
                 icon = glyph(Icons.Filled.LocationOn),
-                permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                // Both, in one request: from Android 12 one asking for the precise location alone
+                // is dropped without a dialog.
+                permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
             ),
         )
     }
@@ -273,7 +276,15 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
                 icon = glyph(Icons.Filled.Email),
                 actionLabel = "Open notification access",
                 onAction = {
-                    context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                    // Phones without that screen: the app's own settings instead of a crash.
+                    runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+                        .onFailure {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", context.packageName, null)),
+                                )
+                            }
+                        }
                 },
             ),
         )
@@ -491,6 +502,9 @@ fun SetupGuideScreen(onRequestCallScreening: () -> Unit, onDone: () -> Unit, onl
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
+        // A "no" here counts as asked: refused again in the car, Android stops asking, and the car
+        // must say why instead of staying silent (MyCarActivity's audioPermission).
+        if (result[Manifest.permission.RECORD_AUDIO] == false) AppSettings.putString(context, KEY_MIC_ASKED, "1")
         if (result.values.any { it }) {
             Prefetch.warm(context, force = true)
             CarCalls.start(context)

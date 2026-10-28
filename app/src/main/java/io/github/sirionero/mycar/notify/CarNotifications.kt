@@ -87,12 +87,22 @@ object CarNotifications {
      * for anything that isn't worth interrupting a drive for (see the listener's filter).
      */
     fun post(notification: CarNotification, quiet: Boolean) {
+        // The same chat posted again with nothing new (a message edited or deleted, a sending
+        // status): it updates the history, but pops nothing up - each one used to.
+        // Only while it's still on the phone: the same words posted again after it was dismissed
+        // ("Ok" from the same person, hours later) are a new message.
+        val before = _history.value.firstOrNull { it.key == notification.key }
+        val nothingNew = before != null && notification.key !in dismissed && before.title == notification.title &&
+            before.text == notification.text && before.lines == notification.lines
+        dismissed.remove(notification.key)
         _history.update { list ->
             (listOf(notification) + list.filterNot { it.key == notification.key }).take(MAX_HISTORY)
         }
         val echo = notification.key == lastReplyKey &&
             System.currentTimeMillis() - lastReplyAt < ECHO_WINDOW_MS
-        if (quiet || echo) return
+        if (quiet || echo || nothingNew) return
+        // The dot on the dock's clock: it's cleared once the notifications screen is open.
+        _unread.update { it + 1 }
         val now = android.os.SystemClock.uptimeMillis()
         _popup.update { shown ->
             if (shown?.key == notification.key) {
@@ -103,8 +113,17 @@ object CarNotifications {
         }
     }
 
+    /** Keys the phone has taken away since they were last posted. */
+    private val dismissed = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+
     /** The phone dismissed it. It stays in history, but its reply intent is no longer trustworthy. */
     fun gone(key: String) {
+        val history = _history.value
+        // Only what the car has seen: every notification taken off the phone, all day long, kept
+        // filling the set. Keys gone from the history go too.
+        if (history.none { it.key == key }) return
+        dismissed.add(key)
+        if (dismissed.size > MAX_HISTORY) dismissed.retainAll(history.map { it.key }.toSet())
         _history.update { list -> list.map { if (it.key == key) it.copy(reply = null, markRead = null) else it } }
     }
 
@@ -127,6 +146,7 @@ object CarNotifications {
         _history.value = emptyList()
         _popup.value = null
         _unread.value = 0
+        dismissed.clear()
     }
 
     /**

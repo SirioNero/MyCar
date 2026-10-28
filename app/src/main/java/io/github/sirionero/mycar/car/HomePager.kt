@@ -354,7 +354,8 @@ private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () ->
     var started by remember { mutableStateOf(false) }
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE_PHASES
-        if (!live || CarServices.browse.connectedComponent != app.component) CarServices.connectBrowse(app, frame)
+        val closed = app.component in CarServices.closedBrowse
+        if (!closed && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
         started = true
     }
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {
@@ -365,7 +366,7 @@ private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () ->
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(MyCarSpace.XL),
             )
-        } else if (started && status.phase == CarAppConnection.Phase.IDLE) {
+        } else if (started && (status.phase == CarAppConnection.Phase.IDLE || app.component in CarServices.closedBrowse)) {
             // Closed from the dock's app menu: it waits to be asked back.
             GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) {
                 Text("Open ${app.label}")

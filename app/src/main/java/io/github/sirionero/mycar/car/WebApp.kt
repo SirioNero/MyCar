@@ -3,7 +3,9 @@ package io.github.sirionero.mycar.car
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
+import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -17,12 +19,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import org.json.JSONObject
@@ -53,6 +59,8 @@ internal fun WebApp(content: String, tile: WebTile?) {
     val ring = String.format("#%06X", MaterialTheme.colorScheme.primary.toArgb() and 0xFFFFFF)
     var web by remember { mutableStateOf<WebView?>(null) }
     var fieldText by remember { mutableStateOf<String?>(null) }
+    // A new web view after the web engine's page process died (see LoggingClient.onRenderProcessGone).
+    var generation by remember { mutableIntStateOf(0) }
 
     DisposableEffect(web, tile) {
         if (tile != null) return@DisposableEffect onDispose { }
@@ -75,31 +83,42 @@ internal fun WebApp(content: String, tile: WebTile?) {
         } else {
             TileBar("Browser", onBack = { web?.takeIf { it.canGoBack() }?.goBack() }, onHold = tile.onHold)
         }
-        AndroidView(
-            modifier = Modifier.weight(1f).fillMaxSize(),
-            factory = { context ->
-                WebView(context).apply {
-                    settings.javaScriptEnabled = true
-                    settings.domStorageEnabled = true
-                    settings.loadWithOverviewMode = true
-                    settings.useWideViewPort = true
-                    webViewClient = LoggingClient(ring)
-                    addJavascriptInterface(
-                        FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
-                        "MyCarField",
-                    )
-                    if (content.startsWith("http://") || content.startsWith("https://")) {
-                        loadUrl(content)
-                    } else {
-                        loadDataWithBaseURL(null, content, "text/html", "utf-8", null)
+        key(generation) {
+            AndroidView(
+                modifier = Modifier.weight(1f).fillMaxSize(),
+                factory = { context ->
+                    WebView(context).apply {
+                        settings.javaScriptEnabled = true
+                        settings.domStorageEnabled = true
+                        settings.loadWithOverviewMode = true
+                        settings.useWideViewPort = true
+                        webViewClient = LoggingClient(ring) {
+                            web = null
+                            fieldText = null
+                            generation++
+                        }
+                        addJavascriptInterface(
+                            FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
+                            "MyCarField",
+                        )
+                        if (content.startsWith("http://") || content.startsWith("https://")) {
+                            loadUrl(content)
+                        } else {
+                            loadDataWithBaseURL(null, content, "text/html", "utf-8", null)
+                        }
+                        web = this
                     }
-                    web = this
-                }
-            },
-            // Pages that honour it follow the darkness outside; a first, tweakable use of the signal.
-            update = { it.settings.isAlgorithmicDarkeningAllowed = darkOutside },
-            onRelease = { it.destroy() },
-        )
+                },
+                // Pages that honour it follow the darkness outside; a first, tweakable use of the signal.
+                // Through androidx.webkit: the platform call exists only from Android 13.
+                update = {
+                    if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
+                        WebSettingsCompat.setAlgorithmicDarkeningAllowed(it.settings, darkOutside)
+                    }
+                },
+                onRelease = { runCatching { it.destroy() } },
+            )
+        }
         val text = fieldText
         val keyboard: @Composable () -> Unit = {
             if (text != null) {
@@ -128,7 +147,19 @@ internal fun WebApp(content: String, tile: WebTile?) {
     }
 }
 
-private class LoggingClient(private val ring: String) : WebViewClient() {
+private class LoggingClient(private val ring: String, private val onGone: () -> Unit) : WebViewClient() {
+    // The web engine's page process is one for the whole app, Plancia's dashboard included: when
+    // it dies, every web view on it must say it handled that, or Android ends myCar - and the drive.
+    override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+        MyCarLog.w("car web page process gone (crash: ${detail?.didCrash()}) - opening the browser again")
+        if (view != null) {
+            (view.parent as? ViewGroup)?.removeView(view)
+            runCatching { view.destroy() }
+        }
+        Handler(Looper.getMainLooper()).post(onGone)
+        return true
+    }
+
     override fun onPageFinished(view: WebView?, url: String?) {
         MyCarLog.i("car web page loaded: $url")
         view?.evaluateJavascript(FOCUS_TRACKING_JS, null)
@@ -183,6 +214,13 @@ private fun setFieldValueJs(value: String) = """
     (function() {
         var el = document.activeElement;
         if (!el) return;
+        // A box that's an editable element rather than a field (many search boxes): it has no
+        // value, and the field setter on it threw - nothing the driver typed arrived.
+        if (el.isContentEditable) {
+            el.textContent = ${JSONObject.quote(value)};
+            el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+            return;
+        }
         var proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
         var setter = Object.getOwnPropertyDescriptor(proto, 'value');
         if (setter && setter.set) { setter.set.call(el, ${JSONObject.quote(value)}); } else { el.value = ${JSONObject.quote(value)}; }
@@ -239,7 +277,7 @@ private const val FOCUS_TRACKING_JS = """
             return skip.indexOf((el.type || 'text').toLowerCase()) === -1;
         }
         document.addEventListener('focusin', function(e) {
-            if (isEditable(e.target)) window.MyCarField.focused(e.target.value || '');
+            if (isEditable(e.target)) window.MyCarField.focused(e.target.isContentEditable ? (e.target.innerText || '') : (e.target.value || ''));
         });
         document.addEventListener('focusout', function(e) {
             if (isEditable(e.target)) window.MyCarField.blurred();

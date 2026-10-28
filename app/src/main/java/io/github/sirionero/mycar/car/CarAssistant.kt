@@ -12,6 +12,7 @@ import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import androidx.core.content.ContextCompat
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.speech.SpeechEngine
@@ -76,6 +77,12 @@ object CarAssistant {
     private fun startOnMainThread() {
         val context = appContext ?: return
         if (_state.value.phase == Phase.LISTENING || _state.value.phase == Phase.THINKING) return
+        // A message being read or answered gives way: the driver asked for the assistant instead,
+        // and the reply left waiting would keep the car's voice key for itself. A reply counting
+        // down goes now, as the wheel's voice key sends it: dropping it lost it without a word.
+        if (VoiceReply.active) {
+            if (VoiceReply.state.value.phase == VoiceReply.Phase.CONFIRMING) VoiceReply.sendNow() else VoiceReply.cancel()
+        }
         // The driver may have picked another assistant, which then takes the button instead.
         if (AssistantChoice.startOther(context)) return
 
@@ -126,21 +133,16 @@ object CarAssistant {
             return
         }
         appContext?.let(VoiceFocus::acquire)
-        engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {}
-            override fun onDone(utteranceId: String?) {
-                VoiceFocus.release()
-                _state.value = _state.value.copy(phase = Phase.IDLE)
-            }
-            @Deprecated("Deprecated in Java, no replacement on this API level")
-            override fun onError(utteranceId: String?) {
-                VoiceFocus.release()
-                _state.value = _state.value.copy(phase = Phase.IDLE)
-            }
-            override fun onStop(utteranceId: String?, interrupted: Boolean) { VoiceFocus.release() }
-        })
-        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "mycar-assistant")
+        val mine = ++replies
+        speak(engine, text) {
+            VoiceFocus.release()
+            // Still this answer on screen: done speaking, or cut short by a message read aloud. Not
+            // when the microphone or Cancel stopped it, which have moved the overlay on already.
+            if (mine == replies && _state.value.phase == Phase.SPEAKING) _state.value = _state.value.copy(phase = Phase.IDLE)
+        }
     }
+
+    private var replies = 0
 
     /**
      * Speaks [text] for someone other than the assistant (a message read aloud), then runs
@@ -154,15 +156,48 @@ object CarAssistant {
             return
         }
         VoiceFocus.acquire(context)
-        engine.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {}
-            override fun onDone(utteranceId: String?) { VoiceFocus.release(); mainHandler.post(onDone) }
-            @Deprecated("Deprecated in Java, no replacement on this API level")
-            override fun onError(utteranceId: String?) { VoiceFocus.release(); mainHandler.post(onDone) }
+        speak(engine, text) { stopped ->
+            VoiceFocus.release()
             // Stopped part way: whoever stopped it has already moved on.
-            override fun onStop(utteranceId: String?, interrupted: Boolean) { VoiceFocus.release() }
-        })
-        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "mycar-say")
+            if (!stopped) mainHandler.post(onDone)
+        }
+    }
+
+    private var utterances = 0
+
+    /** What to do when each utterance ends, by its id; true when it was stopped part way. */
+    private val endings = java.util.concurrent.ConcurrentHashMap<String, (stopped: Boolean) -> Unit>()
+
+    /**
+     * One listener for every utterance, which finds its own ending by id. With a listener per
+     * utterance, the end of the one cut short by the next went to the next's: the voice focus was
+     * given back while it still spoke, and its caller was told it had finished.
+     */
+    private val progress = object : UtteranceProgressListener() {
+        override fun onStart(utteranceId: String?) {}
+        override fun onDone(utteranceId: String?) = end(utteranceId, stopped = false)
+        @Deprecated("Deprecated in Java, no replacement on this API level")
+        override fun onError(utteranceId: String?) = end(utteranceId, stopped = false)
+        override fun onStop(utteranceId: String?, interrupted: Boolean) = end(utteranceId, stopped = true)
+    }
+
+    private fun end(utteranceId: String?, stopped: Boolean) {
+        endings.remove(utteranceId ?: return)?.invoke(stopped)
+    }
+
+    /**
+     * Speaks [text], then calls [ending] once. A [TextToSpeech.speak] that fails (the speech
+     * engine went away mid-drive) sends no callback at all: it ends at once, or the voice focus
+     * stayed taken and the music paused for the rest of the drive.
+     */
+    private fun speak(engine: TextToSpeech, text: String, ending: (stopped: Boolean) -> Unit) {
+        val id = "mycar-${++utterances}"
+        endings[id] = ending
+        engine.setOnUtteranceProgressListener(progress)
+        if (engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, id) != TextToSpeech.SUCCESS) {
+            MyCarLog.w("assistant: speech engine refused to speak")
+            end(id, stopped = false)
+        }
     }
 
     fun stopSpeaking() { tts?.stop() }
@@ -253,7 +288,19 @@ object CarAssistant {
         )
     }
 
-    fun stopListening() = releaseRecognizer()
+    /**
+     * Stops listening, for someone else's sake (a message read, a quick reply). The overlay closes
+     * too if it was listening: with nothing left to call back, it stayed on "Listening…" and the
+     * microphone and voice key were ignored until its X.
+     */
+    fun stopListening() {
+        releaseRecognizer()
+        val phase = _state.value.phase
+        if (phase == Phase.LISTENING || phase == Phase.THINKING) {
+            _pendingCommand.value = null
+            _state.value = State(Phase.IDLE)
+        }
+    }
 
     private fun releaseRecognizer() {
         SpeechEngine.cancel()

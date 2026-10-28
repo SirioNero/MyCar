@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.home.HaException
 import io.github.sirionero.mycar.home.HomeAssistant
 import kotlinx.coroutines.CancellationException
@@ -71,7 +71,7 @@ internal fun PlanciaSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    if (LocalNetwork.blocks(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(e)}"
+                    "$place: " + Tailnet.why(context, listOf(url), HaException.failureOf(e), describe(e), LOCAL_NETWORK_REFUSED)
                 } finally {
                     client.close()
                 }
@@ -147,7 +147,7 @@ internal fun PlanciaSection() {
                 }) { Text("Save and test") }
                 if (saved.isComplete) {
                     TextButton(onClick = {
-                        HomeAssistant.save(HomeAssistant.Config())
+                        HomeAssistant.remove()
                         status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
                     }) { Text("Remove") }
                 }

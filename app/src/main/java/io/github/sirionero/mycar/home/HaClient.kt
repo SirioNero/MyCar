@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.home
 
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.Tailnet
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
@@ -13,9 +14,18 @@ import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-/** Why Home Assistant can't be reached or used, in words for the car and the phone alike. */
-class HaException(message: String, val reason: Reason = Reason.OTHER) : Exception(message) {
+/** Why Home Assistant can't be reached or used, in words for the car and the phone alike; [cause] is the network's error. */
+class HaException(message: String, val reason: Reason = Reason.OTHER, cause: Throwable? = null) : Exception(message, cause) {
     enum class Reason { BAD_ADDRESS, NO_RESPONSE, INVALID_TOKEN, ACCESS_DENIED, HTTP_ERROR, NETWORK, CLOSED, OTHER }
+
+    companion object {
+        /** How a connection to Home Assistant failed, as far as the network goes. */
+        fun failureOf(e: Throwable?): Tailnet.Failure = when {
+            e is HaException && e.reason == Reason.NO_RESPONSE -> Tailnet.Failure.TIMEOUT
+            e is HaException && e.reason != Reason.NETWORK -> Tailnet.Failure.OTHER
+            else -> Tailnet.failureOf(e)
+        }
+    }
 }
 
 /**
@@ -53,6 +63,9 @@ class HaClient(private val http: OkHttpClient) {
             throw e
         }
         if (version == null) {
+            // A server that took the connection but never answered: drop the call too, which would
+            // otherwise wait without end (no read timeout, for the long-lived socket).
+            socket?.cancel()
             close()
             throw HaException("No answer from $baseUrl", HaException.Reason.NO_RESPONSE)
         }
@@ -126,7 +139,7 @@ class HaClient(private val http: OkHttpClient) {
                 response != null ->
                     HaException("HTTP error ${response.code}", HaException.Reason.HTTP_ERROR)
                 else ->
-                    HaException(t.message ?: "Network error", HaException.Reason.NETWORK)
+                    HaException(t.message ?: "Network error", HaException.Reason.NETWORK, t)
             }
             shutdown(error)
         }

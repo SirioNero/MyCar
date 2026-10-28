@@ -83,7 +83,7 @@ class CarAppConnection(private val context: Context) {
 
     private val main = Handler(Looper.getMainLooper())
     /** Captured by each host Binder so callbacks queued by a replaced app cannot show a toast. */
-    private var toastOwner = Any()
+    @Volatile private var toastOwner = Any()
 
     private var carApp: ICarApp? = null
     private var appManager: IAppManager? = null
@@ -109,6 +109,9 @@ class CarAppConnection(private val context: Context) {
     /** A destination to navigate to as soon as the app is created; see [navigateTo]. */
     private var pendingDestination: String? = null
 
+    /** One asked for while the app was being created, too late for its first intent: sent once it runs. */
+    private var destinationOnceRunning: String? = null
+
     // --- connection ---------------------------------------------------------------------
 
     fun connect(app: TemplateApp, width: Int, height: Int, densityDpi: Int, destination: String? = null) {
@@ -120,21 +123,24 @@ class CarAppConnection(private val context: Context) {
         frameDensity = densityDpi
         component = app.component
         pendingDestination = destination
+        destinationOnceRunning = null
         update { Status(phase = Phase.BINDING, app = app.label) }
 
         val intent = Intent(CarAppService.SERVICE_INTERFACE).setComponent(app.component)
         val connection = object : ServiceConnection {
+            // Each only while this is still the binding: one let go of (another app took the
+            // connection) used to start or fail the new app with the old one's answers.
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                main.post { onBound(service) }
+                main.post { if (binding === this) onBound(service) }
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                main.post { fail(Phase.FAILED, "the app's service disconnected") }
+                main.post { if (binding === this) fail(Phase.FAILED, "the app's service disconnected") }
             }
 
             override fun onNullBinding(name: ComponentName) {
                 // A templated app that refuses a host returns no binder at all.
-                main.post { fail(Phase.REJECTED, "the app refused to bind - host not accepted") }
+                main.post { if (binding === this) fail(Phase.REJECTED, "the app refused to bind - host not accepted") }
             }
         }
         binding = connection
@@ -241,6 +247,9 @@ class CarAppConnection(private val context: Context) {
         appManager = null
         navigationManager = null
         navigating = false
+        // An app that's gone ends no route by itself: its last turn stayed on the cluster and in
+        // the voice for the next drive.
+        _trip.value = null
         main.removeCallbacks(sendReroute)
         reroute = null
         autoRoute.disarm()
@@ -248,6 +257,7 @@ class CarAppConnection(private val context: Context) {
         surfaceCallback = null
         component = null
         pendingDestination = null
+        destinationOnceRunning = null
         _template.value = null
         update { Status() }
     }
@@ -257,7 +267,14 @@ class CarAppConnection(private val context: Context) {
     private fun onBound(service: IBinder) {
         val app = ICarApp.Stub.asInterface(service)
         carApp = app
-        update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info") }
+        // Bound again on the same connection after its process died: nothing of the old process
+        // carries over. Its template stayed on screen, every button pointing at a dead app, and a
+        // first template refused by the new one no longer counted as the failure it is.
+        _template.value = null
+        appManager = null
+        navigationManager = null
+        surfaceCallback = null
+        update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info", surfaceRequested = false, surfaceAttached = false) }
         MyCarLog.i("host: bound; requesting app info")
 
         call("getAppInfo", onValue = { value ->
@@ -296,6 +313,7 @@ class CarAppConnection(private val context: Context) {
         MyCarLog.i("host: handshake accepted; creating the app")
         val intent = pendingDestination?.let { autoRoute.arm(); navigateIntent(it) }
             ?: Intent(Intent.ACTION_MAIN).setComponent(component)
+        if (pendingDestination != null) destinationOnceRunning = null
         pendingDestination = null
         call("onAppCreate", onValue = { onCreated() }) {
             app.onAppCreate(createCarHost(toastOwner), intent, carConfiguration(), it)
@@ -322,6 +340,13 @@ class CarAppConnection(private val context: Context) {
      * [REROUTE_WAIT_MS] if it never does.
      */
     fun navigateTo(destination: String) {
+        // Still starting ("navigate to X" in the drive's first seconds): sent to the app as it's
+        // created, or once it runs. Sent now, it was lost - the app wasn't there yet to take it.
+        if (_status.value.phase == Phase.BINDING || _status.value.phase == Phase.HANDSHAKE) {
+            pendingDestination = destination
+            destinationOnceRunning = destination
+            return
+        }
         if (carApp == null) return
         main.removeCallbacks(sendReroute)
         if (!navigating) {
@@ -337,7 +362,7 @@ class CarAppConnection(private val context: Context) {
     private fun sendDestination(destination: String) {
         val app = carApp ?: return
         autoRoute.arm()
-        call("onNewIntent", onValue = {}) {
+        call("onNewIntent", onValue = {}, fatal = false) {
             app.onNewIntent(navigateIntent(destination), it)
         }
     }
@@ -365,6 +390,8 @@ class CarAppConnection(private val context: Context) {
     private fun onRunning() {
         val app = carApp ?: return
         update { it.copy(phase = Phase.RUNNING, detail = "connected") }
+        pendingDestination = null
+        destinationOnceRunning?.let { destinationOnceRunning = null; navigateTo(it) }
         MyCarLog.verdict(
             "${component?.packageName} accepted myCar as a template host",
             "Handshake completed at car API level ${_status.value.apiLevel}.",
@@ -426,7 +453,7 @@ class CarAppConnection(private val context: Context) {
             _template.value = template
             update { it.copy(template = template.javaClass.simpleName) }
             autoRoute.onTemplate(template)
-        }) { manager.getTemplate(it) }
+        }, fatal = _template.value == null) { manager.getTemplate(it) }
     }
 
     private val _panMode = MutableStateFlow(false)
@@ -452,7 +479,7 @@ class CarAppConnection(private val context: Context) {
     fun backPressed() {
         val manager = appManager ?: return
         MyCarLog.i("host: back pressed")
-        call("onBackPressed", onValue = { requestTemplate() }) { manager.onBackPressed(it) }
+        call("onBackPressed", onValue = { requestTemplate() }, fatal = false) { manager.onBackPressed(it) }
     }
 
     // --- the surface the app draws its map into -------------------------------------------
@@ -642,18 +669,25 @@ class CarAppConnection(private val context: Context) {
     /** The route as the app tells clusters about it: steps and how far to each. Null when not navigating. */
     val trip: StateFlow<androidx.car.app.navigation.model.Trip?> = _trip.asStateFlow()
 
-    private val navigationHost = object : INavigationHost.Stub() {
+    /**
+     * One per connected app, like its app host: a map replaced by another (or by the next drive's)
+     * could still send a late trip, which filled the new one's - the cluster and the voice with it.
+     */
+    private fun createNavigationHost(owner: Any) = object : INavigationHost.Stub() {
         override fun navigationStarted() {
+            if (owner !== toastOwner) return
             MyCarLog.i("host: navigation started")
             navigating = true
         }
         override fun navigationEnded() {
+            if (owner !== toastOwner) return
             MyCarLog.i("host: navigation ended")
             navigating = false
             _trip.value = null
             main.post { if (reroute != null) { main.removeCallbacks(sendReroute); sendReroute.run() } }
         }
         override fun updateTrip(trip: Bundleable?) {
+            if (owner !== toastOwner) return
             _trip.value = runCatching { trip?.get() as? androidx.car.app.navigation.model.Trip }.getOrNull()
         }
     }
@@ -723,6 +757,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun createCarHost(owner: Any) = object : ICarHost.Stub() {
         private val appHost = createAppHost(owner)
+        private val navigationHost = createNavigationHost(owner)
 
         override fun getHost(type: String?): IBinder? = when (type) {
             CarContext.APP_SERVICE -> appHost.asBinder()
@@ -750,18 +785,26 @@ class CarAppConnection(private val context: Context) {
 
     /**
      * Every call in this protocol is one-way plus an IOnDoneCallback, so this pairs them back
-     * up and funnels a remote failure into the visible status rather than losing it.
+     * up and funnels a remote failure into the visible status rather than losing it. Not every
+     * failure ends the app: one that isn't [fatal] (a Back press, a day/night change, a
+     * destination it turned down) is only logged - it used to take a working map off the screen.
      */
-    private fun call(name: String, onValue: (Any?) -> Unit, send: (IOnDoneCallback) -> Unit) {
+    private fun call(name: String, onValue: (Any?) -> Unit, fatal: Boolean = true, send: (IOnDoneCallback) -> Unit) {
+        // An answer that comes after the app was let go of belongs to it, not to the one there now.
+        val app = binding
         val callback = object : IOnDoneCallback.Stub() {
             override fun onSuccess(response: Bundleable?) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
-                main.post { onValue(value) }
+                main.post { if (binding === app) onValue(value) }
             }
 
             override fun onFailure(response: Bundleable?) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
-                main.post { fail(Phase.REJECTED, describeFailure(name, value)) }
+                main.post {
+                    if (binding !== app) return@post
+                    if (fatal) fail(Phase.REJECTED, describeFailure(name, value))
+                    else MyCarLog.w("host: ${describeFailure(name, value)} - it keeps running")
+                }
             }
         }
         runCatching { send(callback) }
@@ -789,7 +832,7 @@ class CarAppConnection(private val context: Context) {
         if (_status.value.phase != Phase.RUNNING) return
         if (CarEnvironment.darkOutside.value == sentNight) return
         val configuration = carConfiguration()
-        call("onConfigurationChanged", onValue = { }) { app.onConfigurationChanged(configuration, it) }
+        call("onConfigurationChanged", onValue = { }, fatal = false) { app.onConfigurationChanged(configuration, it) }
     }
 
     private fun carConfiguration(): Configuration {
@@ -813,6 +856,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun fail(phase: Phase, detail: String) {
         clearToasts()
+        _trip.value = null
         MyCarLog.e("host: $detail")
         update { it.copy(phase = phase, detail = detail) }
     }

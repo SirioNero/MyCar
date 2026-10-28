@@ -35,7 +35,7 @@ class MirrorService : Service() {
         }
 
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
-        val data = intent?.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
+        val data = intent?.let { androidx.core.content.IntentCompat.getParcelableExtra(it, EXTRA_RESULT_DATA, Intent::class.java) }
         if (data == null) {
             MyCarLog.e("mirror service started without a consent result")
             stopSelf()
@@ -102,6 +102,9 @@ class MirrorService : Service() {
 
         /** From [start] until the service ends, so [stop] knows there's something to stop. */
         @Volatile private var started = false
+
+        /** The phone's screen is shared with the car, or about to be: it has the one projection Android keeps. */
+        val sharing: Boolean get() = started
 
         /** Redeems a screen-capture consent result for a running capture session. */
         fun start(context: Context, resultCode: Int, data: Intent) {

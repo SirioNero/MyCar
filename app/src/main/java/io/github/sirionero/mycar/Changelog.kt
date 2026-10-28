@@ -11,6 +11,18 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            26, "0.5.13-alpha",
+            listOf(
+                "Plancia and Xonos say why they can't connect: Tailscale leaving myCar out, a Tailscale name that isn't found, or Android 17 keeping myCar off your home network.",
+                "The drive keeps going with the phone locked: myCar stays in the foreground, keeps the phone awake and, over wireless, the Wi-Fi at full speed.",
+                "When the car ends the session, myCar ends it too: the phone's sound comes back and Xonos stops, instead of playing on to nobody.",
+                "A music app that closes no longer leaves the player stuck, and a song already playing on the phone is the one the car shows.",
+                "Voice: \"call\" picks the right contact, \"stop navigation\" ends the route, and the music no longer stays paused after myCar speaks.",
+                "After screen sharing the car's music comes back: Android asks again for the car audio, one question at a time.",
+                "Dozens of smaller fixes: calls, messages, screen sharing, Plancia, the browser and wireless.",
+            ),
+        ),
+        Release(
             25, "0.5.12-alpha",
             listOf(
                 "Plancia and Xonos reach your Home Assistant and Music Assistant at home again, plain http addresses included. On Android 17, myCar needs the Nearby devices permission for your home network, and now asks for it.",

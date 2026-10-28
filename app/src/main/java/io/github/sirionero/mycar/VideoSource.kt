@@ -27,6 +27,8 @@ class VideoSource(
     private val wireless: Boolean = false,
     private val onCodecConfig: (ByteArray) -> Unit,
     private val onFrame: (data: ByteArray, presentationTimeUs: Long, keyFrame: Boolean) -> Unit,
+    /** The encoder died while running (Android took the codec back, or it broke); on its thread. */
+    private val onError: (Throwable) -> Unit = {},
 ) {
     private val log = MyCarLog.tagged("VIDEO")
 
@@ -107,7 +109,13 @@ class VideoSource(
 
         worker = Thread {
             runCatching { pump(encoder) }
-                .onFailure { if (running) log.e("encoder loop failed", it) }
+                .onFailure {
+                    if (running) {
+                        log.e("encoder loop failed", it)
+                        running = false
+                        onError(it)
+                    }
+                }
         }.apply { name = "mycar-encoder"; start() }
     }
 

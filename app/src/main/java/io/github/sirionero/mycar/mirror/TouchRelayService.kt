@@ -95,8 +95,12 @@ class TouchRelayService : AccessibilityService() {
 
     override fun onInterrupt() = reset()
 
+    /** Which touch the callbacks belong to: a new one cancels the gesture still in flight. */
+    private var generation = 0
+
     fun down(x: Float, y: Float) {
         reset()
+        generation++
         val path = Path().apply { moveTo(x, y); lineTo(x, y) }
         val start = GestureDescription.StrokeDescription(path, 0, SEGMENT_MS, true)
         stroke = start
@@ -143,13 +147,18 @@ class TouchRelayService : AccessibilityService() {
     private fun send(description: GestureDescription.StrokeDescription) {
         val gesture = GestureDescription.Builder().addStroke(description).build()
         dispatching = true
+        val touch = generation
         val ok = dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(g: GestureDescription?) {
+                if (touch != generation) return
                 dispatching = false
                 if (lifted && pending == null) reset() else pump()
             }
 
             override fun onCancelled(g: GestureDescription?) {
+                // The touch before, cancelled by this one: its end must not end this one too,
+                // or the new touch's lift is dropped and the finger stays down on the phone.
+                if (touch != generation) return
                 dispatching = false
                 reset()
             }

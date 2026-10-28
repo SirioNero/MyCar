@@ -1,7 +1,5 @@
 package io.github.sirionero.mycar.ui
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -93,7 +91,8 @@ fun UpdateCard() {
                         }
                         if (release.pageUrl.isNotBlank()) {
                             TextButton(onClick = {
-                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(release.pageUrl)))
+                                // No browser for it must not close myCar, and the car's session with it.
+                                MyCarLinks.open(context, release.pageUrl)
                             }) { Text("What's new") }
                         }
                     }

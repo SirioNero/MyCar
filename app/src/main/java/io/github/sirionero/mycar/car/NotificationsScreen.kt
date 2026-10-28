@@ -89,9 +89,12 @@ fun NotificationsSection() {
 
         if (!listening) {
             AccessBanner {
-                context.startActivity(
-                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                )
+                // From the phone's own context: one tied to the car's display can't host the settings.
+                runCatching {
+                    context.applicationContext.startActivity(
+                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    )
+                }
             }
         }
 

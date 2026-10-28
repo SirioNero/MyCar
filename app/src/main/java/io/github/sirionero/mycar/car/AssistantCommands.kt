@@ -30,6 +30,7 @@ object AssistantCommands {
         if (heard.matches(Regex("(fuck|f\\*+) (you|off)( too)?"))) return "Fuck you too."
 
         navigateCommand(context, navigator, frame, heard)?.let { return it }
+        stopRouteCommand(heard)?.let { return it }
         playSearchCommand(context, navigator, heard)?.let { return it }
         mediaCommand(heard)?.let { return it }
         navCommand(navigator, heard)?.let { return it }
@@ -217,6 +218,13 @@ object AssistantCommands {
         return "Looking for $query on $app."
     }
 
+    /** "Stop navigation", "cancel the route": ends the guidance - it used to pause the music. */
+    private fun stopRouteCommand(heard: String): String? {
+        if (!Regex("^(?:stop|end|cancel|quit|exit) (?:the )?(?:navigation|navigating|route|directions|guidance)$").matches(heard)) return null
+        CarServices.nav.stopNavigating()
+        return "Ending the route."
+    }
+
     private fun mediaCommand(heard: String): String? {
         val media = CarServices.media
         return when {
@@ -303,10 +311,26 @@ object AssistantCommands {
         if (name.isBlank()) return "Who should I call?"
         if (!hasCallPermissions(context)) return "myCar needs the phone and contacts permissions first, from the phone screen."
 
-        val match = withContext(Dispatchers.IO) {
-            loadContacts(context).firstOrNull { it.name.lowercase().contains(name) }
-        } ?: return "I couldn't find $name in your contacts."
-
+        // The whole name, then a whole word of it ("Luca" in "Luca Rossi"), and only then a piece
+        // of one: "Luca" used to call "Gianluca", first in alphabetical order.
+        val contacts = withContext(Dispatchers.IO) { loadContacts(context) }
+        fun tier(c: Contact): Int {
+            val full = c.name.lowercase().trim()
+            return when {
+                full == name -> 0
+                " $full ".contains(" $name ") -> 1
+                full.contains(name) -> 2
+                else -> 3
+            }
+        }
+        val best = contacts.minOfOrNull(::tier)?.takeIf { it < 3 } ?: return "I couldn't find $name in your contacts."
+        val matches = contacts.filter { tier(it) == best }
+        val match = matches.first()
+        // Only a piece of a name, or more than one person: the driver confirms on the screen.
+        if (best == 2 || matches.distinctBy { it.name }.size > 1) {
+            CallPrompt.ask(match.name, match.number)
+            return "Call ${match.name}?"
+        }
         placeCall(context, match.number)
         return "Calling ${match.name}."
     }

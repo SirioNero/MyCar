@@ -1,9 +1,6 @@
 package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.car.theme.*
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -105,11 +102,7 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
                 )
             }
             if (state.missingPermission) {
-                GsButton(tone = GsTone.Tonal, onClick = {
-                    context.startActivity(
-                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
-                    )
-                }) { Text("Grant") }
+                GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text("Grant") }
             }
             GsIconButton(Icons.Filled.Close, "Dismiss", CarAssistant::cancel)
         }

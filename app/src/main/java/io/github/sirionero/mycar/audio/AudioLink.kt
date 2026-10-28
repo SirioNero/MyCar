@@ -132,9 +132,12 @@ class AudioLink(
                 configIndex = indices.firstOrNull() ?: 0
                 if (status == STATUS_READY) {
                     configTimer?.interrupt()
-                    ready = true
+                    // Already taken as ready when the car was slow to say so (see CONFIG_WAIT_MS):
+                    // a second onReady asked Android a second time, over the first question. Under
+                    // the lock the timer's useAdvertisedSink takes, so the two can't both go on.
+                    val first = synchronized(this) { val was = ready; ready = true; !was }
                     MyCarLog.i("$tag: sink ready - ${sampleRate}Hz x$channels ${config?.bits}bit")
-                    onReady(this)
+                    if (first) onReady(this)
                 } else {
                     MyCarLog.w(
                         "$tag: the sink is not ready (status=$status, 1=WAIT 2=READY) - " +

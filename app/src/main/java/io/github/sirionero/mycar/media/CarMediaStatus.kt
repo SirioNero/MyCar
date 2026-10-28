@@ -85,7 +85,10 @@ class CarMediaStatus(
     }
 
     private fun sendTrack(now: NowPlaying) {
-        val key = "${now.title}\u0000${now.artist}\u0000${now.album}\u0000${now.durationMs}\u0000${now.art?.generationId}"
+        // The cover by its size and address, not by the Bitmap: each read of the app's metadata is a
+        // new Bitmap, and every playback state change sent the same cover to the car again.
+        val cover = now.art?.let { "${it.width}x${it.height}" }
+        val key = "${now.title}\u0000${now.artist}\u0000${now.album}\u0000${now.durationMs}\u0000$cover\u0000${now.artUri}"
         if (key == sentTrack) return
         sentTrack = key
         var body = Protobuf.stringField(1, now.title) +

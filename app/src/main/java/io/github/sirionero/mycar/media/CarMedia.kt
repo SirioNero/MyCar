@@ -160,7 +160,7 @@ class CarMedia(private val context: Context) {
     enum class Phase { IDLE, CONNECTING, READY, REJECTED }
 
     /** Why a connection was [Phase.REJECTED], so the screen can say something useful. */
-    enum class Rejection { REFUSED, NEEDS_NOTIFICATION_ACCESS, NEEDS_APP_RUNNING }
+    enum class Rejection { REFUSED, NEEDS_NOTIFICATION_ACCESS, NEEDS_APP_RUNNING, KEEPS_CLOSING }
 
     private val _rejection = MutableStateFlow(Rejection.REFUSED)
     val rejection: StateFlow<Rejection> = _rejection.asStateFlow()
@@ -268,8 +268,8 @@ class CarMedia(private val context: Context) {
                 attachToSession(app)
             }
             override fun onConnectionSuspended() {
-                MyCarLog.w("media: ${app.label} went away")
-                _phase.value = Phase.REJECTED
+                // A browser already let go of (the app went away once, or was replaced) is no news.
+                if (browser != null) lost(app, "went away")
             }
         }, null)
         browser = mb
@@ -352,6 +352,44 @@ class CarMedia(private val context: Context) {
         override fun onPlaybackStateChanged(state: PlaybackState?) = update(controller?.metadata, state)
         override fun onQueueChanged(queue: MutableList<MediaSession.QueueItem>?) {
             _queue.value = queueOf(queue)
+        }
+        override fun onSessionDestroyed() {
+            val app = connecting
+            if (controller != null && app != null) lost(app, "closed its session")
+        }
+    }
+
+    private var lostAt = 0L
+    private var lostApp: ComponentName? = null
+
+    /** A new drive: an app that went away in the last one doesn't count against the next. */
+    fun forgetLosses() {
+        lostAt = 0L
+        lostApp = null
+    }
+
+    /**
+     * [app] was closed or crashed: its session is gone, or its service. Forget what it was playing -
+     * its buttons do nothing now - and connect again, as a new tap on it would, which starts its
+     * service again or says it isn't running. An app that goes away again within a minute is left
+     * alone, and the player says so.
+     */
+    private fun lost(app: MediaApp, how: String) {
+        if (connecting != app) return
+        MyCarLog.w("media: ${app.label} $how")
+        val at = SystemClock.elapsedRealtime()
+        // Twice for the same app: another app going away a moment before isn't this one closing again.
+        val again = lostApp != app.component || at - lostAt > RELINK_GAP_MS
+        lostAt = at
+        lostApp = app.component
+        disconnect()
+        connecting = app
+        if (again) {
+            _phase.value = Phase.CONNECTING
+            main.postDelayed({ if (connecting == app) connect(app) }, RELINK_WAIT_MS)
+        } else {
+            _rejection.value = Rejection.KEEPS_CLOSING
+            _phase.value = Phase.REJECTED
         }
     }
 
@@ -770,5 +808,9 @@ class CarMedia(private val context: Context) {
         /** How long an app gets to start playing a search before myCar says it didn't. */
         const val SEARCH_WAIT_MS = 6_000L
         const val SEARCH_NOTICE_MS = 6_000L
+        /** How soon after an app went away to connect to it again. */
+        const val RELINK_WAIT_MS = 1_000L
+        /** An app that goes away twice within this keeps closing: no more reconnecting. */
+        const val RELINK_GAP_MS = 60_000L
     }
 }

@@ -29,12 +29,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
 import io.github.sirionero.mycar.xonos.data.Account
 import io.github.sirionero.mycar.xonos.data.Settings
 import io.github.sirionero.mycar.xonos.describe
+import io.github.sirionero.mycar.xonos.networkFailure
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,7 +76,7 @@ internal fun XonosSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    if (LocalNetwork.blocks(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(context, e)}"
+                    "$place: " + Tailnet.why(context, listOf(url), networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
                 } finally {
                     client.close()
                 }
@@ -165,7 +166,17 @@ internal fun XonosSection() {
                     askLocalNetwork(listOf(url)) {
                         scope.launch {
                             try {
-                                val login = Account(Xonos.repo).login(url, username.trim(), password, "myCar (${Build.MODEL})")
+                                val device = "myCar (${Build.MODEL})"
+                                val login = try {
+                                    Account(Xonos.repo).login(url, username.trim(), password, device)
+                                } catch (e: Exception) {
+                                    // Away from home the home address can't answer: the one away is
+                                    // tried too, in the order the drive uses.
+                                    val away = remoteUrl.isNotBlank() && remoteUrl != url && e !is CancellationException &&
+                                        networkFailure(e) != Tailnet.Failure.OTHER
+                                    if (!away) throw e
+                                    Account(Xonos.repo).login(remoteUrl, username.trim(), password, device)
+                                }
                                 password = ""
                                 val config = Settings.Config(homeUrl, remoteUrl, login.token)
                                 Xonos.save(context, config, login.user)
@@ -173,14 +184,14 @@ internal fun XonosSection() {
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
-                                status = if (LocalNetwork.blocks(context, listOf(url))) LOCAL_NETWORK_REFUSED else describe(context, e)
+                                status = Tailnet.why(context, listOf(homeUrl, remoteUrl).filter { it.isNotBlank() }, networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
                             }
                         }
                     }
                 }) { Text("Sign in") }
                 if (setUp) {
                     TextButton(onClick = {
-                        Xonos.save(context, Settings.Config("", "", ""), null)
+                        Xonos.remove(context)
                         status = "Xonos is off in myCar: the Xonos app is back in the car, if it's on the phone."
                     }) { Text("Remove") }
                 }

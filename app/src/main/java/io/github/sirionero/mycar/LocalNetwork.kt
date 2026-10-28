@@ -27,6 +27,14 @@ object LocalNetwork {
     /** Whether some of [urls] lead into the home network, which myCar may not reach now. */
     fun blocks(context: Context, urls: List<String>): Boolean = !allowed(context) && urls.any(::isLocal)
 
+    /**
+     * Whether Home Assistant or Music Assistant at [urls] may be out of myCar's reach now: on
+     * Android 17, without the permission, any of their addresses can be at home. Android goes by
+     * the address a name leads to, and homeassistant.lan, ha.fritz.box or one of the driver's own
+     * domains that the router answers with 192.168... look no different from the internet here.
+     */
+    fun mayBlock(context: Context, urls: List<String>): Boolean = !allowed(context) && urls.any { it.isNotBlank() }
+
     /** Asking when the phone's screen opens, once a run: the settings show the rest. */
     @Volatile var askedAtStart = false
 
@@ -42,6 +50,9 @@ object LocalNetwork {
         val host = runCatching { URI(url.trim()).host }.getOrNull()
             ?.removeSurrounding("[", "]")?.lowercase()?.trimEnd('.')
         if (host.isNullOrEmpty()) return false
+        // Tailscale's addresses go through its VPN, which Android 17 doesn't guard (fd7a:... is a
+        // unique local address only in name).
+        if (Tailnet.isTailnetAddress(host)) return false
         if (host.endsWith(".local") || ('.' !in host && ':' !in host)) return true
         return if (':' in host) localIpv6(host) else privateIpv4(host)
     }

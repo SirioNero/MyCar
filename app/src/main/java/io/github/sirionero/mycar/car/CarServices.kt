@@ -58,6 +58,13 @@ object CarServices {
     private val _hasNavApps = MutableStateFlow(true)
     val hasNavApps: StateFlow<Boolean> = _hasNavApps.asStateFlow()
 
+    /**
+     * True once the drive's first [autostart] has picked its music app: what's playing on the
+     * phone, or the app used last. A music app beside the map waits for this before it opens.
+     */
+    private val _mediaDecided = MutableStateFlow(false)
+    val mediaDecided: StateFlow<Boolean> = _mediaDecided.asStateFlow()
+
     /** Set when the driver stops the map by hand, so going Home doesn't immediately restart it. */
     private var navStopped = false
 
@@ -65,8 +72,17 @@ object CarServices {
     val navStoppedByDriver: Boolean get() = navStopped
     private var autoplayPending = false
 
+    /**
+     * Who holds the drive's services: the car session itself and each car UI composed (the car's,
+     * and the phone's preview of it). They go only when the last lets go: a car UI torn down for
+     * screen sharing, or the preview closed mid-drive, used to end them all - the map unhooked,
+     * Plancia and Xonos gone - in the middle of a drive.
+     */
+    private var holders = 0
+
     fun init(appContext: Context) {
         context = appContext.applicationContext
+        if (holders++ > 0) return
         io.github.sirionero.mycar.notify.CarMotion.start(appContext)
         io.github.sirionero.mycar.call.CarCalls.start(appContext, inCar = true)
         CarAssistant.init(appContext)
@@ -97,14 +113,25 @@ object CarServices {
     fun connectNav(app: TemplateApp, frame: CarEnvironment.Frame, destination: String? = null) {
         navStopped = false
         CarSettings.setLastNav(app.component.flattenToString())
-        if (destination != null && nav.connectedComponent == app.component) {
+        val same = nav.connectedComponent == app.component
+        if (destination != null && same && nav.status.value.phase in LIVE) {
             nav.navigateTo(destination)
+        } else if (destination == null && same && nav.status.value.phase in LIVE) {
+            // Already there ("show me the map" to the assistant): connecting again would end the
+            // route being driven.
+            return
         } else {
             // Another map app taking over ends the old one's route, or it keeps guiding unseen.
             if (nav.connectedComponent != app.component) endRoute()
             nav.connect(app, frame.width, frame.height, frame.densityDpi, destination)
         }
     }
+
+    private val LIVE = setOf(
+        CarAppConnection.Phase.BINDING,
+        CarAppConnection.Phase.HANDSHAKE,
+        CarAppConnection.Phase.RUNNING,
+    )
 
     fun stopNav() {
         navStopped = true
@@ -119,27 +146,60 @@ object CarServices {
     /** Undoes [stopNav]'s hold so the last map app comes back, same as it would after a restart. */
     suspend fun reconnectNav(frame: CarEnvironment.Frame) {
         navStopped = false
-        autostart(frame)
+        // The map only: a music app the driver closed stays closed.
+        autostart(frame, withMedia = false)
     }
 
     // --- browse (non-navigation templated apps) -------------------------------------------
 
     /** Opens a templated app that isn't navigation, on its own screen - never on Home. */
     fun connectBrowse(app: TemplateApp, frame: CarEnvironment.Frame) {
+        closedBrowse = closedBrowse - app.component
+        // Already open ("open Plancia" to the assistant, with it beside the map): connecting again
+        // threw away the screens the driver had opened in it.
+        if (browse.connectedComponent == app.component && browse.status.value.phase in LIVE) return
         browse.connect(app, frame.width, frame.height, frame.densityDpi)
     }
 
     fun stopBrowse() {
+        browse.connectedComponent?.let { closedBrowse = closedBrowse + it }
         browse.disconnect()
     }
 
+    /**
+     * The templated app the driver closed, from its menu or its Stop button. The panes that
+     * start their app by themselves (beside the map, on a page) leave this one closed until it's
+     * asked for: coming back to Home used to start it straight up again.
+     */
+    var closedBrowse: Set<ComponentName> = emptySet()
+        private set
+
     // --- media ---------------------------------------------------------------------------
 
-    fun openMedia(app: MediaApp, autoplay: Boolean = false) {
-        CarSettings.setLastMedia(app.component.flattenToString())
+    /**
+     * The music app open now is the drive's own pick ([autostart]), not one the driver chose: the
+     * app beside the map may take its place if it doesn't connect.
+     */
+    var mediaAutoPicked = false
+        private set
+
+    /**
+     * [remember]: false when nobody chose it - the app beside the map, opened to show its player -
+     * so the next drive still starts with the app the driver last used. [auto]: the drive's pick.
+     */
+    fun openMedia(app: MediaApp, autoplay: Boolean = false, remember: Boolean = true, auto: Boolean = false) {
+        if (remember) CarSettings.setLastMedia(app.component.flattenToString())
+        closedMedia = null
+        mediaAutoPicked = auto
         val phase = media.phase.value
         val live = phase == CarMedia.Phase.READY || phase == CarMedia.Phase.CONNECTING
         if (_mediaApp.value?.component == app.component && live) return
+
+        // Xonos inside myCar, left for another music app: paused here. Without the audio focus
+        // (refused in the background on Android 17) nothing else tells it, and straight into the
+        // car's channel it kept the car's sound from the new app.
+        val previous = _mediaApp.value
+        if (previous != null && Xonos.isInside(previous.component) && media.now.value.playing) media.togglePlay()
 
         _mediaApp.value = app
         autoplayPending = autoplay
@@ -163,7 +223,13 @@ object CarServices {
     }
 
     /** Closes the media app from the car: stops what it's playing and drops the connection. */
+    /** The music app the driver closed from its menu; the app beside the map doesn't reopen it by itself. */
+    var closedMedia: ComponentName? = null
+        private set
+
     fun closeMedia() {
+        closedMedia = _mediaApp.value?.component
+        mediaAutoPicked = false
         if (media.now.value.playing) media.togglePlay()
         media.disconnect()
         _mediaApp.value = null
@@ -180,7 +246,7 @@ object CarServices {
     // --- start and stop ------------------------------------------------------------------
 
     /** Brings back whatever was in use last time. Safe to call repeatedly. */
-    suspend fun autostart(frame: CarEnvironment.Frame) {
+    suspend fun autostart(frame: CarEnvironment.Frame, withMedia: Boolean = true) {
         val ctx = context ?: return
 
         if (!navStopped && nav.status.value.phase == CarAppConnection.Phase.IDLE) {
@@ -199,6 +265,9 @@ object CarServices {
             if (app != null) connectNav(app, frame)
         }
 
+        // Once per drive: a car UI made again (after screen sharing, a new encoder) used to reopen
+        // the music app the driver had closed - and with Autoplay, start it.
+        if (!withMedia || _mediaDecided.value) return
         if (_mediaApp.value == null) {
             val catalog = withContext(Dispatchers.IO) { MediaCatalog.installed(ctx) }
             // Something already playing on the phone wins over whatever was last used in the car -
@@ -206,13 +275,14 @@ object CarServices {
             // hand just to see what's already going.
             val playing = withContext(Dispatchers.IO) { currentlyPlaying(ctx, catalog) }
             if (playing != null) {
-                openMedia(playing)
+                openMedia(playing, auto = true)
             } else {
                 val last = CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString)
                 val app = last?.let { component -> catalog.firstOrNull { it.component == component } ?: xonosFor(component, catalog) }
-                if (app != null) openMedia(app, autoplay = CarSettings.autoplay.value)
+                if (app != null) openMedia(app, autoplay = CarSettings.autoplay.value, auto = true)
             }
         }
+        _mediaDecided.value = true
     }
 
     /**
@@ -246,7 +316,7 @@ object CarServices {
             return null
         }
         val playingPackages = sessions
-            .filter { it.playbackState?.state == PlaybackState.STATE_PLAYING }
+            .filter { it.playbackState?.state in SOUNDING }
             .map { it.packageName }
         return playingPackages.firstNotNullOfOrNull { pkg -> catalog.firstOrNull { it.component.packageName == pkg } }
     }
@@ -257,17 +327,25 @@ object CarServices {
      * headphones are, so the apps won't pause themselves. Every playing session is paused, not
      * just the one myCar opened: anything the car was playing was going through the car.
      */
-    fun pausePhoneMedia(why: String = "the car left") {
+    /**
+     * Playing, or about to: a stream filling its buffer (after a skip, in a tunnel) starts sounding a
+     * moment later - out of the phone's speaker, once the car has gone.
+     */
+    private val SOUNDING = setOf(PlaybackState.STATE_PLAYING, PlaybackState.STATE_BUFFERING)
+
+    fun pausePhoneMedia(why: String = "the car left", keep: String? = null) {
         val ctx = context ?: return
         val manager = ctx.getSystemService(MediaSessionManager::class.java)
         val listener = ComponentName(ctx, MyCarNotificationListener::class.java)
         val playing = try {
-            manager.getActiveSessions(listener).filter { it.playbackState?.state == PlaybackState.STATE_PLAYING }
+            manager.getActiveSessions(listener).filter { it.playbackState?.state in SOUNDING && it.packageName != keep }
         } catch (e: SecurityException) {
             null
         }
         if (playing == null) {
-            // No notification access: the app myCar itself is driving is all it can reach.
+            // No notification access: the app myCar itself is driving is all it can reach - unless
+            // it's the one kept (Xonos inside myCar, which screen sharing doesn't silence).
+            if (keep != null && _mediaApp.value?.component?.packageName == keep) return
             mediaOrNull()?.let { if (it.now.value.playing) it.togglePlay() }
             return
         }
@@ -279,6 +357,7 @@ object CarServices {
 
     /** The car went away: nothing should keep running for a screen that no longer exists. */
     fun shutdown() {
+        if (holders == 0 || --holders > 0) return
         context?.let { io.github.sirionero.mycar.notify.CarMotion.stop(it) }
         io.github.sirionero.mycar.call.CarCalls.stop()
         runCatching { nav.disconnect() }
@@ -290,6 +369,14 @@ object CarServices {
         io.github.sirionero.mycar.speech.SpeechEngine.unload()
         CarAudio.release()
         _mediaApp.value = null
+        _mediaDecided.value = false
+        mediaAutoPicked = false
+        closedBrowse = emptySet()
+        closedMedia = null
+        // A call waiting to be confirmed belongs to this drive, not to the car's next arrival.
+        CallPrompt.pending.value = null
+        media.forgetLosses()
+        clearSectionCache()
         navStopped = false
     }
 }
