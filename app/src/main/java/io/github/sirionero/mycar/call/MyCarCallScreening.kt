@@ -47,10 +47,9 @@ class MyCarCallScreening : CallScreeningService() {
             }
         }
 
-        CarCalls.incomingCall(applicationContext, number, respond)
-
         // Answer for the system if nobody has by the time its own patience runs out, so a call
-        // myCar is slow to show never gets silently blocked.
+        // myCar is slow to show never gets silently blocked. Counted from here, before the card
+        // (which looks the caller up in the contacts) takes its share of the system's five seconds.
         mainThreadDelay(SCREENING_WINDOW_MS) {
             // Already answered or declined from the car: that call is settled, and the card may
             // belong to a newer one by now.
@@ -58,6 +57,8 @@ class MyCarCallScreening : CallScreeningService() {
             respond(true)
             CarCalls.screeningExpired(respond)
         }
+
+        CarCalls.incomingCall(applicationContext, number, respond)
     }
 
     private companion object {
