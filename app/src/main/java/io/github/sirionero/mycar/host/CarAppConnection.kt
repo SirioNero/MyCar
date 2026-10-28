@@ -340,7 +340,7 @@ class CarAppConnection(private val context: Context) {
     private fun sendDestination(destination: String) {
         val app = carApp ?: return
         autoRoute.arm()
-        call("onNewIntent", onValue = {}) {
+        call("onNewIntent", onValue = {}, fatal = false) {
             app.onNewIntent(navigateIntent(destination), it)
         }
     }
@@ -429,7 +429,7 @@ class CarAppConnection(private val context: Context) {
             _template.value = template
             update { it.copy(template = template.javaClass.simpleName) }
             autoRoute.onTemplate(template)
-        }) { manager.getTemplate(it) }
+        }, fatal = _template.value == null) { manager.getTemplate(it) }
     }
 
     private val _panMode = MutableStateFlow(false)
@@ -455,7 +455,7 @@ class CarAppConnection(private val context: Context) {
     fun backPressed() {
         val manager = appManager ?: return
         MyCarLog.i("host: back pressed")
-        call("onBackPressed", onValue = { requestTemplate() }) { manager.onBackPressed(it) }
+        call("onBackPressed", onValue = { requestTemplate() }, fatal = false) { manager.onBackPressed(it) }
     }
 
     // --- the surface the app draws its map into -------------------------------------------
@@ -753,9 +753,11 @@ class CarAppConnection(private val context: Context) {
 
     /**
      * Every call in this protocol is one-way plus an IOnDoneCallback, so this pairs them back
-     * up and funnels a remote failure into the visible status rather than losing it.
+     * up and funnels a remote failure into the visible status rather than losing it. Not every
+     * failure ends the app: one that isn't [fatal] (a Back press, a day/night change, a
+     * destination it turned down) is only logged - it used to take a working map off the screen.
      */
-    private fun call(name: String, onValue: (Any?) -> Unit, send: (IOnDoneCallback) -> Unit) {
+    private fun call(name: String, onValue: (Any?) -> Unit, fatal: Boolean = true, send: (IOnDoneCallback) -> Unit) {
         val callback = object : IOnDoneCallback.Stub() {
             override fun onSuccess(response: Bundleable?) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
@@ -764,7 +766,10 @@ class CarAppConnection(private val context: Context) {
 
             override fun onFailure(response: Bundleable?) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
-                main.post { fail(Phase.REJECTED, describeFailure(name, value)) }
+                main.post {
+                    if (fatal) fail(Phase.REJECTED, describeFailure(name, value))
+                    else MyCarLog.w("host: ${describeFailure(name, value)} - it keeps running")
+                }
             }
         }
         runCatching { send(callback) }
@@ -792,7 +797,7 @@ class CarAppConnection(private val context: Context) {
         if (_status.value.phase != Phase.RUNNING) return
         if (CarEnvironment.darkOutside.value == sentNight) return
         val configuration = carConfiguration()
-        call("onConfigurationChanged", onValue = { }) { app.onConfigurationChanged(configuration, it) }
+        call("onConfigurationChanged", onValue = { }, fatal = false) { app.onConfigurationChanged(configuration, it) }
     }
 
     private fun carConfiguration(): Configuration {
