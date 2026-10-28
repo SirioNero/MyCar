@@ -411,7 +411,12 @@ Tutti i token in un solo posto, `car/design/`:
   anteprima non li smontano. La musica si sceglie una volta per viaggio (`mediaDecided`); le app
   chiuse dal guidatore restano chiuse (`closedBrowse`, `closedMedia`). Le domande di Android
   (audio, condivisione schermo) chieste a telefono bloccato aspettano myCar aperta (`onResume`) e
-  l'auto lo dice.
+  l'auto lo dice. Una domanda alla volta (`questionUp`): Android tiene una sola proiezione, e la
+  seconda accettata chiudeva la prima. Durante la condivisione schermo la domanda dell'audio non
+  si fa (`MirrorService.sharing`, `CarAudio.askLater`) e la cattura fermata dalla condivisione
+  non riparte né richiede: a fine condivisione la chiede `CarUi`. Accanto alla mappa l'app musicale
+  prende il posto solo della scelta automatica del viaggio quando non si collega
+  (`mediaAutoPicked`), mai di un'app scelta dal guidatore.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.

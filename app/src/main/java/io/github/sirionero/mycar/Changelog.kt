@@ -18,6 +18,7 @@ object Changelog {
                 "When the car ends the session, myCar ends it too: the phone's sound comes back and Xonos stops, instead of playing on to nobody.",
                 "A music app that closes no longer leaves the player stuck, and a song already playing on the phone is the one the car shows.",
                 "Voice: \"call\" picks the right contact, \"stop navigation\" ends the route, and the music no longer stays paused after myCar speaks.",
+                "After screen sharing the car's music comes back: Android asks again for the car audio, one question at a time.",
                 "Dozens of smaller fixes: calls, messages, screen sharing, Plancia, the browser and wireless.",
             ),
         ),
