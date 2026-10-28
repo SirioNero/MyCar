@@ -170,6 +170,17 @@ fun CarUi() {
         }
     }
 
+    // A "play X" the music app played nothing for (Spotify ignores most): said here when the
+    // player's screen isn't up to say it. On Home, "Looking for X on Spotify." was the last word.
+    LaunchedEffect(navigator) {
+        CarServices.media.search.collect { search ->
+            if (search != null && search.ignored && navigator.current != CarScreen.Media) {
+                val app = CarServices.media.appLabel ?: "The music app"
+                CarToasts.show(CarServices, "$app didn't play anything for “${search.query}”", androidx.car.app.CarToast.LENGTH_LONG)
+            }
+        }
+    }
+
     // The car's own back, home, map, media and phone keys.
     LaunchedEffect(navigator) {
         CarKeys.screenKeys.collect { key ->
