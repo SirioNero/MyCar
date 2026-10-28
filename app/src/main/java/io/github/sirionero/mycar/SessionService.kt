@@ -8,7 +8,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.net.wifi.WifiManager
 import android.os.IBinder
+import android.os.PowerManager
 
 /**
  * Keeps the drive in the foreground while the phone's screen is elsewhere, for as long as a car is
@@ -39,6 +41,7 @@ class SessionService : Service() {
         }.onSuccess {
             running = true
             MyCarLog.i("session: in the foreground for the drive")
+            hold(intent?.getBooleanExtra(EXTRA_WIRELESS, false) == true)
         }.onFailure {
             MyCarLog.w("session: couldn't keep the drive in the foreground - ${it.message}")
             stopSelf()
@@ -48,19 +51,51 @@ class SessionService : Service() {
 
     override fun onDestroy() {
         running = false
+        runCatching { wakeLock?.release() }
+        runCatching { wifiLock?.release() }
+        wakeLock = null
+        wifiLock = null
         super.onDestroy()
+    }
+
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
+
+    /**
+     * Keeps the phone awake for the drive, and its Wi-Fi at full speed when that's the link to the
+     * car. With the screen off and nothing playing through the phone, it could doze between two
+     * frames: picture and touches stuttered until the car gave up. The cable mostly kept it awake;
+     * the car's Wi-Fi doesn't.
+     */
+    @Suppress("DEPRECATION") // WIFI_MODE_FULL_HIGH_PERF: still keeps the Wi-Fi out of power saving
+    private fun hold(wireless: Boolean) {
+        if (wakeLock == null) {
+            wakeLock = runCatching {
+                getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "myCar:drive")
+                    .apply { setReferenceCounted(false); acquire() }
+            }.getOrNull()
+        }
+        if (wireless && wifiLock == null) {
+            wifiLock = runCatching {
+                applicationContext.getSystemService(WifiManager::class.java)
+                    .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "myCar:drive")
+                    .apply { setReferenceCounted(false); acquire() }
+            }.getOrNull()
+        }
     }
 
     companion object {
         private const val CHANNEL = "mycar_session"
         private const val NOTIFICATION_ID = 45
+        private const val EXTRA_WIRELESS = "wireless"
 
         @Volatile var running = false
             private set
 
         /** A car connected: called while myCar is on screen, as its arrival opens it. */
-        fun start(context: Context) {
-            runCatching { context.startForegroundService(Intent(context, SessionService::class.java)) }
+        fun start(context: Context, wireless: Boolean = false) {
+            val intent = Intent(context, SessionService::class.java).putExtra(EXTRA_WIRELESS, wireless)
+            runCatching { context.startForegroundService(intent) }
                 .onFailure { MyCarLog.w("session: Android won't start the drive's foreground service now - ${it.message}") }
         }
 

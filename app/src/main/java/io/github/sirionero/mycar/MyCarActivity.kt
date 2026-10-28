@@ -483,7 +483,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         )
         this.runner = runner
         worker = runSession(runner)
-        SessionService.start(this)
+        SessionService.start(this, wireless = true)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
