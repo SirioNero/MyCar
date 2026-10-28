@@ -275,7 +275,15 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
                 icon = glyph(Icons.Filled.Email),
                 actionLabel = "Open notification access",
                 onAction = {
-                    context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                    // Phones without that screen: the app's own settings instead of a crash.
+                    runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+                        .onFailure {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", context.packageName, null)),
+                                )
+                            }
+                        }
                 },
             ),
         )
