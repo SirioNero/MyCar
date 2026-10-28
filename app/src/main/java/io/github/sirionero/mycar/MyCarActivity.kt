@@ -212,6 +212,9 @@ class MyCarActivity : ComponentActivity(), Projection {
             }
         }
         CarSettings.init(this)
+        // Before the car lists its services, which comes before the car's screen starts the drive's
+        // services: the first drive of a process never offered to pair (no context to look with).
+        io.github.sirionero.mycar.car.CarBluetooth.init(applicationContext)
         CertRotation.init(this)
         AppSettings.applyMyCarEnabled(this)
         // A capture that died without tidying up would leave notifications exposed to every
