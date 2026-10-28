@@ -1416,8 +1416,10 @@ class MyCarRunner(
                     // of whether we think one is owed. Protects against any future case where
                     // our own drop/resync bookkeeping is wrong or a corruption slips through
                     // some other path - a real decoder desync should never outlive this.
+                    // Not while the car shows its own screen: those frames are thrown away, and
+                    // its return asks for a keyframe of its own.
                     val idleSinceKeyframe = System.currentTimeMillis() - lastKeyframeSentAt
-                    if (idleSinceKeyframe > PERIODIC_KEYFRAME_MS) {
+                    if (videoProjected && idleSinceKeyframe > PERIODIC_KEYFRAME_MS) {
                         videoSource?.requestSyncFrame()
                     }
                 }
