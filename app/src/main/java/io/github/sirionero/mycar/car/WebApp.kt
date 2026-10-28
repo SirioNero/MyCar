@@ -217,18 +217,19 @@ internal class FieldFocusBridge(private val onFocus: (String) -> Unit, private v
 internal fun setFieldValueJs(value: String) = """
     (function() {
         var el = document.activeElement;
+        while (el && el.shadowRoot && el.shadowRoot.activeElement) el = el.shadowRoot.activeElement;
         if (!el) return;
         // A box that's an editable element rather than a field (many search boxes): it has no
         // value, and the field setter on it threw - nothing the driver typed arrived.
         if (el.isContentEditable) {
             el.textContent = ${JSONObject.quote(value)};
-            el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+            el.dispatchEvent(new InputEvent('input', { bubbles: true, composed: true }));
             return;
         }
         var proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
         var setter = Object.getOwnPropertyDescriptor(proto, 'value');
         if (setter && setter.set) { setter.set.call(el, ${JSONObject.quote(value)}); } else { el.value = ${JSONObject.quote(value)}; }
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
     })();
 """.trimIndent()
@@ -238,14 +239,16 @@ internal fun setFieldValueJs(value: String) = """
 // search-as-you-type page and a plain <form> both work without submitting twice.
 // Dismissing the host keyboard without blurring the page's own field would leave it focused,
 // so the next tap anywhere with a text cursor pops the keyboard straight back up.
-internal const val BLUR_FIELD_JS = "document.activeElement && document.activeElement.blur();"
+internal const val BLUR_FIELD_JS = "(function() { var a = document.activeElement; " +
+    "while (a && a.shadowRoot && a.shadowRoot.activeElement) a = a.shadowRoot.activeElement; if (a) a.blur(); })();"
 
 internal const val SUBMIT_FIELD_JS = """
     (function() {
         var el = document.activeElement;
+        while (el && el.shadowRoot && el.shadowRoot.activeElement) el = el.shadowRoot.activeElement;
         if (!el) return;
         var enter = new KeyboardEvent('keydown', {
-            key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true,
+            key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true, composed: true,
         });
         var notHandled = el.dispatchEvent(enter);
         if (notHandled && el.form) {
@@ -271,6 +274,9 @@ internal fun focusRingJs(color: String) = """
 /** Reports focus/blur on text inputs, textareas and contenteditable elements to [FieldFocusBridge]. */
 internal const val FOCUS_TRACKING_JS = """
     (function() {
+        // Once a page: onPageFinished can come more than once for the same one.
+        if (window.__mycarField) return;
+        window.__mycarField = true;
         function isEditable(el) {
             if (!el) return false;
             var tag = el.tagName;
@@ -280,11 +286,44 @@ internal const val FOCUS_TRACKING_JS = """
             var skip = ['button', 'submit', 'checkbox', 'radio', 'range', 'color', 'file', 'image', 'reset'];
             return skip.indexOf((el.type || 'text').toLowerCase()) === -1;
         }
+        // The field itself, also inside a web component (its shadow root): the event's first target.
+        function fieldOf(e) { return e.composedPath ? e.composedPath()[0] : e.target; }
+        function deepActive() {
+            var a = document.activeElement;
+            while (a && a.shadowRoot && a.shadowRoot.activeElement) a = a.shadowRoot.activeElement;
+            return a;
+        }
+        var shown = null;
+        function report(el) {
+            shown = el;
+            window.MyCarField.focused(el.isContentEditable ? (el.innerText || '') : (el.value || ''));
+            // The car's keyboard takes the bottom of the screen and the page gets shorter: the
+            // field comes back into view once it has (the web engine does it only for the
+            // phone's own keyboard).
+            var vv = window.visualViewport;
+            if (!vv) return;
+            var reveal = function() {
+                vv.removeEventListener('resize', reveal);
+                if (deepActive() === el) el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            };
+            vv.addEventListener('resize', reveal);
+            setTimeout(function() { vv.removeEventListener('resize', reveal); }, 1500);
+        }
         document.addEventListener('focusin', function(e) {
-            if (isEditable(e.target)) window.MyCarField.focused(e.target.isContentEditable ? (e.target.innerText || '') : (e.target.value || ''));
+            var el = fieldOf(e);
+            if (isEditable(el)) report(el);
         });
         document.addEventListener('focusout', function(e) {
-            if (isEditable(e.target)) window.MyCarField.blurred();
+            if (isEditable(fieldOf(e))) {
+                shown = null;
+                window.MyCarField.blurred();
+            }
         });
+        // A field focused before this script ran (autofocus, a tap while the page loaded) gets
+        // no new focusin when tapped: the tap brings the keyboard up instead.
+        document.addEventListener('click', function(e) {
+            var el = fieldOf(e);
+            if (el !== shown && isEditable(el) && deepActive() === el) report(el);
+        }, true);
     })();
 """
