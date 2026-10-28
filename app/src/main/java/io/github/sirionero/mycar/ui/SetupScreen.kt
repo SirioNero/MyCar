@@ -469,8 +469,10 @@ private fun StepCard(
 ) {
     val scheme = MaterialTheme.colorScheme
     val requester = remember { BringIntoViewRequester() }
-    // The step the big button does next comes into sight, so its words are read before it's done.
-    if (emphasized) LaunchedEffect(Unit) { requester.bringIntoView() }
+    // The step the big button does next comes into sight, so its words are read before it's done:
+    // when it becomes the next one, not on opening the list, which starts at its title.
+    val emphasizedAtStart = remember { emphasized }
+    if (emphasized && !emphasizedAtStart) LaunchedEffect(Unit) { requester.bringIntoView() }
     Surface(
         color = scheme.surfaceContainerHigh,
         shape = MaterialTheme.shapes.extraLarge,
