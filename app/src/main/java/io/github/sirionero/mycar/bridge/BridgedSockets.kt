@@ -77,17 +77,17 @@ internal class BridgedSocket(private val bridge: AppBridge) : Socket() {
             logRefused(bridge, host, address.port, e)
             throw e
         }
-        try {
+        val inner = try {
             ServerSocket(0, 1, InetAddress.getLoopbackAddress()).use { listener ->
                 listener.soTimeout = ACCEPT_MS
                 super.connect(listener.localSocketAddress, timeout)
-                val inner = listener.accept()
+                val accepted = listener.accept()
                 // Only this socket's own connection: anything else on the phone that got in first is turned away.
-                if (inner.port != localPort) {
-                    runCatching { inner.close() }
+                if (accepted.port != localPort) {
+                    runCatching { accepted.close() }
                     throw IOException("the bridge's local connection wasn't myCar's")
                 }
-                relay(inner, tunnel) { bridge.closed() }
+                accepted
             }
         } catch (e: IOException) {
             runCatching { tunnel.close() }
@@ -95,6 +95,7 @@ internal class BridgedSocket(private val bridge: AppBridge) : Socket() {
             runCatching { close() }
             throw e
         }
+        relay(inner, tunnel) { bridge.closed() }
     }
 
     private companion object {
