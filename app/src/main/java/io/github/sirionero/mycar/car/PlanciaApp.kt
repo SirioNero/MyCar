@@ -54,6 +54,8 @@ import io.github.sirionero.mycar.home.Dashboard
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
 import io.github.sirionero.mycar.home.Panels
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 
 /*
  * Plancia, Home Assistant in the car, as one of myCar's own apps: full screen from the app grid,
@@ -111,8 +113,10 @@ private fun connectingHint(context: Context, url: String): String? = when {
 
 /** What to say over the page while it can't show, as a title and a line; null once it shows. */
 private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, blocked: String?): Pair<String, String?>? = when {
-    connection is HaConnection.NotConfigured || page == null ->
+    connection is HaConnection.NotConfigured ->
         "Set up Plancia on the phone" to "In myCar on the phone: Settings, then Plancia - your Home Assistant's address and a token."
+    // Set up, but the dashboard is made a moment after the car connects (PLANCIA_AFTER_MS).
+    page == null -> "Connecting to Home Assistant" to null
     page.error != null -> "Couldn't open the dashboard" to "${page.error}\nTap to try again."
     page.base != null -> null
     connection is HaConnection.Failed -> "Home Assistant isn't answering" to connection.message
@@ -128,6 +132,10 @@ internal fun PlanciaScreen() {
     val menu = web?.menu?.collectAsState()?.value == true
     val dashboards by HomeAssistant.dashboards.collectAsState()
     val haDefault by HomeAssistant.haDefault.collectAsState()
+    // Leaving Plancia closes its menu: nothing stays open out of sight.
+    DisposableEffect(web) {
+        onDispose { web?.closeMenu() }
+    }
     // Back closes the menu, then steps back inside the page, then leaves.
     DisposableEffect(web, menu) {
         navigator.backInterceptor = {
@@ -347,13 +355,18 @@ internal fun PlanciaPane(modifier: Modifier) {
     }
 }
 
-/** Where the dashboard has little room, its menu opens with Plancia full screen. */
+/**
+ * Where the dashboard has little room, its menu opens with Plancia full screen. Only a menu that
+ * opens here, though: one left open when Plancia closed pulled the driver back to it every time
+ * the Home showed - right as a route started, too.
+ */
 @Composable
 private fun MenuOpensFullScreen(web: PlanciaWeb?) {
     val navigator = LocalCarNavigator.current
-    val menu = web?.menu?.collectAsState()?.value == true
-    LaunchedEffect(menu) {
-        if (menu && navigator.current != CarScreen.App(BuiltInApps.Plancia.id)) navigator.open(BuiltInApps.Plancia.id)
+    LaunchedEffect(web) {
+        web?.menu?.drop(1)?.filter { it }?.collect {
+            if (navigator.current != CarScreen.App(BuiltInApps.Plancia.id)) navigator.open(BuiltInApps.Plancia.id)
+        }
     }
 }
 
