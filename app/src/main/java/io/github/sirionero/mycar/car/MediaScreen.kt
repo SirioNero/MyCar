@@ -596,7 +596,9 @@ private fun BrowsePanel(browse: io.github.sirionero.mycar.media.BrowseState, med
             browse.failed -> Notice("Could not load this list.", null)
             browse.entries.isEmpty() -> Notice("Nothing here.", null)
             else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(browse.entries, key = { it.id }) { entry -> EntryRow(entry, media) }
+                // A list can hold the same item twice (a song twice in a playlist): its id alone as
+                // the key made Compose throw, and myCar went down with the drive.
+                itemsIndexed(browse.entries, key = { i, entry -> "$i|${entry.id}" }) { _, entry -> EntryRow(entry, media) }
             }
         }
     }
@@ -624,7 +626,7 @@ private fun QueuePanel(queue: List<QueueTrack>, now: NowPlaying, media: CarMedia
             )
         } else {
             LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(upNext, key = { it.queueId }) { track -> QueueRow(track, media) }
+                itemsIndexed(upNext, key = { i, track -> "$i|${track.queueId}" }) { _, track -> QueueRow(track, media) }
             }
         }
     }
