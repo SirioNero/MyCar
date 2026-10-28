@@ -370,9 +370,24 @@ class MyCarActivity : ComponentActivity(), Projection {
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
         )
         this.runner = runner
-        worker = Thread { runner.run() }.apply { name = "mycar"; start() }
+        worker = runSession(runner)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
+
+    /**
+     * The session's thread. A session the car ends by itself - the engine off, its Wi-Fi gone,
+     * Android Auto closed on the car - is taken down as an unplugged cable is: otherwise the
+     * encoder, the car UI and the audio capture (with the phone muted) would go on for nobody.
+     */
+    private fun runSession(runner: MyCarRunner): Thread = Thread {
+        runner.run()
+        runOnUiThread {
+            if (this.runner === runner) {
+                MyCarLog.i("the car ended the session")
+                closeAccessory(stopWireless = false)
+            }
+        }
+    }.apply { name = "mycar"; start() }
 
     /** A wireless session: the same runner, on the socket [WirelessLink] opened to the car. */
     private fun startWireless(socket: java.net.Socket) {
@@ -393,7 +408,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             wireless = true,
         )
         this.runner = runner
-        worker = Thread { runner.run() }.apply { name = "mycar"; start() }
+        worker = runSession(runner)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
