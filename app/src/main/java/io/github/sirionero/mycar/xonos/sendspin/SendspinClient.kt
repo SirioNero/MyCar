@@ -80,10 +80,14 @@ class SendspinClient(
     /** Perché l'ultima connessione audio non è riuscita, se non è riuscita. */
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    /** Si collega (o resta collegato) a [baseUrl]; [force] riapre comunque la connessione. */
+    /**
+     * Si collega (o resta collegato) a [baseUrl]; [force] riapre comunque la connessione. Se l'audio
+     * non è pronto si riparte subito: dopo una galleria il ciclo poteva essere in un'attesa fino a 30 s
+     * mentre l'API era già tornata.
+     */
     @Synchronized
     fun start(baseUrl: String, token: String, force: Boolean = false) {
-        if (!force && job?.isActive == true && target == (baseUrl to token)) return
+        if (!force && job?.isActive == true && target == (baseUrl to token) && _phase.value == Phase.READY) return
         job?.cancel()
         session?.close(goodbye = false)
         target = baseUrl to token
@@ -231,6 +235,9 @@ class SendspinClient(
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
+            // Una connessione chiusa per aprirne un'altra consegna ancora i suoi messaggi per un po':
+            // uno stream/end di quella vecchia fermerebbe lo stream nuovo.
+            if (session !== this) return
             val received = now()
             val msg = try {
                 JSONObject(text)
@@ -261,6 +268,7 @@ class SendspinClient(
         }
 
         override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
+            if (session !== this) return
             // Tipo 4: audio, preceduto dal tempo del server (8 byte). Il margine di invio (send_ahead)
             // che la specifica mette dopo il tempo il server lo manda solo ai client cifrati, non a questo.
             if (bytes.size < AUDIO_HEADER || bytes[0].toInt() != AUDIO_CHUNK) return
