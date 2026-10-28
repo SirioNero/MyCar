@@ -109,6 +109,9 @@ class CarAppConnection(private val context: Context) {
     /** A destination to navigate to as soon as the app is created; see [navigateTo]. */
     private var pendingDestination: String? = null
 
+    /** One asked for while the app was being created, too late for its first intent: sent once it runs. */
+    private var destinationOnceRunning: String? = null
+
     // --- connection ---------------------------------------------------------------------
 
     fun connect(app: TemplateApp, width: Int, height: Int, densityDpi: Int, destination: String? = null) {
@@ -120,6 +123,7 @@ class CarAppConnection(private val context: Context) {
         frameDensity = densityDpi
         component = app.component
         pendingDestination = destination
+        destinationOnceRunning = null
         update { Status(phase = Phase.BINDING, app = app.label) }
 
         val intent = Intent(CarAppService.SERVICE_INTERFACE).setComponent(app.component)
@@ -251,6 +255,7 @@ class CarAppConnection(private val context: Context) {
         surfaceCallback = null
         component = null
         pendingDestination = null
+        destinationOnceRunning = null
         _template.value = null
         update { Status() }
     }
@@ -299,6 +304,7 @@ class CarAppConnection(private val context: Context) {
         MyCarLog.i("host: handshake accepted; creating the app")
         val intent = pendingDestination?.let { autoRoute.arm(); navigateIntent(it) }
             ?: Intent(Intent.ACTION_MAIN).setComponent(component)
+        if (pendingDestination != null) destinationOnceRunning = null
         pendingDestination = null
         call("onAppCreate", onValue = { onCreated() }) {
             app.onAppCreate(createCarHost(toastOwner), intent, carConfiguration(), it)
@@ -325,6 +331,13 @@ class CarAppConnection(private val context: Context) {
      * [REROUTE_WAIT_MS] if it never does.
      */
     fun navigateTo(destination: String) {
+        // Still starting ("navigate to X" in the drive's first seconds): sent to the app as it's
+        // created, or once it runs. Sent now, it was lost - the app wasn't there yet to take it.
+        if (_status.value.phase == Phase.BINDING || _status.value.phase == Phase.HANDSHAKE) {
+            pendingDestination = destination
+            destinationOnceRunning = destination
+            return
+        }
         if (carApp == null) return
         main.removeCallbacks(sendReroute)
         if (!navigating) {
@@ -368,6 +381,8 @@ class CarAppConnection(private val context: Context) {
     private fun onRunning() {
         val app = carApp ?: return
         update { it.copy(phase = Phase.RUNNING, detail = "connected") }
+        pendingDestination = null
+        destinationOnceRunning?.let { destinationOnceRunning = null; navigateTo(it) }
         MyCarLog.verdict(
             "${component?.packageName} accepted myCar as a template host",
             "Handshake completed at car API level ${_status.value.apiLevel}.",

@@ -114,7 +114,7 @@ object CarServices {
         navStopped = false
         CarSettings.setLastNav(app.component.flattenToString())
         val same = nav.connectedComponent == app.component
-        if (destination != null && same) {
+        if (destination != null && same && nav.status.value.phase in LIVE) {
             nav.navigateTo(destination)
         } else if (destination == null && same && nav.status.value.phase in LIVE) {
             // Already there ("show me the map" to the assistant): connecting again would end the
