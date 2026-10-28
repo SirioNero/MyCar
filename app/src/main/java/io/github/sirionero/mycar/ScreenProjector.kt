@@ -162,11 +162,14 @@ class ScreenProjector(private val context: Context) {
      * [action] is already an Android MotionEvent action; [points] are in projected coordinates and
      * hold every finger down, with [actionIndex] naming the one the action is about. Two fingers
      * arrive as one gesture, so pinch and two-finger drags work as they do on the phone itself.
+     * [at]: when the car's touch reached the phone. Stamped when the main thread got round to it,
+     * touches that waited behind a frame came out bunched on one time, and a fling's speed (lists,
+     * pages, the map) came out wrong.
      */
-    fun dispatchTouch(action: Int, actionIndex: Int, points: List<TouchPoint>) {
+    fun dispatchTouch(action: Int, actionIndex: Int, points: List<TouchPoint>, at: Long = SystemClock.uptimeMillis()) {
         val target = root ?: return
         if (points.isEmpty()) return
-        val now = SystemClock.uptimeMillis()
+        val now = at
         if (action == MotionEvent.ACTION_DOWN || downTime == 0L) downTime = now
 
         val properties = Array(points.size) { i ->

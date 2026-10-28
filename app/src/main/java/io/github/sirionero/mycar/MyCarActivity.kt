@@ -743,7 +743,8 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
-    private class Touch(val action: Int, val actionIndex: Int, val points: List<TouchPoint>)
+    /** [at]: when it arrived from the car, before it waited for the main thread. */
+    private class Touch(val action: Int, val actionIndex: Int, val points: List<TouchPoint>, val at: Long = android.os.SystemClock.uptimeMillis())
 
     private val touches = java.util.concurrent.ConcurrentLinkedQueue<Touch>()
 
@@ -753,7 +754,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             val touch = touches.poll() ?: break
             // Mirroring drives one phone touch at a time, so it follows the first finger only.
             if (PhoneMirror.active.value) touch.points.firstOrNull()?.let { relayTouch(touch.action, it.x, it.y) }
-            else screenProjector?.dispatchTouch(touch.action, touch.actionIndex, touch.points)
+            else screenProjector?.dispatchTouch(touch.action, touch.actionIndex, touch.points, touch.at)
         }
     }
 
