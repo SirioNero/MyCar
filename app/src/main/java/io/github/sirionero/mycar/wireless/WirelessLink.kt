@@ -147,12 +147,36 @@ object WirelessLink {
     }
 
     /**
+     * The session on [socket] is over: the car closed it, or myCar did. Marked at once, as the car's
+     * end of the stream shows: a car that starts over on the same Bluetooth channel sends its Wi-Fi
+     * details again within moments, and while [tcp] still named the old socket they were taken for
+     * ZLink's repeat and ignored - the drive didn't come back.
+     */
+    fun tcpEnded(socket: Socket) {
+        synchronized(ends) { if (tcp === socket) tcp = null }
+    }
+
+    /** The car's stream on [socket], marking [tcpEnded] as soon as it ends. */
+    fun watched(socket: Socket): java.io.InputStream = object : java.io.FilterInputStream(socket.getInputStream()) {
+        override fun read(b: ByteArray, off: Int, len: Int): Int = try {
+            super.read(b, off, len).also { if (it < 0) tcpEnded(socket) }
+        } catch (e: IOException) {
+            tcpEnded(socket)
+            throw e
+        }
+    }
+
+    /**
      * The car ended the session over Wi-Fi. With the Bluetooth channel over too (its worker gone),
      * the request for the car's Wi-Fi goes as well: it kept Android looking for the car until the
      * next tap. While the channel is open the car may start over on it, so it stays.
      */
-    fun sessionEnded(context: Context) {
+    fun sessionEnded(context: Context, socket: Socket) {
         synchronized(ends) {
+            // A newer drive is on the car's network already (the car started over at once): it
+            // isn't this one's to end.
+            val current = tcp
+            if (current != null && current !== socket) return
             tcp = null
             if (worker?.isAlive == true && !channelOver) {
                 releaseWithChannel = true
@@ -566,7 +590,7 @@ object WirelessLink {
                     socket.close()
                     return
                 }
-                tcp = socket
+                synchronized(ends) { tcp = socket }
                 log.i("TCP: connected to $ip:$port (try ${attempt + 1})")
                 val start = onConnected
                 if (start == null) {

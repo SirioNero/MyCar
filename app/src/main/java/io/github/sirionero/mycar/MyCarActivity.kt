@@ -590,16 +590,21 @@ class MyCarActivity : ComponentActivity(), Projection {
      * Android Auto closed on the car - is taken down as an unplugged cable is: otherwise the
      * encoder, the car UI and the audio capture (with the phone muted) would go on for nobody.
      */
-    private fun runSession(runner: MyCarRunner): Thread = Thread {
-        runner.run()
-        runOnUiThread {
-            if (this.runner === runner) {
-                MyCarLog.i("the car ended the session")
-                if (wirelessSocket != null) io.github.sirionero.mycar.wireless.WirelessLink.sessionEnded(this)
-                closeAccessory(stopWireless = false)
+    private fun runSession(runner: MyCarRunner): Thread {
+        // The wireless session's own socket: by the time the end is handled, a newer one may be up.
+        val socket = wirelessSocket
+        return Thread {
+            runner.run()
+            socket?.let { io.github.sirionero.mycar.wireless.WirelessLink.tcpEnded(it) }
+            runOnUiThread {
+                if (this.runner === runner) {
+                    MyCarLog.i("the car ended the session")
+                    if (socket != null) io.github.sirionero.mycar.wireless.WirelessLink.sessionEnded(this, socket)
+                    closeAccessory(stopWireless = false)
+                }
             }
-        }
-    }.apply { name = "mycar"; start() }
+        }.apply { name = "mycar"; start() }
+    }
 
     /** A wireless session: the same runner, on the socket [WirelessLink] opened to the car. */
     private fun startWireless(socket: java.net.Socket) {
@@ -618,7 +623,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         MyCarLog.i("wireless: starting a session over Wi-Fi to ${socket.inetAddress?.hostAddress}:${socket.port}")
         wirelessSocket = socket
         val runner = MyCarRunner(
-            input = socket.getInputStream(),
+            input = io.github.sirionero.mycar.wireless.WirelessLink.watched(socket),
             output = socket.getOutputStream(),
             identityProvider = { CertProvider.load(this) },
             projection = this,
