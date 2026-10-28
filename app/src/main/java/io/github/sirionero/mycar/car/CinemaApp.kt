@@ -3,7 +3,10 @@ package io.github.sirionero.mycar.car
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
+import android.os.Handler
+import android.os.Looper
 import android.webkit.PermissionRequest
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -42,6 +45,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -212,6 +216,10 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
     var desktopShown by remember { mutableStateOf(site.desktop) }
     // The page is at home and Android keeps myCar off the home network (see LocalNetwork).
     var offHomeNetwork by remember { mutableStateOf(false) }
+    // A new web view after the web engine's page process died (see CinemaClient), at the page it
+    // was showing.
+    var generation by remember { mutableIntStateOf(0) }
+    var lastUrl by remember { mutableStateOf<String?>(null) }
 
     // Another app's sound has to reach the car: the capture starts now, if it waited for Xonos.
     LaunchedEffect(Unit) { CarAudio.captureNow() }
@@ -256,6 +264,7 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
             CinemaBar(site.name, onBack = { web?.takeIf { it.canGoBack() }?.goBack() ?: onClose() }, onClose = onClose)
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
+            key(generation) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
@@ -267,7 +276,20 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                         settings.loadWithOverviewMode = true
                         settings.useWideViewPort = true
                         settings.userAgentString = userAgentFor(this, site.desktop)
-                        webViewClient = CinemaClient(ring, onLoading = { offHomeNetwork = false }, onOffHomeNetwork = { offHomeNetwork = true })
+                        webViewClient = CinemaClient(
+                            ring,
+                            onLoading = { url ->
+                                offHomeNetwork = false
+                                lastUrl = url
+                            },
+                            onOffHomeNetwork = { offHomeNetwork = true },
+                            onGone = {
+                                web = null
+                                fullScreen = null
+                                fieldText = null
+                                generation++
+                            },
+                        )
                         webChromeClient = CinemaChrome(
                             onShow = { view, callback -> fullScreen = view to callback },
                             onHide = { fullScreen = null },
@@ -277,12 +299,13 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                             FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
                             "MyCarField",
                         )
-                        loadUrl(site.url)
+                        loadUrl(lastUrl ?: site.url)
                         web = this
                     }
                 },
-                onRelease = { it.destroy() },
+                onRelease = { runCatching { it.destroy() } },
             )
+            }
             fullScreen?.let { (view, _) ->
                 AndroidView(
                     modifier = Modifier.fillMaxSize().background(Color.Black),
@@ -412,10 +435,24 @@ private val CHROME_VERSION = Regex("Chrome/([\\d.]+)")
 
 private class CinemaClient(
     private val ring: String,
-    private val onLoading: () -> Unit,
+    private val onLoading: (String?) -> Unit,
     private val onOffHomeNetwork: () -> Unit,
+    private val onGone: () -> Unit,
 ) : WebViewClient() {
-    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading()
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading(url)
+
+    // The web engine's page process is one for the whole app: when it dies (video sites weigh on
+    // it most), every web view on it must say it handled that, or Android ends myCar - and the
+    // drive. As the browser's (see LoggingClient): this one goes, a new one opens at the same page.
+    override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+        MyCarLog.w("cinema: web page process gone (crash: ${detail?.didCrash()}) - opening the site again")
+        if (view != null) {
+            (view.parent as? ViewGroup)?.removeView(view)
+            runCatching { view.destroy() }
+        }
+        Handler(Looper.getMainLooper()).post(onGone)
+        return true
+    }
 
     override fun onPageFinished(view: WebView?, url: String?) {
         view?.evaluateJavascript(FOCUS_TRACKING_JS, null)
