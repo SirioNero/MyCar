@@ -106,6 +106,16 @@ class ScreenProjector(private val context: Context) {
         MyCarLog.i("projecting ${width}x$height @ ${densityDpi}dpi")
     }
 
+    /**
+     * Draws the picture again, over a few frames, though nothing on it changed: an encoder fed by
+     * a display only gets a frame when something is drawn, and a car that just took its screen
+     * back needs one, as a keyframe, to show anything.
+     */
+    fun refresh() {
+        val view = root ?: return
+        for (i in 0 until REFRESH_FRAMES) view.postDelayed({ view.invalidate() }, i * REFRESH_GAP_MS)
+    }
+
     /** The projected display's id, for placing other apps' activities on it. */
     val displayId: Int? get() = virtualDisplay?.display?.displayId
 
@@ -247,5 +257,10 @@ class ScreenProjector(private val context: Context) {
             registry.currentState = Lifecycle.State.DESTROYED
             viewModelStore.clear()
         }
+    }
+
+    private companion object {
+        const val REFRESH_FRAMES = 3
+        const val REFRESH_GAP_MS = 60L
     }
 }

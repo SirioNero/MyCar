@@ -1119,6 +1119,9 @@ class MyCarRunner(
             log.i("-> Start(session_id=$SESSION_ID)")
             lastCodecConfig?.let { send(MSG_MEDIA_CODEC_CONFIG, it, encrypted = true, channel = videoChannelId) }
             videoSource?.requestSyncFrame()
+            // A still screen makes no frames, so the keyframe asked for would never come: the car
+            // stayed black, or on the picture from before, until something on it moved.
+            projection?.onRefresh()
         } else {
             // A phone ends the stream when the car takes its screen. LIVI switches on the focus
             // answer alone, but the 2018 Uconnect kept showing our last frame until it got Stop.

@@ -498,6 +498,10 @@ class MyCarActivity : ComponentActivity(), Projection {
         mainHandler.postAtFrontOfQueue(dispatchTouches)
     }
 
+    override fun onRefresh() {
+        runOnUiThread { screenProjector?.refresh() }
+    }
+
     override fun onProjectionStopped() {
         // Before the car UI goes, while the media connection is still up.
         io.github.sirionero.mycar.car.CarServices.pausePhoneMedia()
