@@ -18,6 +18,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.os.Process
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.mirror.MirrorService
 import kotlin.math.abs
 
 /**
@@ -69,6 +70,12 @@ class AudioCaptureService : Service() {
 
     /** The capture was started again once after ending on its own; see beginCapture. */
     private var restarted = false
+
+    /**
+     * Android ended the projection: sharing the phone's screen took it (Android keeps one), or the
+     * driver stopped it. Nothing more can be recorded on it, and no question is asked now.
+     */
+    private var projectionStopped = false
 
     /** Which capture is the current one, so an old capture's end doesn't stop a new one. */
     @Volatile private var captureRun = 0
@@ -124,10 +131,12 @@ class AudioCaptureService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        projectionStopped = false
         token.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
                 if (token !== projection) return
                 MyCarLog.w("audio: projection stopped")
+                projectionStopped = true
                 unmutePhone()
                 stopSelf()
             }
@@ -136,7 +145,7 @@ class AudioCaptureService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun beginCapture(token: MediaProjection) {
+    private fun beginCapture(token: MediaProjection, again: Boolean = false) {
         val rate = CarAudio.sampleRate
         val channels = CarAudio.channels
         val record = try {
@@ -162,8 +171,10 @@ class AudioCaptureService : Service() {
                 .build()
         } catch (t: Throwable) {
             MyCarLog.e("audio: could not set up playback capture", t)
-            CarAudio.denied()
             stopSelf()
+            // Started again after ending on its own: this isn't the driver's "no", and DENIED would
+            // leave the car without music for the rest of the drive. The question starts clean instead.
+            if (!again) CarAudio.denied() else if (!MirrorService.sharing) CarAudio.captureNow()
             return
         }
 
@@ -224,17 +235,20 @@ class AudioCaptureService : Service() {
                 // Ended on its own (the audio server restarted). Once, a new recorder on the same
                 // projection carries on, with no new question and the microphone kept for voice
                 // replies. Otherwise the service goes, so the next question starts clean - and it's
-                // asked now, not only when a music app is opened again.
+                // asked now, not only when a music app is opened again. Not when Android ended the
+                // projection: then the question comes with the next music app, or when the screen
+                // sharing that took it ends (asked during it, it would end the sharing).
                 if (reading && run == captureRun) main.post {
                     if (run != captureRun) return@post
                     val token = projection
-                    if (token != null && !restarted) {
+                    val ended = projectionStopped || MirrorService.sharing
+                    if (token != null && !restarted && !ended) {
                         restarted = true
                         MyCarLog.w("audio: capture ended on its own - starting it again on the same projection")
-                        beginCapture(token)
+                        beginCapture(token, again = true)
                     } else {
                         stopSelf()
-                        CarAudio.captureNow()
+                        if (!ended) CarAudio.captureNow()
                     }
                 }
             }

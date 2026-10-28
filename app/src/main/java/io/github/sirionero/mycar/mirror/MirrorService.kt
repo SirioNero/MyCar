@@ -103,6 +103,9 @@ class MirrorService : Service() {
         /** From [start] until the service ends, so [stop] knows there's something to stop. */
         @Volatile private var started = false
 
+        /** The phone's screen is shared with the car, or about to be: it has the one projection Android keeps. */
+        val sharing: Boolean get() = started
+
         /** Redeems a screen-capture consent result for a running capture session. */
         fun start(context: Context, resultCode: Int, data: Intent) {
             appContext = context.applicationContext
