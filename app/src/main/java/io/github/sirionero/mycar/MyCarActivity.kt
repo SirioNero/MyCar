@@ -18,6 +18,7 @@ import android.view.MotionEvent
 import android.view.Surface
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -156,6 +157,21 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
         Prefetch.warm(this)
         CarEnvironment.setPhoneTheme(resources.configuration)
+
+        // Back on the phone's Home with a car connected: myCar steps aside and the drive goes on.
+        // Opened by the cable, myCar's task isn't the launcher's, so Android would close it - and
+        // the session with it. Added before the screens' own Back handlers, which come first.
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (runner != null) {
+                    moveTaskToBack(true)
+                    return
+                }
+                isEnabled = false
+                onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        })
 
         setContent {
             MyCarTheme {
