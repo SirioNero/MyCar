@@ -47,11 +47,13 @@ import io.github.sirionero.mycar.xonos.sendspin.CarLinkOutput
 import io.github.sirionero.mycar.xonos.sendspin.SendspinClient
 import io.github.sirionero.mycar.xonos.sendspin.StreamFormat
 import io.github.sirionero.mycar.xonos.sendspin.TimeFilter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.min
 
 /**
@@ -323,6 +325,12 @@ class PlaybackService : MediaLibraryService() {
         }
     }
 
+    /**
+     * Il menu fuori dal thread principale, che in myCar disegna anche l'auto: con una libreria grande
+     * raggruppare migliaia di voci e firmare l'indirizzo di ogni copertina fermava lo schermo.
+     */
+    private suspend fun <T> offMain(block: suspend () -> T): T = withContext(Dispatchers.Default) { block() }
+
     private inner class Callback : MediaLibrarySession.Callback {
 
         // Gearslip non è un'app di sistema: senza questo Media3 gli lascerebbe solo guardare, non comandare.
@@ -358,7 +366,7 @@ class PlaybackService : MediaLibraryService() {
             params: LibraryParams?,
         ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = scope.future {
             try {
-                LibraryResult.ofItemList(tree.children(parentId).page(page, pageSize), params)
+                LibraryResult.ofItemList(offMain { tree.children(parentId) }.page(page, pageSize), params)
             } catch (e: Exception) {
                 Log.w(TAG, "Elenco $parentId non disponibile: ${e.message}")
                 LibraryResult.ofError(SessionError.ERROR_IO)
@@ -372,7 +380,7 @@ class PlaybackService : MediaLibraryService() {
             params: LibraryParams?,
         ): ListenableFuture<LibraryResult<Void>> = scope.future {
             val results = try {
-                tree.search(query)
+                offMain { tree.search(query) }
             } catch (e: Exception) {
                 Log.w(TAG, "Ricerca non riuscita: ${e.message}")
                 emptyList()
@@ -391,7 +399,7 @@ class PlaybackService : MediaLibraryService() {
             params: LibraryParams?,
         ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> = scope.future {
             try {
-                val results = searches[query] ?: tree.search(query)
+                val results = searches[query] ?: offMain { tree.search(query) }
                 LibraryResult.ofItemList(results.page(page, pageSize), params)
             } catch (e: Exception) {
                 LibraryResult.ofError(SessionError.ERROR_IO)
