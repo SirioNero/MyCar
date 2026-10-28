@@ -392,6 +392,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
         AppWontStart(status.app ?: "This app", leave)
         return
     }
+    AppBackKey(CarServices.browse, active = true)
     CarAppStage(CarServices.browse, status, frame, onDisconnect = leave)
 }
 
