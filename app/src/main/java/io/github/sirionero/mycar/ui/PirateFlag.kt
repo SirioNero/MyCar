@@ -78,7 +78,7 @@ internal fun PirateFlag(key: Any, modifier: Modifier) {
             .drawWithCache {
                 val pole = (size.width * 0.022f).coerceAtLeast(3f)
                 val knob = pole * 1.7f
-                val amp = size.height * 0.05f
+                val amp = size.height * 0.085f
                 val flagLeft = pole * 0.5f
                 val flagTop = knob * 2.2f + amp
                 val flagWidth = size.width - flagLeft - amp
@@ -99,7 +99,7 @@ internal fun PirateFlag(key: Any, modifier: Modifier) {
                         val x1 = (i + 1) * face.width / strips
                         val u = x0.toFloat() / face.width
                         // The wave runs away from the pole, and the free end flies the most.
-                        val angle = phase - u * 2.6f * PI.toFloat()
+                        val angle = phase - u * 2.2f * PI.toFloat()
                         val reach = 0.1f + 0.9f * u
                         val dy = (sin(angle) * amp * strength * reach + lift).toInt()
                         val top = (flagTop + dy).toInt()
@@ -192,9 +192,9 @@ private fun DrawScope.drawCloth(measurer: TextMeasurer) {
     drawText(local, topLeft = Offset(cx - local.size.width / 2f, h * 0.62f))
     val motto = measurer.measure(
         "WE DEFEND OUR DATA",
-        TextStyle(color = bone.copy(alpha = 0.8f), fontFamily = InterFamily, fontWeight = FontWeight.SemiBold, fontSize = (h * 0.062f).toSp(), letterSpacing = 0.32.em),
+        TextStyle(color = bone.copy(alpha = 0.85f), fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = (h * 0.078f).toSp(), letterSpacing = 0.2.em),
     )
-    drawText(motto, topLeft = Offset(cx - motto.size.width / 2f, h * 0.83f))
+    drawText(motto, topLeft = Offset(cx - motto.size.width / 2f, h * 0.81f))
 }
 
 /** The torn fly, from the top down: (how far down, how far out) as parts of the cloth. */
