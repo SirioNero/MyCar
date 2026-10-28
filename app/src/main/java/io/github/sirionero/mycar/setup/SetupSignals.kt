@@ -7,6 +7,7 @@ import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.LocalNetwork
@@ -68,7 +69,8 @@ object SetupSignals {
             driveBlocked = blocked.map { it.first },
             messages = hasNotificationAccess(context),
             calendar = granted(context, Manifest.permission.READ_CALENDAR),
-            notifications = granted(context, Manifest.permission.POST_NOTIFICATIONS),
+            // Android 12 has no such permission: its notifications need nothing.
+            notifications = Build.VERSION.SDK_INT < 33 || granted(context, Manifest.permission.POST_NOTIFICATIONS),
             screening = hasCallScreeningRole(context),
             skipped = FirstSetup.skipped(context),
         )
