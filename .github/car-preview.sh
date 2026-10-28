@@ -148,6 +148,52 @@ if installed $PLANCIA && installed $XONOS; then
     grep -h "takes .* place\|InsideOrApp" previews/standin/log.txt 2>/dev/null || echo "standin: no app took a place"
 fi
 
+# The bridge (bridge/): Plancia and Xonos inside myCar reaching their servers through the Plancia
+# and Xonos apps, as with myCar left out of Tailscale (--ez bridge true: the emulator has none).
+# Wants the apps built from a branch of theirs with the bridge (the workflow's plancia_ref and
+# xonos_ref), set up as a driver's would be: their own settings, written as root. Plancia from the
+# grid, then its menu; its page right of the map; Xonos from the grid, an album played through it.
+# The apps log "Ponte per <myCar> verso <server>" for each connection they open for myCar.
+case " ${ONLY:-bridge} " in *bridge*) BRIDGE_SHOTS=yes ;; *) BRIDGE_SHOTS= ;; esac
+if [ -n "${PLANCIA_REF:-}${XONOS_REF:-}" ] && [ -n "$BRIDGE_SHOTS" ]; then
+    adb root >/dev/null 2>&1; sleep 3; adb wait-for-device
+    # Each app started once, so its data folder exists, then stopped.
+    for p in $PLANCIA $XONOS; do adb shell monkey -p $p -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; done
+    sleep 8
+    for p in $PLANCIA $XONOS; do adb shell am force-stop $p; done
+    # app_prefs <package> <file> <entries>: the app's SharedPreferences, owned by it as if it wrote them.
+    app_prefs() {
+        local pkg=$1 file=$2 body=$3 owner
+        owner=$(adb shell stat -c %u:%g /data/data/$pkg | tr -d '\r')
+        printf "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n<map>\n%s\n</map>\n" "$body" > "/tmp/$file"
+        adb shell mkdir -p /data/data/$pkg/shared_prefs
+        adb push "/tmp/$file" "/data/data/$pkg/shared_prefs/$file" >/dev/null
+        adb shell chown "$owner" /data/data/$pkg/shared_prefs "/data/data/$pkg/shared_prefs/$file"
+        adb shell chmod 660 "/data/data/$pkg/shared_prefs/$file"
+        adb shell restorecon -R /data/data/$pkg/shared_prefs >/dev/null 2>&1
+    }
+    [ -n "${HA_TOKEN:-}" ] && app_prefs $PLANCIA plancia.xml "    <string name=\"url_home\">http://10.0.2.2:8123</string>
+    <string name=\"token\">$HA_TOKEN</string>"
+    [ -n "${MA_TOKEN:-}" ] && app_prefs $XONOS xonos.xml "    <string name=\"url_home\">http://10.0.2.2:8095</string>
+    <string name=\"token\">$MA_TOKEN</string>
+    <string name=\"username\">mycar</string>"
+    adb unroot >/dev/null 2>&1; sleep 3; adb wait-for-device
+    if [ -n "${PLANCIA_REF:-}" ] && [ -n "${HA_TOKEN:-}" ]; then
+        LOGTAGS=Plancia EXTRA="$HA --ez bridge true" shoot bridge-plancia 1920 720 240 "$WAIT;$WAIT;$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT;$PLANCIA_MENU;$WAIT"
+        LOGTAGS=Plancia EXTRA="$HA --ez bridge true" shoot bridge-plancia-page 1920 720 240 "$WAIT;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT;$WAIT"
+    fi
+    if [ -n "${XONOS_REF:-}" ] && [ -n "${MA_TOKEN:-}" ]; then
+        LOGTAGS=Xonos EXTRA="$MA --ez bridge true" shoot bridge-xonos 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;1230,48;$WAIT;1300,565;$WAIT;1808,232;$WAIT;$WAIT;993,48;$WAIT;$WAIT;$WAIT"
+        adb shell am force-stop "$PKG"
+    fi
+    echo "--- the bridge: Plancia and Xonos inside myCar through the apps ---"
+    for d in bridge-plancia bridge-plancia-page bridge-xonos; do
+        [ -d "previews/$d" ] || continue
+        echo "[$d]"
+        grep -h "Ponte per\|bridge\|proxy\|plancia:\|xonos:\|Xonos" "previews/$d/log.txt" 2>/dev/null | head -50
+    done
+fi
+
 # Android 17 (the workflow's "api" input at 37) keeps an app made for it, as myCar is, off the
 # home network until it's given the local network permission: its connections there time out, and
 # 10.0.2.2 is the home network here. Plancia and Xonos inside myCar with the permission taken away,
