@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import io.github.sirionero.mycar.wireless.WirelessLink
 
 /**
@@ -68,6 +70,11 @@ internal fun WirelessButton() {
     }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (granted()) devices = WirelessLink.pairedDevices(context) else denied = true
+    }
+    // Allowed in Android's settings meanwhile: the note about the permission goes.
+    LifecycleResumeEffect(Unit) {
+        if (denied && granted()) denied = false
+        onPauseOrDispose { }
     }
 
     if (denied) {
@@ -106,7 +113,15 @@ internal fun WirelessButton() {
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     if (list.isEmpty()) {
-                        Text("Your phone isn't paired with anything yet. Pair it with the car first.")
+                        // With Bluetooth off Android lists no paired device at all.
+                        val off = context.getSystemService(BluetoothManager::class.java)?.adapter?.isEnabled == false
+                        Text(
+                            if (off) {
+                                "Bluetooth is off. Turn it on, then tap Connect wirelessly again."
+                            } else {
+                                "Your phone isn't paired with anything yet. Pair it with the car first."
+                            },
+                        )
                     }
                     list.forEach { device ->
                         Text(
