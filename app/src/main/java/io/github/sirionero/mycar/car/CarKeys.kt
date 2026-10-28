@@ -102,7 +102,11 @@ object CarKeys {
      * Straight out, not through [screen]: it isn't a reason to end a screen share.
      */
     private fun playLast() {
-        if (CarServices.mediaDecided.value) _screenKeys.tryEmit(ScreenKey.PLAY)
+        if (!CarServices.mediaDecided.value) return
+        // Something else is sounding (Cinema, a video in the browser): the key was meant for it,
+        // not for starting the music on top of it.
+        if (appContext?.getSystemService(android.media.AudioManager::class.java)?.isMusicActive == true) return
+        _screenKeys.tryEmit(ScreenKey.PLAY)
     }
 
     /** A turn of the rotary knob: each click moves focus one step, like Tab or Shift+Tab. */
