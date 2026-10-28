@@ -88,7 +88,12 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     }
 
     // The guide asks for this now, but anyone who finished it before that never saw the page.
-    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
+    // Android shows one permission question at a time and drops one asked meanwhile: the home
+    // network's waits for this one's answer.
+    var notificationAsking by remember { mutableStateOf(false) }
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        notificationAsking = false
+    }
     // Reads the certificate once in the background, so Settings has it ready when opened.
     LaunchedEffect(Unit) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { runCatching { CertSummary.read(context) } }
@@ -97,6 +102,7 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
         if (!needsSetupGuide &&
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
+            notificationAsking = true
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
@@ -111,8 +117,8 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     val plancia by HomeAssistant.config.collectAsState()
     val xonos by Xonos.setUp.collectAsState()
     LaunchedEffect(Unit) { XonosAccount.adoptIfUnset(context) }
-    LaunchedEffect(plancia, xonos, screen) {
-        if (screen != Screen.HOME || LocalNetwork.askedAtStart || LocalNetwork.allowed(context)) return@LaunchedEffect
+    LaunchedEffect(plancia, xonos, screen, notificationAsking) {
+        if (notificationAsking || screen != Screen.HOME || LocalNetwork.askedAtStart || LocalNetwork.allowed(context)) return@LaunchedEffect
         val urls = plancia.urls + if (xonos) Xonos.settings.load().urls else emptyList()
         if (LocalNetwork.mayBlock(context, urls)) {
             LocalNetwork.askedAtStart = true
