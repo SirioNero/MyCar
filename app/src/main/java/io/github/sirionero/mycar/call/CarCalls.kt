@@ -60,6 +60,9 @@ object CarCalls {
     /** The ringing call came while another was under way: a call waiting. */
     private var ringingDuringCall = false
 
+    /** Who the call under way is with, as far as myCar knows. */
+    private var activeCaller: Caller? = null
+
     /** The ringing call was answered from the car. */
     private var answeredHere = false
 
@@ -128,6 +131,9 @@ object CarCalls {
         pendingRespond = null
         ringingCaller = null
         answerWhenRinging = false
+        activeCaller = null
+        answeredHere = false
+        ringingDuringCall = false
         phoneState = TelephonyManager.CALL_STATE_IDLE
         _state.value = CallUiState.None
     }
@@ -141,6 +147,7 @@ object CarCalls {
                 ringingCaller = null
                 answerWhenRinging = false
                 answeredHere = false
+                activeCaller = null
                 idleAt = android.os.SystemClock.elapsedRealtime()
                 _state.value = CallUiState.None
             }
@@ -151,7 +158,8 @@ object CarCalls {
                 // the same. Only an answer from the car says it's the new caller; otherwise no name,
                 // rather than the one turned away while the first call goes on.
                 val waited = previous == TelephonyManager.CALL_STATE_RINGING && ringingDuringCall
-                _state.value = CallUiState.Active(if (waited && !answeredHere) null else ringingCaller)
+                activeCaller = if (waited && !answeredHere) null else ringingCaller
+                _state.value = CallUiState.Active(activeCaller)
                 answeredHere = false
             }
             TelephonyManager.CALL_STATE_RINGING -> {
@@ -196,11 +204,11 @@ object CarCalls {
      */
     private fun expectRinging() {
         mainThreadDelay(RING_GRACE_MS) {
-            if (phoneState == TelephonyManager.CALL_STATE_IDLE && pendingRespond == null && _state.value is CallUiState.Ringing) {
+            if (phoneState != TelephonyManager.CALL_STATE_RINGING && pendingRespond == null && _state.value is CallUiState.Ringing) {
                 MyCarLog.i("calls: the call never rang - it was hung up while being screened")
                 ringingCaller = null
                 answerWhenRinging = false
-                _state.value = CallUiState.None
+                _state.value = afterScreened()
             }
         }
     }
@@ -218,8 +226,15 @@ object CarCalls {
         // Rejected while screening, the call never rang: the phone stays idle, and nothing else
         // would take the card away.
         ringingCaller = null
-        _state.value = CallUiState.None
+        _state.value = afterScreened()
     }
+
+    /**
+     * What the card shows once a screened call is gone without ringing: the call under way, if one
+     * is (a second call waiting on it) - not nothing, which also took the car's hang-up away.
+     */
+    private fun afterScreened(): CallUiState =
+        if (phoneState == TelephonyManager.CALL_STATE_OFFHOOK) CallUiState.Active(activeCaller) else CallUiState.None
 
     fun answer(context: Context) {
         // Still being screened, the call hasn't rung yet and there is nothing to pick up: let it
