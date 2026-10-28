@@ -360,6 +360,13 @@ class CarMedia(private val context: Context) {
     }
 
     private var lostAt = 0L
+    private var lostApp: ComponentName? = null
+
+    /** A new drive: an app that went away in the last one doesn't count against the next. */
+    fun forgetLosses() {
+        lostAt = 0L
+        lostApp = null
+    }
 
     /**
      * [app] was closed or crashed: its session is gone, or its service. Forget what it was playing -
@@ -371,8 +378,10 @@ class CarMedia(private val context: Context) {
         if (connecting != app) return
         MyCarLog.w("media: ${app.label} $how")
         val at = SystemClock.elapsedRealtime()
-        val again = lostAt == 0L || at - lostAt > RELINK_GAP_MS
+        // Twice for the same app: another app going away a moment before isn't this one closing again.
+        val again = lostApp != app.component || at - lostAt > RELINK_GAP_MS
         lostAt = at
+        lostApp = app.component
         disconnect()
         connecting = app
         if (again) {
