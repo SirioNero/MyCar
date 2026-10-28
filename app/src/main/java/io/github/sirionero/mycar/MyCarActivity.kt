@@ -365,12 +365,18 @@ class MyCarActivity : ComponentActivity(), Projection {
         projector.start(target, frameWidth, frameHeight, frameDensity) { CarUi() }
     }
 
+    /** Whether the touch under way went down on the mirrored phone, rather than on the bars. */
+    private var mirrorTouchOnPhone = false
+
     /**
      * Sends a head-unit touch to the phone. Anything landing on the mirror's letterbox padding
      * maps to nothing on the phone and is dropped rather than clamped onto a screen edge.
      */
     private fun relayTouch(action: Int, x: Float, y: Float) {
-        val point = PhoneMirror.mapToPhone(this, x, y)
+        if (action == MotionEvent.ACTION_DOWN) mirrorTouchOnPhone = PhoneMirror.mapToPhone(this, x, y) != null
+        // A finger that went down on the phone's picture stays on it, held at its edge, until it
+        // lifts: a scroll ending on the bars neither leaves the mirror nor leaves the finger down.
+        val point = PhoneMirror.mapToPhone(this, x, y, clamp = mirrorTouchOnPhone)
         if (point == null) {
             // The letterbox bars belong to no window, which makes them a safe way back: a tap
             // on the padding leaves the mirror and returns the car to myCar's own UI.
