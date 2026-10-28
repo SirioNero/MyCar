@@ -330,7 +330,7 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                     else -> if (signals.driveMissing.size < SetupSignals.driveGroups().size && FirstSetup.asked(context).isNotEmpty()) {
                         "Still off: ${signals.driveMissing.joinToString()}."
                     } else {
-                        "Your car shows who's calling and can dial your contacts, the map knows where you are, and " +
+                        "Your car shows who's calling and your recent calls, and can dial your contacts, the map knows where you are, and " +
                             "music can reach the car without Bluetooth. Android asks a few times: tap Allow each " +
                             "time. myCar only reads, and listens only when you tap the mic."
                     }
