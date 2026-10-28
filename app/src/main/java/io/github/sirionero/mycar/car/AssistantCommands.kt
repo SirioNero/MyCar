@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.provider.ContactsContract
+import androidx.car.app.navigation.model.NavigationTemplate
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.notify.CarNotifications
 import io.github.sirionero.mycar.speech.VoiceFocus
@@ -341,6 +342,8 @@ object AssistantCommands {
     }
 
     private fun infoCommand(heard: String): String? = when {
+        // Before "what time": "what time do I arrive" is the route's, not the clock's.
+        ETA.containsMatchIn(heard) -> arrival()
         "what time" in heard || "what's the time" in heard || heard == "time" || "the time" in heard ->
             "It's ${DateFormat.getTimeInstance(DateFormat.SHORT).format(Date())}."
         "weather" in heard || "going to rain" in heard || "gonna rain" in heard || "how hot" in heard ||
@@ -350,6 +353,33 @@ object AssistantCommands {
             else "I don't have the weather yet."
         }
         else -> null
+    }
+
+    /** "When do I arrive?": the route's own estimate, the arrival time as the phone writes it. */
+    private fun arrival(): String {
+        val estimate = (CarServices.nav.template.value as? NavigationTemplate)?.destinationTravelEstimate
+            ?: return "There's no route on the map."
+        val at = QuickReplyTexts.arrival(estimate.arrivalTimeAtDestination)
+        val left = spokenTimeLeft(estimate.remainingTimeSeconds)
+        return when {
+            at.isNotEmpty() && left.isNotEmpty() -> "Around $at, in $left."
+            at.isNotEmpty() -> "Around $at."
+            left.isNotEmpty() -> "In about $left."
+            else -> "The map hasn't said yet."
+        }
+    }
+
+    /** "1 hour 5 minutes", as it's said - not "1 hr 5 min". */
+    private fun spokenTimeLeft(seconds: Long): String {
+        if (seconds <= 0) return ""
+        val hours = seconds / 3600
+        val minutes = (seconds % 3600) / 60
+        fun unit(n: Long, one: String) = if (n == 1L) "1 $one" else "$n ${one}s"
+        return when {
+            hours > 0 && minutes > 0 -> "${unit(hours, "hour")} ${unit(minutes, "minute")}"
+            hours > 0 -> unit(hours, "hour")
+            else -> unit(minutes.coerceAtLeast(1), "minute")
+        }
     }
 
     /**
@@ -481,6 +511,12 @@ object AssistantCommands {
     private val ANOTHER = Regex("^(?:(?:play|put on) )?(?:something else|another (?:song|track|one)|a different (?:song|track))$")
 
     private val PLAY_TRIGGERS = listOf("play me ", "play ", "put on ", "listen to ", "i want to hear ", "shuffle ")
+
+    /** "When do I arrive", "what time will we get there", "how much longer", "ETA". */
+    private val ETA = Regex(
+        "\\b(?:eta|arrival time|time of arrival|how much longer|how long (?:until|till|left|is left|to go)" +
+            "|(?:when|what time) (?:do|will|are|am) (?:i|we)(?: going to)? (?:arrive|get there|be there))\\b",
+    )
 
     /** "Read my messages", "play my new texts", "read me the last message". */
     private val READ_MESSAGES = Regex("^(?:read|play|check)(?: me)?(?: my| the)?((?: new| last| latest| unread)?) (?:messages?|texts?)$")

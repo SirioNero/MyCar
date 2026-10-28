@@ -44,6 +44,7 @@ object VoiceHelp {
         "Call back · Redial" to "The last call that came in, or the last one made",
         "Read my messages · Reply to…" to "New messages read aloud, or an answer to someone who wrote",
         "Stop navigation" to "End the route",
+        "When do I arrive?" to "The arrival time and the time left on the route",
         "Open…" to "Any app, like Browser, Phone, or Screen sharing",
         "Exit" to "Back to the car's own screen",
         "Go home · Open apps · Settings" to "Move around myCar",
