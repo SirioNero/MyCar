@@ -39,6 +39,7 @@ object DirectionsVoice {
     private var appContext: Context? = null
     private var tts: TextToSpeech? = null
     @Volatile private var ttsReady = false
+    @Volatile private var ttsFailed = false
     private val pending = ConcurrentHashMap<String, CountDownLatch>()
 
     @Volatile private var link: AudioLink? = null
@@ -52,9 +53,16 @@ object DirectionsVoice {
     private var stage = Stage.DONE
 
     fun init(context: Context) {
-        if (tts != null) return
+        // Started again, at the next drive, after a start that failed (no engine on the phone yet,
+        // or the engine updating just then): otherwise no turn was spoken until myCar's process went.
+        if (tts != null && !ttsFailed) return
+        tts?.shutdown()
         appContext = context.applicationContext
-        tts = TextToSpeech(appContext) { status -> ttsReady = status == TextToSpeech.SUCCESS }.apply {
+        tts = TextToSpeech(appContext) { status ->
+            ttsReady = status == TextToSpeech.SUCCESS
+            ttsFailed = !ttsReady
+            if (ttsFailed) MyCarLog.w("guidance: text-to-speech didn't start (status $status) - trying again next drive")
+        }.apply {
             setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {}
                 override fun onDone(utteranceId: String?) { pending.remove(utteranceId)?.countDown() }

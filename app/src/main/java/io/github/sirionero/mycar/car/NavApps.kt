@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -74,6 +75,8 @@ internal class BuiltInApp(
 
 internal object BuiltInApps {
     val Web = BuiltInApp("web", "Browser", Icons.Filled.Search, CarScreen.App("web")) { it.open("web") }
+    /** Cinema, the video sites chosen on the phone, each in a browser made for video (see CinemaApp). */
+    val Cinema = BuiltInApp("cinema", "Cinema", Icons.Filled.PlayArrow, CarScreen.App("cinema")) { it.open("cinema") }
     val ScreenSharing = BuiltInApp("phone", "Screen sharing", Icons.Filled.Share, CarScreen.App("phone")) { it.open("phone") }
     val Phone = BuiltInApp("dialer", "Phone", Icons.Filled.Call, CarScreen.App("dialer")) { it.open("dialer") }
     val VehicleData = BuiltInApp("vehicle", "Vehicle data", Icons.Filled.Info, CarScreen.VehicleData) { it.vehicleData() }
@@ -82,7 +85,7 @@ internal object BuiltInApps {
     /** Hands the screen back to the car's own interface, like Android Auto's Exit. */
     val Exit = BuiltInApp("exit", "Exit", CarGlyph, screen = null) { CarFocus.exitToCar() }
 
-    val all = listOf(Web, ScreenSharing, Phone, VehicleData, Settings, Exit)
+    val all = listOf(Web, Cinema, ScreenSharing, Phone, VehicleData, Settings, Exit)
     val entries: List<Entry> = all.map { Entry(it.label, icon = null, builtIn = it) }
 
     /**

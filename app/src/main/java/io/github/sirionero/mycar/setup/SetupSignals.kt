@@ -54,11 +54,12 @@ object SetupSignals {
 
     fun read(context: Context): SetupSteps.Signals {
         val missing = driveGroups().filterNot { (name, permissions) -> groupOn(context, name, permissions) }
-        // Asked before, refused, and Android no longer explains: it won't show the dialog again.
-        val asked = FirstSetup.asked(context)
+        // Seen blocked when it was asked for, still refused, and Android still not explaining: it
+        // won't show the dialog again.
+        val seenBlocked = FirstSetup.blocked(context)
         val blocked = (context as? Activity)?.let { activity ->
             missing.filter { (_, permissions) ->
-                permissions.any { it in asked && !granted(context, it) && !activity.shouldShowRequestPermissionRationale(it) }
+                permissions.any { it in seenBlocked && !granted(context, it) && !activity.shouldShowRequestPermissionRationale(it) }
             }
         }.orEmpty()
         val androidAutoPackage = AndroidAuto.installedPackage(context)

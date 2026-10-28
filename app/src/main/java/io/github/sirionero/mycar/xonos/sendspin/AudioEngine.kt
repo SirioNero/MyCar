@@ -75,6 +75,11 @@ interface PcmOutput {
     fun interrupt()
 
     fun release()
+
+    companion object {
+        /** Ciò che [write] risponde da un'uscita morta per sempre (AudioTrack.ERROR_DEAD_OBJECT). */
+        const val DEAD = -6
+    }
 }
 
 /** Da pacchetti compressi a PCM a 16 bit interleaved. */
@@ -516,6 +521,13 @@ class AudioEngine(
         while (done < frames) {
             if (gen != generation || released) return false
             val n = out.write(data, offset + done, min(piece, frames - done))
+            if (n == PcmOutput.DEAD) {
+                // Morta per sempre (l'audio server è ripartito): ogni scrittura dopo fallirebbe e l'auto
+                // resterebbe in attesa. Si lascia, e il pezzo dopo ne apre una nuova.
+                Log.w(TAG, "Uscita audio morta: se ne apre una nuova")
+                releaseOutput()
+                return false
+            }
             if (n <= 0) return false
             done += n
             framesWritten += n

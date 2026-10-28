@@ -158,18 +158,21 @@ internal fun AgendaWidget(onHold: () -> Unit, modifier: Modifier = Modifier) {
     val navigator = LocalCarNavigator.current
     fun allowedNow() = context.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
     var allowed by remember { mutableStateOf(allowedNow()) }
+    fun todayNow(): String {
+        val pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM")
+        return SimpleDateFormat(pattern, Locale.getDefault()).format(Date())
+    }
+    // The day too: the page stays up all drive, and a drive past midnight kept yesterday's date.
+    var today by remember { mutableStateOf(todayNow()) }
     // Read again now and then, as the page stays up all drive and the day moves on under it - or
     // the calendar is allowed on the phone meanwhile.
     val events by produceState(cachedAgenda) {
         while (true) {
             allowed = allowedNow()
+            today = todayNow()
             value = withContext(Dispatchers.IO) { fetchAgenda(context) }.also { cachedAgenda = it }
             delay(WIDGET_REFRESH_MS)
         }
-    }
-    val today = remember {
-        val pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM")
-        SimpleDateFormat(pattern, Locale.getDefault()).format(Date())
     }
 
     WidgetCard(onClick = navigator::dashboard, onHold = onHold, modifier = modifier) {

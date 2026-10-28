@@ -1,30 +1,48 @@
-myCar 0.5.18-alpha: wireless that connects by itself, and a steadier link to the car.
+myCar 0.5.19-alpha: Cinema, new layouts for the pages beside the map, and a sweep through the code.
 
-## Wireless that connects by itself
+## Cinema
+- A new app in the grid: your video sites as tiles, each with the icon it gives itself - YouTube, RaiPlay and Twitch to start with, and any you add on the phone (Settings > Cinema, where More sites adds Dailymotion, Vimeo, La7, TED, Arte, NASA+ and the Internet Archive with a tap). Each opens in a browser made for video: full screen when the player asks for it, the car's keyboard for searching.
+- On this phone: the videos on your phone, newest first, with their pictures and lengths. They start again where you left them. Allow it once, on the phone or from the car.
+- TV: add an IPTV list (M3U) in Settings > Cinema: TV - from your provider, a public list or a TV server at home - and its channels show with their logos and groups. The list is kept on the phone, so the channels are there even when its server doesn't answer.
+- Phone videos and TV play on Android's own player, with nothing extra to install: tap for the controls (back 10 seconds, play or pause, forward 10 seconds).
+- Video shows only when the car is parked: while it moves the picture is covered and the sound carries on. That's a setting, on by default, which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN) most likely stays black in the car.
+
+## Pages beside the map
+- Beside two halves and four parts, a page can now be a whole page, a half beside two quarters (on either side), or a wide strip above or below two quarters. On the page, the pencil, then Layout: each layout is shown as a picture.
+- What the page shows stays, in order, as far as the new layout has room.
+
+## Fixes from a sweep through the code
+- Vela Maps: the turn arrow changes with the turn again, on the routing card, in the "then" row and in the dock (it kept the first arrow, "continue").
+- A dropdown on a web page - in the browser, in Plancia, on a Cinema site - no longer closes myCar (and the drive with it). It doesn't open on the car's screen.
+- Cars that never confirm the audio they get (some 2024 Volkswagens among them) no longer lose about two seconds of sound at the start of the music, after every call, when the radio gives the speakers back, and in the middle of every spoken direction.
+- Wireless: a car that ends its connection and starts over at once comes back by itself, and only cars you allowed can make myCar connect by itself. With a drive already on the cable, the car's Bluetooth no longer brings myCar up.
+- Opening myCar again during a drive (from its notification, or by the car arriving over Bluetooth while Android's question was up) no longer ends the music or screen sharing of the drive under way. A Bluetooth keyboard or steering-wheel remote connecting mid-drive no longer ends it either.
+- Calls: Decline works on a call that's already ringing when the phone was slow to show it (it hid the card and the phone kept ringing).
+- Xonos inside myCar: a passing "access denied" or "not found" from something in front of Music Assistant no longer hands your music to the Xonos app for the whole drive. With Bluetooth, the music comes back by itself after the phone's audio restarts.
+- Plancia and Xonos with a VPN other than Tailscale (NetGuard, Proton, a firewall) that leaves myCar out: a name such as http://homeassistant:8123 is reached directly, as it should, instead of being taken for a Tailscale one.
+- Spoken directions start again on the next drive if the phone's text-to-speech wasn't ready.
+- Initial setup: Back on Android's permission question no longer makes it say Android won't ask again.
+- The agenda's date changes at midnight; the player beside the map keeps all its buttons at the Large and Extra large sizes; the focus ring for cars with a knob shows on the players' buttons too.
+- Lighter on the phone: moving wallpapers redraw once per frame for every copy on screen, the cover isn't processed again at every play and pause, and players out of sight stop updating their time.
+
+## Also in 0.5.18-alpha
 - After your first drive without the cable, Android asks once whether myCar may connect to that car by itself. Allow it, and from then on myCar connects wirelessly whenever the car starts and reaches the phone over Bluetooth: no tap, the phone can stay in your pocket.
 - Only cars that have worked wirelessly are asked about. Plugged in, the cable wins; a drive already under way is left alone.
 - Settings > Connection > Connect wirelessly by itself turns it off. Turned back on, a car you said no to is asked about again at its next wireless drive.
 - Wireless adapters that send their Wi-Fi details again once the picture is up (ZLink ones) no longer drop the drive a second in.
-
-## Music and the car
 - With the music on Bluetooth - the Bluetooth setting, or Automatic when the car takes the phone's music over it - myCar leaves the car's Android Auto music channel closed: many cars switched their source to Android Auto the moment it opened, and the Bluetooth music stopped. It opens as soon as the sound has to go through myCar.
 - myCar no longer sends the start of the music twice when the car answers at the very moment it starts, which could make an older head unit drop the connection.
 - Cars that take music only as AAC get its configuration first, as they expect.
 - When the car runs out of sound to play, myCar runs a little ahead of it (at most a quarter of a second), so the next slow patch isn't heard as a gap.
-
-## A steadier link
 - Long messages, like the video's, go to the car in pieces of the size Android Auto itself uses.
 - The car's pings come back whole, and when the car says goodbye during a drive myCar answers and ends the drive at once, over Wi-Fi too.
 - Fixed a case where myCar could keep the phone busy for nothing when the car said goodbye while still connecting.
 - The car's own margins (the edges it crops) stay right at every size in the car's Settings: Large no longer eats the sides, and Small no longer puts buttons under the edge.
-
-## Also
 - On the car's Phone screen, Ask on the phone shows Android's question for the Phone and Contacts permissions on the phone; the car screen updates by itself once they're allowed.
 - Map apps' route options show their time and distance.
 - A car app that never answers myCar (some apps only run on Google's Android Auto) is reported after 10 seconds instead of showing Starting... for ever.
 - Logs > Earlier shares the log of an earlier launch - the drive before, or one that crashed - straight from the phone. Opening myCar starts a new log, so that one used to need a computer.
-
-These come from Gearslip's own fixes, picked one by one: what could change how a car that works today connects was left out.
+- These come from Gearslip's own fixes, picked one by one: what could change how a car that works today connects was left out.
 
 ## Also in 0.5.17-alpha
 - No Music Assistant at home? Xonos 0.1.42 or later can run one on the phone itself: in the Xonos app, Settings > Make Xonos your Music Assistant server. In myCar, Settings > Xonos > Use the Xonos app's account brings it over, as with any Music Assistant (the first time it comes over by itself).

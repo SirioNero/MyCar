@@ -26,12 +26,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -55,6 +57,8 @@ import io.github.sirionero.mycar.host.image
 import io.github.sirionero.mycar.host.display
 import io.github.sirionero.mycar.host.remainingTime
 import io.github.sirionero.mycar.host.text
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Draws the template an app handed us, over the surface it is drawing its map into.
@@ -176,7 +180,12 @@ private fun RoutingCard(info: RoutingInfo, modifier: Modifier = Modifier) {
 /** The zoomed-in intersection an app draws for a junction too complex for an arrow to explain. */
 @Composable
 private fun JunctionImage(icon: CarIcon, modifier: Modifier = Modifier) {
-    val bitmap = icon.image(LocalContext.current) ?: return
+    val context = LocalContext.current
+    // Off the main thread, as CarGlyph loads: a content:// picture is a round trip into the app.
+    val loaded by produceState<ImageBitmap?>(null, icon, icon.pictureKey()) {
+        value = withContext(Dispatchers.IO) { icon.image(context) }
+    }
+    val bitmap = loaded ?: return
     Image(
         bitmap,
         contentDescription = null,

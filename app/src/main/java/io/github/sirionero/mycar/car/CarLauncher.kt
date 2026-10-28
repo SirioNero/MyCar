@@ -222,7 +222,7 @@ private fun groupOf(entry: Entry, mediaPackages: Set<String>): AppGroup {
     entry.builtIn?.let {
         return when (it) {
             BuiltInApps.Phone -> AppGroup.PHONE
-            BuiltInApps.Web -> AppGroup.WEB
+            BuiltInApps.Web, BuiltInApps.Cinema -> AppGroup.WEB
             BuiltInApps.ScreenSharing -> AppGroup.SCREEN_SHARING
             BuiltInApps.Exit -> AppGroup.EXIT
             BuiltInApps.Plancia -> AppGroup.OTHER

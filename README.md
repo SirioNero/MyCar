@@ -61,6 +61,16 @@ behind it all — still or moving.
   the start of the drive and kept loaded, so they're there the moment you open them — full
   screen from the app grid, on a page beside the map, or beside the map itself. Set it up in
   myCar's settings on the phone, or bring your account over from the Plancia app with one tap.
+- **Cinema.** Your video sites as tiles, each with the icon it gives itself: YouTube, RaiPlay
+  and Twitch to start with, and any you add on the phone, your own Jellyfin included. Each opens
+  in a browser made for video: full screen when the player asks for it, the car's keyboard for
+  searching, a site's computer layout when you prefer it. Next to the sites, the videos on your
+  phone (they start again where you left them) and TV: add an IPTV list (M3U) from your provider, a
+  public list or a TV server at home, and its channels show with their logos and groups. Both play
+  on Android's own player, with nothing extra to install. Video shows only when the car is parked:
+  while it moves the picture is covered and the sound carries on. That's a setting, on by default,
+  which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN)
+  most likely stays black in the car: Android hides it from a screen sent to the car as video.
 - **Plancia and Xonos with Tailscale, wirelessly too.** Over wireless myCar has to be left out of
   Tailscale, so the built-in Plancia and Xonos reach your servers through the Plancia and Xonos
   apps on the phone, which stay inside it: set the apps to the same addresses. When even that
@@ -92,8 +102,9 @@ behind it all — still or moving.
   the dock's foot brings map and music back from the app grid. Or pick an app to stay beside
   the map instead, such as Plancia for your home or Xonos for your music.
 - **Pages beside the map.** Swipe across Home, or tap the dots at its foot, for pages either side
-  of the map: two halves or four parts each, holding the weather, your agenda, the browser,
-  Plancia's dashboard, or a car app. Ready-made, the weather and the agenda sit left of the map
+  of the map: a whole page, two halves, four parts, a half beside two quarters, or a wide strip
+  above or below two quarters, holding the weather, your agenda, the browser, Plancia's
+  dashboard, or a car app. Ready-made, the weather and the agenda sit left of the map
   and Plancia beside the browser on its right; the pencil beside the dots changes a page.
 - **Pick your size.** Scale the whole car screen from Extra small to Extra large, for the car's
   display and your eyes.
@@ -227,8 +238,9 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
 - The player sits beside the map when music plays, its cover filling its side on frosted glass;
   the dock's foot returns to map-and-music from the grid. An app of your choice can take that
   place instead: a car app runs there, or a music app shows its player.
-- Home's pages either side of the map, swiped to or reached by the dots at its foot: two halves
-  or four parts each, holding the weather, the agenda, the browser or a car app, changed in place.
+- Home's pages either side of the map, swiped to or reached by the dots at its foot: whole, in
+  halves, in quarters or a half or strip beside two quarters, holding the weather, the agenda, the
+  browser or a car app, changed in place.
 - The whole car screen scales from Extra small to Extra large.
 - Material Symbols icons and the Inter typeface ship as files inside the app, with no new
   dependencies.

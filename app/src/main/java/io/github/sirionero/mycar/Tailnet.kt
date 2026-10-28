@@ -129,9 +129,21 @@ object Tailnet {
      */
     fun outOfReach(context: Context, urls: List<String>): Boolean {
         if (urls.isEmpty() || reach(context) != Reach.VPN_LEAVES_MYCAR_OUT) return false
-        val domains = searchDomains(context)
-        return urls.all { looksTailnet(it, domains) }
+        val link = vpnLink(context)
+        val tailscale = isTailscale(link)
+        val domains = domainsOf(link)
+        return urls.all { onTailnetBehind(it, tailscale, domains) }
     }
+
+    /**
+     * Whether [url] is on the tailnet behind the VPN up now: a tailnet address whatever the VPN; a
+     * name (MagicDNS's without dots, *.ts.net, a search domain's) only when the VPN is Tailscale.
+     * Another VPN that leaves myCar out (NetGuard, a firewall, Proton) leaves a name such as
+     * http://homeassistant:8123 to the router, which myCar reaches by itself: taken for Tailscale's,
+     * the app took Plancia's place at once, or every connection went through it.
+     */
+    internal fun onTailnetBehind(url: String, tailscale: Boolean, searchDomains: List<String>): Boolean =
+        if (tailscale) looksTailnet(url, searchDomains) else host(url)?.let(::isTailnetAddress) == true
 
     /** Whether some of [urls] look like addresses on a tailnet (see [looksTailnet]). */
     fun onTailnet(context: Context, urls: List<String>): Boolean {
@@ -142,11 +154,14 @@ object Tailnet {
     /** Whether [host] - a name or an address, as a connection asks for it - is on a tailnet (see [looksTailnet]). */
     fun hostOnTailnet(context: Context, host: String): Boolean {
         val bare = host.removeSurrounding("[", "]")
-        return looksTailnet(if (':' in bare) "http://[$bare]" else "http://$bare", searchDomains(context))
+        val link = vpnLink(context)
+        return onTailnetBehind(if (':' in bare) "http://[$bare]" else "http://$bare", isTailscale(link), domainsOf(link))
     }
 
-    private fun searchDomains(context: Context): List<String> =
-        vpnLink(context)?.domains.orEmpty().split(' ', ',').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+    private fun searchDomains(context: Context): List<String> = domainsOf(vpnLink(context))
+
+    private fun domainsOf(link: LinkProperties?): List<String> =
+        link?.domains.orEmpty().split(' ', ',').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
 
     /**
      * Why [urls] can't be reached, when Tailscale or another VPN explains it; null when it doesn't.

@@ -87,7 +87,8 @@ internal fun WebApp(content: String, tile: WebTile?) {
             AndroidView(
                 modifier = Modifier.weight(1f).fillMaxSize(),
                 factory = { context ->
-                    WebView(context).apply {
+                    // A page's dropdown can't close myCar on the car's screen (see carWebContext).
+                    WebView(carWebContext(context)).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
                         settings.loadWithOverviewMode = true
@@ -194,7 +195,7 @@ private fun homeNetworkPage(url: String) =
         "<p style=\"opacity:.6\">${TextUtils.htmlEncode(url)}</p></body></html>"
 
 /** Tells Kotlin when an editable element on the page gains or loses focus, so [CarKeyboard] can show. */
-private class FieldFocusBridge(private val onFocus: (String) -> Unit, private val onBlur: () -> Unit) {
+internal class FieldFocusBridge(private val onFocus: (String) -> Unit, private val onBlur: () -> Unit) {
     private val main = Handler(Looper.getMainLooper())
 
     // WebView calls into this from its own thread, never Compose's.
@@ -210,7 +211,7 @@ private class FieldFocusBridge(private val onFocus: (String) -> Unit, private va
 // React's own state (and anything bound to it, like a search box's query) unaware. Calling the
 // *native* setter through the prototype, the same trick browser extensions use, is what actually
 // notifies it once the 'input' event fires.
-private fun setFieldValueJs(value: String) = """
+internal fun setFieldValueJs(value: String) = """
     (function() {
         var el = document.activeElement;
         if (!el) return;
@@ -234,9 +235,9 @@ private fun setFieldValueJs(value: String) = """
 // search-as-you-type page and a plain <form> both work without submitting twice.
 // Dismissing the host keyboard without blurring the page's own field would leave it focused,
 // so the next tap anywhere with a text cursor pops the keyboard straight back up.
-private const val BLUR_FIELD_JS = "document.activeElement && document.activeElement.blur();"
+internal const val BLUR_FIELD_JS = "document.activeElement && document.activeElement.blur();"
 
-private const val SUBMIT_FIELD_JS = """
+internal const val SUBMIT_FIELD_JS = """
     (function() {
         var el = document.activeElement;
         if (!el) return;
@@ -254,7 +255,7 @@ private const val SUBMIT_FIELD_JS = """
  * The same ring the rest of the car UI shows, on whatever link or field the knob is on. Many
  * sites hide the browser's own focus outline, which leaves a knob driver with no idea where they are.
  */
-private fun focusRingJs(color: String) = """
+internal fun focusRingJs(color: String) = """
     (function() {
         if (document.getElementById('mycar-focus-ring')) return;
         var style = document.createElement('style');
@@ -265,7 +266,7 @@ private fun focusRingJs(color: String) = """
 """
 
 /** Reports focus/blur on text inputs, textareas and contenteditable elements to [FieldFocusBridge]. */
-private const val FOCUS_TRACKING_JS = """
+internal const val FOCUS_TRACKING_JS = """
     (function() {
         function isEditable(el) {
             if (!el) return false;

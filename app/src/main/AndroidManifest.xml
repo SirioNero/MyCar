@@ -51,6 +51,11 @@
     <!-- The dashboard opened from the car clock: today's agenda and current weather. -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
+    <!-- Cinema: the phone's videos, in the car under "On this phone" (all, or those picked). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
     <!-- Capturing a media app's playback (to send to the car) is gated on this by the platform. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
@@ -184,7 +189,7 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|density|locale|layoutDirection|fontScale">
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|touchscreen|uiMode|density|locale|layoutDirection|fontScale|fontWeightAdjustment|colorMode|mcc|mnc|grammaticalGender">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -32,7 +32,7 @@ installed() { adb shell pm list packages "$1" | tr -d '\r' | grep -qx "package:$
 grid=(phone)
 installed $VELA && grid+=(vela)
 installed $XONOS && grid+=(xonos)
-grid+=(ytmusic ytmusic-browse messages browser screen)
+grid+=(ytmusic ytmusic-browse messages browser cinema screen)
 installed $PLANCIA && grid+=(plancia)
 grid+=(settings exit)
 echo "1920x720 grid: ${grid[*]}"
@@ -119,6 +119,15 @@ shoot pages 1920 720 240 "$DOCK_MAP;966,675;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT
 shoot pages-800x480 800 480 160 "48,116;404,450;$WAIT"
 # Changing a page: the pencil beside the dots, then a part, for the list of what can go there.
 shoot pages-edit 1920 720 240 "$DOCK_MAP;966,675;1138,675;585,400;$WAIT"
+# The layouts a page can take: the pencil, the Layout button at the start of its bar, the list of
+# layouts; then "Half left" from it (the fourth tile of the first row).
+shoot pages-layouts 1920 720 240 "$DOCK_MAP;966,675;1138,675;690,72;$WAIT;1430,252;$WAIT"
+# Each layout beside the two halves and the four parts, on the page left of the map (--es pageLayout):
+# the weather, the agenda, then empty parts.
+for layout in full half-quarters quarters-half strip-quarters quarters-strip; do
+    EXTRA="--es pageLayout $layout" shoot "layout-$layout" 1920 720 240 "$WAIT;$DOCK_MAP;966,675;$WAIT;$WAIT"
+done
+EXTRA="--es pageLayout half-quarters" shoot layout-800x480 800 480 160 "48,116;404,450;$WAIT"
 
 # Plancia inside myCar, on the run's own Home Assistant (.github/home-assistant.sh), which the
 # emulator reaches at 10.0.2.2: full screen from the grid, where the Plancia app was, then its
@@ -152,6 +161,55 @@ if [ -n "${MA_TOKEN:-}" ]; then
 else
     echo "--- no Music Assistant: Xonos's shots left out ---"
 fi
+
+# Cinema: from the grid, myCar's own tiles ("On this phone", then any TV list) and the video sites
+# as tiles (each with the icon it gives itself), then the first site, YouTube; and the same with
+# the car moving, where "Video only when parked" covers the picture and the sound carries on.
+CINEMA_PHONE="302,216"    # the first tile, "On this phone"
+CINEMA_SECOND="594,216"   # YouTube; with a TV list, the list
+shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$WAIT"
+EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT"
+
+# Cinema's shelves on Android's own player: a minute of test picture and tone on the phone (in
+# Movies), and a TV list from the runner (10.0.2.2:8001) with a stream (HLS) and a film file, a
+# logo and two groups, all made with ffmpeg. "On this phone" plays its video; the TV tile shows
+# the groups, then all the channels, and plays the first; the phone's video again with the car
+# moving, covered and still sounding.
+CINEMA_MEDIA=/tmp/cinema-media
+if [ -z "${ONLY:-}" ] || [[ " $ONLY " == *" cinema-"* ]]; then
+mkdir -p "$CINEMA_MEDIA/tv"
+FFMPEG="docker run --rm -v $CINEMA_MEDIA:/out --entrypoint /ffmpeg mwader/static-ffmpeg:7.1 -loglevel error -y"
+$FFMPEG -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=60" -f lavfi -i "sine=f=440:d=60" \
+    -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest /out/test-video.mp4 || echo "cinema: no test video"
+$FFMPEG -f lavfi -i "testsrc=size=1280x720:rate=25:duration=120" -f lavfi -i "sine=f=660:d=120" \
+    -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -f hls -hls_time 4 -hls_list_size 0 /out/tv/live.m3u8 || echo "cinema: no test stream"
+$FFMPEG -f lavfi -i "color=c=0x3D8BFF:s=256x144" -frames:v 1 /out/tv/logo.png || echo "cinema: no test logo"
+cat > "$CINEMA_MEDIA/tv.m3u" <<'M3U'
+#EXTM3U
+#EXTINF:-1 tvg-logo="http://10.0.2.2:8001/tv/logo.png" group-title="Test",Test channel
+http://10.0.2.2:8001/tv/live.m3u8
+#EXTINF:-1 group-title="Films",Test film
+http://10.0.2.2:8001/test-video.mp4
+M3U
+python3 -m http.server 8001 --bind 127.0.0.1 --directory "$CINEMA_MEDIA" > /tmp/cinema-media.txt 2>&1 &
+adb push "$CINEMA_MEDIA/test-video.mp4" /sdcard/Movies/test-video.mp4
+adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Movies/test-video.mp4 > /dev/null
+fi
+VIDEO_FIRST="377,240"     # the first video on "On this phone"
+GROUP_ALL="377,180"       # "All channels", the first of a list's groups
+CHANNEL_FIRST="304,207"   # the first channel
+TV="--es tvList http://10.0.2.2:8001/tv.m3u"
+shoot cinema-videos 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
+EXTRA="$TV" shoot cinema-tv 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$GROUP_ALL;$WAIT;$CHANNEL_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
+EXTRA="--ez moving true" shoot cinema-videos-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT"
+echo "--- Cinema ---"
+grep -h "cinema" previews/cinema*/log.txt 2>/dev/null | head -40 || echo "cinema: nothing in the log"
+grep -h "GET" /tmp/cinema-media.txt 2>/dev/null | head -20 || echo "cinema: nothing asked of the runner"
+# The sites Cinema suggests, as the runner reaches them (the cloud session can't).
+for site in https://www.youtube.com https://www.raiplay.it https://www.twitch.tv https://www.dailymotion.com https://vimeo.com \
+    https://www.la7play.it https://www.ted.com https://www.arte.tv https://plus.nasa.gov https://archive.org/details/feature_films; do
+    echo "cinema site $site: $(curl -s -o /dev/null -L --max-time 20 -w '%{http_code} %{url_effective}' "$site")"
+done
 
 # Plancia and Xonos inside myCar set up on addresses that don't answer (as Tailscale ones do when
 # myCar is left out of it), the Plancia and Xonos apps on the phone: a few seconds in, the apps take
@@ -281,6 +339,19 @@ fi
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
+
+# The car's browser on a page that is one big dropdown (<select>), tapped twice: it used to close
+# myCar ("Window type mismatch" for its dialog); now it just doesn't open, and crash.txt stays empty.
+# The page comes from the runner (10.0.2.2:8002), as the browser's start page (--es startUrl).
+mkdir -p /tmp/select-page
+cat > /tmp/select-page/select.html <<'HTML'
+<html><body style="margin:0;background:#202830"><select style="position:fixed;left:0;top:0;width:100%;height:100%;font-size:48px"><option>One</option><option>Two</option><option>Three</option></select></body></html>
+HTML
+python3 -m http.server 8002 --bind 127.0.0.1 --directory /tmp/select-page > /tmp/select-page.txt 2>&1 &
+EXTRA="--es startUrl http://10.0.2.2:8002/select.html" LOGTAGS="cr_SelectPopup" \
+    shoot browser-select 1920 720 240 "$GRID_BUTTON;$(at browser);$WAIT;$WAIT;1000,400;$WAIT;1000,400;$WAIT"
+echo "--- a dropdown in the car's browser ---"
+if [ -s previews/browser-select/crash.txt ]; then head -20 previews/browser-select/crash.txt; else echo "browser-select: no crash"; fi
 
 # The app grid over each kind of moving wallpaper: the same screen shot 2.5s apart, to compare.
 EXTRA="--es wallpaper waves" shoot motion-waves 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT"

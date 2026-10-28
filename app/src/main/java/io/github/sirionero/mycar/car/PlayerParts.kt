@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.produceState
@@ -51,15 +52,23 @@ import kotlinx.coroutines.withContext
  * the map - so a button looks and behaves the same wherever it turns up.
  */
 
+/**
+ * False where a player can't be seen just now - the one beside the map, with another screen over
+ * Home or another page in view: its time stands still there. Each tick redrew the car's screen,
+ * and the car got a new frame of video, for a change nobody could see.
+ */
+internal val LocalPlayerInView = compositionLocalOf { true }
+
 /** The seek line, with the time played and the time left under it when [showTimes]. */
 @Composable
 internal fun PlayerProgress(now: NowPlaying, media: CarMedia, modifier: Modifier = Modifier, showTimes: Boolean = true) {
     if (now.durationMs <= 0) return
     var position by remember { mutableLongStateOf(now.currentPosition()) }
-    LaunchedEffect(now) {
+    val inView = LocalPlayerInView.current
+    LaunchedEffect(now, inView) {
         while (true) {
             position = now.currentPosition()
-            if (!now.playing) break
+            if (!now.playing || !inView) break
             delay(500)
         }
     }

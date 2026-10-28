@@ -349,7 +349,10 @@ class CarMedia(private val context: Context) {
 
     private val callback = object : MediaController.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadata?) = update(metadata, controller?.playbackState)
-        override fun onPlaybackStateChanged(state: PlaybackState?) = update(controller?.metadata, state)
+        // The metadata as last sent: asked for again at every state change, it came back with a new
+        // copy of the cover, and the blurred backdrops and colours made from it were made all over
+        // again at every play, pause and seek (every second, for apps that post their position).
+        override fun onPlaybackStateChanged(state: PlaybackState?) = update(lastMetadata ?: controller?.metadata, state)
         override fun onQueueChanged(queue: MutableList<MediaSession.QueueItem>?) {
             _queue.value = queueOf(queue)
         }
@@ -404,7 +407,10 @@ class CarMedia(private val context: Context) {
         )
     }
 
+    private var lastMetadata: MediaMetadata? = null
+
     private fun update(metadata: MediaMetadata?, state: PlaybackState?) {
+        lastMetadata = metadata
         fun text(vararg keys: String) = keys.firstNotNullOfOrNull { metadata?.getString(it)?.takeIf(String::isNotEmpty) }.orEmpty()
         fun art(vararg keys: String) = keys.firstNotNullOfOrNull { metadata?.getBitmap(it) }
         fun uri(vararg keys: String) = keys.firstNotNullOfOrNull { metadata?.getString(it)?.takeIf(String::isNotEmpty) }?.let(Uri::parse)
