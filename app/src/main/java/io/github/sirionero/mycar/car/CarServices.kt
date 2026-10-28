@@ -154,7 +154,7 @@ object CarServices {
 
     /** Opens a templated app that isn't navigation, on its own screen - never on Home. */
     fun connectBrowse(app: TemplateApp, frame: CarEnvironment.Frame) {
-        closedBrowse = null
+        closedBrowse = closedBrowse - app.component
         // Already open ("open Plancia" to the assistant, with it beside the map): connecting again
         // threw away the screens the driver had opened in it.
         if (browse.connectedComponent == app.component && browse.status.value.phase in LIVE) return
@@ -162,7 +162,7 @@ object CarServices {
     }
 
     fun stopBrowse() {
-        closedBrowse = browse.connectedComponent
+        browse.connectedComponent?.let { closedBrowse = closedBrowse + it }
         browse.disconnect()
     }
 
@@ -171,13 +171,18 @@ object CarServices {
      * start their app by themselves (beside the map, on a page) leave this one closed until it's
      * asked for: coming back to Home used to start it straight up again.
      */
-    var closedBrowse: ComponentName? = null
+    var closedBrowse: Set<ComponentName> = emptySet()
         private set
 
     // --- media ---------------------------------------------------------------------------
 
-    fun openMedia(app: MediaApp, autoplay: Boolean = false) {
-        CarSettings.setLastMedia(app.component.flattenToString())
+    /**
+     * [remember]: false when nobody chose it - the app beside the map, opened to show its player -
+     * so the next drive still starts with the app the driver last used.
+     */
+    fun openMedia(app: MediaApp, autoplay: Boolean = false, remember: Boolean = true) {
+        if (remember) CarSettings.setLastMedia(app.component.flattenToString())
+        closedMedia = null
         val phase = media.phase.value
         val live = phase == CarMedia.Phase.READY || phase == CarMedia.Phase.CONNECTING
         if (_mediaApp.value?.component == app.component && live) return
@@ -210,7 +215,12 @@ object CarServices {
     }
 
     /** Closes the media app from the car: stops what it's playing and drops the connection. */
+    /** The music app the driver closed from its menu; the app beside the map doesn't reopen it by itself. */
+    var closedMedia: ComponentName? = null
+        private set
+
     fun closeMedia() {
+        closedMedia = _mediaApp.value?.component
         if (media.now.value.playing) media.togglePlay()
         media.disconnect()
         _mediaApp.value = null
@@ -349,7 +359,9 @@ object CarServices {
         CarAudio.release()
         _mediaApp.value = null
         _mediaDecided.value = false
-        closedBrowse = null
+        closedBrowse = emptySet()
+        closedMedia = null
+        media.forgetLosses()
         clearSectionCache()
         navStopped = false
     }

@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.car
 
 import android.content.Context
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import io.github.sirionero.mycar.car.theme.GsIconBox
 import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.host.TemplateApp
+import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.media.NowPlaying
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,7 +94,7 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
     var started by remember { mutableStateOf(false) }
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE
-        val closed = !live && CarServices.closedBrowse == app.component
+        val closed = app.component in CarServices.closedBrowse
         if (!closed && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
         started = true
     }
@@ -104,7 +106,7 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(24.dp),
             )
-        } else if (started && status.phase == CarAppConnection.Phase.IDLE) {
+        } else if (started && (status.phase == CarAppConnection.Phase.IDLE || app.component in CarServices.closedBrowse)) {
             // Closed from the dock's app menu: the pane waits to be asked, rather than starting
             // the app straight back up against the driver's wishes.
             GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) {
@@ -122,15 +124,26 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
  */
 @Composable
 internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
-    // Again once the music app is closed from its menu: its player stays beside the map, and
-    // without a connection its buttons did nothing for the rest of the drive.
-    val none = CarServices.mediaApp.collectAsState().value == null
-    LaunchedEffect(app.component, none) {
+    val current by CarServices.mediaApp.collectAsState()
+    val phase by CarServices.media.phase.collectAsState()
+    LaunchedEffect(app.component, current, phase) {
         // After the drive has picked its music: what's already playing on the phone comes first.
         CarServices.mediaDecided.first { it }
-        if (CarServices.mediaApp.value == null) CarServices.openMedia(app)
+        val cur = CarServices.mediaApp.value
+        // Also when the drive's pick didn't connect (the app used last isn't running): the pane
+        // stayed on a player with nothing behind it for the whole drive.
+        val failed = cur != null && cur.component != app.component && CarServices.media.phase.value == CarMedia.Phase.REJECTED
+        // Not when the driver closed this very app: that waits for a tap on the pane.
+        val closedHere = cur == null && CarServices.closedMedia == app.component
+        if ((cur == null && !closedHere) || failed) CarServices.openMedia(app, remember = false)
     }
-    GlassDockedPlayer(now, modifier)
+    Box(modifier) {
+        GlassDockedPlayer(now, Modifier.matchParentSize())
+        // Closed from its menu: the player stays, and a tap on it brings the app back, playing.
+        if (current == null) {
+            Box(Modifier.matchParentSize().clickable { CarServices.openMedia(app, autoplay = true) })
+        }
+    }
 }
 
 private val LIVE = setOf(CarAppConnection.Phase.BINDING, CarAppConnection.Phase.HANDSHAKE, CarAppConnection.Phase.RUNNING)
