@@ -6,6 +6,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Button
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.clickable
@@ -107,15 +108,18 @@ fun LogsScreen(onBack: () -> Unit) {
                             }.onFailure { MyCarLog.w("logs: couldn't share the log: ${it.message}") }
                         }
                         },
-                        modifier = Modifier.weight(1f).height(56.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        contentPadding = LOG_BUTTON_PADDING,
                     ) { Text("Share") }
                     OutlinedButton(
                         onClick = { pastOpen = true },
-                        modifier = Modifier.weight(1f).height(56.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        contentPadding = LOG_BUTTON_PADDING,
                     ) { Text("Earlier") }
                     OutlinedButton(
                         onClick = { MyCarLog.clearLive() },
-                        modifier = Modifier.weight(1f).height(56.dp),
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        contentPadding = LOG_BUTTON_PADDING,
                     ) { Text("Clear") }
                 }
             }
@@ -231,3 +235,6 @@ private fun colorFor(line: String): Color = when (line.getOrNull(13)) {
     'W' -> MaterialTheme.colorScheme.tertiary
     else -> MaterialTheme.colorScheme.onSurface
 }
+
+/** Three side by side on a narrow phone: the buttons' usual 24 dp each side broke "Earlier" in two. */
+private val LOG_BUTTON_PADDING = PaddingValues(horizontal = 8.dp, vertical = 8.dp)

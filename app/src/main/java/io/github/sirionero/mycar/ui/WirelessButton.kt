@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -99,7 +100,8 @@ internal fun WirelessButton() {
             denied = false
             if (granted()) devices = WirelessLink.pairedDevices(context) else ask.launch(WIRELESS_PERMISSIONS)
         },
-        modifier = Modifier.fillMaxWidth().height(64.dp),
+        // At least 64 dp: larger text puts "wirelessly" on a second line, which a fixed height cut.
+        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
     ) {
         Box(Modifier.size(28.dp)) { WifiIcon(MaterialTheme.colorScheme.onPrimary) }
         Spacer(Modifier.width(12.dp))

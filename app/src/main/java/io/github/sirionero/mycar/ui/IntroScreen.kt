@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -230,7 +231,8 @@ fun IntroScreen(onDone: () -> Unit) {
                 extra = { ThemePicker(c, ::cq, ::cqSp, step) }) { ButtonsIcon(c.onTertiaryC) }
         }
         }
-        Column(Modifier.fillMaxWidth().padding(horizontal = cq(8f))) {
+        // Above the three-button navigation bar, which covered Next and Start.
+        Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = cq(8f))) {
             Dots(c, steps.size, index, ::cq, Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.height(cq(5f)))
             PillRow(

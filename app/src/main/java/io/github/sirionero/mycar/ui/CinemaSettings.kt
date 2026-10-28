@@ -2,6 +2,8 @@ package io.github.sirionero.mycar.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,6 +42,7 @@ import io.github.sirionero.mycar.cinema.CinemaSite
  * a phone or as on a computer, and whether video shows only with the car parked - on unless the
  * driver turns it off, after a warning.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CinemaSection() {
     val sites by Cinema.sites.collectAsState()
@@ -98,7 +101,8 @@ internal fun CinemaSection() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                 modifier = Modifier.fillMaxWidth(),
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Reset goes under on a narrow phone or with large text, instead of three lines of it.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = {
                         val url = Cinema.normalizeUrl(address)

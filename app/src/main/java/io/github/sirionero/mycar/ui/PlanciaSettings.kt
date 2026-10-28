@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,6 +44,7 @@ import org.json.JSONArray
  * home, the one away, and a long-lived token. With the Plancia app on the phone, its account comes
  * over with one tap - and on its own the first time, when nothing's been set here yet.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PlanciaSection() {
     val context = LocalContext.current
@@ -142,13 +145,20 @@ internal fun PlanciaSection() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // On a narrow phone or with large text, Remove goes under rather than splitting in two.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = {
                     val config = HomeAssistant.Config(
                         HomeAssistant.normalizeUrl(home),
                         HomeAssistant.normalizeUrl(remote),
                         token.trim(),
                     )
+                    // Not saved half done: an emptied token field (a new one about to be pasted)
+                    // overwrote the working account, without the question Remove asks.
+                    if (!config.isComplete) {
+                        status = "Add an address and a token. To take Plancia out of myCar, use Remove."
+                        return@Button
+                    }
                     HomeAssistant.save(config)
                     askLocalNetwork(config.urls) { test(config) }
                 }) { Text("Save and test") }

@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -572,10 +574,15 @@ private fun BottomBar(
         else -> "You're ready. Plug into the car; if Android asks, choose myCar and tap Always." to "Done"
     }
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Above the three-button navigation bar: drawn to the edge, its buttons were under it.
+        Column(
+            Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Text(line, style = MaterialTheme.typography.bodyMedium)
-            Button(onClick = onNext, enabled = !busy, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(action) }
+            // At least 56 dp: larger text grows it rather than being cut.
+            Button(onClick = onNext, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(action) }
             // Without the big button's step done: leave it for later, it stays on Home.
             if (next != null) {
                 TextButton(onClick = onFinish, modifier = Modifier.fillMaxWidth()) {
