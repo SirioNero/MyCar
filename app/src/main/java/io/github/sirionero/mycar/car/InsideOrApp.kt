@@ -22,6 +22,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.net.URI
 
 /**
  * Plancia and Xonos inside myCar, or the Plancia and Xonos apps in their place: inside myCar while
@@ -78,10 +79,16 @@ internal object InsideOrApp {
 
             val ma = Xonos.repo.connection.value
             val maUp = ma is Connection.Connected
-            val maOut = !maUp && Xonos.setUp.value && xonosThere && Tailnet.outOfReach(app, Xonos.settings.load().urls) &&
+            val maUrls = Xonos.settings.load().urls
+            val maOut = !maUp && Xonos.setUp.value && xonosThere && Tailnet.outOfReach(app, maUrls) &&
                 !Bridges.xonos.available(app)
+            // Music Assistant inside the Xonos app (127.0.0.1): the app would play from that same server,
+            // which a woken app takes a few seconds to start. Nothing to take over: Xonos waits for it.
+            val maOnThePhone = maUrls.isNotEmpty() && maUrls.all { url ->
+                runCatching { URI(url).host }.getOrNull()?.let(Bridges::onThePhone) == true
+            }
             if (!Xonos.appTakesOver.value &&
-                xonos.update(now, Xonos.setUp.value, xonosThere, maUp, online, maOut, (ma as? Connection.Failed)?.problem in MISSET)
+                xonos.update(now, Xonos.setUp.value, xonosThere && !maOnThePhone, maUp, online, maOut, (ma as? Connection.Failed)?.problem in MISSET)
             ) {
                 log.i("the Xonos app takes Xonos's place for this drive ($ma; ${Tailnet.describe(app)})")
                 Xonos.appTakesOver.value = true

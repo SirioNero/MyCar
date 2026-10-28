@@ -42,7 +42,7 @@ object Bridges {
     }
 
     /** The phone itself: where the Xonos app with Music Assistant inside answers (127.0.0.1:8095). */
-    private fun onThePhone(host: String): Boolean {
+    fun onThePhone(host: String): Boolean {
         val name = host.removeSurrounding("[", "]").lowercase()
         return name == "localhost" || name == "::1" || name.startsWith("127.")
     }
