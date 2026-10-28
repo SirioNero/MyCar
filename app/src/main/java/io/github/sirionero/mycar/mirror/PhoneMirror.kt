@@ -106,6 +106,13 @@ object PhoneMirror {
         }
 
         _active.value = display != null
+        if (display == null) {
+            // Not left running: the phone stayed "casting" with its notification up, and the next
+            // try stopped this one - and with it, the sharing just started.
+            runCatching { token.stop() }
+            media = null
+            MirrorService.stop()
+        }
         if (display != null) {
             MyCarLog.i("mirroring the phone into ${width}x$height")
             // The car's screen is wide: the phone turns to match while it's shown there.
