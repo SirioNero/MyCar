@@ -78,8 +78,11 @@ object CarAssistant {
         val context = appContext ?: return
         if (_state.value.phase == Phase.LISTENING || _state.value.phase == Phase.THINKING) return
         // A message being read or answered gives way: the driver asked for the assistant instead,
-        // and the reply left waiting would keep the car's voice key for itself.
-        if (VoiceReply.active) VoiceReply.cancel()
+        // and the reply left waiting would keep the car's voice key for itself. A reply counting
+        // down goes now, as the wheel's voice key sends it: dropping it lost it without a word.
+        if (VoiceReply.active) {
+            if (VoiceReply.state.value.phase == VoiceReply.Phase.CONFIRMING) VoiceReply.sendNow() else VoiceReply.cancel()
+        }
         // The driver may have picked another assistant, which then takes the button instead.
         if (AssistantChoice.startOther(context)) return
 
