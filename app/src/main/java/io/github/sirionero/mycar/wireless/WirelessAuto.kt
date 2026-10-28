@@ -94,8 +94,13 @@ object WirelessAuto {
         log.i("auto-connect: asking Android to let myCar connect to ${WirelessLink.name(device)} by itself")
         @Suppress("DEPRECATION")
         manager.associate(request, object : CompanionDeviceManager.Callback() {
+            // Android 13 and later call this one; before, onDeviceFound.
+            override fun onAssociationPending(intentSender: IntentSender) = pending(intentSender)
+
             @Deprecated("Deprecated in Java")
-            override fun onDeviceFound(chooser: IntentSender) {
+            override fun onDeviceFound(chooser: IntentSender) = pending(chooser)
+
+            private fun pending(chooser: IntentSender) {
                 val show = showApproval
                 if (show == null) {
                     // Asked again at the next wireless drive: only an answer counts.
@@ -164,7 +169,8 @@ object WirelessAuto {
             context.startActivity(
                 Intent(context, MyCarActivity::class.java)
                     .setAction(ACTION_CAR_NEARBY)
-                    .putExtra(EXTRA_ADDRESS, address)
+                    // Bluetooth takes an address in capitals only.
+                    .putExtra(EXTRA_ADDRESS, address.uppercase(java.util.Locale.ROOT))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )
         }.onFailure { log.w("auto-connect: couldn't open myCar (${it.message})") }
