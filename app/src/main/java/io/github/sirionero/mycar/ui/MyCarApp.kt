@@ -35,7 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
-import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.home.HomeAssistant
@@ -49,15 +48,12 @@ private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP
 @Composable
 fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     val context = LocalContext.current
-    val needsCertSetup = remember {
-        !AppSettings.hasSkippedCertSetup(context) && !CertProvider.hasAnyCert(context)
-    }
+    // The first run starts on the setup list; anything left for later stays on Home (SetupLeftCard).
     val needsSetupGuide = remember { !AppSettings.hasSeenPermissionsSetup(context) }
     // Where launch goes once the intro (if any) is done.
     val afterIntro = remember {
         when {
-            needsCertSetup -> Screen.CERT_SETUP
-            needsSetupGuide -> Screen.SETUP_GUIDE
+            needsSetupGuide -> Screen.SETUP
             // Set up before usage notes existed: ask once, on the setup guide's own page.
             UsageStats.sends && !UsageStats.asked(context) -> Screen.USAGE_NOTES
             else -> Screen.HOME
@@ -71,7 +67,7 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     // What's new and Connection help open from Home and from Settings; back returns to whichever.
     var backTo by rememberSaveable { mutableStateOf(Screen.SETTINGS) }
     // The setup list: from the first run, or back to it later; it returns where it came from.
-    var setupEntry by rememberSaveable { mutableStateOf(SetupEntry.RETURN) }
+    var setupEntry by rememberSaveable { mutableStateOf(if (needsSetupGuide) SetupEntry.FIRST_RUN else SetupEntry.RETURN) }
     var setupReturn by rememberSaveable { mutableStateOf(Screen.HOME) }
     BackHandler(enabled = screen != Screen.HOME && screen != Screen.INTRO) {
         screen = when (screen) {
