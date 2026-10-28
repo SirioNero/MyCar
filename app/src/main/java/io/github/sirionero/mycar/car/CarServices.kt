@@ -154,12 +154,22 @@ object CarServices {
 
     /** Opens a templated app that isn't navigation, on its own screen - never on Home. */
     fun connectBrowse(app: TemplateApp, frame: CarEnvironment.Frame) {
+        closedBrowse = null
         browse.connect(app, frame.width, frame.height, frame.densityDpi)
     }
 
     fun stopBrowse() {
+        closedBrowse = browse.connectedComponent
         browse.disconnect()
     }
+
+    /**
+     * The templated app the driver closed, from its menu or its Stop button. The panes that
+     * start their app by themselves (beside the map, on a page) leave this one closed until it's
+     * asked for: coming back to Home used to start it straight up again.
+     */
+    var closedBrowse: ComponentName? = null
+        private set
 
     // --- media ---------------------------------------------------------------------------
 
@@ -322,6 +332,7 @@ object CarServices {
         CarAudio.release()
         _mediaApp.value = null
         _mediaDecided.value = false
+        closedBrowse = null
         navStopped = false
     }
 }

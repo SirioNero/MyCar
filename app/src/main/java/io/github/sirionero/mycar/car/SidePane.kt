@@ -92,7 +92,8 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
     var started by remember { mutableStateOf(false) }
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE
-        if (!live || CarServices.browse.connectedComponent != app.component) CarServices.connectBrowse(app, frame)
+        val closed = !live && CarServices.closedBrowse == app.component
+        if (!closed && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
         started = true
     }
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {

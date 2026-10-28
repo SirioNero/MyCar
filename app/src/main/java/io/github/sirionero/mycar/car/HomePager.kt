@@ -354,7 +354,8 @@ private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () ->
     var started by remember { mutableStateOf(false) }
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE_PHASES
-        if (!live || CarServices.browse.connectedComponent != app.component) CarServices.connectBrowse(app, frame)
+        val closed = !live && CarServices.closedBrowse == app.component
+        if (!closed && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
         started = true
     }
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {
