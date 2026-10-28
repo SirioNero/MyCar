@@ -60,6 +60,7 @@ class BuiltInIconLook(val color: Color, @DrawableRes val glyph: Int, @DrawableRe
 fun builtInIconLook(id: String): BuiltInIconLook = when (id) {
     "dialer" -> BuiltInIconLook(MyCarPalette.Positive, R.drawable.sym_call)
     "web" -> BuiltInIconLook(MyCarPalette.Accent, R.drawable.sym_language)
+    "cinema" -> BuiltInIconLook(MyCarPalette.Negative, R.drawable.sym_movie)
     "phone" -> BuiltInIconLook(MyCarPalette.Indigo, R.drawable.sym_screen_share)
     "vehicle" -> BuiltInIconLook(MyCarPalette.Warning, R.drawable.sym_speed)
     "settings" -> BuiltInIconLook(MyCarPalette.Graphite, R.drawable.sym_settings)

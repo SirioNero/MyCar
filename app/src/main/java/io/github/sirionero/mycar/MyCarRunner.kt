@@ -15,6 +15,7 @@ import io.github.sirionero.mycar.car.DirectionsVoice
 import io.github.sirionero.mycar.car.CarAssistant
 import io.github.sirionero.mycar.car.CarEnvironment
 import io.github.sirionero.mycar.car.CarKeys
+import io.github.sirionero.mycar.car.CarDriving
 import io.github.sirionero.mycar.car.CarSensors
 import io.github.sirionero.mycar.car.CarServices
 import io.github.sirionero.mycar.car.CarSettings
@@ -184,6 +185,7 @@ class MyCarRunner(
         guidanceLink?.close()
         guidanceLink = null
         CarSensors.clear()
+        CarDriving.clear()
         CarMic.current = null
         CarBluetooth.onCarDisconnected()
         CarAudioRoute.onCarDisconnected()
@@ -796,6 +798,7 @@ class MyCarRunner(
                 CarSensors.onEvent(body)
                 logSensorEvent(body)
                 onNightSensor(body)
+                CarDriving.onSensorEvent(body)
             }
 
             // SensorError { required SensorType sensor_type = 1; required SensorErrorType sensor_error_type = 2; }

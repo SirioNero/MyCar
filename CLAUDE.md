@@ -168,10 +168,11 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
+| `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma"), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono) |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
 | `bridge/` | Il ponte verso le app Plancia e Xonos per myCar lasciata fuori da Tailscale: `AppBridge` (legame e richiesta di una connessione), `Bridges` (quali connessioni passano dal ponte), `BridgedSockets` (`BridgeDns`, `BridgeSocketFactory` per OkHttp), `BridgeProxy` (la pagina di Plancia: proxy SOCKS5 nel WebView) |
@@ -338,6 +339,50 @@ Tutti i token in un solo posto, `car/design/`:
   attraverso il ponte dopo circa 14 s e Music Assistant suona sul lettore "myCar". Subito dopo l'emulatore è
   caduto: le immagini dello scatto mancano, il log è in `stream.txt`.
 
+- **Cinema** (dopo la 0.5.13; `cinema/`, `car/CinemaApp.kt`, `car/CarDriving.kt`, `ui/CinemaSettings.kt`,
+  nome scelto dall'utente): l'app video, che in realtà è un browser fatto per il video. In auto i
+  siti come riquadri con l'icona che il sito dà di sé (manifest, apple-touch-icon, `<link rel=icon>`,
+  `/apple-touch-icon.png`, o quella che il WebView riceve; tenute in `filesDir/cinema-icons`):
+  nessun logo nel pacchetto; finché non c'è, l'iniziale su un colore. Un sito si apre in un WebView
+  con barra sottile (indietro, nome, Close), schermo intero quando il player lo chiede
+  (`onShowCustomView`), la tastiera dell'auto per cercare, e a scelta il layout da computer (user
+  agent Linux con la stessa versione di Chrome). Siti suggeriti finché il guidatore non cambia
+  l'elenco: YouTube, RaiPlay, Twitch; si aggiungono e tolgono sul telefono (chiave `cinema_sites`).
+  Video protetto (DRM: Netflix, Prime Video, Disney+, DAZN…): si lascia provare
+  (`RESOURCE_PROTECTED_MEDIA_ID`) ma quasi certamente esce nero (il display virtuale non è sicuro),
+  e i riquadri e le impostazioni lo dicono. Camera e microfono ai siti mai.
+  **"Video only when parked"** (chiave `cinema_parked_only`) è **acceso di predefinito**: mentre
+  l'auto si muove l'immagine è coperta (`ParkedCover`) e il suono continua. Quando si muove lo dice
+  l'auto stessa, come ad Android Auto: `CarDriving` legge il DrivingStatus (campo 13 degli eventi
+  dei sensori, bit NO_VIDEO); se l'auto non lo dice, la velocità GPS (`CarMotion`). Si può spegnere
+  solo dalle impostazioni del telefono, e prima compare un avviso: myCar lo sconsiglia vivamente,
+  guardare video guidando è pericoloso e in molti paesi è illegale, la responsabilità è solo del
+  conducente ("Turn it off" / "Keep it on"). Decisione dell'utente: solo l'impostazione predefinita
+  e l'avviso; **non scrivere da nessuna parte (app, README, note) frasi sulla "filosofia" di myCar**
+  (tipo "myCar è del proprietario dell'auto"). I siti di casa (Jellyfin) hanno bisogno del permesso
+  della rete di casa (vedi "Rete di casa con Android 17"): chiesto aggiungendo il sito, e in auto
+  una copertura dice cosa concedere. Anteprima: `--ez moving true` (`CarDriving.override`), scatti
+  `cinema/` (griglia, siti, YouTube) e `cinema-moving/`.
+  **Scaffali di myCar** (0.5.19), prima dei siti: "On this phone" (`cinema/PhoneVideos.kt`: video dal
+  media store, i più nuovi prima, anteprime con `loadThumbnail`; permesso `READ_MEDIA_VIDEO` con
+  l'accesso limitato di Android 14, `READ_EXTERNAL_STORAGE` fino al 32, chiesto in auto con
+  `PermissionActivity` e sul telefono con "Videos on this phone") e un riquadro per ogni **lista TV**
+  (`cinema/TvLists.kt`, chiave `cinema_tv_lists`; formato M3U letto da `cinema/M3u.kt` + `M3uTest`:
+  `#EXTINF` con tvg-logo e group-title, `#EXTGRP`, intestazioni da `#EXTVLCOPT` e dopo "|", indirizzi
+  relativi; fuori i canali con licenza DRM in `#KODIPROP` e quelli udp/rtmp). Una lista si scarica
+  quando si apre il suo riquadro, al massimo ogni 6 ore, e resta in `filesDir/cinema-tv` (canali
+  subito, anche senza rete); con più gruppi prima i gruppi. Loghi: `ChannelLogos` (quattro alla
+  volta, in memoria). Si suonano col **MediaPlayer di Android** su una TextureView (`car/CinemaPlayer.kt`,
+  niente ExoPlayer: sarebbe una dipendenza nuova): comandi al tocco (-10 s, play/pausa, +10 s, linea),
+  via dopo 4 s; i video ripartono da dove erano (`cinema_resume`, ultimi 30); un film in una lista
+  (mp4, mkv...) si sposta e riparte come un video, un canale è "LIVE"; il focus audio del telefono
+  mette in pausa per una chiamata e riprende. "Video only when parked" copre anche qui, con la barra
+  (Indietro, Chiudi) sopra. Sul telefono "More sites" (`Cinema.MORE`: Dailymotion, Vimeo, La7, TED,
+  Arte, NASA+, Internet Archive, un tocco) e la sezione "Cinema: TV". Anteprima: un video di prova
+  nei Movies dell'emulatore e una lista dal runner (`10.0.2.2:8001`, HLS + mp4 + logo, fatti con
+  ffmpeg), `--es tvList <indirizzo>`, scatti `cinema-videos/`, `cinema-tv/`, `cinema-videos-moving/`.
+  Verificato in emulatore (API 34): anteprime, video che suona, gruppi e loghi, canale HLS in diretta,
+  copertura in movimento. Non provato: in auto, con liste IPTV vere.
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
@@ -616,10 +661,6 @@ Tutti i token in un solo posto, `car/design/`:
   endpoint tolti. Il motore ufficiale per terze parti (Spotify Soloist, quello di Music
   Assistant) esiste solo per Linux: non gira sul telefono. librespot non suona con gli account
   creati da dicembre 2024.
-- **Cinema** (nome scelto dall'utente): video solo a macchina ferma (freno a mano, velocità e
-  stato di guida dall'auto, GPS come riserva) con fonti senza DRM: YouTube, Twitch, RaiPlay senza
-  DRM, Jellyfin/Plex/Emby, video del telefono, IPTV. Netflix, DAZN, Prime, Disney+ esclusi: il
-  video protetto su un display virtuale non sicuro esce nero, più i loro termini e F-Droid.
 
 ## Note F-Droid
 
