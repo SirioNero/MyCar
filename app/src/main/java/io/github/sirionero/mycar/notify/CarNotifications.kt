@@ -118,7 +118,12 @@ object CarNotifications {
 
     /** The phone dismissed it. It stays in history, but its reply intent is no longer trustworthy. */
     fun gone(key: String) {
+        val history = _history.value
+        // Only what the car has seen: every notification taken off the phone, all day long, kept
+        // filling the set. Keys gone from the history go too.
+        if (history.none { it.key == key }) return
         dismissed.add(key)
+        if (dismissed.size > MAX_HISTORY) dismissed.retainAll(history.map { it.key }.toSet())
         _history.update { list -> list.map { if (it.key == key) it.copy(reply = null, markRead = null) else it } }
     }
 
@@ -141,6 +146,7 @@ object CarNotifications {
         _history.value = emptyList()
         _popup.value = null
         _unread.value = 0
+        dismissed.clear()
     }
 
     /**
