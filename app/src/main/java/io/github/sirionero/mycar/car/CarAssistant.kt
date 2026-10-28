@@ -288,7 +288,19 @@ object CarAssistant {
         )
     }
 
-    fun stopListening() = releaseRecognizer()
+    /**
+     * Stops listening, for someone else's sake (a message read, a quick reply). The overlay closes
+     * too if it was listening: with nothing left to call back, it stayed on "Listening…" and the
+     * microphone and voice key were ignored until its X.
+     */
+    fun stopListening() {
+        releaseRecognizer()
+        val phase = _state.value.phase
+        if (phase == Phase.LISTENING || phase == Phase.THINKING) {
+            _pendingCommand.value = null
+            _state.value = State(Phase.IDLE)
+        }
+    }
 
     private fun releaseRecognizer() {
         SpeechEngine.cancel()
