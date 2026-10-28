@@ -29,7 +29,7 @@ on:
         required: false
         default: ""
       xonos_server:
-        description: "With xonos_ref: Xonos built with Music Assistant inside (any text; the phone-xonos shot)"
+        description: "With xonos_ref: also Music Assistant for the phone, the package Xonos downloads (any text; the phone-xonos shot)"
         required: false
         default: ""
 
@@ -72,9 +72,9 @@ jobs:
           [ -n "$vela" ] && get vela.apk "$vela"
           ls -l third-party
 
-      # Xonos with Music Assistant inside packs a Python 3.13 (Chaquopy), which wants the same one
-      # on the machine that builds it.
-      - name: Python 3.13 for Xonos with Music Assistant inside
+      # Music Assistant for the phone packs a Python 3.13 (Chaquopy), which wants the same one on the
+      # machine that builds it.
+      - name: Python 3.13 for Music Assistant on the phone
         if: inputs.xonos_server != ''
         uses: actions/setup-python@v5
         with:

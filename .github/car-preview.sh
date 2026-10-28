@@ -210,18 +210,23 @@ if [ -n "${PLANCIA_REF:-}${XONOS_REF:-}" ] && [ -n "$BRIDGE_SHOTS" ]; then
     done
 fi
 
-# Xonos with Music Assistant inside (the workflow's xonos_server, with xonos_ref): its server on the
-# phone, set up by Xonos's own debug check (ServerCheckActivity: the account, an album of tones from
-# its folder, a first track played), then Xonos inside myCar on it, from the grid as in xonos-inside.
-# 127.0.0.1 always goes through the Xonos app (the bridge): the shot starts with Xonos stopped, and
-# myCar's binding wakes it, and its server with it.
+# Music Assistant on the phone, in the Xonos app (the workflow's xonos_server, with xonos_ref): the
+# package Xonos downloads when asked comes from the runner (third-party/xonos-server, made by
+# build-apps.sh), as it would from Xonos's release. Xonos's own debug check downloads it and sets the
+# server up (ServerCheckActivity: the account, an album of tones from its folder, a first track
+# played), then Xonos inside myCar runs on it, from the grid as in xonos-inside. 127.0.0.1 always
+# goes through the Xonos app (the bridge): the shot starts with Xonos stopped, and myCar's binding
+# wakes it, and its server with it.
 case " ${ONLY:-phone-xonos} " in *" phone-xonos "*) PHONE_XONOS=yes ;; *) PHONE_XONOS= ;; esac
-if [ -n "${XONOS_SERVER:-}" ] && [ -n "$PHONE_XONOS" ] && installed $XONOS; then
+if [ -n "${XONOS_SERVER:-}" ] && [ -n "$PHONE_XONOS" ] && installed $XONOS && [ -f third-party/xonos-server/xonos-server-x86_64.zip ]; then
+    python3 -m http.server 8000 --bind 127.0.0.1 --directory third-party/xonos-server > /tmp/xonos-package.txt 2>&1 &
+    PACKAGE_SERVER=$!
     python3 apps-src/xonos/tools/server/tones.py /tmp/tones >/dev/null
     adb shell rm -rf /data/local/tmp/music
     adb push /tmp/tones /data/local/tmp/music >/dev/null
     adb shell run-as $XONOS mkdir -p files
     adb shell run-as $XONOS cp -r /data/local/tmp/music files/
+    adb shell "echo http://10.0.2.2:8000/ | run-as $XONOS sh -c 'cat > files/server-package-url'"
     adb logcat -c
     adb shell am start -n $XONOS/.ServerCheckActivity --ez xonos true
     checked=""
@@ -231,6 +236,8 @@ if [ -n "${XONOS_SERVER:-}" ] && [ -n "$PHONE_XONOS" ] && installed $XONOS; then
         sleep 5
     done
     echo "--- Xonos with its own Music Assistant: ${checked:-no answer in 10 minutes} ---"
+    adb logcat -d -s XonosServer | grep -m 5 "Pacchetto" || true
+    kill "$PACKAGE_SERVER" 2>/dev/null || true
     phone_token=$(adb shell run-as $XONOS cat shared_prefs/xonos.xml | sed -n 's/.*<string name="token">\([^<]*\)<.*/\1/p')
     if [ -n "$phone_token" ]; then
         LOGTAGS="Xonos XonosServer" EXTRA="--es maUrl http://127.0.0.1:8095 --es maToken $phone_token" \

@@ -106,11 +106,15 @@ Rispondi sempre in **italiano**.
   ferma i demoni di Gradle e Kotlin: con quella memoria occupata l'emulatore cadeva con Xonos che
   suonava. Un emulatore caduto non blocca più la corsa: adb si arrende dopo 3 minuti, il log di ogni
   scatto resta in `stream.txt`, gli scatti si pubblicano comunque.
-  Con `xonos_server` (e `xonos_ref`) Xonos si compila con Music Assistant dentro (`-PxonosServer`, solo
-  x86_64: Python 3.13 sul runner, FFmpeg e librespot compilati con NDK e Rust, una ventina di minuti) e
-  lo scatto `phone-xonos` prova Xonos integrato sul Music Assistant del telefono: `ServerCheckActivity
-  --ez xonos true` di Xonos prepara server, account e album di toni, poi myCar con `--es maUrl
-  http://127.0.0.1:8095` e il token di Xonos; lo scatto parte con Xonos fermo, che il ponte risveglia.
+  Con `xonos_server` (e `xonos_ref`) `build-apps.sh` costruisce anche il pacchetto di Music Assistant per
+  il telefono che Xonos scarica su richiesta (modulo `:server` + `make_payload.py` di Xonos, solo x86_64:
+  Python 3.13 sul runner, FFmpeg e librespot compilati con NDK e Rust, una ventina di minuti), firmato
+  con una chiave usa e getta che firma anche la build di Xonos (Xonos usa solo un pacchetto firmato come
+  lui), in `third-party/xonos-server/`; lo scatto lo serve all'emulatore con un server HTTP sul runner
+  (`10.0.2.2:8000`, file `files/server-package-url` di Xonos). Lo scatto `phone-xonos` prova Xonos
+  integrato sul Music Assistant del telefono: `ServerCheckActivity --ez xonos true` di Xonos scarica il
+  pacchetto e prepara server, account e album di toni, poi myCar con `--es maUrl http://127.0.0.1:8095` e
+  il token di Xonos; lo scatto parte con Xonos fermo, che il ponte risveglia.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Prova della release in CI: il workflow **Release check** (`.github/workflows/release-check.yml` +
   `.github/release-check.sh`, `.github/tailscale.sh`) installa una release pubblicata (o il branch
