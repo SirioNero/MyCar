@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            27, "0.5.14-alpha",
+            listOf(
+                "Setup is one list on the phone, with one button for the next step. How to connect and Settings bring it back, with nothing reset.",
+                "A spare certificate: if your car turns down the first, myCar uses the other, and the phone says to connect again.",
+                "A car with its clock set wrong is now told apart: the phone says to check the car's date.",
+            ),
+        ),
+        Release(
             26, "0.5.13-alpha",
             listOf(
                 "Plancia and Xonos say why they can't connect: Tailscale leaving myCar out, a Tailscale name that isn't found, or Android 17 keeping myCar off your home network.",
