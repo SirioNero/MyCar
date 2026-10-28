@@ -471,6 +471,13 @@ object WirelessLink {
                 }
                 socket.tcpNoDelay = true
                 socket.connect(InetSocketAddress(ip, port), 5_000)
+                // Stopped while it connected (the cable went in meanwhile): handing it on would
+                // close the session that just started on the cable.
+                if (run != tcpRun) {
+                    log.i("TCP: connected after a stop - closing it")
+                    socket.close()
+                    return
+                }
                 tcp = socket
                 log.i("TCP: connected to $ip:$port (try ${attempt + 1})")
                 val start = onConnected
