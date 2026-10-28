@@ -43,7 +43,7 @@ object Cinema {
     val MORE = listOf(
         CinemaSite("Dailymotion", "https://www.dailymotion.com"),
         CinemaSite("Vimeo", "https://vimeo.com"),
-        CinemaSite("La7", "https://www.la7.it"),
+        CinemaSite("La7", "https://www.la7play.it"),
         CinemaSite("TED", "https://www.ted.com"),
         CinemaSite("Arte", "https://www.arte.tv"),
         CinemaSite("NASA+", "https://plus.nasa.gov"),

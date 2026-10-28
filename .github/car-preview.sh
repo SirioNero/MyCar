@@ -198,7 +198,7 @@ grep -h "cinema" previews/cinema*/log.txt 2>/dev/null | head -40 || echo "cinema
 grep -h "GET" /tmp/cinema-media.txt 2>/dev/null | head -20 || echo "cinema: nothing asked of the runner"
 # The sites Cinema suggests, as the runner reaches them (the cloud session can't).
 for site in https://www.youtube.com https://www.raiplay.it https://www.twitch.tv https://www.dailymotion.com https://vimeo.com \
-    https://www.la7.it https://www.ted.com https://www.arte.tv https://plus.nasa.gov https://archive.org/details/feature_films; do
+    https://www.la7play.it https://www.ted.com https://www.arte.tv https://plus.nasa.gov https://archive.org/details/feature_films; do
     echo "cinema site $site: $(curl -s -o /dev/null -L --max-time 20 -w '%{http_code} %{url_effective}' "$site")"
 done
 
