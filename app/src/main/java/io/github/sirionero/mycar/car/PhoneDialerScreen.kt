@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -157,42 +158,54 @@ private const val TAB_CONTACTS = 0
 private const val TAB_KEYPAD = 1
 private const val TAB_RECENTS = 2
 
-/** The tab open last: the Phone opens on it again. Recents to begin with, as on a phone. */
-private var lastTab = TAB_RECENTS
+/** Below this the three tabs and the title don't fit in a row: 800x480 at the Large sizes. */
+private val NARROW_PHONE = 600.dp
+
+/**
+ * The tab open last: the Phone opens on it again. To begin with Recents, as on a phone - or
+ * Contacts, without the call log, rather than a screen that asks for it.
+ */
+private var lastTab: Int? = null
 
 /** Dialing a number or calling a contact from the car screen: recent calls, contacts and a keypad. */
 @Composable
 fun PhoneDialerScreen() {
     val context = LocalContext.current
     var hasPermissions by remember { mutableStateOf(hasCallPermissions(context)) }
-    var tab by remember { mutableStateOf(lastTab) }
+    var tab by remember { mutableStateOf(lastTab ?: if (hasCallLog(context)) TAB_RECENTS else TAB_CONTACTS) }
     val show = { t: Int ->
         tab = t
         lastTab = t
     }
 
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        // The tabs share the title's row, so the list and keypad get the height back.
-        ScreenHeader("Phone") {
-            if (hasPermissions) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    DialerTab("Recents", tab == TAB_RECENTS, Modifier.width(124.dp)) { show(TAB_RECENTS) }
-                    DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(124.dp)) { show(TAB_CONTACTS) }
-                    DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(124.dp)) { show(TAB_KEYPAD) }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // A narrow screen (800x480 at the larger sizes): narrower tabs, and no title beside them - the
+        // three squeezed out the title and crushed Keypad.
+        val narrow = maxWidth < NARROW_PHONE
+        val tabWidth = if (narrow) 96.dp else 124.dp
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            // The tabs share the title's row, so the list and keypad get the height back.
+            ScreenHeader(if (narrow && hasPermissions) "" else "Phone") {
+                if (hasPermissions) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DialerTab("Recents", tab == TAB_RECENTS, Modifier.width(tabWidth)) { show(TAB_RECENTS) }
+                        DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(tabWidth)) { show(TAB_CONTACTS) }
+                        DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(tabWidth)) { show(TAB_KEYPAD) }
+                    }
                 }
             }
-        }
 
-        if (!hasPermissions) {
-            MissingPermission(context) { hasPermissions = true }
-            return@Column
-        }
+            if (!hasPermissions) {
+                MissingPermission(context) { hasPermissions = true }
+                return@Column
+            }
 
-        Box(Modifier.weight(1f).fillMaxWidth()) {
-            when (tab) {
-                TAB_RECENTS -> RecentsList(context)
-                TAB_CONTACTS -> ContactsList(context)
-                else -> Keypad(context)
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (tab) {
+                    TAB_RECENTS -> RecentsList(context)
+                    TAB_CONTACTS -> ContactsList(context)
+                    else -> Keypad(context)
+                }
             }
         }
     }
