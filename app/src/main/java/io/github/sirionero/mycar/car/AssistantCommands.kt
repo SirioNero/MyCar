@@ -336,7 +336,7 @@ object AssistantCommands {
         val calls = withContext(Dispatchers.IO) { loadRecents(context, grouped = false) }
         val call = calls.firstOrNull { it.number.isNotBlank() && (it.kind == RecentKind.OUTGOING) == redial }
             ?: return if (redial) "There's no call to redial." else "There's no call to return."
-        val who = call.name ?: call.number
+        val who = call.name ?: shownNumber(call.number)
         placeCall(context, call.number)
         return if (redial) "Calling $who again." else "Calling $who back."
     }

@@ -5,8 +5,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.database.ContentObserver
 import android.os.Handler
+import android.net.Uri
 import android.os.Looper
 import android.provider.CallLog
+import android.provider.ContactsContract
 import android.telephony.PhoneNumberUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -81,6 +83,7 @@ internal fun hasCallLog(context: Context): Boolean =
 internal fun loadRecents(context: Context, grouped: Boolean = true): List<RecentCall> {
     if (!hasCallLog(context)) return emptyList()
     val out = mutableListOf<RecentCall>()
+    val names = ContactNames(context)
     // "limit": the call log's own way to give only the latest rows - an old phone has thousands.
     val uri = CallLog.Calls.CONTENT_URI.buildUpon().appendQueryParameter("limit", READ_ROWS.toString()).build()
     val projection = arrayOf(CallLog.Calls.NUMBER, CallLog.Calls.CACHED_NAME, CallLog.Calls.TYPE, CallLog.Calls.DATE)
@@ -100,7 +103,7 @@ internal fun loadRecents(context: Context, grouped: Boolean = true): List<Recent
                     else -> continue
                 }
                 val number = c.getString(numberAt).orEmpty()
-                val name = c.getString(nameAt)?.takeIf { it.isNotBlank() }
+                val name = c.getString(nameAt)?.takeIf { it.isNotBlank() } ?: names.of(number)
                 val last = out.lastOrNull()
                 if (grouped && last != null && number.isNotBlank() && PhoneNumberUtils.compare(last.number, number)) {
                     out[out.lastIndex] = last.copy(count = last.count + 1, name = last.name ?: name)
@@ -112,6 +115,32 @@ internal fun loadRecents(context: Context, grouped: Boolean = true): List<Recent
     }.onFailure { MyCarLog.w("calls: couldn't read the call log: ${it.message}") }
     return out
 }
+
+/**
+ * Names for numbers the call log keeps none for: not every dialer fills it in, and one that does
+ * leaves it empty for a contact saved after the call. Each number looked up once; none without
+ * the contacts permission.
+ */
+private class ContactNames(private val context: Context) {
+    private val allowed = context.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+    private val known = HashMap<String, String?>()
+
+    fun of(number: String): String? {
+        if (!allowed || number.isBlank()) return null
+        return known.getOrPut(number) {
+            runCatching {
+                val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number))
+                context.contentResolver.query(uri, arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null)?.use { c ->
+                    if (c.moveToFirst()) c.getString(0)?.takeIf { it.isNotBlank() } else null
+                }
+            }.getOrNull()
+        }
+    }
+}
+
+/** A number as the phone writes it: "333 123 4567", not "3331234567". */
+internal fun shownNumber(number: String): String =
+    runCatching { PhoneNumberUtils.formatNumber(number, Locale.getDefault().country) }.getOrNull() ?: number
 
 /**
  * The Phone's Recents tab: the latest calls, a missed one in red, a tap asks "Call …?" over the
@@ -145,7 +174,7 @@ internal fun RecentsList(context: Context) {
         calls.isEmpty() -> Note("No recent calls.")
         else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(calls) { call ->
-                RecentRow(call, onClick = call.number.takeIf { it.isNotBlank() }?.let { number -> { CallPrompt.ask(call.name ?: number, number) } })
+                RecentRow(call, onClick = call.number.takeIf { it.isNotBlank() }?.let { number -> { CallPrompt.ask(call.name ?: shownNumber(number), number) } })
             }
         }
     }
@@ -175,12 +204,13 @@ private fun CallLogMissing(context: Context, onGranted: () -> Unit) {
 private fun RecentRow(call: RecentCall, onClick: (() -> Unit)?) {
     val scheme = MaterialTheme.colorScheme
     val missed = call.kind == RecentKind.MISSED
-    val title = (call.name ?: call.number.ifBlank { "Private number" }) + if (call.count > 1) "  (${call.count})" else ""
+    val title = (call.name ?: call.number.takeIf { it.isNotBlank() }?.let(::shownNumber) ?: "Private number") +
+        if (call.count > 1) "  (${call.count})" else ""
     // The number too when there's a name: the same person can call from two.
     val detail = listOfNotNull(
         "${call.kind.arrow} ${call.kind.label}",
         whenLabel(call.at),
-        call.number.takeIf { call.name != null && it.isNotBlank() },
+        call.number.takeIf { call.name != null && it.isNotBlank() }?.let(::shownNumber),
     ).joinToString("  ·  ")
     Surface(
         onClick = onClick ?: {},
