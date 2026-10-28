@@ -508,6 +508,12 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     /** A wireless session: the same runner, on the socket [WirelessLink] opened to the car. */
     private fun startWireless(socket: java.net.Socket) {
+        // Closed by a stop that came first (the cable plugged in, Connect tapped again): starting
+        // would end the session that replaced it, and reading a closed socket threw, closing myCar.
+        if (socket.isClosed) {
+            MyCarLog.i("wireless: the car's socket was closed before its session began - ignored")
+            return
+        }
         closeAccessory(stopWireless = false)
         if (!AppSettings.myCarEnabled(this)) {
             MyCarLog.i("wireless: myCar is switched off - not connecting")
