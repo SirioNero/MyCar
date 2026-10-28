@@ -235,12 +235,18 @@ class MyCarActivity : ComponentActivity(), Projection {
         Prefetch.warm(this)
         UsageStats.onAppOpened(this)
         io.github.sirionero.mycar.update.UpdateChecker.onAppOpened(this)
-        if (consentPending) {
-            if (CarAudio.stillWanted) requestAudioCapture() else consentPending = false
-        }
         // Back from the app's settings with the microphone turned on: try car audio again.
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             CarAudio.micAllowed()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The capture question that waited for myCar to be on screen. Not from onStart: there the
+        // lifecycle still reads CREATED - it moves to STARTED only once onStart has returned.
+        if (consentPending) {
+            if (CarAudio.stillWanted) requestAudioCapture() else consentPending = false
         }
     }
 
