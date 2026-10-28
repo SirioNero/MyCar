@@ -613,7 +613,11 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     override fun onRefresh() {
-        runOnUiThread { screenProjector?.refresh() }
+        runOnUiThread {
+            // Sharing the phone's screen: myCar's UI isn't there to redraw, so the shared display
+            // sends its picture again - a still phone screen gave the car no frame to start from.
+            if (PhoneMirror.active.value) PhoneMirror.refresh() else screenProjector?.refresh()
+        }
     }
 
     override fun onProjectionStopped() {

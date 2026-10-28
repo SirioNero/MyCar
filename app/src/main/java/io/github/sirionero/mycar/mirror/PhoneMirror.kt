@@ -120,6 +120,16 @@ object PhoneMirror {
         }
     }
 
+    /** Hands the display its surface again, so it draws a whole frame even if nothing on the phone moves. */
+    fun refresh() {
+        val d = display ?: return
+        val surface = d.surface ?: return
+        runCatching {
+            d.surface = null
+            d.surface = surface
+        }
+    }
+
     fun end() {
         TouchRelayService.instance?.holdLandscape(false)
         runCatching { display?.release() }
