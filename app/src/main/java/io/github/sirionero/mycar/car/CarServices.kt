@@ -97,14 +97,25 @@ object CarServices {
     fun connectNav(app: TemplateApp, frame: CarEnvironment.Frame, destination: String? = null) {
         navStopped = false
         CarSettings.setLastNav(app.component.flattenToString())
-        if (destination != null && nav.connectedComponent == app.component) {
+        val same = nav.connectedComponent == app.component
+        if (destination != null && same) {
             nav.navigateTo(destination)
+        } else if (destination == null && same && nav.status.value.phase in LIVE) {
+            // Already there ("show me the map" to the assistant): connecting again would end the
+            // route being driven.
+            return
         } else {
             // Another map app taking over ends the old one's route, or it keeps guiding unseen.
             if (nav.connectedComponent != app.component) endRoute()
             nav.connect(app, frame.width, frame.height, frame.densityDpi, destination)
         }
     }
+
+    private val LIVE = setOf(
+        CarAppConnection.Phase.BINDING,
+        CarAppConnection.Phase.HANDSHAKE,
+        CarAppConnection.Phase.RUNNING,
+    )
 
     fun stopNav() {
         navStopped = true

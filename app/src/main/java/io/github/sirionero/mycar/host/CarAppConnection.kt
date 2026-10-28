@@ -241,6 +241,9 @@ class CarAppConnection(private val context: Context) {
         appManager = null
         navigationManager = null
         navigating = false
+        // An app that's gone ends no route by itself: its last turn stayed on the cluster and in
+        // the voice for the next drive.
+        _trip.value = null
         main.removeCallbacks(sendReroute)
         reroute = null
         autoRoute.disarm()
@@ -813,6 +816,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun fail(phase: Phase, detail: String) {
         clearToasts()
+        _trip.value = null
         MyCarLog.e("host: $detail")
         update { it.copy(phase = phase, detail = detail) }
     }
