@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -72,6 +73,12 @@ import io.github.sirionero.mycar.car.CarUi
 @Composable
 fun CarPreviewScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    // Watching the car screen on the phone: it stays lit, as it does during a drive.
+    val view = LocalView.current
+    DisposableEffect(view) {
+        view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
     val frame by CarEnvironment.frame.collectAsStateWithLifecycle()
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var viewSize by remember { mutableStateOf(0 to 0) }

@@ -20,6 +20,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.activity.enableEdgeToEdge
@@ -197,7 +198,6 @@ class MyCarActivity : ComponentActivity(), Projection {
         // is both a bad first impression and unreliable: Android does not consistently show more
         // than one system permission dialog fired back-to-back, which was silently dropping some.
         enableEdgeToEdge()
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         MyCarLog.init(this)
         MyCarLog.installCrashHandler()
@@ -241,6 +241,17 @@ class MyCarActivity : ComponentActivity(), Projection {
         })
 
         setContent {
+            // The phone's screen stays on while a car connects or shows myCar, not the rest of the
+            // time: left open after a drive, myCar kept it lit in the pocket.
+            val session by SessionStatus.state.collectAsState()
+            val live = session.phase == SessionStatus.Phase.CONNECTING || session.phase == SessionStatus.Phase.PROJECTING
+            LaunchedEffect(live) {
+                if (live) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+            }
             MyCarTheme {
                 MyCarApp(onDisconnect = { closeAccessory() }, onRequestCallScreening = ::requestCallScreeningRole)
                 val offer by offerBluetooth.collectAsState()
