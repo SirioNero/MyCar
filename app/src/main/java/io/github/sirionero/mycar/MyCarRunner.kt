@@ -1036,7 +1036,10 @@ class MyCarRunner(
         }.onFailure { e ->
             log.e("encoder start failed", e)
             if (!stopped) {
-                SessionStatus.failed("No picture for the car", "The phone's video encoder wouldn't start (${e.message}). Disconnect and connect again.")
+                SessionStatus.failed("No picture for the car", "The phone's video encoder wouldn't start (${e.message}). myCar closed the connection: connect again.")
+                // Not left half up: with no picture the car shows nothing, and Home took the drive
+                // for over, Disconnect gone, while audio and the drive's services ran on.
+                stop()
             }
         }
     }
@@ -1052,7 +1055,8 @@ class MyCarRunner(
             if (stopped) return@Thread
             if (videoRestarts >= MAX_VIDEO_RESTARTS) {
                 log.e("the encoder failed again - no more restarts")
-                SessionStatus.failed("The car's picture stopped", "The phone's video encoder keeps failing (${error.message}). Disconnect and connect again.")
+                SessionStatus.failed("The car's picture stopped", "The phone's video encoder keeps failing (${error.message}). myCar closed the connection: connect again.")
+                stop()
                 return@Thread
             }
             videoRestarts++
