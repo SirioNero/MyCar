@@ -681,5 +681,5 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 }
 
-/** Set once myCar has asked for the microphone for the car audio and been told no. */
-private const val KEY_MIC_ASKED = "record_audio_asked"
+/** Set once myCar has asked for the microphone, for the car audio or in the setup guide, and been told no. */
+internal const val KEY_MIC_ASKED = "record_audio_asked"

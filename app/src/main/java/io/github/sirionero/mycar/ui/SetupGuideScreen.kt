@@ -80,6 +80,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.KEY_MIC_ASKED
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.car.CarSettings
 import androidx.compose.foundation.selection.selectable
@@ -501,6 +502,9 @@ fun SetupGuideScreen(onRequestCallScreening: () -> Unit, onDone: () -> Unit, onl
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
+        // A "no" here counts as asked: refused again in the car, Android stops asking, and the car
+        // must say why instead of staying silent (MyCarActivity's audioPermission).
+        if (result[Manifest.permission.RECORD_AUDIO] == false) AppSettings.putString(context, KEY_MIC_ASKED, "1")
         if (result.values.any { it }) {
             Prefetch.warm(context, force = true)
             CarCalls.start(context)
