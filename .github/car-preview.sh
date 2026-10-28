@@ -534,9 +534,9 @@ setup_phone() {
     adb shell am force-stop "$PKG"
     adb shell run-as "$PKG" rm -f shared_prefs/intro.xml
     adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
-    sleep 1; adb exec-out screencap -p > $d/09-intro-hoist.png
-    sleep 2; adb exec-out screencap -p > $d/09-intro-wind-1.png
-    sleep 1; adb exec-out screencap -p > $d/09-intro-wind-2.png
+    sleep 2; adb exec-out screencap -p > $d/09-intro-1.png
+    sleep 0.7; adb exec-out screencap -p > $d/09-intro-2.png
+    sleep 0.7; adb exec-out screencap -p > $d/09-intro-3.png
     adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
     adb logcat -d -b crash > $d/crash.txt 2>&1
     echo "--- setup on the phone ---"
