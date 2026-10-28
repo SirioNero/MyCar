@@ -397,6 +397,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         )
         this.runner = runner
         worker = runSession(runner)
+        SessionService.start(this)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
@@ -435,6 +436,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         )
         this.runner = runner
         worker = runSession(runner)
+        SessionService.start(this)
         io.github.sirionero.mycar.car.WebViewWarmUp.start(this)
     }
 
@@ -454,6 +456,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         runCatching { wirelessSocket?.close() }
         wirelessSocket = null
         if (stopWireless) io.github.sirionero.mycar.wireless.WirelessLink.stop(this)
+        if (runner != null) SessionService.stop(this)
         runner = null
     }
 
