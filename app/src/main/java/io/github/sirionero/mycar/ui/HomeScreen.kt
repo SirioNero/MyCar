@@ -63,6 +63,7 @@ fun HomeScreen(
     onOpenWhatsNew: () -> Unit,
     onOpenHelp: () -> Unit,
     onOpenUsageNotes: () -> Unit,
+    onOpenSetup: () -> Unit,
     onDisconnect: () -> Unit,
 ) {
     val status by SessionStatus.state.collectAsStateWithLifecycle()
@@ -111,6 +112,8 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     StatusCard(status)
+                    if (!live) CertNoticeCard(onOpenHelp = onOpenHelp, onOpenSettings = onOpenSettings)
+                    if (!live) SetupLeftCard(onOpenSetup)
                     if (live) BluetoothMissingCard()
                     VoiceDownloadCard()
                     // The first drive that worked asks once to share it, right under the result.
@@ -134,9 +137,9 @@ fun HomeScreen(
                         )
                         SettingsDivider()
                         SettingsRow(
-                            "Which cars work",
+                            "How to connect",
                             Modifier.clickable(onClick = onOpenHelp),
-                            subtitle = "Most do. See which ones, and what to set up first",
+                            subtitle = "Which cars work, and what's left to set up",
                             icon = Icons.Filled.Info,
                             trailing = { Arrow() },
                         )

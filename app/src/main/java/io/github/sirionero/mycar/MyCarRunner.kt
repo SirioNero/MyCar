@@ -42,6 +42,8 @@ class MyCarRunner(
     private val vehicleProfileFor: (ServiceDiscovery.HeadUnitInfo) -> VehicleProfile? = { null },
     /** Over Wi-Fi rather than USB: the video is sent smaller so the link keeps up. */
     private val wireless: Boolean = false,
+    /** What the car said of the certificate presented, once a session; see [CertRotation]. */
+    private val onCertVerdict: (CertProvider.Identity, CertVerdict) -> Unit = { _, _ -> },
 ) {
     private val log = MyCarLog.tagged("PROTO")
 
@@ -61,6 +63,12 @@ class MyCarRunner(
     private val tls: PhoneTls by lazy { identityTask.get() }
     private var authenticationFailed = false
     @Volatile private var stopped = false
+
+    /** The certificate shown to the car, once unlocked, and whether its verdict has gone out. */
+    @Volatile private var presented: CertProvider.Identity? = null
+    @Volatile private var verdictGiven = false
+    /** Our first TLS answer, which carries the certificate, went out: only then can the car judge it. */
+    @Volatile private var certificateShown = false
 
     @Volatile private var state = State.WAIT_VERSION
     @Volatile private var lastProgress = System.currentTimeMillis()
@@ -114,6 +122,7 @@ class MyCarRunner(
         // certificate alongside; the TLS handshake waits for it.
         identityTask = FutureTask {
             val identity = identityProvider()
+            presented = identity
             val cert = identity.certificate
             log.i("phone certificate source: ${identity.source}")
             SessionReport.certificate(identity.source.toString(), cert.issuerX500Principal.toString())
@@ -321,6 +330,8 @@ class MyCarRunner(
         } catch (t: Throwable) {
             if (stopped) return
             log.e("TLS handshake threw", t)
+            // Not when the phone's own certificate couldn't be unlocked: that isn't the car's answer.
+            if (t !is java.util.concurrent.ExecutionException) verdict(CertVerdict.Refused(hard = true, why = "TLS: ${t.message}"))
             SessionReport.fail(SessionReport.Category.TLS, "handshake threw", t, state.name)
             log.verdict(
                 "NOT VIABLE (TLS rejected)",
@@ -341,6 +352,7 @@ class MyCarRunner(
             send(MSG_ENCAPSULATED_SSL, it, encrypted = false)
             log.i("-> EncapsulatedSSL (${it.size} bytes)")
         }
+        if (replies.isNotEmpty()) certificateShown = true
         if (tls.handshakeComplete && state == State.TLS_HANDSHAKE) {
             state = State.WAIT_AUTH
             log.i("awaiting AuthComplete - this carries the certificate verdict")
@@ -349,7 +361,7 @@ class MyCarRunner(
 
     private fun onAuthComplete(body: ByteArray) {
         val status = Protobuf.readInt32Field(body, 1)
-        if (state != State.WAIT_AUTH && !(state == State.TLS_HANDSHAKE && status in listOf(-2, -3))) return
+        if (state != State.WAIT_AUTH && !(state == State.TLS_HANDSHAKE && status in listOf(-2, -3, -23, -24))) return
         log.i("<- AuthComplete: status=$status")
         status?.let { SessionReport.auth(it) }
 
@@ -359,6 +371,8 @@ class MyCarRunner(
                 state = State.WAIT_SDR
                 SessionStatus.connecting("Certificate accepted - discovering services")
                 sendServiceDiscoveryRequest()
+                // After the request: the car is waiting for it, not for the bookkeeping.
+                verdict(CertVerdict.Accepted)
             }
             -2 -> {
                 SessionReport.fail(SessionReport.Category.CERTIFICATE, "AuthComplete status -2 (certificate error)", state.name, "auth -2")
@@ -374,6 +388,7 @@ class MyCarRunner(
                 )
                 state = State.DONE
                 authenticationFailed = true
+                verdict(CertVerdict.Refused(hard = true, why = "AuthComplete -2"))
             }
             -3 -> {
                 SessionReport.fail(SessionReport.Category.AUTH, "AuthComplete status -3 (authentication failure)", state.name, "auth -3")
@@ -388,6 +403,24 @@ class MyCarRunner(
                 )
                 state = State.DONE
                 authenticationFailed = true
+                verdict(CertVerdict.Refused(hard = true, why = "AuthComplete -3"))
+            }
+            // STATUS_AUTHENTICATION_FAILURE_CERT_NOT_YET_VALID and _CERT_EXPIRED: valid for years
+            // either side of today, the certificate is outside the car's date, so its clock is wrong.
+            -23, -24 -> {
+                SessionReport.fail(SessionReport.Category.CERTIFICATE, "AuthComplete status $status (not valid on the car's date)", state.name, "auth $status")
+                log.verdict(
+                    "NOT VIABLE TODAY (the car's date)",
+                    "The head unit says the certificate is ${if (status == -23) "not yet valid" else "expired"} " +
+                        "by its own clock. Its date is most likely wrong.",
+                )
+                SessionStatus.failed(
+                    "Check the car's date",
+                    "The car says the phone's certificate isn't valid on its date. Set the car's clock, then plug in again.",
+                )
+                state = State.DONE
+                authenticationFailed = true
+                verdict(CertVerdict.Clock)
             }
             else -> {
                 SessionReport.fail(SessionReport.Category.AUTH, "AuthComplete status $status (unexpected)", state.name, "auth $status")
@@ -401,6 +434,14 @@ class MyCarRunner(
                 authenticationFailed = true
             }
         }
+    }
+
+    /** Tells [onCertVerdict] what the car said of the certificate: once a session, never after a stop. */
+    private fun verdict(v: CertVerdict) {
+        if (verdictGiven || stopped || !certificateShown) return
+        val identity = presented ?: return
+        verdictGiven = true
+        runCatching { onCertVerdict(identity, v) }.onFailure { log.e("the certificate's verdict went unhandled", it) }
     }
 
     private fun sendServiceDiscoveryRequest() {
@@ -1275,6 +1316,12 @@ class MyCarRunner(
     }
 
     private fun reportDisconnect() {
+        // Hung up while checking the certificate: likely a refusal, but a loose cable does it too.
+        when (state) {
+            State.TLS_HANDSHAKE -> verdict(CertVerdict.Refused(hard = false, why = "dropped during TLS"))
+            State.WAIT_AUTH -> verdict(CertVerdict.Refused(hard = false, why = "dropped before its verdict"))
+            else -> Unit
+        }
         when (state) {
             State.WAIT_VERSION -> SessionReport.fail(SessionReport.Category.NO_HANDSHAKE, "no VersionRequest arrived", state.name, "closed")
             State.TLS_HANDSHAKE -> SessionReport.fail(SessionReport.Category.TLS, "head unit dropped the link during TLS", state.name, "closed")
