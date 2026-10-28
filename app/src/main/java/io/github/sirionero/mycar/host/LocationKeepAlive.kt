@@ -135,8 +135,10 @@ class LocationKeepAlive : Service() {
         }
 
         private fun begin(context: Context) {
+            // Approximate location is enough for the service to lend: the map asks for what it needs.
             val granted = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED
+                PackageManager.PERMISSION_GRANTED ||
+                context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
             if (!granted) {
                 MyCarLog.w("location keep-alive: no location permission, car maps won't get a fix in the background")
                 settle(State.FAILED)
