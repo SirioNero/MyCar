@@ -9,8 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * Whether video may show on the car's screen now: what the car itself says, as it does to
- * Android Auto (its driving status, which says "no video" while the car moves), or, from a car
- * that doesn't say, the phone's GPS speed (see [CarMotion]).
+ * Android Auto (its driving status, which says "no video" while the car moves), and the phone's
+ * GPS speed (see [CarMotion]). Either one saying the car moves covers the picture: a car that said
+ * "parked" once and then nothing more can't leave video on while driving.
  */
 object CarDriving {
 
@@ -20,8 +21,11 @@ object CarDriving {
     /** For the car preview: the answer, whatever the car or the GPS say; null to ask them. */
     @Volatile var override: Boolean? = null
 
+    /** The phone's GPS: true while it reads the car moving. Swapped in the tests. */
+    @Volatile internal var gpsMoving: () -> Boolean = { CarMotion.moving }
+
     val videoAllowed: Boolean
-        get() = override ?: fromCar.value ?: !CarMotion.moving
+        get() = override ?: ((fromCar.value ?: true) && !gpsMoving())
 
     /** A SensorEventIndication from the car: its driving status, if this one carries it. */
     fun onSensorEvent(body: ByteArray) {

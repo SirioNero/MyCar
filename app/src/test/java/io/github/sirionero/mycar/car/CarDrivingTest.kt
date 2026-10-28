@@ -15,6 +15,8 @@ class CarDrivingTest {
     @After
     fun forget() {
         CarDriving.override = null
+        CarDriving.gpsMoving = { false }
+        CarDriving.clear()
     }
 
     @Test
@@ -50,6 +52,25 @@ class CarDrivingTest {
         CarDriving.onSensorEvent(byteArrayOf(0x52, 0x02, 0x08, 0x01))
         assertFalse(CarDriving.videoAllowed)
         CarDriving.onSensorEvent(drivingStatus(0))
+    }
+
+    @Test
+    fun theGpsCoversItEvenWhenTheCarSaysParked() {
+        // A car that said "parked" once, and nothing since.
+        CarDriving.onSensorEvent(drivingStatus(0))
+        CarDriving.gpsMoving = { true }
+        assertFalse(CarDriving.videoAllowed)
+        CarDriving.gpsMoving = { false }
+        assertTrue(CarDriving.videoAllowed)
+    }
+
+    @Test
+    fun withNothingFromTheCarTheGpsDecides() {
+        CarDriving.clear()
+        CarDriving.gpsMoving = { true }
+        assertFalse(CarDriving.videoAllowed)
+        CarDriving.gpsMoving = { false }
+        assertTrue(CarDriving.videoAllowed)
     }
 
     @Test
