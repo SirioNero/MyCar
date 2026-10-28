@@ -442,10 +442,16 @@ class MyCarActivity : ComponentActivity(), Projection {
         // point anyway (its read loop already died when the head unit dropped the transport),
         // but the accessory it opened was never explicitly closed, which is what actually blocks
         // a re-open - a dead thread does not release the file descriptor on its own.
+        val manager = getSystemService(UsbManager::class.java)
+        // Only for an accessory that's really there: an attach intent any app can send used to end
+        // the drive under way before anything was checked.
+        if (manager.accessoryList?.contains(accessory) != true) {
+            MyCarLog.w("accessory attach for an accessory that isn't connected - ignored")
+            return
+        }
         closeAccessory()
         describe(accessory)
 
-        val manager = getSystemService(UsbManager::class.java)
         // An attach that's no longer true - the cable already out - makes Android throw.
         val pfd = try {
             manager.openAccessory(accessory)
