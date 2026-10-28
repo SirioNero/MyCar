@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,6 +45,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,12 +66,15 @@ import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.audio.CarAudio
 import io.github.sirionero.mycar.car.design.AppIcon
 import io.github.sirionero.mycar.car.design.AppIconShape
+import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSpace
 import io.github.sirionero.mycar.car.design.glassFinish
 import io.github.sirionero.mycar.cinema.Cinema
 import io.github.sirionero.mycar.cinema.CinemaSite
 import io.github.sirionero.mycar.cinema.SiteIcons
+import io.github.sirionero.mycar.cinema.TvList
+import io.github.sirionero.mycar.cinema.TvLists
 import kotlin.math.absoluteValue
 
 /*
@@ -81,45 +86,65 @@ import kotlin.math.absoluteValue
  * carries on.
  */
 
-/** Cinema full screen, from the app grid: the sites, or the one open. */
+/** Cinema full screen, from the app grid: the phone's videos, the TV lists and the sites, or the one open. */
 @Composable
 internal fun CinemaScreen() {
     val sites by Cinema.sites.collectAsState()
+    val tvLists by TvLists.lists.collectAsState()
     var openUrl by rememberSaveable { mutableStateOf<String?>(null) }
+    // The phone's videos (PHONE_SHELF) or a TV list (by its address), and what plays from there.
+    var shelf by rememberSaveable { mutableStateOf<String?>(null) }
+    var playing by remember { mutableStateOf<CinemaMedia?>(null) }
+    // A shelf keeps its place in its grid while one of its videos plays.
+    val shelves = rememberSaveableStateHolder()
     val open = sites.firstOrNull { it.url == openUrl }
-    if (open == null) {
-        CinemaHome(sites, onOpen = { openUrl = it.url })
-    } else {
-        key(open.url) { CinemaSiteView(open, onClose = { openUrl = null }) }
+    val list = tvLists.firstOrNull { it.url == shelf }
+    val media = playing
+    when {
+        media != null -> key(media) { CinemaPlayer(media, onClose = { playing = null }) }
+        shelf == PHONE_SHELF -> shelves.SaveableStateProvider(PHONE_SHELF) {
+            PhoneVideosShelf(onPlay = { playing = it }, onClose = { shelf = null })
+        }
+        list != null -> shelves.SaveableStateProvider(list.url) {
+            TvShelf(list, onPlay = { playing = it }, onClose = { shelf = null })
+        }
+        open == null -> CinemaHome(sites, tvLists, onOpen = { openUrl = it.url }, onShelf = { shelf = it })
+        else -> key(open.url) { CinemaSiteView(open, onClose = { openUrl = null }) }
     }
 }
 
-/** The sites, as tiles with their own icons. */
+/** The phone's videos and each TV list as myCar's own tiles, then the sites with their own icons. */
 @Composable
-private fun CinemaHome(sites: List<CinemaSite>, onOpen: (CinemaSite) -> Unit) {
+private fun CinemaHome(sites: List<CinemaSite>, tvLists: List<TvList>, onOpen: (CinemaSite) -> Unit, onShelf: (String) -> Unit) {
     val context = LocalContext.current
     val icons by SiteIcons.icons.collectAsState()
     LaunchedEffect(sites) { SiteIcons.load(context, sites) }
     Column(Modifier.fillMaxSize()) {
         ScreenHeader("Cinema", Modifier.padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.S))
-        if (sites.isEmpty()) {
-            Box(Modifier.fillMaxSize().padding(MyCarSpace.XL), contentAlignment = Alignment.Center) {
-                Text(
-                    "Add your video sites in myCar's settings on the phone, under Cinema.",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-            }
-        } else LazyVerticalGrid(
+        LazyVerticalGrid(
             columns = GridCells.Adaptive(TileWidth),
             contentPadding = PaddingValues(MyCarSpace.L),
             horizontalArrangement = Arrangement.spacedBy(MyCarSpace.L),
             verticalArrangement = Arrangement.spacedBy(MyCarSpace.L),
             modifier = Modifier.fillMaxSize(),
         ) {
+            item(key = PHONE_SHELF) {
+                ShelfTile("On this phone", MyCarPalette.Warning, R.drawable.sym_video_library, IconSize) { onShelf(PHONE_SHELF) }
+            }
+            items(tvLists, key = { "tv:" + it.url }) { list ->
+                ShelfTile(list.name, MyCarPalette.Accent, R.drawable.sym_live_tv, IconSize) { onShelf(list.url) }
+            }
             items(sites, key = { it.url }) { site ->
                 SiteTile(site, icons[site.host]) { onOpen(site) }
+            }
+            if (sites.isEmpty() && tvLists.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
+                Text(
+                    "Add video sites and TV lists in myCar's settings on the phone, under Cinema.",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(MyCarSpace.XL),
+                )
             }
         }
     }
@@ -298,7 +323,7 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
 
 /** The slim bar over a site: back a page, its name, and Close back to the sites. */
 @Composable
-private fun CinemaBar(title: String, onBack: () -> Unit, onClose: () -> Unit) {
+internal fun CinemaBar(title: String, onBack: () -> Unit, onClose: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -331,7 +356,7 @@ private fun CinemaBar(title: String, onBack: () -> Unit, onClose: () -> Unit) {
 
 /** Over the picture while the car moves, with "Video only when parked" on: the sound carries on. */
 @Composable
-private fun ParkedCover() {
+internal fun ParkedCover() {
     Column(
         Modifier
             .fillMaxSize()
@@ -428,6 +453,8 @@ private class CinemaChrome(
     }
 }
 
+/** The phone's videos' shelf, where CinemaScreen keeps which shelf is open. */
+private const val PHONE_SHELF = "phone"
 private val TileWidth = 168.dp
 private val IconSize = 112.dp
 private val InitialColors = listOf(
