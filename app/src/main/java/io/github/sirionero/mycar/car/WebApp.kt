@@ -87,7 +87,8 @@ internal fun WebApp(content: String, tile: WebTile?) {
             AndroidView(
                 modifier = Modifier.weight(1f).fillMaxSize(),
                 factory = { context ->
-                    WebView(context).apply {
+                    // A page's dropdown can't close myCar on the car's screen (see carWebContext).
+                    WebView(carWebContext(context)).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
                         settings.loadWithOverviewMode = true
