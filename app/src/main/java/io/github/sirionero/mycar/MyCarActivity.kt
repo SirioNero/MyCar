@@ -230,6 +230,8 @@ class MyCarActivity : ComponentActivity(), Projection {
     // Throttled inside Prefetch, so this only does work if the last run was a while ago.
     override fun onStart() {
         super.onStart()
+        // On screen, Android lets myCar give the phone its sound back, if a drive left it muted.
+        if (!AudioCaptureService.running) AudioCaptureService.restorePhoneIfLeftMuted(this)
         Prefetch.warm(this)
         UsageStats.onAppOpened(this)
         io.github.sirionero.mycar.update.UpdateChecker.onAppOpened(this)

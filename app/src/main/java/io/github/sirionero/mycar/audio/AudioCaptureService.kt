@@ -72,6 +72,9 @@ class AudioCaptureService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
+            // While still in the foreground: Android 17 ignores volume calls from an app that
+            // isn't, and the phone stayed muted after the drive.
+            unmutePhone()
             stopSelf()
             return START_NOT_STICKY
         }
@@ -107,6 +110,7 @@ class AudioCaptureService : Service() {
         token.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
                 MyCarLog.w("audio: projection stopped")
+                unmutePhone()
                 stopSelf()
             }
         }, null)
@@ -255,10 +259,15 @@ class AudioCaptureService : Service() {
 
         private fun unmute(context: Context) {
             runCatching {
-                context.getSystemService(android.media.AudioManager::class.java)
-                    .adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
-                io.github.sirionero.mycar.AppSettings.putString(context, KEY_LEFT_MUTED, "false")
-                MyCarLog.i("audio: gave the phone's speaker back")
+                val audio = context.getSystemService(android.media.AudioManager::class.java)
+                audio.adjustStreamVolume(android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.ADJUST_UNMUTE, 0)
+                // Android 17 can ignore the call without a word: the flag stays, for the next try.
+                if (audio.isStreamMute(android.media.AudioManager.STREAM_MUSIC)) {
+                    MyCarLog.w("audio: the phone's speaker is still muted - trying again when myCar opens")
+                } else {
+                    io.github.sirionero.mycar.AppSettings.putString(context, KEY_LEFT_MUTED, "false")
+                    MyCarLog.i("audio: gave the phone's speaker back")
+                }
             }.onFailure { MyCarLog.w("audio: could not unmute the phone: ${it.message}") }
         }
 
