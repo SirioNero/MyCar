@@ -259,7 +259,13 @@ object HomeAssistant {
                     lastError = e.message ?: lastError
                     lastException = e
                     val reason = (e as? HaException)?.reason
-                    if (reason == HaException.Reason.INVALID_TOKEN || reason == HaException.Reason.ACCESS_DENIED) tokenRefused = true
+                    // Only Home Assistant's own "auth_invalid" means the token. A 401/403 before the
+                    // socket opens comes from a proxy in front of it, or a banned address: tried
+                    // again like any failure, not given up on for the whole drive.
+                    if (reason == HaException.Reason.INVALID_TOKEN) tokenRefused = true
+                    if (reason == HaException.Reason.ACCESS_DENIED) {
+                        lastError = "The server turned myCar away: a proxy in front of Home Assistant, or an address it has banned."
+                    }
                 }
             }
 
