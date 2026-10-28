@@ -82,6 +82,12 @@ object WirelessLink {
     @Volatile private var tcp: Socket? = null
     @Volatile private var network: ConnectivityManager.NetworkCallback? = null
     @Volatile private var worker: Thread? = null
+
+    /** A start-up, or a session's Bluetooth channel, is under way. */
+    val busy: Boolean get() = worker?.isAlive == true
+
+    /** The car of the current start-up, for [reachedCar]. */
+    @Volatile private var car: BluetoothDevice? = null
     /** Set when Android drops the car's network mid-try, so the rest don't bind to a dead one. */
     @Volatile private var lostNetwork: Network? = null
     /** Bumped on each Wi-Fi join and on stop, so an older run of TCP tries ends instead of racing the new one. */
@@ -119,6 +125,7 @@ object WirelessLink {
             releaseWithChannel = false
         }
         val app = context.applicationContext
+        car = device
         // Taken here, not in the thread: a start-up stopped before its thread ran is old already.
         val mine = startRun
         worker = Thread({
@@ -130,6 +137,11 @@ object WirelessLink {
                 SessionStatus.failed("Wireless start-up failed", "${e.javaClass.simpleName}: ${e.message}")
             }
         }, "mycar-wireless").apply { isDaemon = true; start() }
+    }
+
+    /** The car's picture came up over Wi-Fi: it works without the cable, so it can connect by itself next time. */
+    fun reachedCar(context: Context) {
+        car?.let { WirelessAuto.reached(context.applicationContext, it) }
     }
 
     /**

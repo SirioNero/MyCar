@@ -201,6 +201,8 @@ private fun ConnectionSection() {
             icon = Icons.Filled.Settings,
             trailing = { Switch(checked = enabled, onCheckedChange = null) },
         )
+        SettingsDivider()
+        WirelessAutoRow()
     }
 }
 
