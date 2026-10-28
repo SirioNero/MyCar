@@ -276,8 +276,14 @@ class AudioLink(
         if (aacSink && aac == null) {
             aac = runCatching { AacEncoder(sampleRate, channels, adts = service.codecType == ServiceDiscovery.CODEC_AAC_LC_ADTS) }
                 .onSuccess { MyCarLog.i("$tag: the car takes ${service.codecName} only - encoding to AAC") }
-                .onFailure { MyCarLog.e("$tag: couldn't start the AAC encoder", it) }
+                .onFailure { MyCarLog.e("$tag: couldn't start the AAC encoder - no stream", it) }
                 .getOrNull()
+        }
+        // Without its encoder a car that takes AAC only would get raw PCM, which it plays as noise
+        // or hangs up on: the stream stops here instead.
+        if (aacSink && aac == null) {
+            runCatching { sendOnChannel(MSG_STOP, Protobuf.varintField(1, sessionId.toLong())) }
+            return
         }
         started = true
         armed = false
@@ -350,6 +356,9 @@ class AudioLink(
         val frames = try {
             encoder.encode(pcm, size)
         } catch (e: Exception) {
+            // Let go of meanwhile by a stop or a hold on another thread: no failure of the codec,
+            // and a stream started since has an encoder of its own, not to be ended with this one.
+            if (aac !== encoder) return
             // A codec that dies mid-drive leaves the car silent, as it was before AAC; log it once.
             MyCarLog.e("$tag: AAC encoding failed - no more audio this drive", e)
             aac = null
