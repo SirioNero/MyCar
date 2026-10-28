@@ -42,6 +42,15 @@ object CarServices {
     fun mediaOrNull(): CarMedia? = if (context != null) media else null
 
     /**
+     * No music app to talk to: none open yet, one closed from its menu, or one that wouldn't
+     * connect. One still connecting counts as there.
+     */
+    fun noMusicApp(): Boolean {
+        val phase = mediaOrNull()?.phase?.value ?: return true
+        return phase == CarMedia.Phase.IDLE || phase == CarMedia.Phase.REJECTED
+    }
+
+    /**
      * A second, independent connection for templated apps that aren't navigation apps - Spotify's
      * own Car App Library service is the first of these. Kept apart from [nav] so opening one
      * can never bump the map off Home: this one gets its own screen ([CarScreen.Browse]) instead.
@@ -199,7 +208,14 @@ object CarServices {
         mediaAutoPicked = auto
         val phase = media.phase.value
         val live = phase == CarMedia.Phase.READY || phase == CarMedia.Phase.CONNECTING
-        if (_mediaApp.value?.component == app.component && live) return
+        if (_mediaApp.value?.component == app.component && live) {
+            // Already open, and asked to play: it plays, now or once it's connected.
+            if (autoplay) {
+                autoplayPending = true
+                if (phase == CarMedia.Phase.READY) autoplayIfDue()
+            }
+            return
+        }
 
         // Xonos inside myCar, left for another music app: paused here. Without the audio focus
         // (refused in the background on Android 17) nothing else tells it, and straight into the
@@ -216,15 +232,16 @@ object CarServices {
     }
 
     /**
-     * Reopens the media app used last, for the car's media button when nothing is open. False
-     * when there's none on record or it's been uninstalled since.
+     * Reopens the media app used last, for the car's media button when nothing is open, and
+     * [autoplay]ing for its ▶ key and a spoken "play". False when there's none on record or it's
+     * been uninstalled since.
      */
-    suspend fun reopenLastMedia(): Boolean {
+    suspend fun reopenLastMedia(autoplay: Boolean = false): Boolean {
         val ctx = context ?: return false
         val last = CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString) ?: return false
         val app = withContext(Dispatchers.IO) { MediaCatalog.installed(ctx) }
             .let { catalog -> catalog.firstOrNull { it.component == last } ?: xonosFor(last, catalog) } ?: return false
-        openMedia(app)
+        openMedia(app, autoplay = autoplay)
         return true
     }
 

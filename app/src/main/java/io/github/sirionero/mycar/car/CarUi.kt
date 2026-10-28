@@ -192,6 +192,7 @@ fun CarUi() {
                     if (CarServices.mediaApp.value != null || CarServices.reopenLastMedia()) navigator.media()
                     else navigator.apps()
                 CarKeys.ScreenKey.PHONE -> BuiltInApps.Phone.open(navigator)
+                CarKeys.ScreenKey.PLAY -> CarServices.reopenLastMedia(autoplay = true)
             }
         }
     }

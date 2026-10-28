@@ -175,7 +175,8 @@ object AssistantCommands {
     private suspend fun playSearchCommand(context: Context, navigator: CarNavigator, heard: String): String? {
         var query = after(heard, PLAY_TRIGGERS) ?: return null
         query = query.removePrefix("some ").trim()
-        if (query.isEmpty() || query in RESUME_WORDS) return null
+        // "Play the next song", "play it again": the music's own buttons, not a search.
+        if (query.isEmpty() || query in RESUME_WORDS || TRANSPORT.matches(query)) return null
         val media = CarServices.media
 
         // "play Daft Punk on Metrolist": switch to that app first, if it's one we know.
@@ -228,27 +229,42 @@ object AssistantCommands {
         return "Ending the route."
     }
 
-    private fun mediaCommand(heard: String): String? {
+    private suspend fun mediaCommand(heard: String): String? {
+        // "Call Skip", "phone Nick": a person, not the music.
+        if (CALL_TRIGGERS.any { heard.startsWith(it) }) return null
         val media = CarServices.media
+        val none = CarServices.noMusicApp()
         return when {
             "pause" in heard || heard.startsWith("stop") || heard == "quiet" || heard == "shut up" -> {
                 media.pause()
                 VoiceFocus.afterRelease { media.pause() }
                 "Paused."
             }
-            "resume" in heard || "unpause" in heard || heard in RESUME_PHRASES ||
-                (heard.startsWith("play") && "playing" !in heard) -> {
-                if (!media.now.value.playing) media.togglePlay()
-                "Playing."
-            }
-            "next" in heard || "skip" in heard || heard.startsWith("change the song") -> {
+            // Before "play" below: "play the next song", "play something else", "play it again".
+            "next" in heard || "skip" in heard || heard.startsWith("change the song") || ANOTHER.matches(heard) -> {
+                if (none) return "Nothing's playing."
                 media.next()
                 "Skipping."
             }
-            "previous" in heard || "last song" in heard || "back song" in heard || "go back a song" in heard ||
-                "play that again" in heard || "replay" in heard -> {
+            "previous" in heard || "last song" in heard || "last track" in heard || "last one" in heard || "back song" in heard ||
+                "go back a song" in heard || AGAIN.matches(heard) || "replay" in heard -> {
+                if (none) return "Nothing's playing."
                 media.previous()
                 "Playing the previous track."
+            }
+            "resume" in heard || "unpause" in heard || heard in RESUME_PHRASES ||
+                (heard.startsWith("play") && "playing" !in heard) -> {
+                // No music app open (the first drive, one closed from its menu): the one played
+                // last, playing - as the car's ▶ key does. It used to say "Playing." to silence.
+                if (none) {
+                    return if (CarServices.reopenLastMedia(autoplay = true)) {
+                        "Playing ${CarServices.mediaApp.value?.label ?: "the music"}."
+                    } else {
+                        "Open a music app first, then ask again."
+                    }
+                }
+                if (!media.now.value.playing) media.togglePlay()
+                "Playing."
             }
             ("what" in heard && "playing" in heard) || "what song" in heard || "who sings" in heard ||
                 "who's singing" in heard || "who is singing" in heard || "what's this song" in heard ||
@@ -401,6 +417,18 @@ object AssistantCommands {
         "a ", "an ", "some ",
     )
     private val PLACE_TAILS = listOf(" near me", " nearby", " near here", " around here", " close by", " closest to me")
+
+    /** After "play": the next or the last song, this one again, something else - not a title. */
+    private val TRANSPORT = Regex(
+        "^(?:the )?(?:next|previous|last)(?: (?:song|track|one))?$|^(?:that|it|this)(?: song| track| one)? (?:again|over)$" +
+            "|^(?:something else|another (?:song|track|one)|a different (?:song|track))$",
+    )
+
+    /** "Play it again", "that song again": the song from the start, as Previous does. */
+    private val AGAIN = Regex("^(?:(?:play|put on) )?(?:that|it|this)(?: song| track| one)? (?:again|over)$")
+
+    /** "Play something else", "another song": the next one. */
+    private val ANOTHER = Regex("^(?:(?:play|put on) )?(?:something else|another (?:song|track|one)|a different (?:song|track))$")
 
     private val PLAY_TRIGGERS = listOf("play me ", "play ", "put on ", "listen to ", "i want to hear ", "shuffle ")
 
