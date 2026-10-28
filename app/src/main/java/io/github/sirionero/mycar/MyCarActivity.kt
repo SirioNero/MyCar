@@ -539,6 +539,9 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     /** Ends the session, wired or wireless. [stopWireless] also drops the car's Bluetooth and Wi-Fi. */
     private fun closeAccessory(stopWireless: Boolean) {
+        // Questions waiting for myCar to be opened belong to this drive: the next one asks (and says so) afresh.
+        consentPending = false
+        capturePending = false
         runner?.stop()
         SessionReport.print()
         runCatching { descriptor?.close() }
