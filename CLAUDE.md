@@ -102,7 +102,10 @@ Rispondi sempre in **italiano**.
   wrapper) al posto degli ultimi rilasci, e gli scatti `bridge-plancia`, `bridge-plancia-page`,
   `bridge-xonos` aprono Plancia e Xonos dentro myCar con `--ez bridge true` (tutto dal ponte: senza
   Tailscale nell'emulatore), le app configurate da root sugli stessi server; nel log le app scrivono
-  "Ponte per <myCar> verso <server>" per ogni connessione.
+  "Ponte per <myCar> verso <server>" per ogni connessione. Dopo la compilazione delle app lo script
+  ferma i demoni di Gradle e Kotlin: con quella memoria occupata l'emulatore cadeva con Xonos che
+  suonava. Un emulatore caduto non blocca più la corsa: adb si arrende dopo 3 minuti, il log di ogni
+  scatto resta in `stream.txt`, gli scatti si pubblicano comunque.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Prova della release in CI: il workflow **Release check** (`.github/workflows/release-check.yml` +
   `.github/release-check.sh`, `.github/tailscale.sh`) installa una release pubblicata (o il branch
@@ -457,7 +460,13 @@ Tutti i token in un solo posto, `car/design/`:
   locale al posto di quello di Home Assistant, rompeva i reverse proxy che smistano per nome: scartato.
   Con il ponte una tailnet fuori portata non fa più passare subito l'auto alle app (`InsideOrApp`): il
   ripiego resta dopo 10 s. Lato app: `it/plancia/ha/data/MyCarBridge.kt` e Xonos 0.1.40
-  `data/MyCarBridge.kt` (rami `claude/ponte-mycar`).
+  `data/MyCarBridge.kt` (rami `claude/ponte-mycar`). Gli ascolti locali sono su 127.0.0.1
+  (`LOOPBACK`): su Android `InetAddress.getLoopbackAddress()` è ::1, e il WebView, mandato al proxy
+  su 127.0.0.1, non trovava niente (`ERR_PROXY_CONNECTION_FAILED`). Verificato (0.5.16): Release check
+  `tailscale-out` su Android 17 (Tailscale vero, myCar esclusa e firmata come la release): Plancia e
+  Xonos dentro myCar si collegano attraverso le app ("Ponte per io.github.sirionero.mycar verso
+  umbrel:8123" e ":8095"); anteprima `bridge-*`: la pagina di Plancia e il suo menu attraverso proxy
+  e ponte, Xonos suona l'album con Sendspin dal ponte.
 - **Il viaggio in primo piano** (0.5.13, `SessionService`): dal collegamento dell'auto alla fine un
   servizio in primo piano `connectedDevice` (notifica "myCar is connected to the car") tiene vivo
   il viaggio col telefono bloccato, con un wake lock parziale e, senza fili, un Wi-Fi lock. Si
