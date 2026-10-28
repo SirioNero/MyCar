@@ -131,8 +131,10 @@ internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
         CarServices.mediaDecided.first { it }
         val cur = CarServices.mediaApp.value
         // Also when the drive's pick didn't connect (the app used last isn't running): the pane
-        // stayed on a player with nothing behind it for the whole drive.
-        val failed = cur != null && cur.component != app.component && CarServices.media.phase.value == CarMedia.Phase.REJECTED
+        // stayed on a player with nothing behind it for the whole drive. Only the drive's pick: one
+        // the driver chose stays, with its own way out on its screen ("Open Spotify", "Try again").
+        val failed = CarServices.mediaAutoPicked && cur != null && cur.component != app.component &&
+            CarServices.media.phase.value == CarMedia.Phase.REJECTED
         // Not when the driver closed this very app: that waits for a tap on the pane.
         val closedHere = cur == null && CarServices.closedMedia == app.component
         if ((cur == null && !closedHere) || failed) CarServices.openMedia(app, remember = false)

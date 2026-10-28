@@ -177,12 +177,20 @@ object CarServices {
     // --- media ---------------------------------------------------------------------------
 
     /**
-     * [remember]: false when nobody chose it - the app beside the map, opened to show its player -
-     * so the next drive still starts with the app the driver last used.
+     * The music app open now is the drive's own pick ([autostart]), not one the driver chose: the
+     * app beside the map may take its place if it doesn't connect.
      */
-    fun openMedia(app: MediaApp, autoplay: Boolean = false, remember: Boolean = true) {
+    var mediaAutoPicked = false
+        private set
+
+    /**
+     * [remember]: false when nobody chose it - the app beside the map, opened to show its player -
+     * so the next drive still starts with the app the driver last used. [auto]: the drive's pick.
+     */
+    fun openMedia(app: MediaApp, autoplay: Boolean = false, remember: Boolean = true, auto: Boolean = false) {
         if (remember) CarSettings.setLastMedia(app.component.flattenToString())
         closedMedia = null
+        mediaAutoPicked = auto
         val phase = media.phase.value
         val live = phase == CarMedia.Phase.READY || phase == CarMedia.Phase.CONNECTING
         if (_mediaApp.value?.component == app.component && live) return
@@ -221,6 +229,7 @@ object CarServices {
 
     fun closeMedia() {
         closedMedia = _mediaApp.value?.component
+        mediaAutoPicked = false
         if (media.now.value.playing) media.togglePlay()
         media.disconnect()
         _mediaApp.value = null
@@ -266,11 +275,11 @@ object CarServices {
             // hand just to see what's already going.
             val playing = withContext(Dispatchers.IO) { currentlyPlaying(ctx, catalog) }
             if (playing != null) {
-                openMedia(playing)
+                openMedia(playing, auto = true)
             } else {
                 val last = CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString)
                 val app = last?.let { component -> catalog.firstOrNull { it.component == component } ?: xonosFor(component, catalog) }
-                if (app != null) openMedia(app, autoplay = CarSettings.autoplay.value)
+                if (app != null) openMedia(app, autoplay = CarSettings.autoplay.value, auto = true)
             }
         }
         _mediaDecided.value = true
@@ -359,6 +368,7 @@ object CarServices {
         CarAudio.release()
         _mediaApp.value = null
         _mediaDecided.value = false
+        mediaAutoPicked = false
         closedBrowse = emptySet()
         closedMedia = null
         // A call waiting to be confirmed belongs to this drive, not to the car's next arrival.
