@@ -124,6 +124,9 @@ Rispondi sempre in **italiano**.
   (non pre-release, così Obtainium lo trova).
 - Dalla sessione cloud di Claude il push dei tag è rifiutato (403): il rilascio lo crea l'utente su
   GitHub (Releases → nuovo tag `v<versionName>` → branch di destinazione → Publish).
+- All'utente si dà **sempre il link diretto** per pubblicare, con tag, destinazione e titolo già
+  scritti: `https://github.com/SirioNero/MyCar/releases/new?tag=v<versionName>&target=<branch>&title=myCar%20<versionName>`
+  (es. `…?tag=v0.5.14-alpha&target=main&title=myCar%200.5.14-alpha`): gli resta solo Publish.
 - Una versione verificata ma non ancora pubblicata quando `main` va avanti resta su
   `release/v<versione>` (es. `release/v0.4.00-alpha`), da usare come destinazione del rilascio.
 
