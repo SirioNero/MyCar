@@ -268,7 +268,8 @@ class CarMedia(private val context: Context) {
                 attachToSession(app)
             }
             override fun onConnectionSuspended() {
-                if (browser === mb) lost(app, "went away")
+                // A browser already let go of (the app went away once, or was replaced) is no news.
+                if (browser != null) lost(app, "went away")
             }
         }, null)
         browser = mb
