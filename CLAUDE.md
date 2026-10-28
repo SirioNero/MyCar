@@ -73,7 +73,8 @@ Rispondi sempre in **italiano**.
   sessione vera: le app (mappa di Vela, Plancia) disegnano alla densità dell'auto.
   Pagine della Home: `pages/` (dal tasto mappa del dock, che risveglia i puntini, alla pagina di
   sinistra e poi a quella di destra), `pages-800x480/`, `pages-edit/` (matita e elenco delle
-  scelte); l'anteprima riparte ogni volta dalle pagine pronte (`HomePages.reset()`).
+  scelte), `pages-layouts/` (matita, "Layout", elenco dei formati, "Half left"), `layout-<formato>/`
+  e `layout-800x480/` (la pagina a sinistra della mappa in quel formato, `--es pageLayout <id>`); l'anteprima riparte ogni volta dalle pagine pronte (`HomePages.reset()`).
   Assistente: `assistant/` (Impostazioni al posto di un assistente-activity, `phone-screen.png`),
   `assistant-google/` (l'app Google dell'emulatore: schermo del telefono dopo il microfono e dopo lo
   scorrimento dall'angolo, `phone-mic.png` / `phone-swipe.png`), `assistant-mic/` +
@@ -250,14 +251,18 @@ Tutti i token in un solo posto, `car/design/`:
   Anteprima: `--es sidePane <pacchetto>`, cartelle `split-plancia/`, `split-xonos/`.
 - **Pagine accanto alla mappa** (`HomePager.kt`, `HomePages.kt`, `HomeWidgets.kt`, chiave
   `car_home_pages`): la Home è una fila di pagine; quella della mappa (mappa + musica o app scelta,
-  invariata) e quelle del guidatore ai suoi lati, ognuna in **due metà** o **quattro parti**. Ogni
+  invariata) e quelle del guidatore ai suoi lati, ognuna in un **formato** (`PageLayout`, disegni e
+  nomi in `PageLayouts.kt`): pagina intera, due metà, quattro parti, metà a sinistra o a destra
+  accanto a due quarti, striscia larga sopra o sotto due quarti (0.5.19). Ogni
   parte: meteo, agenda, browser di myCar, Plancia integrata o un'app per auto con template non di
   navigazione (es. l'app Plancia: mostra la sua plancia predefinita, coi comandi). Pagine pronte
   finché il guidatore non ne cambia una (`readyMade`): Meteo + Agenda a sinistra, Plancia + Browser
   a destra se Plancia è configurata in myCar o installata; la prima modifica le salva tutte. Si cambia pagina scorrendo dove il dito non sposta
   già qualcosa (mappa, browser e app per auto lo prendono per sé: si scorre su widget, barre e
   spazi) o con i puntini in basso (sulla mappa svaniscono coi suoi tasti, `MapControlsWake`); la
-  matita accanto ai puntini apre la modifica: due metà / quattro parti, sposta a sinistra/destra
+  matita accanto ai puntini apre la modifica: "Layout" (col disegno del formato attuale: apre
+  l'elenco dei formati a riquadri grandi, `LayoutChooser`; quello che la pagina mostrava resta, in
+  ordine, finché c'è posto, `withLayout`), sposta a sinistra/destra
   (anche oltre la mappa), nuova pagina, elimina (secondo tocco di conferma), Fatto; un tocco su una
   parte apre l'elenco di cosa metterci. Tenere premuto un widget o la barra di un riquadro apre la
   modifica. Tutte le pagine restano composte (`beyondViewportPageCount`): la mappa non perde mai la

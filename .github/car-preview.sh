@@ -119,6 +119,15 @@ shoot pages 1920 720 240 "$DOCK_MAP;966,675;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT
 shoot pages-800x480 800 480 160 "48,116;404,450;$WAIT"
 # Changing a page: the pencil beside the dots, then a part, for the list of what can go there.
 shoot pages-edit 1920 720 240 "$DOCK_MAP;966,675;1138,675;585,400;$WAIT"
+# The layouts a page can take: the pencil, the Layout button at the start of its bar, the list of
+# layouts; then "Half left" from it (the fourth tile of the first row).
+shoot pages-layouts 1920 720 240 "$DOCK_MAP;966,675;1138,675;690,72;$WAIT;1430,252;$WAIT"
+# Each layout beside the two halves and the four parts, on the page left of the map (--es pageLayout):
+# the weather, the agenda, then empty parts.
+for layout in full half-quarters quarters-half strip-quarters quarters-strip; do
+    EXTRA="--es pageLayout $layout" shoot "layout-$layout" 1920 720 240 "$WAIT;$DOCK_MAP;966,675;$WAIT;$WAIT"
+done
+EXTRA="--es pageLayout half-quarters" shoot layout-800x480 800 480 160 "48,116;404,450;$WAIT"
 
 # Plancia inside myCar, on the run's own Home Assistant (.github/home-assistant.sh), which the
 # emulator reaches at 10.0.2.2: full screen from the grid, where the Plancia app was, then its
