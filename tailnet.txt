@@ -1,0 +1,20 @@
+--- the phone in the tailnet ---
+    inet 100.64.0.2/32 scope global tun0
+    inet6 fd7a:115c:a1e0::2/128 scope global 
+ID | Hostname            | Name                | MachineKey | NodeKey | User   | Tags | IP addresses      | Ephemeral | Last seen           | Expiration | Connected | Expired
+1  | umbrel              | umbrel              | [9qEC5]    | [Pexhk] | driver |      | 100.64.0.1        | false     | 2026-10-28 01:06:52 | N/A        | online    | no     
+   |                     |                     |            |         |        |      | fd7a:115c:a1e0::1 |           |                     |            |           |        
+2  | sdk_gphone64_x86_64 | sdk-gphone64-x86-64 | [xPi7h]    | [q04EB] | driver |      | 100.64.0.2        | false     | 2026-10-28 01:10:13 | N/A        | online    | no     
+   |                     |                     |            |         |        |      | fd7a:115c:a1e0::2 |           |                     |            |           |        
+
+--- umbrel from the phone's shell ---
+PING umbrel.tailnet.test (100.64.0.1) 56(84) bytes of data.
+64 bytes from umbrel.tailnet.test (100.64.0.1): icmp_seq=1 ttl=64 time=12.6 ms
+64 bytes from umbrel.tailnet.test (100.64.0.1): icmp_seq=2 ttl=64 time=1.93 ms
+
+--- umbrel.tailnet.test ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 1.932/7.274/12.616/5.342 ms
+--- myCar (user 10216) and the VPN ---
+no VPN carrying apps
+

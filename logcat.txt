@@ -1,0 +1,277 @@
+10-28 01:10:44.220  5571  5571 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:10:44.223  5571  5571 I AndroidRuntime: Using default boot image
+10-28 01:10:44.223  5571  5571 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:10:44.346  5571  5571 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+10-28 01:10:44.347  5571  5571 W Monkey  : args: [-p, it.plancia.ha, -c, android.intent.category.LAUNCHER, 1]
+10-28 01:10:44.351  5571  5571 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:10:44.365  5571  5571 W Monkey  :  arg: "it.plancia.ha"
+10-28 01:10:44.365  5571  5571 W Monkey  : data="it.plancia.ha"
+10-28 01:10:44.388   648  1397 V SplashScreenExceptionList: SplashScreen checking exception for package it.plancia.ha (target sdk:34) -> false
+10-28 01:10:44.390  1024  1127 V WindowManagerShell: Transition requested (#21): android.os.BinderProxy@246480f TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=12 effectiveUid=10217 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity } baseActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} topActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} origActivity=null realActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} numActivities=1 lastActiveTime=186124 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@c7b709c} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{186aaa5 it.plancia.ha.phone.SettingsActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 1857) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 21 }
+10-28 01:10:44.390   648  1397 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity} with LAUNCH_MULTIPLE from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-28 01:10:44.400   648  1786 I AppsFilter: interaction: PackageSetting{6af9e83 com.android.microdroid.empty_payload/10192} -> PackageSetting{a3356c0 it.plancia.ha/10217} BLOCKED
+10-28 01:10:44.409   648   967 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10217 package it.plancia.ha isStopped false
+10-28 01:10:44.415  5571  5571 I AndroidRuntime: VM exiting with result code 0.
+10-28 01:10:44.415   648   683 I ActivityManager: Start proc 5582:it.plancia.ha/u0a217 for next-top-activity {it.plancia.ha/it.plancia.ha.phone.SettingsActivity}
+10-28 01:10:44.416   648  1786 D CoreBackPreview: Window{a9a2b3e u0 Splash Screen it.plancia.ha}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6a4aba2, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+10-28 01:10:44.429  5582  5582 I it.plancia.ha: Using CollectorTypeCMC GC.
+10-28 01:10:44.429  5582  5582 W it.plancia.ha: Unexpected CPU variant for x86: x86_64.
+10-28 01:10:44.429  5582  5582 W it.plancia.ha: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-28 01:10:44.431  5582  5582 E it.plancia.ha: Not starting debugger since process cannot load the jdwp agent.
+10-28 01:10:44.465   648   673 V WindowManager: Sent Transition (#21) createdAt=10-28 01:10:44.386 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=12 effectiveUid=10217 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity } baseActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} topActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} origActivity=null realActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} numActivities=1 lastActiveTime=186124 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{a0f0c8f Task{c2720a7 #12 type=standard A=10217:it.plancia.ha}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{3d61b1c it.plancia.ha.phone.SettingsActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 1857) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 21 }
+10-28 01:10:44.465   648   673 V WindowManager:         {WCT{RemoteToken{a0f0c8f Task{c2720a7 #12 type=standard A=10217:it.plancia.ha}}} m=OPEN f=NONE leash=Surface(name=Task=12)/@0x1b4a033 sb=Rect(0, 0 - 1080, 1920) eb=Rect(0, 0 - 1080, 1920) epz=Point(1080, 1920) d=0 taskParent=-1},
+10-28 01:10:44.501  5582  5582 D nativeloader: Configuring clns-9 for other apk /data/app/~~GKpzlKRUlK74mNKsqO5s7Q==/it.plancia.ha-XXz8KgHugngL0s9EOQ_qtA==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~GKpzlKRUlK74mNKsqO5s7Q==/it.plancia.ha-XXz8KgHugngL0s9EOQ_qtA==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/it.plancia.ha
+10-28 01:10:44.503  5582  5582 I it.plancia.ha: AssetManager2(0x784135427818) locale list changing from [] to [en-US]
+10-28 01:10:44.505  5582  5582 V GraphicsEnvironment: it.plancia.ha is not listed in per-application setting
+10-28 01:10:44.505  5582  5582 V GraphicsEnvironment: it.plancia.ha is not listed in ANGLE allowlist or settings, returning default
+10-28 01:10:44.515  5582  5582 I it.plancia.ha: AssetManager2(0x784135427b38) locale list changing from [] to [en-US]
+10-28 01:10:44.518  5582  5582 I it.plancia.ha: AssetManager2(0x784135431778) locale list changing from [] to [en]
+10-28 01:10:44.629   648  1002 D CoreBackPreview: Window{3f74f81 u0 it.plancia.ha/it.plancia.ha.phone.SettingsActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@bc14c67, mPriority=0, mIsAnimationCallback=false, mOverrideBehavior=0}
+10-28 01:10:45.316   648   673 I ActivityTaskManager: Displayed it.plancia.ha/.phone.SettingsActivity for user 0: +930ms
+10-28 01:10:45.326   648   668 D CoreBackPreview: Window{a9a2b3e u0 Splash Screen it.plancia.ha EXITING}: Setting back callback null
+10-28 01:10:45.343   648   785 I ImeTracker: it.plancia.ha:740cc7cf: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-28 01:10:45.345  5582  5582 I ImeTracker: it.plancia.ha:740cc7cf: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-28 01:10:45.349  1510  1510 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=it.plancia.ha, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-28 01:10:45.350   648  1002 W PackageConfigPersister: App-specific configuration not found for packageName: it.plancia.ha and userId: 0
+10-28 01:10:50.067  5582  5605 D ProfileInstaller: Installing profile for it.plancia.ha
+10-28 01:10:50.568  5606  5606 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:10:50.577  5606  5606 I AndroidRuntime: Using default boot image
+10-28 01:10:50.578  5606  5606 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:10:50.718  5606  5606 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:10:50.723  5606  5606 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:10:51.756  5606  5606 D AndroidRuntime: Shutting down VM
+10-28 01:10:52.676  5582  5582 I ImeTracker: it.plancia.ha:4bc44a30: onRequestHide at ORIGIN_CLIENT reason HIDE_SOFT_INPUT fromUser false
+10-28 01:10:52.676  5582  5582 I ImeTracker: it.plancia.ha:4bc44a30: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-28 01:10:52.846   442  5635 I resolv  : GetAddrInfoHandler::run: {100 100 102 917606 10217 0}
+10-28 01:10:52.846   442  5636 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-28 01:10:52.847   442  5637 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-28 01:10:52.850   442  5636 I resolv  : res_nsend: used send_dg 109 terrno: 0
+10-28 01:10:52.850   442  5636 I resolv  : doQuery: rcode=0, ancount=0, return value=109
+10-28 01:10:52.853   442  5637 I resolv  : res_nsend: used send_dg 72 terrno: 0
+10-28 01:10:52.854   442  5637 I resolv  : doQuery: rcode=0, ancount=1, return value=72
+10-28 01:10:53.265  1199  1426 D ImsResolver: maybeAddedImsService, packageName: com.google.android.settings.intelligence
+10-28 01:10:53.265  1199  1426 V ImsResolver: searchForImsServices: package=com.google.android.settings.intelligence, users=[UserHandle{0}]
+10-28 01:10:53.266  1199  1426 V ImsResolver: searchForImsServices: package=com.google.android.settings.intelligence, users=[UserHandle{0}]
+10-28 01:11:13.010  5904  5904 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:13.015  5904  5904 I AndroidRuntime: Using default boot image
+10-28 01:11:13.015  5904  5904 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:13.156  5904  5904 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:13.160  5904  5904 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:14.198  5904  5904 D AndroidRuntime: Shutting down VM
+10-28 01:11:15.083   648  1786 I ActivityManager: Force stopping it.plancia.ha appid=10217 user=0: from pid 5920
+10-28 01:11:15.085   648  1786 I ActivityManager: Killing 5582:it.plancia.ha/u0a217 (adj 0): stop it.plancia.ha due to from pid 5920
+10-28 01:11:15.090   648  1786 W ActivityTaskManager: Force removing ActivityRecord{227530086 u0 it.plancia.ha/.phone.SettingsActivity t12 f}}: app died, no saved state
+10-28 01:11:15.095  1024  1127 V WindowManagerShell: Transition requested (#22): android.os.BinderProxy@9eea408 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=12 effectiveUid=10217 displayId=0 isRunning=false baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} numActivities=0 lastActiveTime=186246 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@6c677a1} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=true lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 0, 0) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=undefined}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 22 }
+10-28 01:11:15.100   648  1786 I AppsFilter: interaction: PackageSetting{6af9e83 com.android.microdroid.empty_payload/10192} -> PackageSetting{255d73e it.plancia.ha/10217} BLOCKED
+10-28 01:11:15.107   648   777 W InputDispatcher: channel '3f74f81 it.plancia.ha/it.plancia.ha.phone.SettingsActivity' ~ Consumer closed input channel or an error occurred.  events=0x9
+10-28 01:11:15.107   648   777 E InputDispatcher: channel '3f74f81 it.plancia.ha/it.plancia.ha.phone.SettingsActivity' ~ Channel is unrecoverably broken and will be disposed!
+10-28 01:11:15.107   648   777 I WindowManager: WINDOW DIED Window{3f74f81 u0 it.plancia.ha/it.plancia.ha.phone.SettingsActivity}
+10-28 01:11:15.109   648  1906 I WindowManager: WIN DEATH: Window{3f74f81 u0 it.plancia.ha/it.plancia.ha.phone.SettingsActivity EXITING}
+10-28 01:11:15.112   648  1910 V ActivityManager: Got obituary of 5582:it.plancia.ha
+10-28 01:11:15.115   648   925 I ImeTracker: it.plancia.ha:452a834d: onRequestHide at ORIGIN_SERVER reason HIDE_REMOVE_CLIENT fromUser false
+10-28 01:11:15.118   648   925 I ImeTracker: it.plancia.ha:452a834d: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-28 01:11:15.130   648   967 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10217 package it.plancia.ha isStopped true
+10-28 01:11:15.132  1199  1199 D CarrierSvcBindHelper: onHandleForceStop: [it.plancia.ha]
+10-28 01:11:15.149   648   677 W ActivityTaskManager: Unable to send transaction to client proc it.plancia.ha: no app thread
+10-28 01:11:15.171   648  2040 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=io.github.sirionero.mycar/.MyCarActivity} with LAUNCH_SINGLE_TOP from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-28 01:11:15.183   648  1636 I AppsFilter: interaction: PackageSetting{6af9e83 com.android.microdroid.empty_payload/10192} -> PackageSetting{30f2914 io.github.sirionero.mycar/10216} BLOCKED
+10-28 01:11:15.198   648   683 I ActivityManager: Start proc 5930:io.github.sirionero.mycar/u0a216 for next-top-activity {io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}
+10-28 01:11:15.206   648   967 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10216 package io.github.sirionero.mycar isStopped false
+10-28 01:11:15.241  5930  5930 I sirionero.mycar: Using CollectorTypeCMC GC.
+10-28 01:11:15.242  5930  5930 W sirionero.mycar: Unexpected CPU variant for x86: x86_64.
+10-28 01:11:15.242  5930  5930 W sirionero.mycar: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-28 01:11:15.255   648   677 W ActivityTaskManager: Unable to send transaction to client proc it.plancia.ha: no app thread
+10-28 01:11:15.386  5930  5930 E sirionero.mycar: Not starting debugger since process cannot load the jdwp agent.
+10-28 01:11:15.413  5930  5930 D nativeloader: Configuring clns-9 for other apk /data/app/~~WsPdMoFk6bO0-BMOAfnq8w==/io.github.sirionero.mycar-iJH0D5R2VLLReEgDItbapw==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~WsPdMoFk6bO0-BMOAfnq8w==/io.github.sirionero.mycar-iJH0D5R2VLLReEgDItbapw==/lib/arm64:/data/app/~~WsPdMoFk6bO0-BMOAfnq8w==/io.github.sirionero.mycar-iJH0D5R2VLLReEgDItbapw==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/io.github.sirionero.mycar
+10-28 01:11:15.435  5930  5930 I sirionero.mycar: AssetManager2(0x784135427818) locale list changing from [] to [en-US]
+10-28 01:11:15.437  5930  5930 V GraphicsEnvironment: io.github.sirionero.mycar is not listed in per-application setting
+10-28 01:11:15.437  5930  5930 V GraphicsEnvironment: io.github.sirionero.mycar is not listed in ANGLE allowlist or settings, returning default
+10-28 01:11:15.466   648   673 V WindowManager: Sent Transition (#22) createdAt=10-28 01:11:15.090 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=12 effectiveUid=10217 displayId=0 isRunning=false baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} numActivities=0 lastActiveTime=186246 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{a0f0c8f Task{c2720a7 #12 type=standard A=10217:it.plancia.ha}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=true lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 0, 0) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=undefined}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 22 }
+10-28 01:11:15.466   648   673 V WindowManager:         {WCT{RemoteToken{2536d6b Task{cdb8e68 #13 type=standard A=10216:io.github.sirionero.mycar}}} m=OPEN f=MOVE_TO_TOP leash=Surface(name=Task=13)/@0x5c16b4f sb=Rect(0, 0 - 1080, 1920) eb=Rect(0, 0 - 1080, 1920) epz=Point(1080, 1920) d=0 taskParent=-1},
+10-28 01:11:15.466   648   673 V WindowManager:         {WCT{RemoteToken{a0f0c8f Task{c2720a7 #12 type=standard A=10217:it.plancia.ha}}} m=CLOSE f=NONE leash=Surface(name=Task=12)/@0x1b4a033 sb=Rect(0, 0 - 1080, 1920) eb=Rect(0, 0 - 1080, 1920) epz=Point(1080, 1920) d=0 taskParent=-1}
+10-28 01:11:15.476  5930  5930 I sirionero.mycar: AssetManager2(0x784135427b38) locale list changing from [] to [en-US]
+10-28 01:11:15.502   648  1772 W WindowManager: Exception thrown during dispatchAppVisibility Window{3f74f81 u0 it.plancia.ha/it.plancia.ha.phone.SettingsActivity EXITING}
+10-28 01:11:15.511  5930  5930 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261028-011115.log
+10-28 01:11:15.519  5930  5930 I myCar   : myCar ready
+10-28 01:11:15.533   648  1786 I AppsFilter: interaction: PackageSetting{6af9e83 com.android.microdroid.empty_payload/10192} -> PackageSetting{5faf36 it.plancia.ha/10217} BLOCKED
+10-28 01:11:15.542   648   967 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10217 package it.plancia.ha isStopped false
+10-28 01:11:15.560   648   683 I ActivityManager: Start proc 5953:it.plancia.ha/u0a217 for content provider {it.plancia.ha/it.plancia.ha.data.AccountProvider}
+10-28 01:11:15.570  5930  5952 I sirionero.mycar: AssetManager2(0x78413542bff8) locale list changing from [] to [en-US]
+10-28 01:11:15.578  5953  5953 I it.plancia.ha: Using CollectorTypeCMC GC.
+10-28 01:11:15.579  5953  5953 W it.plancia.ha: Unexpected CPU variant for x86: x86_64.
+10-28 01:11:15.579  5953  5953 W it.plancia.ha: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-28 01:11:15.583  5953  5953 E it.plancia.ha: Not starting debugger since process cannot load the jdwp agent.
+10-28 01:11:15.587  5930  5952 I sirionero.mycar: AssetManager2(0x78413542cc78) locale list changing from [] to [en-US]
+10-28 01:11:15.594  5930  5952 I sirionero.mycar: AssetManager2(0x784135431138) locale list changing from [] to [en-US]
+10-28 01:11:15.596  5930  5952 I sirionero.mycar: AssetManager2(0x784135431db8) locale list changing from [] to [en-US]
+10-28 01:11:15.599   648  2040 D CoreBackPreview: Window{dc0f77d u0 io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@3fccac3, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+10-28 01:11:15.610  5953  5953 D nativeloader: Configuring clns-9 for other apk /data/app/~~GKpzlKRUlK74mNKsqO5s7Q==/it.plancia.ha-XXz8KgHugngL0s9EOQ_qtA==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~GKpzlKRUlK74mNKsqO5s7Q==/it.plancia.ha-XXz8KgHugngL0s9EOQ_qtA==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/it.plancia.ha
+10-28 01:11:15.632  5953  5953 I it.plancia.ha: AssetManager2(0x784135427818) locale list changing from [] to [en-US]
+10-28 01:11:15.639  5953  5953 V GraphicsEnvironment: it.plancia.ha is not listed in per-application setting
+10-28 01:11:15.639  5953  5953 V GraphicsEnvironment: it.plancia.ha is not listed in ANGLE allowlist or settings, returning default
+10-28 01:11:15.643  5930  5952 I sirionero.mycar: AssetManager2(0x78413542ebb8) locale list changing from [] to [en-US]
+10-28 01:11:15.662  5953  5967 I Plancia : Account passato a io.github.sirionero.mycar
+10-28 01:11:15.666  5930  5949 I myCar   : plancia: took the Plancia app's Home Assistant account
+10-28 01:11:15.692  5930  5952 I sirionero.mycar: AssetManager2(0x78413542d2b8) locale list changing from [] to [en-US]
+10-28 01:11:15.700  5930  5952 I sirionero.mycar: AssetManager2(0x784135430e18) locale list changing from [] to [en-US]
+10-28 01:11:15.728  5930  5952 I sirionero.mycar: AssetManager2(0x784135433078) locale list changing from [] to [en-US]
+10-28 01:11:15.732  5930  5952 I sirionero.mycar: AssetManager2(0x784135438e38) locale list changing from [] to [en-US]
+10-28 01:11:15.749  5930  5952 I sirionero.mycar: AssetManager2(0x784135439478) locale list changing from [] to [en-US]
+10-28 01:11:15.751  5930  5952 I sirionero.mycar: AssetManager2(0x784135438b18) locale list changing from [] to [en-US]
+10-28 01:11:15.762  5930  5952 I sirionero.mycar: AssetManager2(0x784135436ef8) locale list changing from [] to [en-US]
+10-28 01:11:15.869  5930  5952 I sirionero.mycar: AssetManager2(0x78413543b6d8) locale list changing from [] to [en-US]
+10-28 01:11:15.872  5930  5952 I sirionero.mycar: AssetManager2(0x784135440b38) locale list changing from [] to [en-US]
+10-28 01:11:15.878  5930  5952 I sirionero.mycar: AssetManager2(0x78413543c998) locale list changing from [] to [en-US]
+10-28 01:11:15.894  5930  5952 I sirionero.mycar: AssetManager2(0x7841354417b8) locale list changing from [] to [en-US]
+10-28 01:11:15.909  5930  5952 I sirionero.mycar: AssetManager2(0x78413543aa58) locale list changing from [] to [en-US]
+10-28 01:11:15.916  5930  5952 I sirionero.mycar: AssetManager2(0x78413543ebf8) locale list changing from [] to [en-US]
+10-28 01:11:15.920  5930  5952 I sirionero.mycar: AssetManager2(0x78413543cfd8) locale list changing from [] to [en-US]
+10-28 01:11:15.925  5930  5952 I sirionero.mycar: AssetManager2(0x78413543fb98) locale list changing from [] to [en-US]
+10-28 01:11:15.927  5930  5952 I sirionero.mycar: AssetManager2(0x78413543e298) locale list changing from [] to [en-US]
+10-28 01:11:16.051  5930  5952 I sirionero.mycar: AssetManager2(0x784135441498) locale list changing from [] to [en-US]
+10-28 01:11:16.076  5930  5952 I myCar   : prefetch done in 547ms
+10-28 01:11:16.410   648   673 W system_server: Failed to determine oat file name for dex location /data/app/~~WsPdMoFk6bO0-BMOAfnq8w==/io.github.sirionero.mycar-iJH0D5R2VLLReEgDItbapw==/base.apk: Dalvik cache directory does not exist
+10-28 01:11:16.416   648   673 I ActivityTaskManager: Displayed io.github.sirionero.mycar/.MyCarActivity for user 0: +1s251ms
+10-28 01:11:16.426   648  1772 I AppsFilter: interaction: PackageSetting{6af9e83 com.android.microdroid.empty_payload/10192} -> PackageSetting{73cbd59 it.xonos.ma/10218} BLOCKED
+10-28 01:11:16.476   648   967 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10218 package it.xonos.ma isStopped false
+10-28 01:11:16.478  3217  3713 I FontLog : Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-28 01:11:16.483   648   785 I ImeTracker: io.github.sirionero.mycar:1aaace9c: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-28 01:11:16.493   648   683 I ActivityManager: Start proc 5976:it.xonos.ma/u0a218 for content provider {it.xonos.ma/it.xonos.ma.data.AccountProvider}
+10-28 01:11:16.497  5976  5976 I it.xonos.ma: Using CollectorTypeCMC GC.
+10-28 01:11:16.498  5930  5930 I ImeTracker: io.github.sirionero.mycar:1aaace9c: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-28 01:11:16.500  5976  5976 W it.xonos.ma: Unexpected CPU variant for x86: x86_64.
+10-28 01:11:16.500  5976  5976 W it.xonos.ma: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-28 01:11:16.507  5976  5976 E it.xonos.ma: Not starting debugger since process cannot load the jdwp agent.
+10-28 01:11:16.527  1510  1510 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=io.github.sirionero.mycar, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-28 01:11:16.530   648  1825 W PackageConfigPersister: App-specific configuration not found for packageName: io.github.sirionero.mycar and userId: 0
+10-28 01:11:16.546  5976  5976 D nativeloader: Configuring clns-9 for other apk /data/app/~~bXZlX2isPO-Bt2sHeXXH5Q==/it.xonos.ma-SjZk8rkvyJx_1ZuGUZXAzg==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~bXZlX2isPO-Bt2sHeXXH5Q==/it.xonos.ma-SjZk8rkvyJx_1ZuGUZXAzg==/lib/x86_64:/data/app/~~bXZlX2isPO-Bt2sHeXXH5Q==/it.xonos.ma-SjZk8rkvyJx_1ZuGUZXAzg==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/it.xonos.ma
+10-28 01:11:16.586  5976  5976 I it.xonos.ma: AssetManager2(0x784135423998) locale list changing from [] to [en-US]
+10-28 01:11:16.589  5976  5976 V GraphicsEnvironment: it.xonos.ma is not listed in per-application setting
+10-28 01:11:16.589  5976  5976 V GraphicsEnvironment: it.xonos.ma is not listed in ANGLE allowlist or settings, returning default
+10-28 01:11:16.600  5976  5985 I Xonos   : Account passato a io.github.sirionero.mycar
+10-28 01:11:16.601  5930  5949 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-28 01:11:20.764  5930  5989 D ProfileInstaller: Skipping profile installation for io.github.sirionero.mycar
+10-28 01:11:21.368  5953  5990 D ProfileInstaller: Installing profile for it.plancia.ha
+10-28 01:11:22.270  5976  5991 D ProfileInstaller: Skipping profile installation for it.xonos.ma
+10-28 01:11:27.542  5997  5997 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:27.547  5997  5997 I AndroidRuntime: Using default boot image
+10-28 01:11:27.547  5997  5997 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:27.677  5997  5997 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:27.682  5997  5997 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:28.759  5997  5997 D AndroidRuntime: Shutting down VM
+10-28 01:11:28.782  5930  5936 W sirionero.mycar: Cleared Reference was only reachable from finalizer (only reported once)
+10-28 01:11:29.664  5554  5556 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~WsPdMoFk6bO0-BMOAfnq8w==/io.github.sirionero.mycar-iJH0D5R2VLLReEgDItbapw==/oat/x86_64/base.odex) is kOatUpToDate with filter 'verify' executable 'false'
+10-28 01:11:29.740  6017  6017 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:29.743  6017  6017 I AndroidRuntime: Using default boot image
+10-28 01:11:29.743  6017  6017 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:29.832  6017  6017 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:29.837  6017  6017 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:30.868  6017  6017 D AndroidRuntime: Shutting down VM
+10-28 01:11:31.758   648  1397 D CoreBackPreview: Window{dc0f77d u0 io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@b46c642, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+10-28 01:11:35.095  6042  6042 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:35.101  6042  6042 I AndroidRuntime: Using default boot image
+10-28 01:11:35.101  6042  6042 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:35.234  6042  6042 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:35.239  6042  6042 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:36.306  6042  6042 D AndroidRuntime: Shutting down VM
+10-28 01:11:37.232  6057  6057 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:37.235  6057  6057 I AndroidRuntime: Using default boot image
+10-28 01:11:37.235  6057  6057 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:37.330  6057  6057 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:37.335  6057  6057 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:38.374  6057  6057 D AndroidRuntime: Shutting down VM
+10-28 01:11:40.855  6079  6079 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:40.858  6079  6079 I AndroidRuntime: Using default boot image
+10-28 01:11:40.858  6079  6079 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:40.945  6079  6079 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:40.948  6079  6079 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:41.974  6079  6079 D AndroidRuntime: Shutting down VM
+10-28 01:11:44.446  6100  6100 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:44.449  6100  6100 I AndroidRuntime: Using default boot image
+10-28 01:11:44.449  6100  6100 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:44.539  6100  6100 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:44.544  6100  6100 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:45.586  6100  6100 D AndroidRuntime: Shutting down VM
+10-28 01:11:48.084  6120  6120 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:11:48.087  6120  6120 I AndroidRuntime: Using default boot image
+10-28 01:11:48.087  6120  6120 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:11:48.180  6120  6120 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:11:48.186  6120  6120 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:11:49.229  6120  6120 D AndroidRuntime: Shutting down VM
+10-28 01:11:50.150   442  6142 I resolv  : GetAddrInfoHandler::run: {100 262244 102 917606 10216 0}
+10-28 01:11:50.151   442  6143 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-28 01:11:50.151   442  6144 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-28 01:11:50.153   442  6143 I resolv  : res_nsend: used send_dg 109 terrno: 0
+10-28 01:11:50.153   442  6143 I resolv  : doQuery: rcode=0, ancount=0, return value=109
+10-28 01:11:50.154   442  6144 I resolv  : res_nsend: used send_dg 72 terrno: 0
+10-28 01:11:50.154   442  6144 I resolv  : doQuery: rcode=0, ancount=1, return value=72
+10-28 01:11:51.725   648   766 D ActivityManager: freezing 5953 it.plancia.ha
+10-28 01:11:52.680   648   766 D ActivityManager: freezing 5976 it.xonos.ma
+10-28 01:11:53.799   442  6179 I resolv  : GetAddrInfoHandler::run: {100 786532 102 917606 10147 0}
+10-28 01:11:53.800   442  6180 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-28 01:11:53.800   442  6181 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-28 01:11:53.827   442  6180 I resolv  : res_nsend: used send_dg 260 terrno: 0
+10-28 01:11:53.827   442  6180 I resolv  : doQuery: rcode=0, ancount=8, return value=260
+10-28 01:11:53.830   442  6181 I resolv  : res_nsend: used send_dg 164 terrno: 0
+10-28 01:11:53.831   442  6181 I resolv  : doQuery: rcode=0, ancount=8, return value=164
+10-28 01:11:53.899   442  6182 I resolv  : GetAddrInfoHandler::run: {100 786532 102 917606 10147 0}
+10-28 01:11:53.900   442  6183 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-28 01:11:53.900   442  6183 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7dd9b22e3d10
+10-28 01:11:53.901   442  6183 I resolv  : doQuery: rcode=0, ancount=8, return value=257
+10-28 01:11:53.901   442  6184 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-28 01:11:53.901   442  6184 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x7ddb622dbf30
+10-28 01:11:53.901   442  6184 I resolv  : doQuery: rcode=0, ancount=8, return value=161
+10-28 01:11:54.221   442  6191 I resolv  : GetAddrInfoHandler::run: {100 786532 102 917606 10147 0}
+10-28 01:11:54.370   442  6192 I resolv  : GetAddrInfoHandler::run: {100 786532 102 917606 10147 0}
+10-28 01:11:54.371   442  6193 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-28 01:11:54.371   442  6194 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-28 01:11:54.377   442  6193 I resolv  : res_nsend: used send_dg 264 terrno: 0
+10-28 01:11:54.377   442  6193 I resolv  : doQuery: rcode=0, ancount=8, return value=264
+10-28 01:11:54.377   442  6194 I resolv  : res_nsend: used send_dg 168 terrno: 0
+10-28 01:11:54.378   442  6194 I resolv  : doQuery: rcode=0, ancount=8, return value=168
+10-28 01:11:55.787  1110  5082 D NetworkMonitor/102: Network would not satisfy default request, resolving private DNS
+10-28 01:12:10.522  6201  6201 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:12:10.528  6201  6201 I AndroidRuntime: Using default boot image
+10-28 01:12:10.528  6201  6201 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:12:10.665  6201  6201 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:12:10.670  6201  6201 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:12:11.723  6201  6201 D AndroidRuntime: Shutting down VM
+10-28 01:12:12.661  6219  6219 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:12:12.664  6219  6219 I AndroidRuntime: Using default boot image
+10-28 01:12:12.664  6219  6219 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:12:12.752  6219  6219 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:12:12.756  6219  6219 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:12:13.791  6219  6219 D AndroidRuntime: Shutting down VM
+10-28 01:12:14.202  1199  1426 D ImsResolver: maybeAddedImsService, packageName: com.google.android.apps.photos
+10-28 01:12:14.203  1199  1426 V ImsResolver: searchForImsServices: package=com.google.android.apps.photos, users=[UserHandle{0}]
+10-28 01:12:14.204  1199  1426 V ImsResolver: searchForImsServices: package=com.google.android.apps.photos, users=[UserHandle{0}]
+10-28 01:12:14.358  1275  1275 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-28 01:12:14.358  1275  1275 D AlphabeticalAppsList: addAppsWithSections: adding sectionName: X with appInfoTitle: Xonos
+10-28 01:12:14.689   648  1906 D ActivityManager: sync unfroze 5976 it.xonos.ma for 7
+10-28 01:12:14.697  5976  5984 I Xonos   : Account passato a io.github.sirionero.mycar
+10-28 01:12:14.698  5930  5949 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-28 01:12:14.707   442  6287 I resolv  : GetAddrInfoHandler::run: {100 262244 102 917606 10216 0}
+10-28 01:12:14.708   442  6288 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-28 01:12:14.708   442  6289 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-28 01:12:14.710   442  6288 I resolv  : res_nsend: used send_dg 109 terrno: 0
+10-28 01:12:14.710   442  6288 I resolv  : doQuery: rcode=0, ancount=0, return value=109
+10-28 01:12:14.711   442  6289 I resolv  : res_nsend: used send_dg 72 terrno: 0
+10-28 01:12:14.711   442  6289 I resolv  : doQuery: rcode=0, ancount=1, return value=72
+10-28 01:12:35.026  6298  6298 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:12:35.031  6298  6298 I AndroidRuntime: Using default boot image
+10-28 01:12:35.031  6298  6298 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:12:35.169  6298  6298 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:12:35.174  6298  6298 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:12:36.223  6298  6298 D AndroidRuntime: Shutting down VM
+10-28 01:12:39.972  6322  6322 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:12:39.976  6322  6322 I AndroidRuntime: Using default boot image
+10-28 01:12:39.976  6322  6322 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:12:40.108  6322  6322 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:12:40.112  6322  6322 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:12:41.186  6322  6322 D AndroidRuntime: Shutting down VM
+10-28 01:12:44.957  6348  6348 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-28 01:12:44.962  6348  6348 I AndroidRuntime: Using default boot image
+10-28 01:12:44.962  6348  6348 I AndroidRuntime: Leaving lock profiling enabled
+10-28 01:12:45.099  6348  6348 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-28 01:12:45.105  6348  6348 I AconfigPackage: com.android.intentresolver is mapped to system
+10-28 01:12:46.166  6348  6348 D AndroidRuntime: Shutting down VM
