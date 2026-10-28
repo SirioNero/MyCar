@@ -153,14 +153,54 @@ else
     echo "--- no Music Assistant: Xonos's shots left out ---"
 fi
 
-# Cinema: from the grid, the video sites as tiles (each with the icon it gives itself), then the
-# first, YouTube; and the same with the car moving, where "Video only when parked" covers the
-# picture and the sound carries on.
-CINEMA_FIRST="302,216"
-shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_FIRST;$WAIT;$WAIT;$WAIT"
-EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_FIRST;$WAIT;$WAIT"
+# Cinema: from the grid, myCar's own tiles ("On this phone", then any TV list) and the video sites
+# as tiles (each with the icon it gives itself), then the first site, YouTube; and the same with
+# the car moving, where "Video only when parked" covers the picture and the sound carries on.
+CINEMA_PHONE="302,216"    # the first tile, "On this phone"
+CINEMA_SECOND="594,216"   # YouTube; with a TV list, the list
+shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$WAIT"
+EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT"
+
+# Cinema's shelves on Android's own player: a minute of test picture and tone on the phone (in
+# Movies), and a TV list from the runner (10.0.2.2:8001) with a stream (HLS) and a film file, a
+# logo and two groups, all made with ffmpeg. "On this phone" plays its video; the TV tile shows
+# the groups, then all the channels, and plays the first; the phone's video again with the car
+# moving, covered and still sounding.
+CINEMA_MEDIA=/tmp/cinema-media
+if [ -z "${ONLY:-}" ] || [[ " $ONLY " == *" cinema-"* ]]; then
+mkdir -p "$CINEMA_MEDIA/tv"
+FFMPEG="docker run --rm -v $CINEMA_MEDIA:/out --entrypoint /ffmpeg mwader/static-ffmpeg:7.1 -loglevel error -y"
+$FFMPEG -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=60" -f lavfi -i "sine=f=440:d=60" \
+    -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest /out/test-video.mp4 || echo "cinema: no test video"
+$FFMPEG -f lavfi -i "testsrc=size=1280x720:rate=25:duration=120" -f lavfi -i "sine=f=660:d=120" \
+    -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -f hls -hls_time 4 -hls_list_size 0 /out/tv/live.m3u8 || echo "cinema: no test stream"
+$FFMPEG -f lavfi -i "color=c=0x3D8BFF:s=256x144" -frames:v 1 /out/tv/logo.png || echo "cinema: no test logo"
+cat > "$CINEMA_MEDIA/tv.m3u" <<'M3U'
+#EXTM3U
+#EXTINF:-1 tvg-logo="http://10.0.2.2:8001/tv/logo.png" group-title="Test",Test channel
+http://10.0.2.2:8001/tv/live.m3u8
+#EXTINF:-1 group-title="Films",Test film
+http://10.0.2.2:8001/test-video.mp4
+M3U
+python3 -m http.server 8001 --bind 127.0.0.1 --directory "$CINEMA_MEDIA" > /tmp/cinema-media.txt 2>&1 &
+adb push "$CINEMA_MEDIA/test-video.mp4" /sdcard/Movies/test-video.mp4
+adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Movies/test-video.mp4 > /dev/null
+fi
+VIDEO_FIRST="377,240"     # the first video on "On this phone"
+GROUP_ALL="377,180"       # "All channels", the first of a list's groups
+CHANNEL_FIRST="304,207"   # the first channel
+TV="--es tvList http://10.0.2.2:8001/tv.m3u"
+shoot cinema-videos 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
+EXTRA="$TV" shoot cinema-tv 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$GROUP_ALL;$WAIT;$CHANNEL_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
+EXTRA="--ez moving true" shoot cinema-videos-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT"
 echo "--- Cinema ---"
-grep -h "cinema" previews/cinema/log.txt previews/cinema-moving/log.txt 2>/dev/null | head -20 || echo "cinema: nothing in the log"
+grep -h "cinema" previews/cinema*/log.txt 2>/dev/null | head -40 || echo "cinema: nothing in the log"
+grep -h "GET" /tmp/cinema-media.txt 2>/dev/null | head -20 || echo "cinema: nothing asked of the runner"
+# The sites Cinema suggests, as the runner reaches them (the cloud session can't).
+for site in https://www.youtube.com https://www.raiplay.it https://www.twitch.tv https://www.dailymotion.com https://vimeo.com \
+    https://www.la7.it https://www.ted.com https://www.arte.tv https://plus.nasa.gov https://archive.org/details/feature_films; do
+    echo "cinema site $site: $(curl -s -o /dev/null -L --max-time 20 -w '%{http_code} %{url_effective}' "$site")"
+done
 
 # Plancia and Xonos inside myCar set up on addresses that don't answer (as Tailscale ones do when
 # myCar is left out of it), the Plancia and Xonos apps on the phone: a few seconds in, the apps take

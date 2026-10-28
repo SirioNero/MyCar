@@ -114,6 +114,10 @@ class CarPreviewActivity : ComponentActivity() {
         // --ez moving true: the car says it's moving, so Cinema keeps its video for when it stops
         // ("Video only when parked"). Set every run, so other shots ask the car, or the GPS.
         io.github.sirionero.mycar.car.CarDriving.override = if (intent.getBooleanExtra("moving", false)) false else null
+        // --es tvList http://10.0.2.2:8001/tv.m3u: Cinema's TV with that list alone, named "TV". Set
+        // every run, so other shots have none and Cinema's tiles stay where they were.
+        io.github.sirionero.mycar.cinema.TvLists.lists.value.forEach { io.github.sirionero.mycar.cinema.TvLists.remove(it) }
+        intent.getStringExtra("tvList")?.let { io.github.sirionero.mycar.cinema.TvLists.add(io.github.sirionero.mycar.cinema.TvList("TV", it)) }
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,
