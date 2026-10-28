@@ -30,6 +30,7 @@ object AssistantCommands {
         if (heard.matches(Regex("(fuck|f\\*+) (you|off)( too)?"))) return "Fuck you too."
 
         navigateCommand(context, navigator, frame, heard)?.let { return it }
+        stopRouteCommand(heard)?.let { return it }
         playSearchCommand(context, navigator, heard)?.let { return it }
         mediaCommand(heard)?.let { return it }
         navCommand(navigator, heard)?.let { return it }
@@ -215,6 +216,13 @@ object AssistantCommands {
         }
         media.playBestMatch(query)
         return "Looking for $query on $app."
+    }
+
+    /** "Stop navigation", "cancel the route": ends the guidance - it used to pause the music. */
+    private fun stopRouteCommand(heard: String): String? {
+        if (!Regex("^(?:stop|end|cancel|quit|exit) (?:the )?(?:navigation|navigating|route|directions|guidance)$").matches(heard)) return null
+        CarServices.nav.stopNavigating()
+        return "Ending the route."
     }
 
     private fun mediaCommand(heard: String): String? {
