@@ -368,8 +368,16 @@ object VoiceReply {
     /** "Alex says: ..." or, in a group, "Sam in Climbing says: ...", for the newest messages. */
     private fun spoken(n: CarNotification): String {
         val from = n.title.ifBlank { n.appLabel }
-        // Not a chat: "Mario Rossi says: Missed call" told it the wrong way round.
-        if (n.missedCall) return "Missed call from $from."
+        // Not a chat: "Mario Rossi says: Missed call" told it the wrong way round. Some dialers
+        // put the name in the title, others in the text under a "Missed call" title.
+        if (n.missedCall) {
+            val who = if ("missed" in n.title.lowercase()) n.text else n.title
+            return if (who.isBlank() || "missed" in who.lowercase()) {
+                listOf(n.title, n.text).filter { it.isNotBlank() }.joinToString(". ") + "."
+            } else {
+                "Missed call from $who."
+            }
+        }
         val lines = n.lines.filter { it.sender != null }.takeLast(n.burst.coerceIn(1, MAX_READ))
         if (lines.isEmpty()) return "$from says: ${n.text}"
         return lines.joinToString(". ") { line ->

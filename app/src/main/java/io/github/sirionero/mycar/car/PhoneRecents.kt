@@ -54,8 +54,12 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** How a call in the phone's log went, as the car's Recents tells it. */
@@ -273,16 +277,28 @@ private fun whenLabel(at: Long, now: Long = System.currentTimeMillis()): String 
     }
 }
 
+/** Outlives the popup that asks: its time can run out while the log is read, and the tap was lost. */
+private val callBackScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
 /**
- * "Call back" on a missed call's popup: the latest missed call in the phone's log, asked first -
- * the driver sees whom and which number. False when the log can't tell (not allowed, or empty).
+ * "Call back" on the popup of a missed call [postedAt]: the latest missed call in the phone's log,
+ * asked first - the driver sees whom and which number. When the log can't say it's that call (not
+ * allowed, a private number, or the latest is from long before), [otherwise]: the Phone's Recents.
  */
-internal suspend fun askCallBackMissed(context: Context, from: String): Boolean {
-    val call = withContext(Dispatchers.IO) { loadRecents(context, grouped = false) }
-        .firstOrNull { it.kind == RecentKind.MISSED && it.number.isNotBlank() } ?: return false
-    CallPrompt.ask(call.name ?: from.ifBlank { shownNumber(call.number) }, call.number)
-    return true
+internal fun callBackMissed(context: Context, postedAt: Long, otherwise: () -> Unit) {
+    val app = context.applicationContext
+    callBackScope.launch {
+        val call = withContext(Dispatchers.IO) { loadRecents(app, grouped = false) }.firstOrNull { it.kind == RecentKind.MISSED }
+        if (call == null || call.number.isBlank() || abs(call.at - postedAt) > SAME_CALL_MS) {
+            otherwise()
+        } else {
+            CallPrompt.ask(call.name ?: shownNumber(call.number), call.number)
+        }
+    }
 }
+
+/** A missed call's popup and its row in the log are this close, at most. */
+private const val SAME_CALL_MS = 10 * 60_000L
 
 /** Lines shown, and at most how many rows of the log are read to fill them. */
 private const val SHOWN = 60

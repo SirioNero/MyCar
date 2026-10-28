@@ -70,7 +70,7 @@ class MyCarNotificationListener : NotificationListenerService() {
                 lines = lines,
                 isGroup = style?.isGroupConversation == true,
                 markRead = markReadOf(n),
-                missedCall = n.category == Notification.CATEGORY_MISSED_CALL,
+                missedCall = isMissedCall(sbn),
             ),
             quiet || !alerts(sbn, style != null),
         )
@@ -88,7 +88,19 @@ class MyCarNotificationListener : NotificationListenerService() {
             ranking.importance < android.app.NotificationManager.IMPORTANCE_DEFAULT
         ) return false
         val n = sbn.notification
-        return conversation || replyOf(n) != null || n.category in ALERT_CATEGORIES
+        return conversation || replyOf(n) != null || n.category in ALERT_CATEGORIES || isMissedCall(sbn)
+    }
+
+    /**
+     * A missed call. The category says so where the dialer sets it; the AOSP dialer and Telecom
+     * (LineageOS and other ROMs) don't, but post it on a channel of their own for missed calls.
+     */
+    private fun isMissedCall(sbn: StatusBarNotification): Boolean {
+        val n = sbn.notification
+        if (n.category == Notification.CATEGORY_MISSED_CALL) return true
+        if ("missed" !in n.channelId.orEmpty().lowercase()) return false
+        val dialer = runCatching { getSystemService(android.telecom.TelecomManager::class.java)?.defaultDialerPackage }.getOrNull()
+        return sbn.packageName == TELECOM || sbn.packageName == dialer
     }
 
     private fun markReadOf(n: Notification): Notification.Action? =
@@ -118,6 +130,7 @@ class MyCarNotificationListener : NotificationListenerService() {
 
     private companion object {
         const val ICON_PX = 96
+        const val TELECOM = "com.android.server.telecom"
         const val MAX_LINES = 8
         val ALERT_CATEGORIES = setOf(
             Notification.CATEGORY_MESSAGE,
