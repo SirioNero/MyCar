@@ -361,6 +361,8 @@ object CarServices {
         _mediaDecided.value = false
         closedBrowse = emptySet()
         closedMedia = null
+        // A call waiting to be confirmed belongs to this drive, not to the car's next arrival.
+        CallPrompt.pending.value = null
         media.forgetLosses()
         clearSectionCache()
         navStopped = false
