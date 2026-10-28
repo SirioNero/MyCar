@@ -2,7 +2,7 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 
 ## New in the car
 - Phone: a Recents tab, as on a phone - your latest calls, missed ones in red, a tap to call back (it asks first, with the number). The Phone opens on the tab you used last. A missed call's popup has Call back too, and Read says "Missed call from…".
-- Voice: "read my messages" reads the newest message you haven't heard, "reply to Anna" or "text Anna" goes straight to your reply. "Call back" returns the last call, "redial" makes the last one again. "Call Mom on mobile" calls that number; with several numbers myCar picks the phone's default or the mobile, and says which. All in "You can say".
+- Voice: "read my messages" reads the newest message you haven't heard, "reply to Anna" or "text Anna" goes straight to your reply. "Call back" returns the last call, "redial" makes the last one again. "Call Mom on mobile" calls that number; with several numbers myCar picks the phone's default or the mobile, and says which. "When do I arrive?" gives the arrival time and the time left. All in "You can say".
 - Play - said, or the ▶ on the steering wheel - with no music app open starts the one you used last. Before, nothing happened (and the assistant said "Playing."). "Play the next song", "play it again" and "play something else" skip or repeat instead of searching for a song with that name; "call Skip" calls Skip.
 - Quick replies to messages go out in your phone's language - Italian, Spanish, French, German or Portuguese - with the arrival time written the way your phone writes it. They went out in English.
 - While a call rings, the next turn shows in the dock: the call's card covers the map. The caller's number is written as on the phone.
@@ -14,6 +14,8 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 - No more dead ends: an app beside the map that wouldn't start gets Try again and Close, a music list that didn't load gets Try again, a music app that won't be browsed gets Open on the phone, and a search that found nothing gets "Ask the app to play it".
 - Full player: tabs stay readable on small screens ("Now playing" on two lines rather than "Now playi…"), and app names are written as the apps write them ("YouTube Music", not "Youtube music"). The sign on the song in the dock shows that it's playing, instead of looking like a pause button.
 - Beside the map, the player's X closes it even after the music app was closed from its menu (it started the music again).
+- The card to pair the car over Bluetooth shows on the first drive after installing or updating myCar too (it only came from the second drive).
+- Steadier: a music app whose library has an empty name, the contacts failing to load, or anything going wrong in a voice command no longer closes myCar - and the drive with it.
 - Dropdowns on web pages open on the car's screen: in the browser, on Cinema's sites and in Plancia, a tap on a dropdown shows its choices as a list to tap (groups, greyed-out choices, several at once with Done). Before, they didn't open at all.
 - The car's Back key (on the wheel or the knob) goes back a screen inside an app that shows its own back arrow, instead of closing the app or doing nothing beside the map. It also closes what's open over a screen first: a call question, the assistant, a search.
 - Stop navigating takes two taps: the first turns the X into a red End route for a few seconds. One stray touch by the dock ended the route.

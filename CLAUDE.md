@@ -683,8 +683,15 @@ Tutti i token in un solo posto, `car/design/`:
   92 dp, nomi delle app come sono; nel dock barre al posto del simbolo pausa; la X del player chiude
   anche con l'app chiusa. Cinema: "Continue" riapre l'ultima cosa (`car/CinemaContinue.kt`, azzerato
   dall'anteprima). Test nuovi: `VideoLevelTest`, `QuickReplyTextsTest`, `TemplateBackTest`. Scatti
-  nuovi: `phone-recents`, `media-800x480`. Lasciato da decidere con l'utente: "Fuck you too." detto ad
-  alta voce dall'assistente (anche con passeggeri).
+  nuovi: `phone-recents`, `media-800x480`, `cinema-continue`. "When do I arrive?" dal percorso della
+  mappa. Robustezza: `CarBluetooth.init` già in `MyCarActivity.onCreate` (al primo viaggio di un
+  processo la scheda "Pair" non compariva: l'auto offre l'abbinamento prima che partano i servizi del
+  viaggio), radice "" di un'app musicale (Android lancia su `subscribe("")`: ora niente elenco),
+  rubrica e comandi vocali protetti (risposta "Something went wrong"), sensori formattati solo con
+  "Vehicle data" acceso, gestore dei crash una volta per processo, indice dei colori di Cinema mai
+  negativo. Lasciato: `startForeground` senza try in cattura audio e condivisione (nessun percorso
+  che fallisca trovato, e tocca la cattura). Da decidere con l'utente: "Fuck you too." detto ad alta
+  voce dall'assistente (anche con passeggeri).
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial
