@@ -211,7 +211,9 @@ class MyCarActivity : ComponentActivity(), Projection {
         CarAudio.onConsentRequested = { runOnUiThread { requestAudioCapture() } }
 
         registerReceiver(detachReceiver, IntentFilter(UsbManager.ACTION_USB_ACCESSORY_DETACHED), RECEIVER_NOT_EXPORTED)
-        handleIntent(intent)
+        // Opened again from Recents, or recreated, the task still carries the attach that once
+        // started it: that car is long gone.
+        if (savedInstanceState == null && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) handleIntent(intent)
     }
 
     // The manifest opts out of recreation on uiMode changes, so a light/dark switch on the phone
@@ -370,7 +372,14 @@ class MyCarActivity : ComponentActivity(), Projection {
         describe(accessory)
 
         val manager = getSystemService(UsbManager::class.java)
-        val pfd = manager.openAccessory(accessory)
+        // An attach that's no longer true - the cable already out - makes Android throw.
+        val pfd = try {
+            manager.openAccessory(accessory)
+        } catch (e: RuntimeException) {
+            MyCarLog.e("openAccessory refused: ${e.message}")
+            SessionStatus.failed("The car isn't connected", "The cable was unplugged before myCar could open the connection. Plug it in again.")
+            return
+        }
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
             SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before myCar could open it.")
