@@ -533,7 +533,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val accessory = IntentCompat.getParcelableExtra(intent, UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
         if (accessory == null) {
             MyCarLog.e("attach intent carried no accessory")
-            SessionStatus.failed("Accessory missing", "The system reported a USB attach but did not include the accessory.")
+            SessionStatus.failed("The car isn't reachable", "Android saw the cable but not the car on it. Unplug it and plug it in again.")
             return
         }
         MyCarLog.i("accessory attached by the system - permission is implicit on this path")
@@ -601,7 +601,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
-            SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before myCar could open it.")
+            SessionStatus.failed("Another app has the car", "Another app took the car's connection before myCar could. If Android asks which app to open for the car, choose myCar.")
             return
         }
         descriptor = pfd
