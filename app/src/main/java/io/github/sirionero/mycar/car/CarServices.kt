@@ -58,6 +58,13 @@ object CarServices {
     private val _hasNavApps = MutableStateFlow(true)
     val hasNavApps: StateFlow<Boolean> = _hasNavApps.asStateFlow()
 
+    /**
+     * True once the drive's first [autostart] has picked its music app: what's playing on the
+     * phone, or the app used last. A music app beside the map waits for this before it opens.
+     */
+    private val _mediaDecided = MutableStateFlow(false)
+    val mediaDecided: StateFlow<Boolean> = _mediaDecided.asStateFlow()
+
     /** Set when the driver stops the map by hand, so going Home doesn't immediately restart it. */
     private var navStopped = false
 
@@ -235,6 +242,7 @@ object CarServices {
                 if (app != null) openMedia(app, autoplay = CarSettings.autoplay.value)
             }
         }
+        _mediaDecided.value = true
     }
 
     /**
@@ -313,6 +321,7 @@ object CarServices {
         io.github.sirionero.mycar.speech.SpeechEngine.unload()
         CarAudio.release()
         _mediaApp.value = null
+        _mediaDecided.value = false
         navStopped = false
     }
 }

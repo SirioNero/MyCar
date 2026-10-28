@@ -37,6 +37,7 @@ import io.github.sirionero.mycar.host.TemplateApp
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.media.NowPlaying
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -121,6 +122,8 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
 @Composable
 internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
     LaunchedEffect(app.component) {
+        // After the drive has picked its music: what's already playing on the phone comes first.
+        CarServices.mediaDecided.first { it }
         if (CarServices.mediaApp.value == null) CarServices.openMedia(app)
     }
     GlassDockedPlayer(now, modifier)
