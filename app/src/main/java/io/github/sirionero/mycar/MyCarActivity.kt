@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.content.IntentCompat
 import android.content.res.Configuration
 import io.github.sirionero.mycar.audio.AudioCaptureService
 import io.github.sirionero.mycar.audio.CarAudio
@@ -351,7 +352,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             MyCarLog.i("accessory attached, but myCar is switched off - not connecting")
             return
         }
-        val accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
+        val accessory = IntentCompat.getParcelableExtra(intent, UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
         if (accessory == null) {
             MyCarLog.e("attach intent carried no accessory")
             SessionStatus.failed("Accessory missing", "The system reported a USB attach but did not include the accessory.")

@@ -76,7 +76,7 @@ class AudioCaptureService : Service() {
             return START_NOT_STICKY
         }
         val resultCode = intent?.getIntExtra(EXTRA_RESULT_CODE, 0) ?: 0
-        val data = intent?.getParcelableExtra(EXTRA_RESULT_DATA, Intent::class.java)
+        val data = intent?.let { androidx.core.content.IntentCompat.getParcelableExtra(it, EXTRA_RESULT_DATA, Intent::class.java) }
         if (data == null) {
             MyCarLog.e("audio: started without a consent result")
             CarAudio.denied()
