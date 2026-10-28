@@ -87,8 +87,17 @@ internal class AacEncoder(private val sampleRate: Int, private val channels: Int
         runCatching { codec.release() }
     }
 
-    private companion object {
-        const val INPUT_WAIT_US = 10_000L
-        val FREQUENCIES = listOf(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)
+    companion object {
+        private const val INPUT_WAIT_US = 10_000L
+        private val FREQUENCIES = listOf(96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350)
+
+        /** The two-byte AudioSpecificConfig for AAC-LC: object type 2, rate index, channel count. */
+        fun audioSpecificConfig(sampleRate: Int, channels: Int): ByteArray {
+            val freq = FREQUENCIES.indexOf(sampleRate).let { if (it < 0) 3 else it }
+            return byteArrayOf(
+                ((2 shl 3) or (freq shr 1)).toByte(),
+                (((freq and 1) shl 7) or (channels shl 3)).toByte(),
+            )
+        }
     }
 }
