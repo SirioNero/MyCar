@@ -531,12 +531,16 @@ setup_phone() {
     sleep 5; tap_text "How to connect"; sleep 3
     tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/08-partial.png
     # The intro, as after an update: its first page, the pirate flag hoisted and then in the wind.
+    # The emulator runs with animations off (the runner's default), which stops the wind: on for
+    # these shots only.
     adb shell am force-stop "$PKG"
     adb shell run-as "$PKG" rm -f shared_prefs/intro.xml
+    adb shell settings put global animator_duration_scale 1
     adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
-    sleep 2; adb exec-out screencap -p > $d/09-intro-1.png
-    sleep 0.7; adb exec-out screencap -p > $d/09-intro-2.png
-    sleep 0.7; adb exec-out screencap -p > $d/09-intro-3.png
+    sleep 2.5; adb exec-out screencap -p > $d/09-intro-1.png
+    sleep 0.6; adb exec-out screencap -p > $d/09-intro-2.png
+    sleep 0.6; adb exec-out screencap -p > $d/09-intro-3.png
+    adb shell settings put global animator_duration_scale 0
     adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
     adb logcat -d -b crash > $d/crash.txt 2>&1
     echo "--- setup on the phone ---"
