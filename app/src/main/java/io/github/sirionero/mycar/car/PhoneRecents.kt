@@ -74,8 +74,11 @@ internal data class RecentCall(val name: String?, val number: String, val kind: 
 internal fun hasCallLog(context: Context): Boolean =
     context.checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED
 
-/** The phone's latest calls, newest first, off its call log; voicemail and blocked ones left out. */
-internal fun loadRecents(context: Context): List<RecentCall> {
+/**
+ * The phone's latest calls, newest first, off its call log; voicemail and blocked ones left out.
+ * [grouped]: calls in a row with the same number as one line, as the Recents tab shows them.
+ */
+internal fun loadRecents(context: Context, grouped: Boolean = true): List<RecentCall> {
     if (!hasCallLog(context)) return emptyList()
     val out = mutableListOf<RecentCall>()
     // "limit": the call log's own way to give only the latest rows - an old phone has thousands.
@@ -99,7 +102,7 @@ internal fun loadRecents(context: Context): List<RecentCall> {
                 val number = c.getString(numberAt).orEmpty()
                 val name = c.getString(nameAt)?.takeIf { it.isNotBlank() }
                 val last = out.lastOrNull()
-                if (last != null && number.isNotBlank() && PhoneNumberUtils.compare(last.number, number)) {
+                if (grouped && last != null && number.isNotBlank() && PhoneNumberUtils.compare(last.number, number)) {
                     out[out.lastIndex] = last.copy(count = last.count + 1, name = last.name ?: name)
                 } else {
                     out += RecentCall(name, number, kind, c.getLong(dateAt), 1)

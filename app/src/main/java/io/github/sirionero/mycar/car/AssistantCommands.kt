@@ -1,6 +1,8 @@
 package io.github.sirionero.mycar.car
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.speech.VoiceFocus
 import java.text.DateFormat
@@ -35,6 +37,7 @@ object AssistantCommands {
         mediaCommand(heard)?.let { return it }
         navCommand(navigator, heard)?.let { return it }
         infoCommand(heard)?.let { return it }
+        recallCommand(context, heard)?.let { return it }
         callCommand(context, heard)?.let { return it }
         openAppCommand(context, navigator, frame, heard)?.let { return it }
 
@@ -302,6 +305,26 @@ object AssistantCommands {
         else -> null
     }
 
+    /**
+     * "Call back": the last call that came in, missed or not; "redial": the last one made. Off the
+     * phone's call log, one call at a time (not the Recents' lines, where a call back joins the
+     * call before it). Before [callCommand], which would look for a contact called "back".
+     */
+    private suspend fun recallCommand(context: Context, heard: String): String? {
+        val redial = heard in REDIAL_PHRASES
+        if (!redial && heard !in CALL_BACK_PHRASES) return null
+        if (context.checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            return "myCar needs the phone permission first, from the phone screen."
+        }
+        if (!hasCallLog(context)) return "myCar needs the phone's call log first: allow it on the phone."
+        val calls = withContext(Dispatchers.IO) { loadRecents(context, grouped = false) }
+        val call = calls.firstOrNull { it.number.isNotBlank() && (it.kind == RecentKind.OUTGOING) == redial }
+            ?: return if (redial) "There's no call to redial." else "There's no call to return."
+        val who = call.name ?: call.number
+        placeCall(context, call.number)
+        return if (redial) "Calling $who again." else "Calling $who back."
+    }
+
     private suspend fun callCommand(context: Context, heard: String): String? {
         val name = (
             after(heard, CALL_TRIGGERS)
@@ -380,6 +403,17 @@ object AssistantCommands {
     private val PLACE_TAILS = listOf(" near me", " nearby", " near here", " around here", " close by", " closest to me")
 
     private val PLAY_TRIGGERS = listOf("play me ", "play ", "put on ", "listen to ", "i want to hear ", "shuffle ")
+
+    private val CALL_BACK_PHRASES = setOf(
+        "call back", "call them back", "call him back", "call her back", "call back the last call",
+        "call back the missed call", "call back the last missed call", "call the last missed call",
+        "return the call", "return the last call", "return my last call", "return the missed call", "return my missed call",
+    )
+
+    private val REDIAL_PHRASES = setOf(
+        "redial", "redial the last number", "call again", "dial again", "call the last number",
+        "call the last number again", "call last number", "dial the last number",
+    )
 
     private val CALL_TRIGGERS = listOf("call ", "phone ", "dial ", "ring ", "make a call to ", "place a call to ", "start a call with ")
 

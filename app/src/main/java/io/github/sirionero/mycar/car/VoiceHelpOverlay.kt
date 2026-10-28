@@ -41,6 +41,7 @@ object VoiceHelp {
         "Pause · Resume · Next · Previous" to "Control the music",
         "What's playing" to "The song and artist",
         "Call…" to "A contact by name",
+        "Call back · Redial" to "The last call that came in, or the last one made",
         "Open…" to "Any app, like Browser, Phone, or Screen sharing",
         "Exit" to "Back to the car's own screen",
         "Go home · Open apps · Settings" to "Move around myCar",
