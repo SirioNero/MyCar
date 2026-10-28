@@ -4,6 +4,10 @@
 # the PNGs it writes (plus the app's log and any crash) into previews/. Car apps the workflow
 # downloaded into third-party/ are installed first and opened from the app grid.
 set -u
+# An emulator that goes away (it has, once or twice, in the middle of Xonos playing) would leave
+# adb waiting for good, and the run with it: every adb call gives up after three minutes.
+ADB_BIN=$(command -v adb)
+adb() { timeout 180 "$ADB_BIN" "$@"; }
 PKG=io.github.sirionero.mycar.dev
 ACT=$PKG/io.github.sirionero.mycar.CarPreviewActivity
 FILES=/sdcard/Android/data/$PKG/files
@@ -55,10 +59,18 @@ WAIT="-100,-100"       # a tap off the screen: only gives an app time before the
 # ONLY (the workflow's "shots" input) names the shots to take, all of them when empty.
 shoot() {
     case " ${ONLY:-$1} " in *" $1 "*) ;; *) return ;; esac
+    if ! adb get-state >/dev/null 2>&1; then
+        echo "no emulator any more: $1 left out"
+        return
+    fi
     adb shell am force-stop "$PKG"
     for p in $VELA $PLANCIA $XONOS; do adb shell am force-stop "$p"; done
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
+    # The log as it comes, kept only if the emulator is gone by the end of the shot.
+    mkdir -p "previews/$1"
+    timeout 600 "$ADB_BIN" logcat -v time -s myCar ${LOGTAGS:-} AndroidRuntime > "previews/$1/stream.txt" 2>&1 &
+    local streaming=$!
     if [ -n "${BEFORE:-}" ]; then eval "$BEFORE"; fi
     # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
     adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true ${EXTRA:-} --es taps '$5'"
@@ -70,9 +82,13 @@ shoot() {
     local taps
     taps=$(($(tr -cd ';' <<< "$5" | wc -c) + 1))
     sleep $((12 + 3 * taps))
-    mkdir -p "previews/$1"
     adb pull "$FILES/." "previews/$1/" || echo "nothing to pull for $1"
-    adb logcat -d -s myCar ${LOGTAGS:-} > "previews/$1/log.txt" 2>&1
+    if adb logcat -d -s myCar ${LOGTAGS:-} > "previews/$1/log.txt" 2>&1; then
+        rm -f "previews/$1/stream.txt"
+    else
+        echo "$1: the emulator went away during the shot, its log so far is in stream.txt"
+    fi
+    kill "$streaming" 2>/dev/null
     adb logcat -d -b crash > "previews/$1/crash.txt" 2>&1
 }
 

@@ -32,6 +32,7 @@ on:
 jobs:
   preview:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     permissions:
       contents: write
     steps:
@@ -115,10 +116,13 @@ jobs:
           target: ${{ inputs.target || 'google_apis' }}
           script: bash .github/car-preview.sh
 
+      # Whatever was shot, even when the emulator went away or the run ran out of time.
       - name: Publish to the ci/car-preview branch
+        if: always()
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          mkdir -p previews
           cd previews
           printf '# Car preview\n\nCommit %s on %s.\n' "$GITHUB_SHA" "$GITHUB_REF_NAME" > README.md
           git init -q -b ci/car-preview
