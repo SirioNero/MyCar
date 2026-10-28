@@ -120,9 +120,13 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                                 "open on the phone. Open it once and it keeps playing here in the car.",
                             action = "Open ${app.label}" to { media.launchAndConnect(app) },
                         )
+                        // Its library stays closed, but opened on the phone it plays and myCar
+                        // takes its controls, as for an app that has to be running.
                         CarMedia.Rejection.REFUSED -> Notice(
                             "${app.label} would not let myCar browse it.",
-                            "Some media apps only accept Google's own host.",
+                            "Some media apps only accept Google's own host. Open it on the phone and " +
+                                "myCar can still play, pause and skip it.",
+                            action = "Open ${app.label}" to { media.launchAndConnect(app) },
                         )
                         CarMedia.Rejection.KEEPS_CLOSING -> Notice(
                             "${app.label} keeps closing on the phone.",
@@ -299,7 +303,12 @@ private fun SearchPanel(
                     SearchNote("$appLabel can't list results. Press search, and $appLabel picks what to play.")
                 unsupported -> SearchNote("$appLabel can't search from the car.")
                 entries == null -> SearchNote("Searching $appLabel…")
-                entries.isEmpty() -> SearchNote("$appLabel found nothing for \"$trimmed\".")
+                // The library search of many apps covers only what's saved: the app can still
+                // find it on its own service, when it takes searches to play.
+                entries.isEmpty() -> SearchNote(
+                    "$appLabel found nothing for \"$trimmed\".",
+                    action = if (canPickForYou) "Ask $appLabel to play it" to { onPickForYou(trimmed) } else null,
+                )
                 else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 8.dp)) {
                     items(entries) { entry ->
                         EntryRow(entry, media) {
@@ -333,14 +342,20 @@ private fun SearchPanel(
 }
 
 @Composable
-private fun SearchNote(text: String) {
+private fun SearchNote(text: String, action: Pair<String, () -> Unit>? = null) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+            action?.let { (label, run) ->
+                Spacer(Modifier.height(12.dp))
+                GsButton(onClick = run, tone = GsTone.Tonal) { Text(label) }
+            }
+        }
     }
 }
 
@@ -593,7 +608,8 @@ private fun BrowsePanel(browse: io.github.sirionero.mycar.media.BrowseState, med
                 "$appLabel keeps its library to itself.",
                 "Start music in the app on your phone. Play, pause, skip and seek work from here.",
             )
-            browse.failed -> Notice("Could not load this list.", null)
+            // Coming back didn't load it again (the same app stays connected): a way to, here.
+            browse.failed -> Notice("Could not load this list.", null, action = "Try again" to media::reload)
             browse.entries.isEmpty() -> Notice("Nothing here.", null)
             else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // A list can hold the same item twice (a song twice in a playlist): its id alone as

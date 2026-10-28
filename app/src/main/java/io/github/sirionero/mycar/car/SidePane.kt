@@ -100,12 +100,21 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
     }
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {
         if (status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
-            Text(
-                "${app.label} would not start.",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(24.dp),
-            )
+            // Why, and a way on: only the sentence, it held a third of Home for the whole drive.
+            Column(
+                Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text("${app.label} would not start.", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                status.detail?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) { Text("Try again") }
+                    GsButton(onClick = navigator::closeSidePanel, tone = GsTone.Neutral) { Text("Close") }
+                }
+            }
         } else if (started && (status.phase == CarAppConnection.Phase.IDLE || app.component in CarServices.closedBrowse)) {
             // Closed from the dock's app menu: the pane waits to be asked, rather than starting
             // the app straight back up against the driver's wishes.

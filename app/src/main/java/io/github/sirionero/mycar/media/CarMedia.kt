@@ -520,6 +520,11 @@ class CarMedia(private val context: Context) {
         open(path.lastOrNull()?.first ?: rootId ?: return)
     }
 
+    /** The list on screen asked for again: one that didn't load (an app offline, still starting). */
+    fun reload() {
+        open(path.lastOrNull()?.first ?: rootId ?: return)
+    }
+
     // --- transport -----------------------------------------------------------------------
 
     fun togglePlay() {
