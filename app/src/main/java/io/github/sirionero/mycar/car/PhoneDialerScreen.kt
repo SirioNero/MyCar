@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -50,7 +51,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** A phone contact with at least one number, as read off the device's contacts. */
-internal data class Contact(val name: String, val number: String)
+/** [starred]: one of the phone's favourites, listed first. */
+internal data class Contact(val name: String, val number: String, val starred: Boolean = false)
 
 private val CALL_PERMISSIONS = arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_CONTACTS)
 
@@ -64,18 +66,21 @@ internal fun loadContacts(context: Context): List<Contact> {
     val projection = arrayOf(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
+        ContactsContract.CommonDataKinds.Phone.STARRED,
     )
+    // The phone's favourites first: in the car, the people called most are a tap away.
     context.contentResolver.query(
         ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
         projection, null, null,
-        "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC",
+        "${ContactsContract.CommonDataKinds.Phone.STARRED} DESC, ${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC",
     )?.use { cursor ->
         val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
         val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+        val starredIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
         while (cursor.moveToNext()) {
             val name = cursor.getString(nameIndex) ?: continue
             val number = cursor.getString(numberIndex) ?: continue
-            out += Contact(name, number)
+            out += Contact(name, number, starredIndex >= 0 && cursor.getInt(starredIndex) == 1)
         }
     }
     return out.distinctBy { it.number }
@@ -256,9 +261,11 @@ private fun KeypadButton(digit: String, modifier: Modifier, onClick: () -> Unit)
 
 @Composable
 private fun ContactsList(context: Context) {
-    val contacts by produceState(emptyList<Contact>(), context) {
+    // Null until read: "No contacts" showed while the phone was still reading them.
+    val loaded by produceState<List<Contact>?>(null, context) {
         value = withContext(Dispatchers.IO) { loadContacts(context) }
     }
+    val contacts = loaded.orEmpty()
     var query by remember { mutableStateOf("") }
     var searching by remember { mutableStateOf(false) }
     var pendingCall by remember { mutableStateOf<Contact?>(null) }
@@ -279,6 +286,11 @@ private fun ContactsList(context: Context) {
         // the field, so results stay visible while typing rather than getting squeezed out.
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
+                loaded == null -> Text(
+                    "Loading contacts…",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 contacts.isEmpty() -> Text(
                     "No contacts with a phone number found.",
                     style = MaterialTheme.typography.bodyLarge,
@@ -401,7 +413,12 @@ private fun ContactRow(contact: Contact, onClick: () -> Unit) {
                 )
             }
             Column(Modifier.weight(1f)) {
-                Text(contact.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (contact.starred) {
+                        Icon(Icons.Filled.Star, contentDescription = "Favourite", Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Text(contact.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
                 Text(contact.number, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Icon(Icons.Filled.Call, contentDescription = "Call", tint = MaterialTheme.colorScheme.primary)
