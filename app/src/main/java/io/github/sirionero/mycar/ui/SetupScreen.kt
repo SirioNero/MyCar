@@ -8,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -140,8 +144,12 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
     }
 
     // --- Android Auto and myCar's own switch ---------------------------------------------------
+    // Shown as soon as Android Auto's page has been opened: where it can't be turned off (on many
+    // phones it's part of Android), coming back finds the way to keep it already in sight.
+    var showKeep by rememberSaveable { mutableStateOf(false) }
     fun openAndroidAuto() {
         val pkg = AndroidAuto.installedPackage(context) ?: return
+        showKeep = true
         runCatching {
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", pkg, null)))
         }
@@ -258,6 +266,8 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                 status = status(Id.ANDROID_AUTO),
                 emphasized = next?.id == Id.ANDROID_AUTO,
                 off = signals.androidAuto == SetupSteps.AndroidAuto.OFF,
+                showKeep = showKeep,
+                onShowKeep = { showKeep = !showKeep },
                 onOpen = ::openAndroidAuto,
                 onKeep = {
                     FirstSetup.setKeepAndroidAuto(context, true)
@@ -341,8 +351,15 @@ private fun certificateSummary(context: android.content.Context): String {
 }
 
 @Composable
-private fun AndroidAutoStep(status: Status, emphasized: Boolean, off: Boolean, onOpen: () -> Unit, onKeep: () -> Unit) {
-    var showKeep by rememberSaveable { mutableStateOf(false) }
+private fun AndroidAutoStep(
+    status: Status,
+    emphasized: Boolean,
+    off: Boolean,
+    showKeep: Boolean,
+    onShowKeep: () -> Unit,
+    onOpen: () -> Unit,
+    onKeep: () -> Unit,
+) {
     StepCard(
         "Turn off Android Auto",
         status,
@@ -357,7 +374,7 @@ private fun AndroidAutoStep(status: Status, emphasized: Boolean, off: Boolean, o
         if (status != Status.DONE) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = onOpen) { Text("Open Android Auto") }
-                TextButton(onClick = { showKeep = !showKeep }) { Text("No Disable button?") }
+                TextButton(onClick = onShowKeep) { Text("No Disable button?") }
             }
             if (showKeep) {
                 Text(
@@ -444,6 +461,7 @@ private fun SectionLabel(text: String) {
 }
 
 /** One step: a tick or what's left, its words, and what to tap. The next one has a frame. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun StepCard(
     title: String,
@@ -453,11 +471,14 @@ private fun StepCard(
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     val scheme = MaterialTheme.colorScheme
+    val requester = remember { BringIntoViewRequester() }
+    // The step the big button does next comes into sight, so its words are read before it's done.
+    if (emphasized) LaunchedEffect(Unit) { requester.bringIntoView() }
     Surface(
         color = scheme.surfaceContainerHigh,
         shape = MaterialTheme.shapes.extraLarge,
         border = if (emphasized) BorderStroke(2.dp, scheme.primary) else null,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().bringIntoViewRequester(requester),
     ) {
         Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             StepMark(status)
