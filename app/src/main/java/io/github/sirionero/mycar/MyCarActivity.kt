@@ -172,6 +172,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             runOnUiThread { startWireless(socket) }
         }
         CarSettings.init(this)
+        CertRotation.init(this)
         AppSettings.applyMyCarEnabled(this)
         // A capture that died without tidying up would leave notifications exposed to every
         // later screen share, and the phone's music muted. Nothing is capturing if the service is
@@ -520,6 +521,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             identityProvider = { CertProvider.load(this) },
             projection = this,
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
+            onCertVerdict = { identity, verdict -> CertRotation.report(applicationContext, identity, verdict) },
         )
         this.runner = runner
         worker = runSession(runner)
@@ -566,6 +568,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             projection = this,
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
             wireless = true,
+            onCertVerdict = { identity, verdict -> CertRotation.report(applicationContext, identity, verdict) },
         )
         this.runner = runner
         worker = runSession(runner)

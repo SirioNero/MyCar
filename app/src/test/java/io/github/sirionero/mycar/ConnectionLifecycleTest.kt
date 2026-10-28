@@ -122,6 +122,40 @@ class ConnectionLifecycleTest {
         assertEquals(SessionStatus.Phase.DISCONNECTED, SessionStatus.state.value.phase)
     }
 
+    private fun verdicts(input: ByteArray): List<CertVerdict> {
+        val seen = mutableListOf<CertVerdict>()
+        MyCarRunner(ByteArrayInputStream(input), ByteArrayOutputStream(), ::identity, onCertVerdict = { _, v -> seen += v }).run()
+        return seen
+    }
+
+    @Test fun `the car's verdict on the certificate goes out once`() {
+        val seen = verdicts(version + hello() + message(4, Protobuf.varintField(1, -2L)) + message(4, Protobuf.varintField(1, 0L)))
+        assertEquals(listOf<CertVerdict>(CertVerdict.Refused(hard = true, why = "AuthComplete -2")), seen)
+    }
+
+    @Test fun `a TLS alert is a refusal`() {
+        val fatalAlert = message(3, byteArrayOf(21, 3, 3, 0, 2, 2, 42))
+        val seen = verdicts(version + hello() + fatalAlert)
+        assertEquals(1, seen.size)
+        assertTrue((seen.single() as CertVerdict.Refused).hard)
+    }
+
+    @Test fun `a hang-up while the car checks the certificate is a soft refusal`() {
+        assertEquals(listOf<CertVerdict>(CertVerdict.Refused(hard = false, why = "dropped during TLS")), verdicts(version + hello()))
+    }
+
+    @Test fun `a hang-up before the certificate was shown says nothing of it`() {
+        assertEquals(emptyList<CertVerdict>(), verdicts(version))
+    }
+
+    @Test fun `the car's date is not a refusal`() {
+        for (status in listOf(-23, -24)) {
+            val seen = verdicts(version + hello() + message(4, Protobuf.varintField(1, status.toLong())))
+            assertEquals(listOf<CertVerdict>(CertVerdict.Clock), seen)
+            assertEquals("Check the car's date", SessionStatus.state.value.headline)
+        }
+    }
+
     @Test fun `EOF and transport failure shut down the writer`() {
         val failing = object : InputStream() {
             override fun read(): Int = throw IOException("test disconnect")
