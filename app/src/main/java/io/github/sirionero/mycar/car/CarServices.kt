@@ -393,6 +393,8 @@ object CarServices {
         io.github.sirionero.mycar.home.HomeAssistant.release()
         InsideOrApp.stop()
         Xonos.repo.release()
+        // The way Plancia's page came through the Plancia app, this drive.
+        io.github.sirionero.mycar.bridge.BridgeProxy.stop()
         // About 900 MB that nothing needs once the car's gone.
         io.github.sirionero.mycar.speech.SpeechEngine.unload()
         CarAudio.release()

@@ -25,6 +25,8 @@ import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.bridge.BridgeProxy
+import io.github.sirionero.mycar.bridge.Bridges
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +38,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -194,19 +197,39 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
     }
 
     private fun onConnectionChanged() {
-        val connected = (HomeAssistant.connection.value as? HaConnection.Connected)?.url
-        val page = _page.value
-        if (web != null && connected != null && (connected != page.base || page.error != null)) hardLoad(connected)
+        if (HomeAssistant.connection.value !is HaConnection.Connected) return
+        scope.launch {
+            prepareWay()
+            val connected = (HomeAssistant.connection.value as? HaConnection.Connected)?.url ?: return@launch
+            val page = _page.value
+            if (web != null && (connected != page.base || page.error != null)) hardLoad(connected)
+        }
+    }
+
+    /**
+     * With myCar left out of Tailscale, the page reaches Home Assistant through the Plancia app
+     * (see bridge/BridgeProxy); otherwise as it is. Settled before the page loads.
+     */
+    private suspend fun prepareWay() {
+        val urls = HomeAssistant.config.value.urls
+        val bridged = withContext(Dispatchers.IO) {
+            urls.any { url -> Tailnet.host(url)?.let { Bridges.through(Bridges.plancia, it) } == true }
+        }
+        BridgeProxy.route(Bridges.plancia, urls, bridged)
     }
 
     /** The dashboard's path; "/" lets Home Assistant pick. */
     private fun targetPath(): String = "/" + (_current.value ?: HomeAssistant.haDefault.value ?: "")
 
     private fun showTarget(reload: Boolean) {
-        val connected = (HomeAssistant.connection.value as? HaConnection.Connected)?.url ?: return
-        val page = _page.value
-        if (!reload && connected == page.base && page.error == null && navigateInPage(targetPath())) return
-        hardLoad(connected)
+        if (HomeAssistant.connection.value !is HaConnection.Connected) return
+        scope.launch {
+            prepareWay()
+            val connected = (HomeAssistant.connection.value as? HaConnection.Connected)?.url ?: return@launch
+            val page = _page.value
+            if (!reload && connected == page.base && page.error == null && navigateInPage(targetPath())) return@launch
+            hardLoad(connected)
+        }
     }
 
     private fun hardLoad(baseUrl: String) {
@@ -363,7 +386,9 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
                 WebViewClient.ERROR_TIMEOUT -> Tailnet.Failure.TIMEOUT
                 else -> Tailnet.Failure.UNREACHABLE
             }
-            val said = error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
+            // Through the Plancia app, the app's reason (see bridge/BridgeProxy); the WebView's otherwise.
+            val said = BridgeProxy.refusal(request.url.host)
+                ?: error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
             val why = Tailnet.why(view.context, listOf(request.url.toString()), failure, said)
             MyCarLog.w("plancia: the dashboard didn't load: $why")
             _page.value = _page.value.copy(error = why)
