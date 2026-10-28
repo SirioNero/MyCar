@@ -210,9 +210,9 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
     val live = status.phase == SessionStatus.Phase.CONNECTING || status.phase == SessionStatus.Phase.PROJECTING
     SettingsSection("Help and tools") {
         SettingsRow(
-            "Connection help",
+            "How to connect",
             Modifier.clickable(onClick = onOpenHelp),
-            subtitle = "Which cars work, and what to set up first",
+            subtitle = "Which cars work, and what's left to set up",
             icon = Icons.Filled.Info,
             trailing = { Arrow() },
         )

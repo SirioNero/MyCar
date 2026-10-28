@@ -170,6 +170,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                 Screen.HELP -> HelpScreen(
                     onBack = { screen = backTo },
                     onRequestCallScreening = onRequestCallScreening,
+                    onOpenSetup = {
+                        setupEntry = SetupEntry.RETURN
+                        setupReturn = Screen.HELP
+                        screen = Screen.SETUP
+                    },
                 )
                 Screen.CERT_SETUP -> CertSetupScreen(
                     onDone = {

@@ -135,9 +135,9 @@ fun HomeScreen(
                         )
                         SettingsDivider()
                         SettingsRow(
-                            "Which cars work",
+                            "How to connect",
                             Modifier.clickable(onClick = onOpenHelp),
-                            subtitle = "Most do. See which ones, and what to set up first",
+                            subtitle = "Which cars work, and what's left to set up",
                             icon = Icons.Filled.Info,
                             trailing = { Arrow() },
                         )
