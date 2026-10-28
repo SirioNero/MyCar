@@ -104,6 +104,11 @@
     <provider android:authorities="it.plancia.ha.account" />
     <!-- The Xonos app hands its Music Assistant account to Xonos inside myCar (XonosAccount). -->
     <provider android:authorities="it.xonos.ma.account" />
+    <!-- The Plancia and Xonos apps' bridges: myCar left out of Tailscale reaches a Tailscale address
+         through them (bridge/AppBridge). -->
+    <intent>
+        <action android:name="io.github.sirionero.mycar.BRIDGE" />
+    </intent>
     <intent>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

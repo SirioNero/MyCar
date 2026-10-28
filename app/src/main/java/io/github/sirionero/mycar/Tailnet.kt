@@ -139,6 +139,12 @@ object Tailnet {
         return urls.any { looksTailnet(it, domains) }
     }
 
+    /** Whether [host] - a name or an address, as a connection asks for it - is on a tailnet (see [looksTailnet]). */
+    fun hostOnTailnet(context: Context, host: String): Boolean {
+        val bare = host.removeSurrounding("[", "]")
+        return looksTailnet(if (':' in bare) "http://[$bare]" else "http://$bare", searchDomains(context))
+    }
+
     private fun searchDomains(context: Context): List<String> =
         vpnLink(context)?.domains.orEmpty().split(' ', ',').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
 
@@ -183,7 +189,8 @@ object Tailnet {
      * for errors that aren't the network's.
      */
     fun why(context: Context, urls: List<String>, failure: Failure, fallback: String, homeNetwork: String = LocalNetwork.HINT): String =
-        if (failure == Failure.OTHER) {
+        // Through an app's bridge, that app said what went wrong (bridge/AppBridge): said as it is.
+        if (failure == Failure.OTHER || io.github.sirionero.mycar.bridge.AppBridge.THROUGH in fallback) {
             fallback
         } else {
             explain(context, urls, failure)
