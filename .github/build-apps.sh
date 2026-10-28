@@ -24,4 +24,10 @@ build() {
 }
 build plancia SirioNero/Home-Assistant-on-Gearslip "${PLANCIA_REF:-}"
 build xonos SirioNero/Music-Assistant-on-Gearslip "${XONOS_REF:-}"
+# The builds' daemons (Kotlin's stays on after --no-daemon) hold gigabytes the emulator, Home
+# Assistant and Music Assistant need next: twice the emulator went away with Xonos playing.
+"$GRADLE" --stop >/dev/null 2>&1 || true
+pkill -f KotlinCompileDaemon || true
+pkill -f GradleDaemon || true
+free -m || true
 ls -l third-party
