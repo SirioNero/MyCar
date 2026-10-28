@@ -98,6 +98,16 @@ Rispondi sempre in **italiano**.
   (dalla griglia, poi il menu dal ☰ di Home Assistant), `plancia-page/` (pagina pronta a destra
   della mappa), `plancia-side/` (accanto alla mappa).
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
+- Prova della release in CI: il workflow **Release check** (`.github/workflows/release-check.yml` +
+  `.github/release-check.sh`, `.github/tailscale.sh`) installa una release pubblicata (o il branch
+  firmato come release, `tag=branch`) in un emulatore, accanto a un Home Assistant e a un Music
+  Assistant suoi, con le app Plancia e Xonos configurate come le avrebbe un guidatore; poi apre le
+  impostazioni di myCar e prova i collegamenti. Matrice `apis` (`37.0` = Android 17, `36`) × `nets`:
+  `lan` (server a `10.0.2.2`), `tailscale` (l'app Tailscale da F-Droid, entrata in un headscale
+  0.29.6 sul runner, server a `http://umbrel:<porta>` via MagicDNS), `tailscale-out` (lo stesso con
+  myCar esclusa da Tailscale). Scatti, dump, log e preferenze sul branch
+  `ci/release-check-<api>-<net>`. Verificato (0.5.13): in `tailscale-out` l'app Plancia si collega e
+  myCar dice che Tailscale la lascia fuori; dentro il tunnel myCar si collega.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
   destra. Mai scatti con la mappa ancora nera o col segnaposto "Map" del player di debug: del
@@ -124,7 +134,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 
 | Package | Ruolo |
 |---|---|
-| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
+| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
 | `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
@@ -384,6 +394,24 @@ Tutti i token in un solo posto, `car/design/`:
   home network" resta in quelle sezioni finché manca. In auto, se manca, Plancia e Xonos lo dicono
   (`LocalNetwork.HINT`). Il wireless lo chiedeva già (`WirelessButton`). Da ricordare per Cinema e
   il browser: un sito di casa (Jellyfin, il router) ha bisogno dello stesso permesso.
+- **Tailscale e VPN** (0.5.13, `Tailnet.kt`): con Home Assistant o Music Assistant raggiunti via
+  Tailscale (`http://umbrel:8123`, MagicDNS, 100.64.0.0/10, `fd7a:115c:a1e0::/48`) myCar dice il
+  motivo vero: Tailscale che la lascia fuori (Settings → App split tunneling), un nome che Tailscale
+  non conosce (Use Tailscale DNS), Android 17 fuori dalla rete di casa. La VPN di Tailscale non si
+  scavalca: dentro la VPN Android rifiuta a myCar il legame alla rete Wi-Fi dell'auto (EPERM), e il
+  senza fili passa allora dalla strada normale (`WirelessLink`, `bindRefused`); con myCar dentro
+  Tailscale conviene il cavo. Gli indirizzi tailnet non sono "rete di casa" (`LocalNetwork.isLocal`).
+- **Il viaggio in primo piano** (0.5.13, `SessionService`): dal collegamento dell'auto alla fine un
+  servizio in primo piano `connectedDevice` (notifica "myCar is connected to the car") tiene vivo
+  il viaggio col telefono bloccato, con un wake lock parziale e, senza fili, un Wi-Fi lock. Si
+  avvia con myCar in vista; se Android lo rifiuta si riprova in `onResume`. Fermato mentre parte,
+  si ferma da sé dopo `startForeground` (come `LocationKeepAlive`), altrimenti Android chiude myCar.
+  I servizi del viaggio (`CarServices.init/shutdown`) sono contati: li tiene la sessione
+  (`MyCarActivity.holdsServices`) e ogni `CarUi`, così condivisione schermo, encoder nuovo e
+  anteprima non li smontano. La musica si sceglie una volta per viaggio (`mediaDecided`); le app
+  chiuse dal guidatore restano chiuse (`closedBrowse`, `closedMedia`). Le domande di Android
+  (audio, condivisione schermo) chieste a telefono bloccato aspettano myCar aperta (`onResume`) e
+  l'auto lo dice.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.
