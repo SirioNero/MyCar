@@ -78,8 +78,8 @@ object VoiceReply {
 
     val active: Boolean get() = _state.value.phase != Phase.IDLE
 
-    /** Reads [n]'s newest messages aloud. */
-    fun read(n: CarNotification) {
+    /** Reads [n]'s newest messages aloud; [thenAsk] (Reply was tapped): then straight to the reply. */
+    fun read(n: CarNotification, thenAsk: Boolean = false) {
         val id = begin(State(Phase.READING, n))
         CarAssistant.say(spoken(n)) {
             if (id != run) return@say
@@ -87,6 +87,11 @@ object VoiceReply {
                 n.reply == null -> finish()
                 // The microphone is silent during a call, so there's no point asking.
                 CarCalls.state.value is CallUiState.Active -> idleAfterRead(id)
+                // "Do you want to reply?" after a tap on Reply was one more turn to get lost in.
+                thenAsk -> {
+                    _state.value = _state.value.copy(phase = Phase.ASKING, heard = "")
+                    ask(id)
+                }
                 else -> offer(id)
             }
         }
@@ -139,8 +144,8 @@ object VoiceReply {
     }
 
     /**
-     * Reads [n] aloud and asks whether to reply, or, when the driver has just heard it, asks for
-     * the reply straight away. Then listens, reads the reply back and sends it.
+     * Reads [n] aloud and then asks for the reply, or asks straight away when the driver has just
+     * heard it. Then listens, reads the reply back and sends it.
      */
     fun reply(n: CarNotification, readFirst: Boolean = true) {
         if (n.reply == null) {
@@ -159,8 +164,8 @@ object VoiceReply {
             ask(id)
             return
         }
-        // Read it, then "Do you want to reply?", the same as Read.
-        read(n)
+        // Read it, then "What's your reply?": the driver chose Reply, so no "Do you want to reply?".
+        read(n, thenAsk = true)
     }
 
     private fun ask(id: Int) {
