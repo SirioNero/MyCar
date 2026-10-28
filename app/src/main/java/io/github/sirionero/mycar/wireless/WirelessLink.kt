@@ -399,7 +399,9 @@ object WirelessLink {
                     "active network ${manager?.activeNetwork}, car network $net, VPN ${if (vpnActive(context)) "on" else "off"}",
             )
         }.onFailure { log.w("probe: couldn't read the link (${it.message})") }
-        for (p in listOf(port, 5288, 5277, 80, 443).distinct()) {
+        // Never the car's own port: a car that just got ready would take the probe for the phone,
+        // see it hang up at once, and some stop listening.
+        for (p in listOf(5288, 5277, 80, 443).filter { it != port }) {
             val result = try {
                 net.socketFactory.createSocket().use { it.connect(InetSocketAddress(ip, p), 1_500) }
                 "open"
