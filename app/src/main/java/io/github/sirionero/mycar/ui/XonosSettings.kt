@@ -181,7 +181,7 @@ internal fun XonosSection() {
                 }) { Text("Sign in") }
                 if (setUp) {
                     TextButton(onClick = {
-                        Xonos.save(context, Settings.Config("", "", ""), null)
+                        Xonos.remove(context)
                         status = "Xonos is off in myCar: the Xonos app is back in the car, if it's on the phone."
                     }) { Text("Remove") }
                 }

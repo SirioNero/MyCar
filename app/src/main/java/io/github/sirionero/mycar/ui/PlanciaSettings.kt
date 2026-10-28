@@ -147,7 +147,7 @@ internal fun PlanciaSection() {
                 }) { Text("Save and test") }
                 if (saved.isComplete) {
                     TextButton(onClick = {
-                        HomeAssistant.save(HomeAssistant.Config())
+                        HomeAssistant.remove()
                         status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
                     }) { Text("Remove") }
                 }

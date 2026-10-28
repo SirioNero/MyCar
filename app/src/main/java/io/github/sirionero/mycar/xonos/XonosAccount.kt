@@ -48,7 +48,7 @@ object XonosAccount {
     fun adoptIfUnset(context: Context) {
         val app = context.applicationContext
         Xonos.refresh(app)
-        if (Xonos.setUp.value || !xonosAppCanShare(app)) return
+        if (Xonos.setUp.value || Xonos.importOff(app) || !xonosAppCanShare(app)) return
         scope.launch {
             val imported = fromXonosApp(app) ?: return@launch
             if (!Xonos.setUp.value) Xonos.save(app, imported.config, imported.username)

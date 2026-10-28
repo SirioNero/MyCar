@@ -69,12 +69,23 @@ object HomeAssistant {
         dashboardFlow.value = AppSettings.getString(app, KEY_DASHBOARD, "").ifBlank { null }
         // Plancia on the phone, set up, and nothing here yet: its account, without asking. Asked
         // off the main thread, as asking may have to start Plancia first.
-        if (!configFlow.value.isComplete) {
+        if (!configFlow.value.isComplete && !importOff()) {
             scope.launch { fromPlanciaApp(app)?.let { if (!configFlow.value.isComplete) use(it) } }
         }
     }
 
     fun save(config: Config) = save(config, dashboardFlow.value, zoomFlow.value)
+
+    /**
+     * "Remove" on the phone: Plancia off in myCar, and the Plancia app's account isn't taken over
+     * again by itself - otherwise the app, back in the car, was gone again at the next drive.
+     */
+    fun remove() {
+        app?.let { AppSettings.putString(it, KEY_IMPORT_OFF, "1") }
+        save(Config())
+    }
+
+    private fun importOff(): Boolean = app?.let { AppSettings.getString(it, KEY_IMPORT_OFF, "") == "1" } == true
 
     /** The Plancia app's account, with the dashboard it opens and its size. */
     fun use(imported: Imported) = save(imported.config, imported.dashboard, imported.zoom)
@@ -82,6 +93,7 @@ object HomeAssistant {
     private fun save(config: Config, dashboard: String?, zoom: Int) {
         val app = app ?: return
         configFlow.value = config
+        if (config.isComplete) AppSettings.putString(app, KEY_IMPORT_OFF, "")
         AppSettings.putString(app, KEY_HOME, config.homeUrl)
         AppSettings.putString(app, KEY_REMOTE, config.remoteUrl)
         AppSettings.putString(app, KEY_TOKEN, config.token)
@@ -160,7 +172,7 @@ object HomeAssistant {
     fun acquire() {
         users++
         val app = app
-        if (!configFlow.value.isComplete && app != null) {
+        if (!configFlow.value.isComplete && app != null && !importOff()) {
             scope.launch { fromPlanciaApp(app)?.let { if (!configFlow.value.isComplete) use(it) } }
         }
         if (loop?.isActive != true) loop = scope.launch { connectLoop() }
@@ -323,6 +335,7 @@ object HomeAssistant {
     private const val KEY_TOKEN = "ha_token"
     private const val KEY_DASHBOARD = "ha_dashboard"
     private const val KEY_ZOOM = "ha_zoom"
+    private const val KEY_IMPORT_OFF = "ha_import_off"
 
     /** The Plancia app's account, handed only to myCar (Plancia's AccountProvider). */
     private const val PLANCIA_ACCOUNT_AUTHORITY = "it.plancia.ha.account"
