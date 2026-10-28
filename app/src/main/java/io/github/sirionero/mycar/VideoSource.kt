@@ -241,7 +241,7 @@ class VideoSource(
         }
     }
 
-    private companion object {
+    internal companion object {
         const val MIME = MediaFormat.MIMETYPE_VIDEO_AVC
         const val TIMEOUT_US = 10_000L
         const val SURFACE_TIMEOUT_US = 100_000L
