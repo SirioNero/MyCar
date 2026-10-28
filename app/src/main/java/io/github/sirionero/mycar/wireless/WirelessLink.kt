@@ -119,6 +119,20 @@ object WirelessLink {
         }, "mycar-wireless").apply { isDaemon = true; start() }
     }
 
+    /**
+     * The car ended the session over Wi-Fi. With the Bluetooth channel over too (its worker gone),
+     * the request for the car's Wi-Fi goes as well: it kept Android looking for the car until the
+     * next tap. While the channel is open the car may start over on it, so it stays.
+     */
+    fun sessionEnded(context: Context) {
+        tcp = null
+        if (worker?.isAlive == true) return
+        network?.let { cb ->
+            runCatching { context.getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) }
+        }
+        network = null
+    }
+
     /** Closes the Bluetooth channel, the socket and the Wi-Fi request. Safe to call any time. */
     fun stop(context: Context) {
         tcpRun++

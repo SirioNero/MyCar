@@ -461,6 +461,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         runOnUiThread {
             if (this.runner === runner) {
                 MyCarLog.i("the car ended the session")
+                if (wirelessSocket != null) io.github.sirionero.mycar.wireless.WirelessLink.sessionEnded(this)
                 closeAccessory(stopWireless = false)
             }
         }
