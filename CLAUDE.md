@@ -404,6 +404,22 @@ Tutti i token in un solo posto, `car/design/`:
   scavalca: dentro la VPN Android rifiuta a myCar il legame alla rete Wi-Fi dell'auto (EPERM), e il
   senza fili passa allora dalla strada normale (`WirelessLink`, `bindRefused`); con myCar dentro
   Tailscale conviene il cavo. Gli indirizzi tailnet non sono "rete di casa" (`LocalNetwork.isLocal`).
+  Lo split tunneling per il senza fili non si evita da myCar: con una VPN non scavalcabile netd
+  rifiuta a un'app dentro la VPN il legame a un'altra rete, e a un'app fuori la VPN stessa
+  (`checkUserNetworkAccess`); serve un secondo programma con un altro uid. **Ripiego** (0.5.15,
+  `car/InsideOrApp.kt`, regola pura `car/TakeOver.kt` + `TakeOverTest`): per tutto il viaggio si
+  guardano i collegamenti di Plancia e Xonos dentro myCar (Xonos ora resta collegato a Music
+  Assistant per tutto il viaggio, come Plancia); se non si collegano e l'app è sul telefono, l'app
+  prende il loro posto fino a fine viaggio (`HomeAssistant.appTakesOver`, `Xonos.appTakesOver`):
+  subito se gli indirizzi sono tutti su una tailnet che lascia fuori myCar (`Tailnet.outOfReach`) o
+  se il token è rifiutato, dopo 10 s senza collegamento a inizio viaggio, 30 s se c'era e si è perso
+  (il tempo senza rete non conta). Griglia, pagine, accanto alla mappa, icone fissate e Plancia a
+  tutto schermo passano all'app (`withPlancia`, `withPlanciaInside`, `withXonosInside`, `xonosFor`,
+  nei due versi); la musica che era Xonos dentro myCar passa all'app senza cambiare l'ultima app
+  ricordata; la pagina web di Plancia non si crea. Sul telefono, se l'indirizzo è su una tailnet,
+  Plancia e Xonos dicono che con Tailscale per ora funzionano col cavo (`ui/TailscaleCableRow.kt`).
+  Scatto in CI `standin` (indirizzi che non rispondono, app installate). Proposto, non fatto: un
+  ponte attraverso le app Plancia e Xonos (dentro Tailscale) per le connessioni di myCar.
 - **Il viaggio in primo piano** (0.5.13, `SessionService`): dal collegamento dell'auto alla fine un
   servizio in primo piano `connectedDevice` (notifica "myCar is connected to the car") tiene vivo
   il viaggio col telefono bloccato, con un wake lock parziale e, senza fili, un Wi-Fi lock. Si
