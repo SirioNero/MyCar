@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.notify.CarNotifications
 import io.github.sirionero.mycar.speech.VoiceFocus
@@ -372,11 +373,12 @@ object AssistantCommands {
     }
 
     private suspend fun callCommand(context: Context, heard: String): String? {
-        val name = (
-            after(heard, CALL_TRIGGERS)
-                ?: Regex("^give (.+) a (?:call|ring)$").find(heard)?.groupValues?.get(1)
-                ?: return null
-            ).replace(Regex(" (?:on|at) (?:their |his |her )?(?:mobile|cell|phone|home|work)$"), "").trim()
+        val asked = after(heard, CALL_TRIGGERS)
+            ?: Regex("^give (.+) a (?:call|ring)$").find(heard)?.groupValues?.get(1)
+            ?: return null
+        // "on mobile", "at work": which of the person's numbers - it used to be thrown away.
+        val typeWord = NUMBER_TYPE.find(asked)?.groupValues?.get(1)
+        val name = asked.replace(NUMBER_TYPE, "").trim()
         if (name.isBlank()) return "Who should I call?"
         if (!hasCallPermissions(context)) return "myCar needs the phone and contacts permissions first, from the phone screen."
 
@@ -400,8 +402,26 @@ object AssistantCommands {
             CallPrompt.ask(match.name, match.number)
             return "Call ${match.name}?"
         }
-        placeCall(context, match.number)
-        return "Calling ${match.name}."
+        // One person, maybe with several numbers: the one asked for, the phone's default for them,
+        // the mobile, the first. It used to be whichever the contacts gave first - the office, say.
+        val wanted = when (typeWord) {
+            "mobile", "cell" -> ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE
+            "home" -> ContactsContract.CommonDataKinds.Phone.TYPE_HOME
+            "work" -> ContactsContract.CommonDataKinds.Phone.TYPE_WORK
+            else -> null
+        }
+        val ofType = wanted?.let { w -> matches.firstOrNull { it.type == w } }
+        if (wanted != null && ofType == null) {
+            // Not that one on record: another, but asked first.
+            val other = matches.firstOrNull { it.primary } ?: match
+            CallPrompt.ask(listOfNotNull(other.name, other.typeLabel).joinToString(" · "), other.number)
+            return "${match.name} has no $typeWord number. Call ${other.typeLabel?.lowercase() ?: "the other one"} instead?"
+        }
+        val pick = ofType ?: matches.firstOrNull { it.primary }
+            ?: matches.firstOrNull { it.type == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE } ?: match
+        placeCall(context, pick.number)
+        // Which one, out loud, when there was a choice.
+        return if (matches.size > 1 && pick.typeLabel != null) "Calling ${pick.name}, ${pick.typeLabel.lowercase()}." else "Calling ${pick.name}."
     }
 
     private suspend fun openAppCommand(
@@ -467,6 +487,9 @@ object AssistantCommands {
 
     /** "Reply to Anna", "text Anna", "send a message to Anna". */
     private val REPLY_TO = Regex("^(?:reply to|respond to|text|message|send a message to|write to) (.+)$")
+
+    /** " on mobile", " at work", " on her cell": the number asked for, at the end of a call. */
+    private val NUMBER_TYPE = Regex(" (?:on|at) (?:their |his |her )?(mobile|cell|phone|home|work)$")
 
     private val CALL_BACK_PHRASES = setOf(
         "call back", "call them back", "call him back", "call her back", "call back the last call",

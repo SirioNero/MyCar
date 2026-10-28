@@ -52,7 +52,15 @@ import kotlinx.coroutines.withContext
 
 /** A phone contact with at least one number, as read off the device's contacts. */
 /** [starred]: one of the phone's favourites, listed first. */
-internal data class Contact(val name: String, val number: String, val starred: Boolean = false)
+/** [type] and [typeLabel] ("Mobile", "Home"): which of the person's numbers; [primary]: the phone's default. */
+internal data class Contact(
+    val name: String,
+    val number: String,
+    val starred: Boolean = false,
+    val type: Int = 0,
+    val typeLabel: String? = null,
+    val primary: Boolean = false,
+)
 
 private val CALL_PERMISSIONS = arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_CONTACTS)
 
@@ -67,6 +75,9 @@ internal fun loadContacts(context: Context): List<Contact> {
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
         ContactsContract.CommonDataKinds.Phone.STARRED,
+        ContactsContract.CommonDataKinds.Phone.TYPE,
+        ContactsContract.CommonDataKinds.Phone.LABEL,
+        ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY,
     )
     // The phone's favourites first: in the car, the people called most are a tap away.
     context.contentResolver.query(
@@ -77,10 +88,22 @@ internal fun loadContacts(context: Context): List<Contact> {
         val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
         val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
         val starredIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
+        val typeIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)
+        val labelIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL)
+        val primaryIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY)
         while (cursor.moveToNext()) {
             val name = cursor.getString(nameIndex) ?: continue
             val number = cursor.getString(numberIndex) ?: continue
-            out += Contact(name, number, starredIndex >= 0 && cursor.getInt(starredIndex) == 1)
+            val type = if (typeIndex >= 0) cursor.getInt(typeIndex) else 0
+            val label = if (labelIndex >= 0) cursor.getString(labelIndex) else null
+            out += Contact(
+                name, number, starredIndex >= 0 && cursor.getInt(starredIndex) == 1,
+                type = type,
+                typeLabel = runCatching {
+                    ContactsContract.CommonDataKinds.Phone.getTypeLabel(context.resources, type, label)?.toString()
+                }.getOrNull()?.takeIf { it.isNotBlank() },
+                primary = primaryIndex >= 0 && cursor.getInt(primaryIndex) == 1,
+            )
         }
     }
     return out.distinctBy { it.number }
@@ -432,7 +455,12 @@ private fun ContactRow(contact: Contact, onClick: () -> Unit) {
                     }
                     Text(contact.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                Text(contact.number, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                // Which of the person's numbers: two rows with one name told nothing apart.
+                Text(
+                    listOfNotNull(contact.typeLabel, contact.number).joinToString("  ·  "),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             Icon(Icons.Filled.Call, contentDescription = "Call", tint = MaterialTheme.colorScheme.primary)
         }
