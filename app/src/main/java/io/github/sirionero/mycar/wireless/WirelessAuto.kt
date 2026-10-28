@@ -37,6 +37,8 @@ object WirelessAuto {
     private const val ANSWERED = "answered:"
     /** A car whose Bluetooth comes and goes opens myCar once, not at every flicker. */
     private const val SETTLE_MS = 15_000L
+    /** A dialog that never showed (myCar wasn't on screen) gets no answer: asked again after this. */
+    private const val UNANSWERED_MS = 10 * 60_000L
 
     private val log = MyCarLog.tagged("AAW")
 
@@ -45,6 +47,7 @@ object WirelessAuto {
 
     /** The car whose dialog is up, so a second call in the same drive doesn't ask twice. */
     @Volatile private var asking: String? = null
+    @Volatile private var askedAt = 0L
     @Volatile private var lastAppeared = 0L
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -79,8 +82,11 @@ object WirelessAuto {
             watch(context, address)
             return
         }
-        if (prefs(context).getBoolean(ANSWERED + address, false) || asking == address) return
+        if (prefs(context).getBoolean(ANSWERED + address, false)) return
+        val now = System.currentTimeMillis()
+        if (asking == address && now - askedAt < UNANSWERED_MS) return
         asking = address
+        askedAt = now
         val request = AssociationRequest.Builder()
             .addDeviceFilter(BluetoothDeviceFilter.Builder().setAddress(address).build())
             .setSingleDevice(true)
