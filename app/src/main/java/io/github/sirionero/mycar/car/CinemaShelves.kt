@@ -396,7 +396,8 @@ private fun ShelfMessage(text: String, button: String? = null, onButton: () -> U
     }
 }
 
-private fun initialColor(name: String) = ChannelColors[name.hashCode().absoluteValue % ChannelColors.size]
+// The remainder made positive, not the hash: the one hash with no positive value made it -2.
+private fun initialColor(name: String) = ChannelColors[(name.hashCode() % ChannelColors.size).absoluteValue]
 
 /** The group that shows every channel of a list. */
 private const val ALL = "\u0000all"

@@ -228,7 +228,7 @@ private fun SiteTile(site: CinemaSite, icon: androidx.compose.ui.graphics.ImageB
 /** A site with no icon yet: its initial, on a colour of its own. */
 @Composable
 private fun InitialTile(site: CinemaSite, size: androidx.compose.ui.unit.Dp) {
-    val color = InitialColors[site.host.hashCode().absoluteValue % InitialColors.size]
+    val color = InitialColors[(site.host.hashCode() % InitialColors.size).absoluteValue]
     Box(
         Modifier.size(size).clip(AppIconShape).background(color).glassFinish(),
         contentAlignment = Alignment.Center,

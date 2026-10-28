@@ -306,12 +306,18 @@ object UpdateChecker {
             )
             return
         }
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.logshare", ready.apk)
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW)
-                .setDataAndType(uri, "application/vnd.android.package-archive")
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK),
-        )
+        // On the download's own thread: a throw here (no installer to hand it to) ended myCar.
+        runCatching {
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.logshare", ready.apk)
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(uri, "application/vnd.android.package-archive")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        }.onFailure {
+            MyCarLog.w("update: couldn't open Android's installer: ${it.message}")
+            flow.value = State.Failed("Couldn't open Android's installer. Try again.", ready.release)
+        }
     }
 
     /** The newest release with an APK that [channel] takes. Drafts never count. */
