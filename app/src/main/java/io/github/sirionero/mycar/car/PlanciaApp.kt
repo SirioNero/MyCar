@@ -136,6 +136,15 @@ internal fun PlanciaScreen() {
     val menu = web?.menu?.collectAsState()?.value == true
     val dashboards by HomeAssistant.dashboards.collectAsState()
     val haDefault by HomeAssistant.haDefault.collectAsState()
+    // The Plancia app took Plancia's place while it was open (see InsideOrApp): the app opens here instead.
+    val appTakesOver by HomeAssistant.appTakesOver.collectAsState()
+    val frame by CarEnvironment.frame.collectAsState()
+    LaunchedEffect(appTakesOver) {
+        if (!appTakesOver) return@LaunchedEffect
+        val app = LauncherCache.entries?.find { it.template?.component?.packageName == PLANCIA_PACKAGE } ?: return@LaunchedEffect
+        if (navigator.trail.size > 1) navigator.jumpTo(navigator.trail.size - 2)
+        launchEntry(app, navigator, frame)
+    }
     // Leaving Plancia closes its menu: nothing stays open out of sight.
     DisposableEffect(web) {
         onDispose { web?.closeMenu() }

@@ -191,14 +191,20 @@ internal fun rememberAllEntries(): List<Entry> {
     val context = LocalContext.current
     val installed by LauncherCache.state.collectAsState()
     val home by io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState()
-    val xonos by Xonos.setUp.collectAsState()
+    // The Plancia and Xonos apps in place of the ones inside myCar, this drive (see InsideOrApp).
+    val planciaApp by io.github.sirionero.mycar.home.HomeAssistant.appTakesOver.collectAsState()
+    val xonosSetUp by Xonos.setUp.collectAsState()
+    val xonosApp by Xonos.appTakesOver.collectAsState()
+    val xonos = xonosSetUp && !xonosApp
     LaunchedEffect(context, xonos) {
         val entries = LauncherCache.entries
         // Xonos set up on the phone, or removed, since the last scan: the music apps change.
         val stale = entries != null && entries.any { it.media?.component?.let(Xonos::isInside) == true } != xonos
         if (entries == null || stale) withContext(Dispatchers.IO) { LauncherCache.load(context, force = stale) }
     }
-    return remember(installed, home.isComplete) { withPlancia(BuiltInApps.entries + installed.orEmpty(), home.isComplete) }
+    return remember(installed, home.isComplete, planciaApp) {
+        withPlancia(BuiltInApps.entries + installed.orEmpty(), home.isComplete && !planciaApp)
+    }
 }
 
 /**
@@ -261,7 +267,11 @@ internal fun launcherOrder(all: List<Entry>, showVehicleData: Boolean, custom: L
 internal fun findEntry(id: String): Entry? =
     BuiltInApps.entries.find { it.componentId == id } ?: LauncherCache.entries?.find { it.componentId == id }
         // Plancia inside myCar is on the grid only once set up: its menu (pin, move, close) too.
-        ?: BuiltInApps.planciaEntry.takeIf { it.componentId == id && HomeAssistant.config.value.isComplete }
+        ?: BuiltInApps.planciaEntry.takeIf { it.componentId == id && HomeAssistant.config.value.isComplete }?.let { inside ->
+            // A pin of it opens the Plancia app while that takes its place (see InsideOrApp).
+            if (!HomeAssistant.appTakesOver.value) inside
+            else LauncherCache.entries?.find { it.template?.component?.packageName == PLANCIA_PACKAGE } ?: inside
+        }
 
 /** Rescans the car and media apps now, replacing the cached list; the launcher keeps showing the old one meanwhile. */
 fun warmLauncherApps(context: Context) { LauncherCache.load(context, force = true) }

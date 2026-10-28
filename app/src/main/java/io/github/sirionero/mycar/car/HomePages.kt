@@ -169,11 +169,19 @@ internal fun planciaIn(entries: List<Entry>): String? =
 
 /**
  * What a part or the place beside the map shows, with the Plancia app read as Plancia inside
- * myCar once that's set up: pages saved with the app keep showing Plancia.
+ * myCar once that's set up: pages saved with the app keep showing Plancia. And the other way,
+ * while the app takes the place of the one inside myCar this drive (see InsideOrApp).
  */
-internal fun withPlanciaInside(id: String?, entries: List<Entry>): String? =
-    if (id != null && id.substringBefore('/') == PLANCIA_PACKAGE && entries.any { it.builtIn == BuiltInApps.Plancia }) PageContent.PLANCIA
-    else id
+internal fun withPlanciaInside(id: String?, entries: List<Entry>): String? {
+    if (id == null) return null
+    val inside = entries.any { it.builtIn == BuiltInApps.Plancia }
+    return when {
+        inside && id.substringBefore('/') == PLANCIA_PACKAGE -> PageContent.PLANCIA
+        !inside && id == PageContent.PLANCIA ->
+            entries.firstOrNull { it.template?.component?.packageName == PLANCIA_PACKAGE && it.fitsBesideMap }?.componentId ?: id
+        else -> id
+    }
+}
 
 /** The pages Home shows: the driver's own, or the ready-made ones for the apps installed now. */
 @Composable

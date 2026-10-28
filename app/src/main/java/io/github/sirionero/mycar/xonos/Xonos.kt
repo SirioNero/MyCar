@@ -48,6 +48,13 @@ object Xonos {
     /** True once the player is Music Assistant's: its API and its audio both connected. */
     val playerReady = MutableStateFlow(false)
 
+    /**
+     * The Xonos app plays in the car instead, for the rest of the drive: this one can't reach Music
+     * Assistant - myCar left out of Tailscale to connect wirelessly, a wrong address or token - and
+     * the app, on the phone, can (see car/InsideOrApp). Xonos is never missing from the car's music.
+     */
+    val appTakesOver = MutableStateFlow(false)
+
     private val _setUp = MutableStateFlow(false)
 
     /** Whether there's an account to play with: only then is Xonos among the car's music apps. */
@@ -87,10 +94,10 @@ object Xonos {
     /** Whether [component] is Xonos inside myCar rather than an installed app. */
     fun isInside(component: ComponentName) = component.className == PlaybackService::class.java.name
 
-    /** Xonos as one of the car's music apps, once it's set up; null until then. */
+    /** Xonos as one of the car's music apps, once it's set up; null until then, and while the app takes over. */
     fun mediaApp(context: Context): MediaApp? {
         refresh(context)
-        return if (_setUp.value) MediaApp(component(context), LABEL, Process.myUid()) else null
+        return if (_setUp.value && !appTakesOver.value) MediaApp(component(context), LABEL, Process.myUid()) else null
     }
 
     /** Xonos's icon as an adaptive one, so it's framed exactly as the Xonos app's was. */

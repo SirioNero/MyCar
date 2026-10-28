@@ -124,6 +124,25 @@ object Tailnet {
     }
 
     /**
+     * Whether every one of [urls] is on a tailnet while the phone's VPN leaves myCar out: none of
+     * them can answer myCar, however many times it tries. Known without trying any.
+     */
+    fun outOfReach(context: Context, urls: List<String>): Boolean {
+        if (urls.isEmpty() || reach(context) != Reach.VPN_LEAVES_MYCAR_OUT) return false
+        val domains = searchDomains(context)
+        return urls.all { looksTailnet(it, domains) }
+    }
+
+    /** Whether some of [urls] look like addresses on a tailnet (see [looksTailnet]). */
+    fun onTailnet(context: Context, urls: List<String>): Boolean {
+        val domains = searchDomains(context)
+        return urls.any { looksTailnet(it, domains) }
+    }
+
+    private fun searchDomains(context: Context): List<String> =
+        vpnLink(context)?.domains.orEmpty().split(' ', ',').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
+
+    /**
      * Why [urls] can't be reached, when Tailscale or another VPN explains it; null when it doesn't.
      * Not for errors that aren't the network's (a wrong token, a refused sign-in).
      */
