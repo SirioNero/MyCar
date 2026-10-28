@@ -96,9 +96,14 @@ import kotlin.math.absoluteValue
 /** Cinema full screen, from the app grid: the phone's videos, the TV lists and the sites, or the one open. */
 @Composable
 internal fun CinemaScreen() {
+    val context = LocalContext.current
     val sites by Cinema.sites.collectAsState()
     val tvLists by TvLists.lists.collectAsState()
+    LaunchedEffect(Unit) { CinemaContinue.load(context) }
+    val last by CinemaContinue.last.collectAsState()
     var openUrl by rememberSaveable { mutableStateOf<String?>(null) }
+    // A site opened again from "Continue": at the page it was on.
+    var startPage by remember { mutableStateOf<String?>(null) }
     // The phone's videos (PHONE_SHELF) or a TV list (by its address), and what plays from there.
     var shelf by rememberSaveable { mutableStateOf<String?>(null) }
     var playing by remember { mutableStateOf<CinemaMedia?>(null) }
@@ -107,22 +112,53 @@ internal fun CinemaScreen() {
     val open = sites.firstOrNull { it.url == openUrl }
     val list = tvLists.firstOrNull { it.url == shelf }
     val media = playing
+    val play: (CinemaMedia) -> Unit = {
+        playing = it
+        CinemaContinue.media(context, it)
+    }
+    // Only what can still be opened: a site taken off the list on the phone can't.
+    val again = last?.takeIf { it !is CinemaContinue.Site || sites.any { site -> site.url == it.url } }
     when {
         media != null -> key(media) { CinemaPlayer(media, onClose = { playing = null }) }
         shelf == PHONE_SHELF -> shelves.SaveableStateProvider(PHONE_SHELF) {
-            PhoneVideosShelf(onPlay = { playing = it }, onClose = { shelf = null })
+            PhoneVideosShelf(onPlay = play, onClose = { shelf = null })
         }
         list != null -> shelves.SaveableStateProvider(list.url) {
-            TvShelf(list, onPlay = { playing = it }, onClose = { shelf = null })
+            TvShelf(list, onPlay = play, onClose = { shelf = null })
         }
-        open == null -> CinemaHome(sites, tvLists, onOpen = { openUrl = it.url }, onShelf = { shelf = it })
-        else -> key(open.url) { CinemaSiteView(open, onClose = { openUrl = null }) }
+        open == null -> CinemaHome(
+            sites, tvLists, again,
+            onContinue = {
+                when (val l = again) {
+                    is CinemaContinue.Site -> {
+                        startPage = l.page
+                        openUrl = l.url
+                    }
+                    is CinemaContinue.Media -> playing = l.media
+                    null -> Unit
+                }
+            },
+            onOpen = {
+                startPage = null
+                openUrl = it.url
+                CinemaContinue.site(context, it)
+            },
+            onShelf = { shelf = it },
+        )
+        else -> key(open.url) { CinemaSiteView(open, startAt = startPage, onClose = { openUrl = null }) }
     }
 }
 
 /** The phone's videos and each TV list as myCar's own tiles, then the sites with their own icons. */
 @Composable
-private fun CinemaHome(sites: List<CinemaSite>, tvLists: List<TvList>, onOpen: (CinemaSite) -> Unit, onShelf: (String) -> Unit) {
+private fun CinemaHome(
+    sites: List<CinemaSite>,
+    tvLists: List<TvList>,
+    last: CinemaContinue.Last?,
+    onContinue: () -> Unit,
+    onOpen: (CinemaSite) -> Unit,
+    onShelf: (String) -> Unit,
+) {
     val context = LocalContext.current
     val icons by SiteIcons.icons.collectAsState()
     LaunchedEffect(sites) { SiteIcons.load(context, sites) }
@@ -135,6 +171,10 @@ private fun CinemaHome(sites: List<CinemaSite>, tvLists: List<TvList>, onOpen: (
             verticalArrangement = Arrangement.spacedBy(MyCarSpace.L),
             modifier = Modifier.fillMaxSize(),
         ) {
+            // First, what was on last: a look at the map no longer loses it.
+            if (last != null) item(key = "continue") {
+                ShelfTile("Continue: ${last.title}", MyCarPalette.Positive, R.drawable.sym_play_arrow, IconSize, onContinue)
+            }
             item(key = PHONE_SHELF) {
                 ShelfTile("On this phone", MyCarPalette.Warning, R.drawable.sym_video_library, IconSize) { onShelf(PHONE_SHELF) }
             }
@@ -207,7 +247,7 @@ private fun InitialTile(site: CinemaSite, size: androidx.compose.ui.unit.Dp) {
  * full-screen video first, then steps back through the site, then goes back to the sites.
  */
 @Composable
-private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
+private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Unit) {
     val context = LocalContext.current
     val navigator = LocalCarNavigator.current
     val ring = String.format("#%06X", MaterialTheme.colorScheme.primary.toArgb() and 0xFFFFFF)
@@ -225,7 +265,7 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
     // A new web view after the web engine's page process died (see CinemaClient), at the page it
     // was showing.
     var generation by remember { mutableIntStateOf(0) }
-    var lastUrl by remember { mutableStateOf<String?>(null) }
+    var lastUrl by remember { mutableStateOf(startAt) }
 
     // Another app's sound has to reach the car: the capture starts now, if it waited for Xonos.
     LaunchedEffect(Unit) { CarAudio.captureNow() }
@@ -288,6 +328,7 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                                 offHomeNetwork = false
                                 unreachable = false
                                 lastUrl = url
+                                if (url != null && url.startsWith("http")) CinemaContinue.site(context, site, url)
                             },
                             onOffHomeNetwork = { offHomeNetwork = true },
                             onUnreachable = { unreachable = true },
