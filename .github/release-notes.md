@@ -1,11 +1,16 @@
-myCar 0.5.15-alpha: Plancia and Xonos that keep working, with Tailscale too.
+myCar 0.5.16-alpha: Plancia and Xonos wirelessly, with Tailscale too.
 
-## Plancia and Xonos
-- To connect wirelessly with Tailscale on, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car's Wi-Fi), and then Plancia and Xonos inside myCar can't reach a Tailscale address such as http://umbrel:8123. Now the Plancia and Xonos apps on the phone, which are inside Tailscale, take their place in the car for the drive, by themselves: on the app grid, on your pages, beside the map, and as the car's music.
-- The same when the address or the token set in myCar is wrong: the apps step in instead of an error.
-- It happens at once when the addresses are Tailscale ones that myCar can't reach, otherwise after 10 seconds without a connection (30 if it was connected and dropped). The next drive tries the ones inside myCar first again.
-- Connected with the cable, myCar can stay inside Tailscale: then Plancia and Xonos inside myCar work as before.
-- Settings > Plancia and Settings > Xonos say so when the address is on Tailscale: inside myCar they work with the cable only, for now. We're working on wireless too.
+## Plancia and Xonos with Tailscale
+- To connect wirelessly with Tailscale on, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car's Wi-Fi), and then Plancia and Xonos inside myCar couldn't reach a Tailscale address such as http://umbrel:8123. Now they reach it through the Plancia and Xonos apps on the phone, which stay inside Tailscale: your dashboards, their controls and your music, wirelessly too.
+- Update the apps - Plancia (the latest release) and Xonos 0.1.40 or later - and keep them set to the same addresses as myCar. The apps open connections only for myCar, checked by its signature, and only to the server set up in them.
+- A home address works the same way away from home, through a Tailscale subnet route.
+- If even the apps can't reach your server, they take the place of the ones inside myCar for the drive, as in 0.5.15.
+- Settings > Plancia and Settings > Xonos say which way it goes.
+
+## Also in 0.5.15-alpha
+- When Plancia and Xonos inside myCar can't reach your server - a wrong address or token, or no way to it - the Plancia and Xonos apps on the phone take their place in the car for the drive, by themselves: on the app grid, on your pages, beside the map, and as the car's music.
+- It happens after 10 seconds without a connection (30 if it was connected and dropped), at once when the token is refused. The next drive tries the ones inside myCar first again.
+- Connected with the cable, myCar can stay inside Tailscale: then Plancia and Xonos inside myCar connect directly.
 - Xonos connects to Music Assistant as the drive starts, as Plancia does, so it's ready when you open it.
 
 ## Also in 0.5.14-alpha

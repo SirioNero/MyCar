@@ -97,6 +97,12 @@ Rispondi sempre in **italiano**.
   arriva all'anteprima con `--es haUrl` / `--es haToken` (solo debug). Scatti `plancia-app/`
   (dalla griglia, poi il menu dal ☰ di Home Assistant), `plancia-page/` (pagina pronta a destra
   della mappa), `plancia-side/` (accanto alla mappa).
+  Ponte: con gli ingressi `plancia_ref` / `xonos_ref` le app Plancia e Xonos si compilano da quel
+  loro ramo (`.github/build-apps.sh`, build debug, Gradle 8.14.3 scaricato: le app non hanno il
+  wrapper) al posto degli ultimi rilasci, e gli scatti `bridge-plancia`, `bridge-plancia-page`,
+  `bridge-xonos` aprono Plancia e Xonos dentro myCar con `--ez bridge true` (tutto dal ponte: senza
+  Tailscale nell'emulatore), le app configurate da root sugli stessi server; nel log le app scrivono
+  "Ponte per <myCar> verso <server>" per ogni connessione.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Prova della release in CI: il workflow **Release check** (`.github/workflows/release-check.yml` +
   `.github/release-check.sh`, `.github/tailscale.sh`) installa una release pubblicata (o il branch
@@ -107,7 +113,8 @@ Rispondi sempre in **italiano**.
   0.29.6 sul runner, server a `http://umbrel:<porta>` via MagicDNS), `tailscale-out` (lo stesso con
   myCar esclusa da Tailscale). Scatti, dump, log e preferenze sul branch
   `ci/release-check-<api>-<net>`. Verificato (0.5.13): in `tailscale-out` l'app Plancia si collega e
-  myCar dice che Tailscale la lascia fuori; dentro il tunnel myCar si collega.
+  myCar dice che Tailscale la lascia fuori; dentro il tunnel myCar si collega. Anche qui `plancia_ref`
+  e `xonos_ref` (app dai loro rami): in `tailscale-out` myCar firmata come la release passa dal ponte.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
   destra. Mai scatti con la mappa ancora nera o col segnaposto "Map" del player di debug: del
@@ -144,6 +151,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
+| `bridge/` | Il ponte verso le app Plancia e Xonos per myCar lasciata fuori da Tailscale: `AppBridge` (legame e richiesta di una connessione), `Bridges` (quali connessioni passano dal ponte), `BridgedSockets` (`BridgeDns`, `BridgeSocketFactory` per OkHttp), `BridgeProxy` (la pagina di Plancia: proxy SOCKS5 nel WebView) |
 | `xonos/` | Xonos integrato: `Xonos` (account, connessione, libreria), `XonosAccount` (import dall'app Xonos), il motore di Xonos (`data/`, `sendspin/`, `playback/`: Music Assistant, Sendspin, lettore Media3 `PlaybackService`), `sendspin/CarLinkOutput` (uscita dritta verso l'auto) |
 | `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
 | `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
@@ -417,9 +425,34 @@ Tutti i token in un solo posto, `car/design/`:
   tutto schermo passano all'app (`withPlancia`, `withPlanciaInside`, `withXonosInside`, `xonosFor`,
   nei due versi); la musica che era Xonos dentro myCar passa all'app senza cambiare l'ultima app
   ricordata; la pagina web di Plancia non si crea. Sul telefono, se l'indirizzo è su una tailnet,
-  Plancia e Xonos dicono che con Tailscale per ora funzionano col cavo (`ui/TailscaleCableRow.kt`).
-  Scatto in CI `standin` (indirizzi che non rispondono, app installate). Proposto, non fatto: un
-  ponte attraverso le app Plancia e Xonos (dentro Tailscale) per le connessioni di myCar.
+  Plancia e Xonos dicono che senza fili passano dall'app (stesso indirizzo), o che basta aggiornarla
+  (`ui/TailscaleCableRow.kt`).
+  Scatto in CI `standin` (indirizzi che non rispondono, app installate). Il secondo programma sono
+  le app Plancia e Xonos: vedi "Il ponte".
+- **Il ponte** (0.5.16, `bridge/`): con myCar lasciata fuori da Tailscale (per il senza fili) Plancia
+  e Xonos dentro myCar raggiungono i server attraverso le app Plancia e Xonos, che restano dentro
+  Tailscale. myCar si lega al loro servizio `MyCarBridge` (azione `io.github.sirionero.mycar.BRIDGE`,
+  `BIND_IMPORTANT` + `BIND_INCLUDE_CAPABILITIES`: l'app resta sveglia e con la rete quanto myCar;
+  lasciata 5 minuti dopo l'ultima connessione) e chiede con una transazione Binder (`OPEN`,
+  interfaccia `io.github.sirionero.mycar.Bridge`, host e porta) una connessione: l'app la apre e
+  passa l'altro capo di un `socketpair` (`AppBridge`). Le app rispondono solo a myCar firmata col suo
+  certificato (le loro build di prova anche a `.dev`) e solo verso gli indirizzi scritti nelle loro
+  impostazioni: serve lo stesso indirizzo in myCar e nell'app. I rifiuti hanno un codice (OK 1,
+  NOT_MYCAR 2, NOT_OURS 3, NO_ANSWER 4, OTHER 0) e myCar li dice con parole sue ("Through the Plancia
+  app: …", che `Tailnet.why` lascia come sono). Passano dal ponte (`Bridges.through`) solo con myCar
+  fuori dalla VPN, verso un indirizzo della tailnet o un IPv4 di casa mentre il telefono è fuori casa
+  (route di Tailscale); tutto il resto va per la strada solita. OkHttp (HomeAssistant, MaRepository:
+  API, Sendspin, copertine, accesso): `BridgeDns` lascia il nome all'app (segnaposto TEST-NET-1) e
+  `BridgedSocket` è un socket vero collegato a un ascolto su 127.0.0.1 per quella sola connessione,
+  poi copiato su quello dell'app; TLS ci passa sopra come sempre. La pagina di Plancia (WebView) passa
+  da `BridgeProxy`: un proxy SOCKS5 su 127.0.0.1 che il WebView usa (`ProxyController` di
+  androidx.webkit, "reverse bypass") solo per gli indirizzi di Home Assistant, deciso prima di ogni
+  caricamento (`PlanciaWeb.prepareWay`); la pagina resta sul suo indirizzo vero (TLS, certificato, il
+  nome con cui un reverse proxy la smista). Il primo tentativo, la pagina caricata da un indirizzo
+  locale al posto di quello di Home Assistant, rompeva i reverse proxy che smistano per nome: scartato.
+  Con il ponte una tailnet fuori portata non fa più passare subito l'auto alle app (`InsideOrApp`): il
+  ripiego resta dopo 10 s. Lato app: `it/plancia/ha/data/MyCarBridge.kt` e Xonos 0.1.40
+  `data/MyCarBridge.kt` (rami `claude/ponte-mycar`).
 - **Il viaggio in primo piano** (0.5.13, `SessionService`): dal collegamento dell'auto alla fine un
   servizio in primo piano `connectedDevice` (notifica "myCar is connected to the car") tiene vivo
   il viaggio col telefono bloccato, con un wake lock parziale e, senza fili, un Wi-Fi lock. Si

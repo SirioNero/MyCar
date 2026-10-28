@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            29, "0.5.16-alpha",
+            listOf(
+                "Plancia and Xonos now work wirelessly with Tailscale too: with myCar left out of Tailscale, they reach your servers through the Plancia and Xonos apps on the phone, which stay inside it.",
+                "Update the Plancia and Xonos apps, and keep them set to the same addresses as myCar. They open connections only for myCar, and only to their own server.",
+                "If even the apps can't reach your server, they take the place of the ones inside myCar for the drive, as before.",
+            ),
+        ),
+        Release(
             28, "0.5.15-alpha",
             listOf(
                 "Plancia and Xonos keep working with Tailscale over wireless: when the ones inside myCar can't reach your server, the Plancia and Xonos apps on the phone take their place for the drive, by themselves.",

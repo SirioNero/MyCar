@@ -18,7 +18,7 @@ on:
       tag:
         description: "myCar release to run, or \"branch\" for this branch built as a release"
         required: false
-        default: "v0.5.15-alpha"
+        default: "v0.5.16-alpha"
       apis:
         description: "Android API levels of the emulator, as JSON (37.0 = Android 17, 36 = Android 16)"
         required: false
