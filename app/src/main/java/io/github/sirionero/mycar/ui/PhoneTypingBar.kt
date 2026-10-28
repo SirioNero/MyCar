@@ -2,7 +2,11 @@ package io.github.sirionero.mycar.ui
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,7 +54,10 @@ fun PhoneTypingBar(modifier: Modifier = Modifier) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(open.id) { runCatching { focus.requestFocus() } }
 
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier.fillMaxWidth().imePadding()) {
+    // Above the phone's keyboard when it's open, else above its navigation bar: myCar draws edge
+    // to edge, and with the keyboard closed the bar sat under the navigation buttons.
+    val insets = WindowInsets.ime.union(WindowInsets.navigationBars)
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier.fillMaxWidth().windowInsetsPadding(insets)) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = PhoneTyping::dismiss) {
                 Icon(Icons.Filled.Close, contentDescription = "Close the car keyboard")
