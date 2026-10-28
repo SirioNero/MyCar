@@ -371,6 +371,29 @@ EXTRA="--ez player true" shoot player-800x480 800 480 160 "$WAIT"
 shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"
 adb emu gsm cancel 3331234567
 
+# The Phone's Recents (car/PhoneRecents.kt): the call above, missed, over a few more written into
+# the call log as root (the shell may not): two in a row with Giulia, a garage yesterday, an
+# unknown number missed, a declined one. Root only for that: the shots after it run as before.
+case " ${ONLY:-phone-recents} " in *" phone-recents "*)
+    if adb root >/dev/null 2>&1; then
+        sleep 3; adb wait-for-device
+        now=$(( $(adb shell date +%s | tr -d '\r') * 1000 ))
+        calllog() {  # <number> <type: 1 in, 2 out, 3 missed, 5 declined> <minutes ago> <seconds> [name]
+            local name=
+            [ -n "${5:-}" ] && name="--bind name:s:'$5'"
+            adb shell "content insert --uri content://call_log/calls --bind number:s:$1 --bind type:i:$2 --bind date:l:$((now - $3 * 60000)) --bind duration:i:$4 $name"
+        }
+        calllog 3381234567 5 14400 0 "Marco"
+        calllog 3209998877 3 4320 0
+        calllog 0298765432 2 1560 140 "Officina Rossi"
+        calllog 3471112233 2 15 30 "Giulia Bianchi"
+        calllog 3471112233 1 12 65 "Giulia Bianchi"
+        adb unroot >/dev/null 2>&1; sleep 3; adb wait-for-device
+    fi
+    shoot phone-recents 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
+    ;;
+esac
+
 # The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
 # as the swipe up from a bottom corner does, through SystemUI. First with the Settings app standing
 # in for an assistant that's an activity; the phone's own screen, shot after the tap, should show it.

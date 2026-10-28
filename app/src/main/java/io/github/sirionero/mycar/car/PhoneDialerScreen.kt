@@ -129,21 +129,30 @@ internal fun CallPromptOverlay() {
 
 private const val TAB_CONTACTS = 0
 private const val TAB_KEYPAD = 1
+private const val TAB_RECENTS = 2
 
-/** Dialing a number or calling a contact from the car screen: a contacts tab and a keypad tab. */
+/** The tab open last: the Phone opens on it again. Recents to begin with, as on a phone. */
+private var lastTab = TAB_RECENTS
+
+/** Dialing a number or calling a contact from the car screen: recent calls, contacts and a keypad. */
 @Composable
 fun PhoneDialerScreen() {
     val context = LocalContext.current
     var hasPermissions by remember { mutableStateOf(hasCallPermissions(context)) }
-    var tab by remember { mutableStateOf(TAB_CONTACTS) }
+    var tab by remember { mutableStateOf(lastTab) }
+    val show = { t: Int ->
+        tab = t
+        lastTab = t
+    }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // The tabs share the title's row, so the list and keypad get the height back.
         ScreenHeader("Phone") {
             if (hasPermissions) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(140.dp)) { tab = TAB_CONTACTS }
-                    DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(140.dp)) { tab = TAB_KEYPAD }
+                    DialerTab("Recents", tab == TAB_RECENTS, Modifier.width(124.dp)) { show(TAB_RECENTS) }
+                    DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(124.dp)) { show(TAB_CONTACTS) }
+                    DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(124.dp)) { show(TAB_KEYPAD) }
                 }
             }
         }
@@ -154,7 +163,11 @@ fun PhoneDialerScreen() {
         }
 
         Box(Modifier.weight(1f).fillMaxWidth()) {
-            if (tab == TAB_CONTACTS) ContactsList(context) else Keypad(context)
+            when (tab) {
+                TAB_RECENTS -> RecentsList(context)
+                TAB_CONTACTS -> ContactsList(context)
+                else -> Keypad(context)
+            }
         }
     }
 }
