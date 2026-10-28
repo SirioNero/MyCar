@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import android.content.Context
@@ -45,6 +46,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -147,8 +150,24 @@ fun HomeScreen(
                     }
                     if (live) {
                         Spacer(Modifier.height(16.dp))
-                        Button(onClick = onDisconnect, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                        // A drive under way asks first: a big button where a thumb reaches, on a
+                        // screen kept on all drive, ended it at a stray touch. Still connecting
+                        // (a wireless start that hangs), it stops at once.
+                        var askDisconnect by remember { mutableStateOf(false) }
+                        Button(
+                            onClick = { if (status.phase == SessionStatus.Phase.PROJECTING) askDisconnect = true else onDisconnect() },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                        ) {
                             Text("Disconnect")
+                        }
+                        if (askDisconnect) {
+                            ConfirmDialog(
+                                title = "Disconnect from the car?",
+                                text = "myCar leaves the car's screen now. With the cable, unplug it and plug it in again to come back.",
+                                confirm = "Disconnect",
+                                onConfirm = onDisconnect,
+                                onDismiss = { askDisconnect = false },
+                            )
                         }
                     }
                 }

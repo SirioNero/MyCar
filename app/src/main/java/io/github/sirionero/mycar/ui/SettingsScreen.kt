@@ -440,6 +440,12 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
             confirm = "Remove",
             onConfirm = {
                 if (imported) CertProvider.removeImported(context) else CertProvider.removeDownloaded(context)
+                // What Home's card asked for: done, so the card goes.
+                if (imported && io.github.sirionero.mycar.CertRotation.notice.value.kind ==
+                    io.github.sirionero.mycar.CertRotationPolicy.Notice.OWN_REFUSED
+                ) {
+                    io.github.sirionero.mycar.CertRotation.dismiss(context)
+                }
                 notice = if (imported) "Removed the imported certificate." else "Removed the downloaded certificates."
                 refresh++
             },
