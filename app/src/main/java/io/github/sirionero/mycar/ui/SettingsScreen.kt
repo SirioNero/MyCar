@@ -172,9 +172,9 @@ private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Uni
         )
         SettingsDivider()
         SettingsRow(
-            "Replay the setup guide",
+            "Initial setup",
             Modifier.clickable(onClick = onReplayTutorial),
-            subtitle = "Go through the first-run steps again",
+            subtitle = "What's done and what's left. Nothing is deleted.",
             icon = Icons.Filled.Refresh,
             trailing = { Arrow() },
         )

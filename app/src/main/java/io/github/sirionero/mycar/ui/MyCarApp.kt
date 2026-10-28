@@ -43,7 +43,7 @@ import io.github.sirionero.mycar.stats.UsageStats
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
 
-private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP, SETUP_GUIDE, USAGE_NOTES, HELP, WHATS_NEW, RECOMMENDED_APPS }
+private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP, SETUP_GUIDE, USAGE_NOTES, HELP, WHATS_NEW, RECOMMENDED_APPS, SETUP }
 
 /** Three screens and a back stack of depth one: no navigation library needed. */
 @Composable
@@ -70,6 +70,9 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     var settingsAtUsageNotes by rememberSaveable { mutableStateOf(false) }
     // What's new and Connection help open from Home and from Settings; back returns to whichever.
     var backTo by rememberSaveable { mutableStateOf(Screen.SETTINGS) }
+    // The setup list: from the first run, or back to it later; it returns where it came from.
+    var setupEntry by rememberSaveable { mutableStateOf(SetupEntry.RETURN) }
+    var setupReturn by rememberSaveable { mutableStateOf(Screen.HOME) }
     BackHandler(enabled = screen != Screen.HOME && screen != Screen.INTRO) {
         screen = when (screen) {
             Screen.RECOMMENDED_APPS, Screen.LOGS, Screen.CAR_PREVIEW -> Screen.SETTINGS
@@ -153,7 +156,12 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                     onOpenHelp = { settingsAtUsageNotes = false; backTo = Screen.SETTINGS; screen = Screen.HELP },
                     onOpenCarPreview = { settingsAtUsageNotes = false; screen = Screen.CAR_PREVIEW },
                     onOpenLogs = { settingsAtUsageNotes = false; screen = Screen.LOGS },
-                    onReplayTutorial = { screen = Screen.SETUP_GUIDE },
+                    onReplayTutorial = {
+                        settingsAtUsageNotes = false
+                        setupEntry = SetupEntry.RETURN
+                        setupReturn = Screen.SETTINGS
+                        screen = Screen.SETUP
+                    },
                     onReplayIntro = { Intro.replay(context); introReturn = Screen.SETTINGS; screen = Screen.INTRO },
                     atUsageNotes = settingsAtUsageNotes,
                 )
@@ -171,6 +179,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                 Screen.SETUP_GUIDE -> SetupGuideScreen(
                     onRequestCallScreening = onRequestCallScreening,
                     onDone = { screen = Screen.HOME },
+                )
+                Screen.SETUP -> SetupScreen(
+                    entry = setupEntry,
+                    onDone = { screen = setupReturn },
+                    onRequestCallScreening = onRequestCallScreening,
                 )
                 Screen.USAGE_NOTES -> SetupGuideScreen(
                     onRequestCallScreening = onRequestCallScreening,
