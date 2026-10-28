@@ -13,13 +13,13 @@ object Changelog {
         Release(
             33, "0.5.20-alpha",
             listOf(
-                "Dropdowns on web pages open in the car - in the browser, on Cinema's sites and in Plancia - as a list to tap.",
-                "The car's Back key goes back inside an app that shows its own back arrow, and closes what's open over a screen first.",
-                "Stop navigating takes two taps: the first turns it into End route.",
-                "A tap between the player's buttons beside the map no longer opens the full player, and the most used buttons are bigger.",
-                "Cinema: a film picks up where it stopped after a network drop, TV channels try again by themselves, and you can search a list for a channel.",
-                "The Bluetooth and location warnings wait until the car stops. Favourite contacts come first.",
-                "Smoother lists and pages: each touch keeps the time it arrived at.",
+                "Phone: a Recents tab with your latest calls, and Call back on a missed call's popup.",
+                "Voice: \"read my messages\", \"reply to…\", \"call back\", \"redial\", and \"call Mom on mobile\" calls that number.",
+                "Play - said, or on the steering wheel - starts the music app you used last when none is open.",
+                "Quick replies go out in your phone's language. While a call rings, the next turn stays in the dock.",
+                "Dropdowns on web pages open in the car as a list to tap, and the car's Back key goes back inside apps.",
+                "Stop navigating takes two taps; screens that stopped at an error now have a way on.",
+                "Cinema: Continue opens again what you were watching; a film picks up where it stopped after a network drop.",
             ),
         ),
         Release(

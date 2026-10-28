@@ -1,6 +1,19 @@
-myCar 0.5.20-alpha: a second sweep through the code - easier to use in the car and on the phone, smoother, and a steadier Cinema.
+myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by voice, music that starts when you say Play, and a sweep through the whole app - easier to use in the car and on the phone, smoother, and a steadier Cinema.
+
+## New in the car
+- Phone: a Recents tab, as on a phone - your latest calls, missed ones in red, a tap to call back (it asks first, with the number). The Phone opens on the tab you used last. A missed call's popup has Call back too, and Read says "Missed call from…".
+- Voice: "read my messages" reads the newest message you haven't heard, "reply to Anna" or "text Anna" goes straight to your reply. "Call back" returns the last call, "redial" makes the last one again. "Call Mom on mobile" calls that number; with several numbers myCar picks the phone's default or the mobile, and says which. All in "You can say".
+- Play - said, or the ▶ on the steering wheel - with no music app open starts the one you used last. Before, nothing happened (and the assistant said "Playing."). "Play the next song", "play it again" and "play something else" skip or repeat instead of searching for a song with that name; "call Skip" calls Skip.
+- Quick replies to messages go out in your phone's language - Italian, Spanish, French, German or Portuguese - with the arrival time written the way your phone writes it. They went out in English.
+- While a call rings, the next turn shows in the dock: the call's card covers the map. The caller's number is written as on the phone.
 
 ## In the car
+- After a tap on Reply, myCar reads the message and asks straight away for your reply: no more "Do you want to reply?" to answer first.
+- The dot on the dock's clock goes off once a message is read aloud, answered or seen in its app, not only when the dashboard opens.
+- The assistant's errors ("Didn't catch that") go by themselves after a few seconds instead of covering the map; on a phone without a speech engine its answers stay up long enough to read. A "play X" the music app ignored is said outside the player too.
+- No more dead ends: an app beside the map that wouldn't start gets Try again and Close, a music list that didn't load gets Try again, a music app that won't be browsed gets Open on the phone, and a search that found nothing gets "Ask the app to play it".
+- Full player: tabs stay readable on small screens ("Now playing" on two lines rather than "Now playi…"), and app names are written as the apps write them ("YouTube Music", not "Youtube music"). The sign on the song in the dock shows that it's playing, instead of looking like a pause button.
+- Beside the map, the player's X closes it even after the music app was closed from its menu (it started the music again).
 - Dropdowns on web pages open on the car's screen: in the browser, on Cinema's sites and in Plancia, a tap on a dropdown shows its choices as a list to tap (groups, greyed-out choices, several at once with Done). Before, they didn't open at all.
 - The car's Back key (on the wheel or the knob) goes back a screen inside an app that shows its own back arrow, instead of closing the app or doing nothing beside the map. It also closes what's open over a screen first: a call question, the assistant, a search.
 - Stop navigating takes two taps: the first turns the X into a red End route for a few seconds. One stray touch by the dock ended the route.
@@ -13,6 +26,7 @@ myCar 0.5.20-alpha: a second sweep through the code - easier to use in the car a
 - Car screens above 1080p get an H.264 level that fits them (an encoder could refuse the old one).
 
 ## Cinema
+- Continue, first among the tiles, opens again what you were watching - a site at the page it was on, a video where you left it, a channel - after a look at the map or another app.
 - If the web engine's page process stops (video sites weigh on it most), the site opens again where it was. Before, Android closed myCar, and the drive with it.
 - A film that stops for a network drop picks up where it stopped with Try again; it no longer starts over. A TV channel tries again by itself after 3, 10 and 30 seconds, and anything that stopped tries again when the network comes back. After a long call, a channel comes back at the live point.
 - TV lists: a magnifier finds a channel by name across all groups. Logos that didn't load get another chance when the list opens.
@@ -21,6 +35,7 @@ myCar 0.5.20-alpha: a second sweep through the code - easier to use in the car a
 - The car's keyboard reaches fields already selected when the page loaded and fields inside web components, and the field moves into view above the keyboard.
 
 ## On the phone
+- The welcome's band is now a pirate flag flying in the wind: 100% LOCAL - we defend our data.
 - Removing the certificates, Plancia's account or Xonos's account asks first, and says what happens (the certificates need the internet to come back).
 - Cinema: resetting the list of sites asks first and says which of yours go; the button shows only when there's something to reset.
 - Calendar, Notifications and the call filter: when Android no longer asks, the button opens the right page of Android's settings instead of doing nothing.
