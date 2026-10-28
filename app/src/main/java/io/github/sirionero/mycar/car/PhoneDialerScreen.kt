@@ -79,33 +79,36 @@ internal fun loadContacts(context: Context): List<Contact> {
         ContactsContract.CommonDataKinds.Phone.LABEL,
         ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY,
     )
-    // The phone's favourites first: in the car, the people called most are a tap away.
-    context.contentResolver.query(
-        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-        projection, null, null,
-        "${ContactsContract.CommonDataKinds.Phone.STARRED} DESC, ${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC",
-    )?.use { cursor ->
-        val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-        val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-        val starredIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
-        val typeIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)
-        val labelIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL)
-        val primaryIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY)
-        while (cursor.moveToNext()) {
-            val name = cursor.getString(nameIndex) ?: continue
-            val number = cursor.getString(numberIndex) ?: continue
-            val type = if (typeIndex >= 0) cursor.getInt(typeIndex) else 0
-            val label = if (labelIndex >= 0) cursor.getString(labelIndex) else null
-            out += Contact(
-                name, number, starredIndex >= 0 && cursor.getInt(starredIndex) == 1,
-                type = type,
-                typeLabel = runCatching {
-                    ContactsContract.CommonDataKinds.Phone.getTypeLabel(context.resources, type, label)?.toString()
-                }.getOrNull()?.takeIf { it.isNotBlank() },
-                primary = primaryIndex >= 0 && cursor.getInt(primaryIndex) == 1,
-            )
+    // The phone's favourites first: in the car, the people called most are a tap away. A provider
+    // that fails (a contacts app being updated) gives no contacts, not a closed myCar.
+    runCatching {
+        context.contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            projection, null, null,
+            "${ContactsContract.CommonDataKinds.Phone.STARRED} DESC, ${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC",
+        )?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            val starredIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
+            val typeIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)
+            val labelIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL)
+            val primaryIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY)
+            while (cursor.moveToNext()) {
+                val name = cursor.getString(nameIndex) ?: continue
+                val number = cursor.getString(numberIndex) ?: continue
+                val type = if (typeIndex >= 0) cursor.getInt(typeIndex) else 0
+                val label = if (labelIndex >= 0) cursor.getString(labelIndex) else null
+                out += Contact(
+                    name, number, starredIndex >= 0 && cursor.getInt(starredIndex) == 1,
+                    type = type,
+                    typeLabel = runCatching {
+                        ContactsContract.CommonDataKinds.Phone.getTypeLabel(context.resources, type, label)?.toString()
+                    }.getOrNull()?.takeIf { it.isNotBlank() },
+                    primary = primaryIndex >= 0 && cursor.getInt(primaryIndex) == 1,
+                )
+            }
         }
-    }
+    }.onFailure { MyCarLog.w("calls: couldn't read the contacts: ${it.message}") }
     return out.distinctBy { it.number }
 }
 

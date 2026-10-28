@@ -68,6 +68,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -164,7 +165,16 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         CarAssistant.pendingCommand.collect { heard ->
             if (heard != null) {
-                val reply = AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
+                // Whatever a command meets (a provider that fails, an app that throws), the drive
+                // goes on: an exception here used to end myCar.
+                val reply = try {
+                    AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    MyCarLog.e("assistant: \"$heard\" failed", e)
+                    "Something went wrong. Try again."
+                }
                 CarAssistant.reply(reply)
             }
         }
