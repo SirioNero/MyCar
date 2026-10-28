@@ -139,7 +139,8 @@ object CarServices {
     /** Undoes [stopNav]'s hold so the last map app comes back, same as it would after a restart. */
     suspend fun reconnectNav(frame: CarEnvironment.Frame) {
         navStopped = false
-        autostart(frame)
+        // The map only: a music app the driver closed stays closed.
+        autostart(frame, withMedia = false)
     }
 
     // --- browse (non-navigation templated apps) -------------------------------------------
@@ -200,7 +201,7 @@ object CarServices {
     // --- start and stop ------------------------------------------------------------------
 
     /** Brings back whatever was in use last time. Safe to call repeatedly. */
-    suspend fun autostart(frame: CarEnvironment.Frame) {
+    suspend fun autostart(frame: CarEnvironment.Frame, withMedia: Boolean = true) {
         val ctx = context ?: return
 
         if (!navStopped && nav.status.value.phase == CarAppConnection.Phase.IDLE) {
@@ -219,6 +220,7 @@ object CarServices {
             if (app != null) connectNav(app, frame)
         }
 
+        if (!withMedia) return
         if (_mediaApp.value == null) {
             val catalog = withContext(Dispatchers.IO) { MediaCatalog.installed(ctx) }
             // Something already playing on the phone wins over whatever was last used in the car -
