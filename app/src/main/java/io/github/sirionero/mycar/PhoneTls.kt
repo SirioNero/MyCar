@@ -10,6 +10,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLEngine
 import javax.net.ssl.SSLEngineResult
 import javax.net.ssl.SSLEngineResult.HandshakeStatus
+import javax.net.ssl.SSLException
 import javax.net.ssl.SSLPeerUnverifiedException
 import javax.net.ssl.X509ExtendedTrustManager
 
@@ -131,6 +132,13 @@ class PhoneTls(keyStore: KeyStore, password: CharArray) {
             if (result.status == SSLEngineResult.Status.BUFFER_OVERFLOW) {
                 netBuffer = ByteBuffer.allocate(netBuffer.capacity() * 2)
                 continue
+            }
+            // Before the handshake, or once the car has closed TLS, nothing moves and this
+            // spun for ever on the writing thread: an error ends the session instead.
+            if (result.status != SSLEngineResult.Status.OK ||
+                result.bytesConsumed() == 0 && result.bytesProduced() == 0
+            ) {
+                throw SSLException("TLS could not encrypt: ${result.status}")
             }
             netBuffer.flip()
             val chunk = ByteArray(netBuffer.remaining())

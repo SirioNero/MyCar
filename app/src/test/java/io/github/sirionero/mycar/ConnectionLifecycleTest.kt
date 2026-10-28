@@ -7,9 +7,14 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.FutureTask
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -62,6 +67,88 @@ class ConnectionLifecycleTest {
         assertEquals(SessionReport.Category.TLS, SessionReport.category)
         assertEquals("Head unit rejected the certificate", SessionStatus.state.value.headline)
         assertTrue(SessionReport.stage < SessionReport.Stage.ACCEPTED)
+    }
+
+    /** What the phone wrote, frame by frame. */
+    private fun replies(output: ByteArrayOutputStream): List<Frames.Frame> {
+        val bytes = output.toByteArray()
+        val parser = Frames.Parser().apply { append(bytes, bytes.size) }
+        return generateSequence { parser.next() }.toList()
+    }
+
+    private fun byeByeReply(output: ByteArrayOutputStream) =
+        replies(output).firstOrNull { it.payload.contentEquals(byteArrayOf(0, 16)) }
+
+    /** Gives [bytes], then holds the end of the stream until [until] (two seconds at most), as a car waiting for an answer. */
+    private class SlowEnd(bytes: ByteArray, val until: () -> Boolean) : ByteArrayInputStream(bytes) {
+        override fun read(b: ByteArray, off: Int, len: Int): Int {
+            val read = super.read(b, off, len)
+            if (read >= 0) return read
+            val deadline = System.currentTimeMillis() + 2_000
+            while (!until() && System.currentTimeMillis() < deadline) Thread.sleep(10)
+            return -1
+        }
+    }
+
+    @Test fun `a ByeBye during setup is answered in the clear, and the hang-up after it still counts`() {
+        val output = ByteArrayOutputStream()
+        val bye = message(15, Protobuf.varintField(1, 3))
+        MyCarRunner(SlowEnd(version + hello() + bye) { byeByeReply(output) != null }, output, ::identity).run()
+        val reply = byeByeReply(output)
+        assertNotNull(reply)
+        assertFalse(reply!!.encrypted)
+        assertEquals(SessionReport.Category.BYEBYE, SessionReport.category)
+        // The car hung up while checking the certificate: the driver reads it as before.
+        assertEquals("Connection dropped during setup", SessionStatus.state.value.headline)
+    }
+
+    @Test fun `a ByeBye during a drive is answered and ends the session`() {
+        val runner = MyCarRunner(ByteArrayInputStream(byteArrayOf()), ByteArrayOutputStream(), ::identity)
+        val identity = identity()
+        setField(runner, "identityTask", FutureTask { PhoneTls(identity.keyStore, identity.password) }.apply { run() })
+        val state = MyCarRunner::class.java.getDeclaredField("state").apply { isAccessible = true }
+        state.set(runner, state.type.enumConstants.first { (it as Enum<*>).name == "DONE" })
+        try {
+            MyCarRunner::class.java.getDeclaredMethod("onByeByeRequest", ByteArray::class.java)
+                .apply { isAccessible = true }.invoke(runner, Protobuf.varintField(1, 7))
+            assertFalse(getField(runner, "running") as Boolean)
+            assertTrue(getField(runner, "drainWriterOnExit") as Boolean)
+        } finally {
+            runner.stop()
+        }
+    }
+
+    @Test fun `ping echoes the full timestamp and the data it carries`() {
+        for (data in listOf(null, byteArrayOf(), byteArrayOf(0, -1, 42))) {
+            val output = ByteArrayOutputStream()
+            val runner = MyCarRunner(ByteArrayInputStream(byteArrayOf()), output, ::identity)
+            val identity = identity()
+            setField(runner, "identityTask", FutureTask { PhoneTls(identity.keyStore, identity.password) }.apply { run() })
+            val timestamp = 0x1234_5678_9abcL
+            val request = Protobuf.varintField(1, timestamp) + Protobuf.varintField(2, 1) +
+                (data?.let { Protobuf.bytesField(3, it) } ?: byteArrayOf())
+            try {
+                MyCarRunner::class.java.getDeclaredMethod("onPingRequest", ByteArray::class.java)
+                    .apply { isAccessible = true }.invoke(runner, request)
+                val writer = getField(runner, "writer") as ExecutorService
+                writer.shutdown()
+                assertTrue(writer.awaitTermination(2, TimeUnit.SECONDS))
+                val response = replies(output).single().payload
+                assertEquals(12, response[1].toInt())
+                val fields = Wire.fields(response.copyOfRange(2, response.size))
+                assertEquals(timestamp, Wire.varint(fields, 1))
+                if (data == null) assertNull(Wire.bytes(fields, 2)) else assertArrayEquals(data, Wire.bytes(fields, 2))
+            } finally {
+                runner.stop()
+            }
+        }
+    }
+
+    private fun getField(runner: MyCarRunner, name: String): Any? =
+        MyCarRunner::class.java.getDeclaredField(name).apply { isAccessible = true }.get(runner)
+
+    private fun setField(runner: MyCarRunner, name: String, value: Any) {
+        MyCarRunner::class.java.getDeclaredField(name).apply { isAccessible = true }.set(runner, value)
     }
 
     @Test fun `authentication success before TLS completes is ignored`() {
