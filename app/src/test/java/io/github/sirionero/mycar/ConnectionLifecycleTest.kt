@@ -99,7 +99,7 @@ class ConnectionLifecycleTest {
         assertFalse(reply!!.encrypted)
         assertEquals(SessionReport.Category.BYEBYE, SessionReport.category)
         // The car hung up while checking the certificate: the driver reads it as before.
-        assertEquals("Connection dropped during setup", SessionStatus.state.value.headline)
+        assertEquals("The car hung up during setup", SessionStatus.state.value.headline)
     }
 
     @Test fun `a ByeBye during a drive is answered and ends the session`() {
