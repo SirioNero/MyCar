@@ -164,8 +164,15 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     /** Setting myCar as the phone's caller ID and spam app - what lets it decline a ringing call. */
+    private var roleAskedAt = 0L
     private val callScreeningRole = registerForActivityResult(StartActivityForResult()) { result ->
-        if (result.resultCode != RESULT_OK) MyCarLog.w("calls: call screening role declined")
+        if (result.resultCode == RESULT_OK) return@registerForActivityResult
+        MyCarLog.w("calls: call screening role declined")
+        // Declined before a person could tap: Android no longer asks. Its default apps page has
+        // "Caller ID & spam app", where the driver can still choose myCar.
+        if (android.os.SystemClock.uptimeMillis() - roleAskedAt < 400) {
+            runCatching { startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -345,9 +352,14 @@ class MyCarActivity : ComponentActivity(), Projection {
         val roleManager = getSystemService(android.app.role.RoleManager::class.java)
         if (roleManager == null || !roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
             MyCarLog.w("calls: call screening role unavailable on this phone")
+            android.widget.Toast.makeText(this, "This phone doesn't let apps screen calls.", android.widget.Toast.LENGTH_LONG).show()
             return
         }
-        if (roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) return
+        if (roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
+            android.widget.Toast.makeText(this, "myCar already screens unknown callers.", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        roleAskedAt = android.os.SystemClock.uptimeMillis()
         runCatching {
             callScreeningRole.launch(roleManager.createRequestRoleIntent(android.app.role.RoleManager.ROLE_CALL_SCREENING))
         }.onFailure { MyCarLog.e("could not ask for the call screening role", it) }

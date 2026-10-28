@@ -201,7 +201,27 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
         }
     }
-    val oneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh() }
+    fun openNotificationSettings() {
+        runCatching {
+            context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+        }.onFailure { openAppSettings() }
+    }
+    // Calendar and notifications, one at a time. Refused before a person could tap, Android didn't
+    // ask (it stops after two refusals): its settings page instead of a button that does nothing.
+    var oneAsking by remember { mutableStateOf("") }
+    var oneAskedAt by remember { mutableLongStateOf(0L) }
+    val oneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        val noDialog = SystemClock.uptimeMillis() - oneAskedAt < NO_DIALOG_MS
+        if (!granted && noDialog && (context as? Activity)?.shouldShowRequestPermissionRationale(oneAsking) == false) {
+            if (oneAsking == Manifest.permission.POST_NOTIFICATIONS) openNotificationSettings() else openAppSettings()
+        }
+        refresh()
+    }
+    fun askOne(permission: String) {
+        oneAsking = permission
+        oneAskedAt = SystemClock.uptimeMillis()
+        oneLauncher.launch(permission)
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -330,8 +350,8 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                     runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
                         .onFailure { openAppSettings() }
                 },
-                onCalendar = { oneLauncher.launch(Manifest.permission.READ_CALENDAR) },
-                onNotifications = { oneLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                onCalendar = { askOne(Manifest.permission.READ_CALENDAR) },
+                onNotifications = { askOne(Manifest.permission.POST_NOTIFICATIONS) },
                 onScreening = onRequestCallScreening,
             )
             Spacer(Modifier.height(16.dp))
