@@ -63,6 +63,9 @@ class HaClient(private val http: OkHttpClient) {
             throw e
         }
         if (version == null) {
+            // A server that took the connection but never answered: drop the call too, which would
+            // otherwise wait without end (no read timeout, for the long-lived socket).
+            socket?.cancel()
             close()
             throw HaException("No answer from $baseUrl", HaException.Reason.NO_RESPONSE)
         }

@@ -1,6 +1,8 @@
 package io.github.sirionero.mycar.home
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
@@ -10,11 +12,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
@@ -162,6 +167,10 @@ object HomeAssistant {
     private var loop: Job? = null
     private var users = 0
 
+    /** Cuts a wait between tries short: a new network for myCar (Tailscale up, Wi-Fi to mobile). */
+    private val wake = Channel<Unit>(Channel.CONFLATED)
+    private var networkWatch: ConnectivityManager.NetworkCallback? = null
+
     fun newClient() = HaClient(http)
 
     /**
@@ -176,6 +185,15 @@ object HomeAssistant {
             scope.launch { fromPlanciaApp(app)?.let { if (!configFlow.value.isComplete) use(it) } }
         }
         if (loop?.isActive != true) loop = scope.launch { connectLoop() }
+        if (networkWatch == null && app != null) {
+            val watch = object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    wake.trySend(Unit)
+                }
+            }
+            runCatching { app.getSystemService(ConnectivityManager::class.java)?.registerDefaultNetworkCallback(watch) }
+                .onSuccess { networkWatch = watch }
+        }
     }
 
     /** The car went: the connection closes once nothing else needs it. */
@@ -187,6 +205,10 @@ object HomeAssistant {
             loop = null
             client?.close()
             client = null
+            networkWatch?.let { watch ->
+                runCatching { app?.getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(watch) }
+            }
+            networkWatch = null
         }
     }
 
@@ -220,6 +242,7 @@ object HomeAssistant {
             var usedUrl = ""
             var lastError = "Home Assistant can't be reached"
             var lastException: Exception? = null
+            var tokenRefused = false
             for (url in config.urls) {
                 _connection.value = HaConnection.Connecting(url)
                 val candidate = HaClient(http)
@@ -235,7 +258,19 @@ object HomeAssistant {
                     candidate.close()
                     lastError = e.message ?: lastError
                     lastException = e
+                    val reason = (e as? HaException)?.reason
+                    if (reason == HaException.Reason.INVALID_TOKEN || reason == HaException.Reason.ACCESS_DENIED) tokenRefused = true
                 }
+            }
+
+            if (session == null && tokenRefused) {
+                // Trying a refused token again and again counts as failed logins in Home Assistant,
+                // which can ban the phone's address: wait for a new one instead.
+                MyCarLog.w("plancia: Home Assistant refused the token - waiting for a new one")
+                _connection.value = HaConnection.Failed("Home Assistant refused the token: make a new one there, and set it in myCar on the phone.")
+                configFlow.first { it != config }
+                failures = 0
+                continue
             }
 
             if (session == null) {
@@ -251,7 +286,8 @@ object HomeAssistant {
                 }
                 _connection.value = HaConnection.Failed(lastError)
                 failures++
-                delay((2_000L * failures).coerceAtMost(30_000L))
+                // Sooner when myCar gets a new network: Tailscale coming up, the Wi-Fi gone.
+                withTimeoutOrNull((2_000L * failures).coerceAtMost(15_000L)) { wake.receive() }
                 continue
             }
 
