@@ -57,6 +57,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.call.CallUiState
+import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.car.design.AppIcon
 import io.github.sirionero.mycar.car.design.AppIconShape
 import io.github.sirionero.mycar.car.design.GlassTile
@@ -95,7 +97,9 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
     val running = rememberRunningApps()
     val pinnedIds by CarSettings.pinnedApps.collectAsState()
     val frame by CarEnvironment.frame.collectAsState()
-    val turn = rememberNextTurn().takeIf { navigator.current != CarScreen.Home || !navigator.onMapPage }
+    // A ringing call's card covers the map: the next turn is here meanwhile.
+    val ringing = CarCalls.state.collectAsState().value is CallUiState.Ringing
+    val turn = rememberNextTurn().takeIf { ringing || navigator.current != CarScreen.Home || !navigator.onMapPage }
     val media = CarServices.media
     val mediaPhase by media.phase.collectAsState()
     val now by media.now.collectAsState()

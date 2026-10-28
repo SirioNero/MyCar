@@ -34,7 +34,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.vectorResource
 import io.github.sirionero.mycar.R
+import android.telephony.PhoneNumberUtils
 import io.github.sirionero.mycar.call.CallUiState
+import io.github.sirionero.mycar.call.Caller
+import java.util.Locale
 import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.call.CarCalls
 
@@ -84,7 +87,7 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                s.caller.label,
+                s.caller.shown(),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -114,6 +117,10 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
         }
     }
 }
+
+/** Who's calling: the name, or the number as the phone writes it ("333 123 4567", not "3331234567"). */
+private fun Caller.shown(): String =
+    name ?: number.takeIf { it.isNotBlank() }?.let { PhoneNumberUtils.formatNumber(it, Locale.getDefault().country) ?: it } ?: label
 
 @Composable
 private fun CallButton(icon: ImageVector, label: String, color: Color, enabled: Boolean, onClick: () -> Unit) {
@@ -151,7 +158,7 @@ private fun ActiveCallBanner(
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    "On a call" + (s.caller?.let { " with ${it.label}" } ?: ""),
+                    "On a call" + (s.caller?.let { " with ${it.shown()}" } ?: ""),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
