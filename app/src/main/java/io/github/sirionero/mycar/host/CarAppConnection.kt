@@ -83,7 +83,7 @@ class CarAppConnection(private val context: Context) {
 
     private val main = Handler(Looper.getMainLooper())
     /** Captured by each host Binder so callbacks queued by a replaced app cannot show a toast. */
-    private var toastOwner = Any()
+    @Volatile private var toastOwner = Any()
 
     private var carApp: ICarApp? = null
     private var appManager: IAppManager? = null
@@ -662,18 +662,25 @@ class CarAppConnection(private val context: Context) {
     /** The route as the app tells clusters about it: steps and how far to each. Null when not navigating. */
     val trip: StateFlow<androidx.car.app.navigation.model.Trip?> = _trip.asStateFlow()
 
-    private val navigationHost = object : INavigationHost.Stub() {
+    /**
+     * One per connected app, like its app host: a map replaced by another (or by the next drive's)
+     * could still send a late trip, which filled the new one's - the cluster and the voice with it.
+     */
+    private fun createNavigationHost(owner: Any) = object : INavigationHost.Stub() {
         override fun navigationStarted() {
+            if (owner !== toastOwner) return
             MyCarLog.i("host: navigation started")
             navigating = true
         }
         override fun navigationEnded() {
+            if (owner !== toastOwner) return
             MyCarLog.i("host: navigation ended")
             navigating = false
             _trip.value = null
             main.post { if (reroute != null) { main.removeCallbacks(sendReroute); sendReroute.run() } }
         }
         override fun updateTrip(trip: Bundleable?) {
+            if (owner !== toastOwner) return
             _trip.value = runCatching { trip?.get() as? androidx.car.app.navigation.model.Trip }.getOrNull()
         }
     }
@@ -743,6 +750,7 @@ class CarAppConnection(private val context: Context) {
 
     private fun createCarHost(owner: Any) = object : ICarHost.Stub() {
         private val appHost = createAppHost(owner)
+        private val navigationHost = createNavigationHost(owner)
 
         override fun getHost(type: String?): IBinder? = when (type) {
             CarContext.APP_SERVICE -> appHost.asBinder()
