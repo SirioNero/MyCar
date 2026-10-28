@@ -92,7 +92,8 @@ object CarAudio {
         when {
             _capture.value == Capture.ON -> link.start()
             wanted && consentWaits() -> MyCarLog.i("audio: the car's music is myCar's own - Android isn't asked for now")
-            wanted -> ask()
+            // Not again while the question is up, nor after a "no" this drive.
+            wanted && _capture.value == Capture.OFF -> ask()
         }
         updateDirect()
     }
