@@ -1,17 +1,42 @@
-myCar 0.5.19-alpha: Cinema, new layouts for the pages beside the map, and a sweep through the code.
+myCar 0.5.20-alpha: a second sweep through the code - easier to use in the car and on the phone, smoother, and a steadier Cinema.
+
+## In the car
+- Dropdowns on web pages open on the car's screen: in the browser, on Cinema's sites and in Plancia, a tap on a dropdown shows its choices as a list to tap (groups, greyed-out choices, several at once with Done). Before, they didn't open at all.
+- The car's Back key (on the wheel or the knob) goes back a screen inside an app that shows its own back arrow, instead of closing the app or doing nothing beside the map. It also closes what's open over a screen first: a call question, the assistant, a search.
+- Stop navigating takes two taps: the first turns the X into a red End route for a few seconds. One stray touch by the dock ended the route.
+- Beside the map, a tap between the player's buttons (or on its title) no longer opens the full player over the map.
+- Bigger buttons where they're most used: Back at the top of every screen, the full player's Back, Search and tabs, the close buttons of the player and of message popups.
+- The "Bluetooth isn't connected" and "Location is off" warnings, which cover the map until you tap OK, wait until the car stops.
+- Phone: "Loading contacts…" while the phone reads them (it said "No contacts"), and your favourite contacts come first, with a star.
+- Messages and notifications: Open on phone goes straight to myCar's switch in Android's notification access.
+- Smoother scrolling and flings: each touch from the car keeps the time it arrived at. Lighter: app pictures checked off the screen's thread, the message timer bar at the car's 30 frames a second, list thumbnails at the size they're shown.
+- Car screens above 1080p get an H.264 level that fits them (an encoder could refuse the old one).
 
 ## Cinema
+- If the web engine's page process stops (video sites weigh on it most), the site opens again where it was. Before, Android closed myCar, and the drive with it.
+- A film that stops for a network drop picks up where it stopped with Try again; it no longer starts over. A TV channel tries again by itself after 3, 10 and 30 seconds, and anything that stopped tries again when the network comes back. After a long call, a channel comes back at the live point.
+- TV lists: a magnifier finds a channel by name across all groups. Logos that didn't load get another chance when the list opens.
+- A page that didn't load for want of signal says so and reloads by itself when the network is back.
+- Links that open an app (YouTube's and Twitch's "open in the app", phone numbers, store links): a web page to fall back on opens instead, a phone number asks to call it, and the others say they open an app on the phone - no more error page.
+- The car's keyboard reaches fields already selected when the page loaded and fields inside web components, and the field moves into view above the keyboard.
+
+## On the phone
+- Removing the certificates, Plancia's account or Xonos's account asks first, and says what happens (the certificates need the internet to come back).
+- Cinema: resetting the list of sites asks first and says which of yours go; the button shows only when there's something to reset.
+- Calendar, Notifications and the call filter: when Android no longer asks, the button opens the right page of Android's settings instead of doing nothing.
+- Connect wirelessly says when Bluetooth is off, instead of "not paired with anything".
+- The connection card speaks of the car, not of the "head unit" ("Connected", "The car didn't answer").
+- The phone's screen stays on only while a car connects or shows myCar: left open after a drive, it stayed lit in the pocket.
+- Clearer messages when an update can't download; the Plancia and Xonos rows update after installing or updating those apps; "Your car turned down your certificate" opens Settings at the certificate; a few wrong texts fixed.
+
+## Also in 0.5.19-alpha
 - A new app in the grid: your video sites as tiles, each with the icon it gives itself - YouTube, RaiPlay and Twitch to start with, and any you add on the phone (Settings > Cinema, where More sites adds Dailymotion, Vimeo, La7, TED, Arte, NASA+ and the Internet Archive with a tap). Each opens in a browser made for video: full screen when the player asks for it, the car's keyboard for searching.
 - On this phone: the videos on your phone, newest first, with their pictures and lengths. They start again where you left them. Allow it once, on the phone or from the car.
 - TV: add an IPTV list (M3U) in Settings > Cinema: TV - from your provider, a public list or a TV server at home - and its channels show with their logos and groups. The list is kept on the phone, so the channels are there even when its server doesn't answer.
 - Phone videos and TV play on Android's own player, with nothing extra to install: tap for the controls (back 10 seconds, play or pause, forward 10 seconds).
 - Video shows only when the car is parked: while it moves the picture is covered and the sound carries on. That's a setting, on by default, which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN) most likely stays black in the car.
-
-## Pages beside the map
 - Beside two halves and four parts, a page can now be a whole page, a half beside two quarters (on either side), or a wide strip above or below two quarters. On the page, the pencil, then Layout: each layout is shown as a picture.
 - What the page shows stays, in order, as far as the new layout has room.
-
-## Fixes from a sweep through the code
 - Vela Maps: the turn arrow changes with the turn again, on the routing card, in the "then" row and in the dock (it kept the first arrow, "continue").
 - A dropdown on a web page - in the browser, in Plancia, on a Cinema site - no longer closes myCar (and the drive with it). It doesn't open on the car's screen.
 - Cars that never confirm the audio they get (some 2024 Volkswagens among them) no longer lose about two seconds of sound at the start of the music, after every call, when the radio gives the speakers back, and in the middle of every spoken direction.

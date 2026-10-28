@@ -11,6 +11,18 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            33, "0.5.20-alpha",
+            listOf(
+                "Dropdowns on web pages open in the car - in the browser, on Cinema's sites and in Plancia - as a list to tap.",
+                "The car's Back key goes back inside an app that shows its own back arrow, and closes what's open over a screen first.",
+                "Stop navigating takes two taps: the first turns it into End route.",
+                "A tap between the player's buttons beside the map no longer opens the full player, and the most used buttons are bigger.",
+                "Cinema: a film picks up where it stopped after a network drop, TV channels try again by themselves, and you can search a list for a channel.",
+                "The Bluetooth and location warnings wait until the car stops. Favourite contacts come first.",
+                "Smoother lists and pages: each touch keeps the time it arrived at.",
+            ),
+        ),
+        Release(
             32, "0.5.19-alpha",
             listOf(
                 "New: Cinema. Your video sites (YouTube, RaiPlay, Twitch and any you add on the phone), the videos on your phone, and TV channels from an IPTV list. Video shows only when the car is parked; the sound carries on.",

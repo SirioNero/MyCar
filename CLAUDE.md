@@ -168,7 +168,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `WebSelect` (menu a tendina delle pagine), `AppLinks` (link alle app nelle pagine), `TemplateBack` / `BackCloses` (tasto Indietro dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
@@ -634,6 +634,30 @@ Tutti i token in un solo posto, `car/design/`:
   l'auto mostra il suo schermo, una LOSS in ritardo che risponde al nostro RELEASE (solo dopo un
   riavvio dell'audio server), `drawWithCache` per gli sfondi. La correzione di `PcmOutput.DEAD` va
   portata anche nell'app Xonos.
+- **Setaccio 2** (0.5.20, branch `fix/bug-scan-4`): altre quattro letture (video e tocchi, schermo
+  dell'auto, app del telefono, browser/Cinema/Plancia), ogni segnalazione verificata prima. In auto:
+  **menu a tendina delle pagine** (`car/WebSelect.kt`: script in ogni pagina e frame con
+  `addDocumentStartJavaScript` + `addWebMessageListener` di androidx.webkit, che prende il `mousedown`
+  di un `<select>` (Blink apre lì il suo menu) e lo mostra come elenco sopra lo schermo dell'auto;
+  la scelta torna alla pagina con `input` e `change`; una pagina può chiedere solo subito dopo un
+  tocco o la manopola, `car/CarInput.kt`; scatto `browser-select` con "change Two" nel log); tasto
+  Indietro dell'auto all'app per auto che mostra la freccia (`car/TemplateBack.kt`) e prima ai
+  pannelli aperti (`car/BackCloses.kt`, CarUi); "Stop navigating" in due tocchi; il vetro del player
+  accanto alla mappa tiene i tocchi tra i tasti; tasti più grandi (Indietro 56 dp, player 52);
+  avvisi Bluetooth/posizione solo da fermi; rubrica che carica e preferiti in cima; accesso alle
+  notifiche aperto sull'interruttore di myCar (`notify/NotificationAccess.kt`); ora d'arrivo nei
+  tocchi (`ScreenProjector.dispatchTouch(at)`); livelli H.264 5–5.2 solo oltre 1080p. Cinema: niente
+  più chiusura di myCar se cade il processo delle pagine; film che riprende dopo un errore
+  (Android dice "finito" anche dopo un errore), canali che riprovano da soli; ricerca nelle liste
+  TV; link alle app (`car/AppLinks.kt`); campi già attivi e nei componenti web; pagina che si
+  ricarica al ritorno della rete. Telefono: conferme prima di togliere certificati/account/siti,
+  tasti che aprono le impostazioni quando Android non chiede più, schermo acceso solo col
+  collegamento, frasi senza "head unit", e altro (vedi note di rilascio). **Lasciati** per non
+  toccare come l'auto riceve l'immagine o perché incerti: GOP e ripetizione dell'ultimo fotogramma,
+  encoder nuovo senza rifare la UI, prima immagine anticipata, collegamento della mappa prima della
+  scansione delle app, SurfaceView per Cinema, video coperto in marcia (setSurface/INVISIBLE),
+  browser fermo fuori vista (YouTube si metterebbe in pausa); da decidere con l'utente: sfondo
+  animato nel dock accanto alla mappa, il nastro "YOUR CAR, YOUR PHONE" dell'intro (ereditato).
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial
