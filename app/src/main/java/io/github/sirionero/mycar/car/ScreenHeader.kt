@@ -29,7 +29,8 @@ fun ScreenHeader(title: String, modifier: Modifier = Modifier, trailing: @Compos
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", navigator::back)
+        // Bigger than the theme's 48 dp: the way out of every screen, reached for while driving.
+        GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", navigator::back, size = 56.dp, iconSize = 28.dp)
         Text(
             title,
             style = MaterialTheme.typography.headlineSmall,

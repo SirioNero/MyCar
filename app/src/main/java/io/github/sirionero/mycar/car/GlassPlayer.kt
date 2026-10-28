@@ -129,7 +129,7 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                     Icons.Filled.Close, "Close the player", navigator::closeSidePanel,
                     Modifier.align(Alignment.TopEnd).padding(10.dp),
                     colors = GsColors(Color.Black.copy(alpha = 0.4f), Color.White),
-                    size = 44.dp, iconSize = 22.dp, shape = CircleShape,
+                    size = 52.dp, iconSize = 24.dp, shape = CircleShape,
                 )
                 Column(
                     Modifier

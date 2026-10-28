@@ -187,7 +187,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                             "Search ${app.label}",
                             { searching = true },
                             colors = GsColors(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA), MaterialTheme.colorScheme.onSurface),
-                            size = 44.dp,
+                            size = 52.dp,
                             shape = MaterialTheme.shapes.large,
                         )
                     }
@@ -218,7 +218,7 @@ private fun AppIdentity(app: MediaApp, onExit: () -> Unit, modifier: Modifier = 
     val icon = remember(app) { findEntry(app.component.flattenToString())?.icon }
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         GsIconButton(
-            Icons.Filled.ArrowBack, "Back", onExit, size = 44.dp,
+            Icons.Filled.ArrowBack, "Back", onExit, size = 52.dp,
             colors = GsColors(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA), MaterialTheme.colorScheme.onSurface),
         )
         Spacer(Modifier.width(14.dp))
@@ -374,7 +374,7 @@ private fun MediaTab(label: String, selected: Boolean, modifier: Modifier, onCli
     val tint = MaterialTheme.colorScheme.onSurface
     Box(
         modifier
-            .height(44.dp)
+            .height(52.dp)
             .clip(CircleShape)
             .background(tint.copy(alpha = if (selected) 0.24f else 0.08f))
             .clickable(onClick = onClick),
