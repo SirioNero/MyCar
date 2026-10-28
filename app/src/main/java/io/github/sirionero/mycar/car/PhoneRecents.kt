@@ -297,6 +297,18 @@ internal fun callBackMissed(context: Context, postedAt: Long, otherwise: () -> U
     }
 }
 
+/**
+ * Who the missed call of a popup [postedAt] was from, by the call log: dialers word their card
+ * differently ("Missed call" over the name, or the name over it) and in every language. Null when
+ * the log can't say.
+ */
+internal suspend fun missedCaller(context: Context, postedAt: Long): String? {
+    val call = withContext(Dispatchers.IO) { loadRecents(context.applicationContext, grouped = false) }
+        .firstOrNull { it.kind == RecentKind.MISSED } ?: return null
+    if (abs(call.at - postedAt) > SAME_CALL_MS) return null
+    return call.name ?: call.number.takeIf { it.isNotBlank() }?.let(::shownNumber) ?: "a private number"
+}
+
 /** A missed call's popup and its row in the log are this close, at most. */
 private const val SAME_CALL_MS = 10 * 60_000L
 

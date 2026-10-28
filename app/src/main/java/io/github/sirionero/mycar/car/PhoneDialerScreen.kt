@@ -167,6 +167,11 @@ private val NARROW_PHONE = 600.dp
  */
 private var lastTab: Int? = null
 
+/** The Phone, next time it opens, on Recents: where a missed call that can't be called back from its card is. */
+internal fun openPhoneOnRecents() {
+    lastTab = TAB_RECENTS
+}
+
 /** Dialing a number or calling a contact from the car screen: recent calls, contacts and a keypad. */
 @Composable
 fun PhoneDialerScreen() {

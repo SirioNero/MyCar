@@ -40,9 +40,10 @@ object AssistantCommands {
         stopRouteCommand(heard)?.let { return it }
         // Before "play X": "play my messages" isn't a song.
         messageCommand(heard)?.let { return it }
-        // Before the music's words: "when do I get to the next exit" isn't "next".
-        if (ETA.containsMatchIn(heard)) return arrival()
         playSearchCommand(context, navigator, heard)?.let { return it }
+        // After "play X" ("play ETA" is a song), before the music's words: "when do I get to the
+        // next exit" isn't "next". Not for a person: "call Eta".
+        if (ETA.containsMatchIn(heard) && CALL_TRIGGERS.none { heard.startsWith(it) }) return arrival()
         mediaCommand(heard)?.let { return it }
         navCommand(navigator, heard)?.let { return it }
         infoCommand(heard)?.let { return it }
@@ -284,7 +285,7 @@ object AssistantCommands {
         val media = CarServices.media
         val none = CarServices.noMusicApp()
         return when {
-            "pause" in heard || heard.startsWith("stop") || heard == "quiet" || heard == "shut up" -> {
+            ("pause" in heard && "unpause" !in heard) || heard.startsWith("stop") || heard == "quiet" || heard == "shut up" -> {
                 media.pause()
                 VoiceFocus.afterRelease { media.pause() }
                 "Paused."
@@ -464,7 +465,8 @@ object AssistantCommands {
         val ofType = wanted?.let { w -> matches.firstOrNull { it.type == w } }
         if (wanted != null && ofType == null) {
             // Not that one on record: another, but asked first.
-            val other = matches.firstOrNull { it.primary } ?: match
+            val other = matches.firstOrNull { it.primary }
+                ?: matches.firstOrNull { it.type == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE } ?: match
             CallPrompt.ask(listOfNotNull(other.name, other.typeLabel).joinToString(" · "), other.number)
             return "${match.name} has no $typeWord number. Call ${other.typeLabel?.lowercase() ?: "the other one"} instead?"
         }

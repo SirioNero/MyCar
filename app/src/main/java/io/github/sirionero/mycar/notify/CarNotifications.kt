@@ -48,6 +48,8 @@ data class CarNotification(
     val shownAt: Long = 0L,
     /** The phone's "missed call": the popup offers to call back, and it's read as one. */
     val missedCall: Boolean = false,
+    /** Posted by the phone's own dialer (or Telecom): its call is in the call log, unlike a VoIP app's. */
+    val fromPhone: Boolean = false,
 )
 
 /**

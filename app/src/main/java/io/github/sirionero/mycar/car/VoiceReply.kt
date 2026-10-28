@@ -10,7 +10,11 @@ import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -69,6 +73,7 @@ object VoiceReply {
     val state: StateFlow<State> = _state
 
     private val main = Handler(Looper.getMainLooper())
+    private val lookups = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var appContext: Context? = null
     private var run = 0
 
@@ -80,6 +85,17 @@ object VoiceReply {
     fun read(n: CarNotification, thenAsk: Boolean = false) {
         val id = begin(State(Phase.READING, n))
         CarNotifications.seen(n.key)
+        val context = appContext
+        if (n.missedCall && n.fromPhone && context != null) {
+            // Who, from the call log: the card says it in the dialer's own words and language
+            // ("Chiamata persa" over the name read as "Missed call from Chiamata persa").
+            lookups.launch {
+                val who = missedCaller(context, n.postedAt)
+                if (id != run) return@launch
+                CarAssistant.say(if (who != null) "Missed call from $who." else spoken(n)) { if (id == run) finish() }
+            }
+            return
+        }
         CarAssistant.say(spoken(n)) {
             if (id != run) return@say
             when {

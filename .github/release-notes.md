@@ -9,7 +9,7 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 
 ## In the car
 - After a tap on Reply, myCar reads the message and asks straight away for your reply: no more "Do you want to reply?" to answer first.
-- Missed calls pop up, with Call back, on phones whose dialer doesn't mark them as missed calls (LineageOS and other ROMs). Call back calls that very call: after a private number it opens Recents instead.
+- Missed calls pop up, with Call back, on phones whose dialer doesn't mark them as missed calls (LineageOS and other ROMs). Call back calls that very call: after a private number it opens Recents instead. Read says who called, whatever the phone's language.
 - The dot on the dock's clock goes off once a message is read aloud, answered or seen in its app, not only when the dashboard opens.
 - The assistant's errors ("Didn't catch that") go by themselves after a few seconds instead of covering the map; on a phone without a speech engine its answers stay up long enough to read. A "play X" the music app ignored is said outside the player too.
 - No more dead ends: an app beside the map that wouldn't start gets Try again and Close, a music list that didn't load gets Try again, a music app that won't be browsed gets Open on the phone, and a search that found nothing gets "Ask the app to play it".

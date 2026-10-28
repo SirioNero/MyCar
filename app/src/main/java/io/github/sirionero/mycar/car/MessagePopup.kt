@@ -120,14 +120,17 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
                     ReplyGlyph(Modifier.size(20.dp))
                     Text("Reply", Modifier.padding(start = 8.dp))
                 }
-            } else if (n.missedCall) {
+            } else if (n.missedCall && n.fromPhone) {
                 // Calling back is what a missed call is for: from the call log, or the Phone's
                 // Recents when the log can't say which number it was.
                 GsButton(
                     onClick = {
                         CarNotifications.seen(n.key)
                         CarNotifications.dismissPopup(n.id)
-                        callBackMissed(context, n.postedAt) { BuiltInApps.Phone.open(navigator) }
+                        callBackMissed(context, n.postedAt) {
+                            openPhoneOnRecents()
+                            BuiltInApps.Phone.open(navigator)
+                        }
                     },
                     modifier = Modifier.weight(1f),
                 ) {
