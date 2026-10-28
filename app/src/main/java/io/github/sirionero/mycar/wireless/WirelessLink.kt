@@ -444,9 +444,12 @@ object WirelessLink {
                 if (main != null && attempt == 0) log.i("TCP: the phone's main Wi-Fi is on the car's network, using it")
                 // Once Android has refused a bind - a VPN that apps can't get past, like Tailscale,
                 // refuses one to the main Wi-Fi as well - the ordinary route is the only one left.
+                // Every other try goes over the car's own network all the same: a home Wi-Fi with
+                // addresses like the car's (both 192.168.1.x) looked like the car's to the test above,
+                // and every try went there.
                 val socket = when {
                     lostNetwork == net || bindRefused -> Socket()
-                    main != null -> main.socketFactory.createSocket()
+                    main != null && attempt % 2 == 0 -> main.socketFactory.createSocket()
                     else -> net.socketFactory.createSocket()
                 }
                 socket.tcpNoDelay = true
