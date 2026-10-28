@@ -394,7 +394,12 @@ object SpeechEngine {
             MediaRecorder.AudioSource.VOICE_RECOGNITION, RATE,
             AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, max(min, CHUNK * 4),
         )
-        check(recorder.state == AudioRecord.STATE_INITIALIZED) { "AudioRecord didn't initialize" }
+        // Let go at once when it can't start (the microphone taken): left to the garbage collector,
+        // each press of the voice key held another one.
+        if (recorder.state != AudioRecord.STATE_INITIALIZED) {
+            recorder.release()
+            error("AudioRecord didn't initialize")
+        }
         recorder.startRecording()
         MyCarLog.i("speech: listening through the phone's microphone")
         return object : Mic {
