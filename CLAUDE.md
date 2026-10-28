@@ -305,6 +305,11 @@ Tutti i token in un solo posto, `car/design/`:
   avanza; accanto alla mappa la scelta fatta con l'app passa a lui. L'uscita diretta verso l'auto
   ha solo i test (`DirectFeedTest`): l'emulatore non ha un canale Android Auto. Lo scatto ferma la
   musica alla fine: una volta l'emulatore è caduto un minuto dopo, con l'album ancora in corso.
+  **Music Assistant sul telefono** (Xonos con il server, ramo `claude/server-ma` di Xonos): l'account che
+  l'app Xonos passa a myCar punta a `127.0.0.1:8095`, e quel server vive dentro l'app Xonos. Allora le
+  connessioni di Xonos integrato passano sempre dal ponte (`Bridges.through`, `onThePhone`): il legame
+  sveglia l'app (che riavvia il suo server) e la tiene sveglia per il viaggio; myCar riprova finché il
+  server non risponde (al primo avvio una quindicina di secondi).
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
