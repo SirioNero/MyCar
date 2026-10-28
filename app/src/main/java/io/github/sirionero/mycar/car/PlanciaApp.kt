@@ -116,7 +116,8 @@ private fun connectingHint(context: Context, url: String): String? = when {
 
 /** What to say over the page while it can't show, as a title and a line; null once it shows. */
 private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, blocked: String?): Pair<String, String?>? = when {
-    connection is HaConnection.NotConfigured ->
+    // Not "not configured" only because the drive's connection hasn't started yet.
+    connection is HaConnection.NotConfigured && !HomeAssistant.config.value.isComplete ->
         "Set up Plancia on the phone" to "In myCar on the phone: Settings, then Plancia - your Home Assistant's address and a token."
     // Set up, but the dashboard is made a moment after the car connects (PLANCIA_AFTER_MS).
     page == null -> "Connecting to Home Assistant" to null
