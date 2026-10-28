@@ -70,6 +70,9 @@ object CarNotifications {
     private val _unread = MutableStateFlow(0)
     val unread: StateFlow<Int> = _unread.asStateFlow()
 
+    /** The chats behind the dot: something new the driver hasn't looked at, heard or answered. */
+    private val unreadKeys = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+
     /** True while the system has bound the listener - i.e. the user has granted access. */
     private val _listening = MutableStateFlow(false)
     val listening: StateFlow<Boolean> = _listening.asStateFlow()
@@ -101,8 +104,13 @@ object CarNotifications {
         val echo = notification.key == lastReplyKey &&
             System.currentTimeMillis() - lastReplyAt < ECHO_WINDOW_MS
         if (quiet || echo || nothingNew) return
-        // The dot on the dock's clock: it's cleared once the notifications screen is open.
-        _unread.update { it + 1 }
+        // The dot on the dock's clock, until it's seen: the notifications screen, read aloud,
+        // answered, or its app's messages screen (see seen). It used to stay after all but the first.
+        unreadKeys.add(notification.key)
+        // A chat gone from the history (it only keeps the latest) can't be seen any more.
+        val kept = _history.value.map { it.key }.toSet()
+        unreadKeys.retainAll(kept)
+        _unread.value = unreadKeys.size
         val now = android.os.SystemClock.uptimeMillis()
         _popup.update { shown ->
             if (shown?.key == notification.key) {
@@ -138,13 +146,28 @@ object CarNotifications {
 
     /** Called while the notification screen is showing: nothing is unread there. */
     fun markRead() {
+        unreadKeys.clear()
         _unread.value = 0
         _popup.value = null
+    }
+
+    /** [key] read aloud, answered or marked read: it no longer keeps the dot on. */
+    fun seen(key: String) {
+        unreadKeys.remove(key)
+        _unread.value = unreadKeys.size
+    }
+
+    /** An app's messages screen is up: its chats are being looked at. */
+    fun seenFrom(packageName: String) {
+        val keys = _history.value.filter { it.packageName == packageName }.map { it.key }.toSet()
+        unreadKeys.removeAll(keys)
+        _unread.value = unreadKeys.size
     }
 
     fun clear() {
         _history.value = emptyList()
         _popup.value = null
+        unreadKeys.clear()
         _unread.value = 0
         dismissed.clear()
     }
@@ -158,6 +181,7 @@ object CarNotifications {
         return try {
             action.actionIntent.send(context, 0, Intent())
             _history.update { list -> list.map { if (it.key == notification.key) it.copy(read = true, markRead = null) else it } }
+            seen(notification.key)
             true
         } catch (e: PendingIntent.CanceledException) {
             MyCarLog.w("notify: ${notification.appLabel} withdrew its mark-as-read")

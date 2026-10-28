@@ -79,6 +79,7 @@ object VoiceReply {
     /** Reads [n]'s newest messages aloud; [thenAsk] (Reply was tapped): then straight to the reply. */
     fun read(n: CarNotification, thenAsk: Boolean = false) {
         val id = begin(State(Phase.READING, n))
+        CarNotifications.seen(n.key)
         CarAssistant.say(spoken(n)) {
             if (id != run) return@say
             when {
@@ -294,6 +295,7 @@ object VoiceReply {
         CarAssistant.stopSpeaking()
         if (CarNotifications.reply(context, n, s.heard.trim())) {
             MyCarLog.i("voice reply: sent to ${n.appLabel}")
+            CarNotifications.seen(n.key)
             CarAssistant.say("Message sent.") {}
             CarNotifications.dismissPopup(n.id)
             _state.value = s.copy(phase = Phase.SENT, until = SystemClock.uptimeMillis() + SENT_MS, span = SENT_MS, held = 0f)

@@ -61,7 +61,10 @@ fun MessagesScreen(packageName: String) {
     val label = entry?.label ?: history.firstOrNull { it.packageName == packageName }?.appLabel ?: "Messages"
     val threads = history.filter { it.packageName == packageName }
 
-    LaunchedEffect(history) { CarNotifications.dismissPopupFrom(packageName) }
+    LaunchedEffect(history) {
+        CarNotifications.dismissPopupFrom(packageName)
+        CarNotifications.seenFrom(packageName)
+    }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
