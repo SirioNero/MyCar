@@ -182,6 +182,12 @@ object CarServices {
         val live = phase == CarMedia.Phase.READY || phase == CarMedia.Phase.CONNECTING
         if (_mediaApp.value?.component == app.component && live) return
 
+        // Xonos inside myCar, left for another music app: paused here. Without the audio focus
+        // (refused in the background on Android 17) nothing else tells it, and straight into the
+        // car's channel it kept the car's sound from the new app.
+        val previous = _mediaApp.value
+        if (previous != null && Xonos.isInside(previous.component) && media.now.value.playing) media.togglePlay()
+
         _mediaApp.value = app
         autoplayPending = autoplay
         media.connect(app)
