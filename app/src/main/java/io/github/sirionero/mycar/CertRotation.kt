@@ -60,6 +60,14 @@ object CertRotation {
         setNotice(context, Notice(CertRotationPolicy.Notice.NONE))
     }
 
+    /** The driver picked [id] in Settings: in use from now, and every certificate may be tried again. */
+    @Synchronized
+    fun choose(context: Context, id: String) {
+        CertCatalog.activate(context, id)
+        write(context, CertRotationPolicy.startOver(read(context)))
+        setNotice(context, Notice(CertRotationPolicy.Notice.NONE))
+    }
+
     /**
      * After the spare is downloaded: the first certificate on the phone the car hasn't turned down
      * goes in use. Returns its id, or null when there's none.

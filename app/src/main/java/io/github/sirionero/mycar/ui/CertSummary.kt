@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.ui
 
 import android.content.Context
+import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
 import java.text.DateFormat
 import java.util.Date
@@ -12,6 +13,8 @@ data class CertSummary(
     val subject: String?,
     val issuer: String?,
     val validUntil: String?,
+    /** Which certificate of [CertCatalog] it is, when it's one of them. */
+    val catalogId: String? = null,
 ) {
     companion object {
         /**
@@ -32,7 +35,8 @@ data class CertSummary(
                     null, null, null,
                 )
             val cert = identity.certificate
-            val name = friendlyName(cert.subjectX500Principal.name)
+            val catalogId = CertCatalog.idOf(cert)
+            val name = catalogId?.let { CertCatalog.entry(it)?.label } ?: friendlyName(cert.subjectX500Principal.name)
             val prefix = when (identity.kind) {
                     CertProvider.Kind.IMPORTED -> "Imported"
                     CertProvider.Kind.DOWNLOADED -> "Downloaded"
@@ -45,6 +49,7 @@ data class CertSummary(
                 cert.subjectX500Principal.name,
                 cert.issuerX500Principal.name,
                 DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(cert.notAfter.time)),
+                catalogId,
             )
         }
 
