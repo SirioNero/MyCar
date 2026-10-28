@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.car.InsideOrApp
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
 import io.github.sirionero.mycar.xonos.data.Account
@@ -54,6 +55,7 @@ internal fun XonosSection() {
     val setUp by Xonos.setUp.collectAsState()
     LaunchedEffect(Unit) { XonosAccount.adoptIfUnset(context) }
     val saved = remember(setUp) { Xonos.settings.load() }
+    val xonosThere = remember { InsideOrApp.xonosAppThere(context) }
     var home by rememberSaveable(saved) { mutableStateOf(saved.homeUrl) }
     var remote by rememberSaveable(saved) { mutableStateOf(saved.remoteUrl) }
     var username by rememberSaveable(saved) { mutableStateOf(Xonos.settings.username.orEmpty()) }
@@ -91,6 +93,7 @@ internal fun XonosSection() {
             "its music goes straight to the car, and Android doesn't ask to share the audio while you listen to it.",
     ) {
         if (setUp) LocalNetworkRow(saved.urls)
+        if (setUp) TailscaleCableRow(saved.urls, "Music Assistant", "Xonos", xonosThere)
         if (xonosApp) {
             SettingsRow(
                 "Use the Xonos app's account",
