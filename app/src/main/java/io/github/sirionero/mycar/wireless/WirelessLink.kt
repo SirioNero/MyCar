@@ -108,10 +108,12 @@ object WirelessLink {
     fun start(context: Context, device: BluetoothDevice) {
         stop(context)
         val app = context.applicationContext
+        // Taken here, not in the thread: a start-up stopped before its thread ran is old already.
+        val mine = startRun
         worker = Thread({
             // A test feature: anything unexpected ends the attempt, not the app.
             try {
-                run(app, device)
+                run(app, device, mine)
             } catch (e: Exception) {
                 log.e("wireless start-up failed", e)
                 SessionStatus.failed("Wireless start-up failed", "${e.javaClass.simpleName}: ${e.message}")
@@ -163,8 +165,7 @@ object WirelessLink {
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "mycar"
 
     @SuppressLint("MissingPermission")
-    private fun run(context: Context, device: BluetoothDevice) {
-        val mine = startRun
+    private fun run(context: Context, device: BluetoothDevice, mine: Int) {
         val name = name(device)
         log.i("--- wireless start-up with $name (${device.address}) ---")
         SessionStatus.connecting("Bluetooth: reaching $name")
@@ -185,7 +186,9 @@ object WirelessLink {
             // Most factory head units publish no service of their own: they look for the phone's
             // and connect to it, so wait for the car instead.
             log.i("Bluetooth: $name has no Android Auto service to call (${e.message}); waiting for it to call us")
-            waitForCar(context, name) ?: return
+            // Replaced while its connect hung: the newer start-up does the waiting.
+            if (mine != startRun) return
+            waitForCar(context, name, mine) ?: return
         }
         if (mine != startRun) {
             log.i("Bluetooth: a newer start-up took over - closing this one's channel")
@@ -279,8 +282,9 @@ object WirelessLink {
      * Bluetooth, so the driver may have to reconnect the phone from the car's menu.
      */
     @SuppressLint("MissingPermission")
-    private fun waitForCar(context: Context, name: String): BluetoothSocket? {
+    private fun waitForCar(context: Context, name: String, mine: Int): BluetoothSocket? {
         val adapter = context.getSystemService(BluetoothManager::class.java)?.adapter ?: return null
+        if (mine != startRun) return null
         val server = try {
             adapter.listenUsingRfcommWithServiceRecord("Android Auto", AA_UUID)
         } catch (e: Exception) {
@@ -289,6 +293,12 @@ object WirelessLink {
             return null
         }
         listener = server
+        // Stopped in the moment it took to publish: stop() found nothing to close yet.
+        if (mine != startRun) {
+            runCatching { server.close() }
+            if (listener === server) listener = null
+            return null
+        }
         SessionStatus.connecting("Waiting for $name. If nothing happens, disconnect the phone in the car's Bluetooth menu and connect it again")
         log.i("Bluetooth: Android Auto service published, waiting ${LISTEN_MS / 1000}s for $name")
         return try {
@@ -297,7 +307,8 @@ object WirelessLink {
                 log.i("Bluetooth: $from connected to the Android Auto service")
             }
         } catch (e: IOException) {
-            if (listener == null) return null // stopped
+            // Stopped, or replaced by a newer start-up: that one says what's going on.
+            if (mine != startRun || listener !== server) return null
             log.w("Bluetooth: no car connected within ${LISTEN_MS / 1000}s (${e.message})")
             SessionStatus.failed(
                 "Car didn't connect over Bluetooth",
