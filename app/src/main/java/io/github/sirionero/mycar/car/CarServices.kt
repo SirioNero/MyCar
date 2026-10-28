@@ -343,7 +343,9 @@ object CarServices {
             null
         }
         if (playing == null) {
-            // No notification access: the app myCar itself is driving is all it can reach.
+            // No notification access: the app myCar itself is driving is all it can reach - unless
+            // it's the one kept (Xonos inside myCar, which screen sharing doesn't silence).
+            if (keep != null && _mediaApp.value?.component?.packageName == keep) return
             mediaOrNull()?.let { if (it.now.value.playing) it.togglePlay() }
             return
         }
