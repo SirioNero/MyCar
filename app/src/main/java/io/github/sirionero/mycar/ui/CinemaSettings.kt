@@ -45,6 +45,7 @@ internal fun CinemaSection() {
     val sites by Cinema.sites.collectAsState()
     val parkedOnly by Cinema.parkedOnly.collectAsState()
     var warning by remember { mutableStateOf(false) }
+    var resetAsk by remember { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
     val askLocalNetwork = rememberLocalNetworkAsk()
@@ -109,10 +110,37 @@ internal fun CinemaSection() {
                     // Only an address with a host: "my site" made a tile with no name that opened nothing.
                     enabled = CinemaSite("", Cinema.normalizeUrl(address)).host.isNotEmpty(),
                 ) { Text("Add the site") }
-                TextButton(onClick = { Cinema.backToSuggested() }) { Text("Suggested sites") }
+                // The chips below add back a suggested site that's missing; this only ever takes
+                // the driver's own sites away, so it asks first.
+                if (sites != Cinema.SUGGESTED) {
+                    TextButton(onClick = { resetAsk = true }) { Text("Reset the list") }
+                }
             }
         }
         MoreSitesRow()
+    }
+
+    if (resetAsk) {
+        val own = sites.filter { site -> Cinema.SUGGESTED.none { it.url == site.url } }
+        AlertDialog(
+            onDismissRequest = { resetAsk = false },
+            title = { Text("Back to the suggested sites?") },
+            text = {
+                Text(
+                    "Cinema goes back to ${Cinema.SUGGESTED.joinToString { it.name }}." +
+                        if (own.isEmpty()) "" else " Your own sites leave it: ${own.joinToString { it.name }}.",
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    Cinema.backToSuggested()
+                    resetAsk = false
+                }) { Text("Reset") }
+            },
+            dismissButton = {
+                TextButton(onClick = { resetAsk = false }) { Text("Cancel") }
+            },
+        )
     }
 
     if (warning) {
