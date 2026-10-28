@@ -11,6 +11,13 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            30, "0.5.17-alpha",
+            listOf(
+                "No Music Assistant at home? The Xonos app can now be one, on the phone itself: Xonos inside myCar plays from it, wirelessly too.",
+                "myCar wakes the Xonos app and its server as the drive starts. The first start takes a few seconds, and the car says so.",
+            ),
+        ),
+        Release(
             29, "0.5.16-alpha",
             listOf(
                 "Plancia and Xonos now work wirelessly with Tailscale too: with myCar left out of Tailscale, they reach your servers through the Plancia and Xonos apps on the phone, which stay inside it.",

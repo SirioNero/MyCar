@@ -28,6 +28,10 @@ on:
         description: "The Xonos app built from this branch of its own, not its latest release (the bridge shots)"
         required: false
         default: ""
+      xonos_server:
+        description: "With xonos_ref: also Music Assistant for the phone, the package Xonos downloads (any text; the phone-xonos shot)"
+        required: false
+        default: ""
 
 jobs:
   preview:
@@ -68,6 +72,14 @@ jobs:
           [ -n "$vela" ] && get vela.apk "$vela"
           ls -l third-party
 
+      # Music Assistant for the phone packs a Python 3.13 (Chaquopy), which wants the same one on the
+      # machine that builds it.
+      - name: Python 3.13 for Music Assistant on the phone
+        if: inputs.xonos_server != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
       # The Plancia and Xonos apps from a branch of theirs, when asked: what myCar does with them
       # that no release has yet - the bridge shots, myCar's connections through them.
       - name: Build the Plancia and Xonos apps from their branches
@@ -75,6 +87,7 @@ jobs:
         env:
           PLANCIA_REF: ${{ inputs.plancia_ref }}
           XONOS_REF: ${{ inputs.xonos_ref }}
+          XONOS_SERVER: ${{ inputs.xonos_server }}
         run: bash .github/build-apps.sh
 
       # Plancia's shots run against a Home Assistant of the run's own, in Docker beside the
@@ -110,6 +123,7 @@ jobs:
           ONLY: ${{ inputs.shots }}
           PLANCIA_REF: ${{ inputs.plancia_ref }}
           XONOS_REF: ${{ inputs.xonos_ref }}
+          XONOS_SERVER: ${{ inputs.xonos_server }}
         with:
           api-level: ${{ inputs.api || 34 }}
           arch: x86_64

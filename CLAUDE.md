@@ -106,6 +106,15 @@ Rispondi sempre in **italiano**.
   ferma i demoni di Gradle e Kotlin: con quella memoria occupata l'emulatore cadeva con Xonos che
   suonava. Un emulatore caduto non blocca più la corsa: adb si arrende dopo 3 minuti, il log di ogni
   scatto resta in `stream.txt`, gli scatti si pubblicano comunque.
+  Con `xonos_server` (e `xonos_ref`) `build-apps.sh` costruisce anche il pacchetto di Music Assistant per
+  il telefono che Xonos scarica su richiesta (modulo `:server` + `make_payload.py` di Xonos, solo x86_64:
+  Python 3.13 sul runner, FFmpeg e librespot compilati con NDK e Rust, una ventina di minuti), firmato
+  con una chiave usa e getta che firma anche la build di Xonos (Xonos usa solo un pacchetto firmato come
+  lui), in `third-party/xonos-server/`; lo scatto lo serve all'emulatore con un server HTTP sul runner
+  (`10.0.2.2:8000`, file `files/server-package-url` di Xonos). Lo scatto `phone-xonos` prova Xonos
+  integrato sul Music Assistant del telefono: `ServerCheckActivity --ez xonos true` di Xonos scarica il
+  pacchetto e prepara server, account e album di toni, poi myCar con `--es maUrl http://127.0.0.1:8095` e
+  il token di Xonos; lo scatto parte con Xonos fermo, che il ponte risveglia.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Prova della release in CI: il workflow **Release check** (`.github/workflows/release-check.yml` +
   `.github/release-check.sh`, `.github/tailscale.sh`) installa una release pubblicata (o il branch
@@ -305,6 +314,20 @@ Tutti i token in un solo posto, `car/design/`:
   avanza; accanto alla mappa la scelta fatta con l'app passa a lui. L'uscita diretta verso l'auto
   ha solo i test (`DirectFeedTest`): l'emulatore non ha un canale Android Auto. Lo scatto ferma la
   musica alla fine: una volta l'emulatore è caduto un minuto dopo, con l'album ancora in corso.
+  **Music Assistant sul telefono** (Xonos con il server, ramo `claude/server-ma` di Xonos): l'account che
+  l'app Xonos passa a myCar punta a `127.0.0.1:8095`, e quel server vive dentro l'app Xonos. Allora le
+  connessioni di Xonos integrato passano sempre dal ponte (`Bridges.through`, `onThePhone`): il legame
+  sveglia l'app (che riavvia il suo server) e la tiene sveglia per il viaggio; myCar riprova finché il
+  server non risponde (al primo avvio una quindicina di secondi).
+  Il ripiego sull'app (`InsideOrApp`) qui non scatta: l'app suonerebbe dallo stesso server, che un'app appena
+  risvegliata fa partire in una quindicina di secondi; il ponte lo dice ("on this phone is still starting").
+  Verificato (scatto `phone-xonos`, Xonos da `claude/server-ma` con il server): myCar sveglia l'app Xonos, si
+  collega dopo 6 s attraverso il ponte e suona l'album dal Music Assistant del telefono. Di nuovo con Xonos 0.1.42,
+  che il server lo scarica come pacchetto e lo avvia come processo a sé: Xonos scarica il pacchetto dal runner e
+  suona; poi myCar sveglia l'app Xonos, che avvia Music Assistant, dice "still starting" e riprova, si collega
+  attraverso il ponte dopo circa 14 s e Music Assistant suona sul lettore "myCar". Subito dopo l'emulatore è
+  caduto: le immagini dello scatto mancano, il log è in `stream.txt`.
+
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre

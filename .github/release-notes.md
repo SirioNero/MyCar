@@ -1,6 +1,11 @@
-myCar 0.5.16-alpha: Plancia and Xonos wirelessly, with Tailscale too.
+myCar 0.5.17-alpha: Xonos with Music Assistant on the phone itself.
 
-## Plancia and Xonos with Tailscale
+## Music Assistant on the phone
+- No Music Assistant at home? Xonos 0.1.42 or later can run one on the phone itself: in the Xonos app, Settings > Make Xonos your Music Assistant server. In myCar, Settings > Xonos > Use the Xonos app's account brings it over, as with any Music Assistant (the first time it comes over by itself).
+- Xonos inside myCar reaches that server through the Xonos app, the same way as with Tailscale: as the drive starts, myCar wakes the app, and the app starts its server. The first start takes a few seconds: the car says the server is still starting, and myCar keeps trying.
+- With the server on the phone, the Xonos app doesn't take Xonos's place in the car when it can't connect: it would play from the same server.
+
+## Also in 0.5.16-alpha
 - To connect wirelessly with Tailscale on, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car's Wi-Fi), and then Plancia and Xonos inside myCar couldn't reach a Tailscale address such as http://umbrel:8123. Now they reach it through the Plancia and Xonos apps on the phone, which stay inside Tailscale: your dashboards, their controls and your music, wirelessly too.
 - Update the apps - Plancia (the latest release) and Xonos 0.1.40 or later - and keep them set to the same addresses as myCar. The apps open connections only for myCar, checked by its signature, and only to the server set up in them.
 - A home address works the same way away from home, through a Tailscale subnet route.

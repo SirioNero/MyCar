@@ -12,7 +12,8 @@ import java.net.InetAddress
  * Plancia app, Xonos's through the Xonos app. Only with myCar left out of the phone's VPN - as
  * Tailscale has to leave it for the car's Wi-Fi - and only to an address on the tailnet, or to a
  * home address while the phone is away from home (a Tailscale subnet route): everything else
- * goes the ordinary way.
+ * goes the ordinary way. And Xonos's always when its Music Assistant is the one on the phone itself,
+ * inside the Xonos app: the binding keeps the app, and the server with it, awake for the trip.
  */
 object Bridges {
 
@@ -35,8 +36,15 @@ object Bridges {
         val context = context ?: return false
         if (!bridge.available(context)) return false
         if (forced) return true
+        if (bridge === xonos && onThePhone(host)) return true
         if (Tailnet.reach(context) != Tailnet.Reach.VPN_LEAVES_MYCAR_OUT) return false
         return Tailnet.hostOnTailnet(context, host) || awayFromHome(context, host)
+    }
+
+    /** The phone itself: where the Xonos app with Music Assistant inside answers (127.0.0.1:8095). */
+    fun onThePhone(host: String): Boolean {
+        val name = host.removeSurrounding("[", "]").lowercase()
+        return name == "localhost" || name == "::1" || name.startsWith("127.")
     }
 
     /**

@@ -210,6 +210,43 @@ if [ -n "${PLANCIA_REF:-}${XONOS_REF:-}" ] && [ -n "$BRIDGE_SHOTS" ]; then
     done
 fi
 
+# Music Assistant on the phone, in the Xonos app (the workflow's xonos_server, with xonos_ref): the
+# package Xonos downloads when asked comes from the runner (third-party/xonos-server, made by
+# build-apps.sh), as it would from Xonos's release. Xonos's own debug check downloads it and sets the
+# server up (ServerCheckActivity: the account, an album of tones from its folder, a first track
+# played), then Xonos inside myCar runs on it, from the grid as in xonos-inside. 127.0.0.1 always
+# goes through the Xonos app (the bridge): the shot starts with Xonos stopped, and myCar's binding
+# wakes it, and its server with it.
+case " ${ONLY:-phone-xonos} " in *" phone-xonos "*) PHONE_XONOS=yes ;; *) PHONE_XONOS= ;; esac
+if [ -n "${XONOS_SERVER:-}" ] && [ -n "$PHONE_XONOS" ] && installed $XONOS && [ -f third-party/xonos-server/xonos-server-x86_64.zip ]; then
+    python3 -m http.server 8000 --bind 127.0.0.1 --directory third-party/xonos-server > /tmp/xonos-package.txt 2>&1 &
+    PACKAGE_SERVER=$!
+    python3 apps-src/xonos/tools/server/tones.py /tmp/tones >/dev/null
+    adb shell rm -rf /data/local/tmp/music
+    adb push /tmp/tones /data/local/tmp/music >/dev/null
+    adb shell run-as $XONOS mkdir -p files
+    adb shell run-as $XONOS cp -r /data/local/tmp/music files/
+    adb shell "echo http://10.0.2.2:8000/ | run-as $XONOS sh -c 'cat > files/server-package-url'"
+    adb logcat -c
+    adb shell am start -n $XONOS/.ServerCheckActivity --ez xonos true
+    checked=""
+    for _ in $(seq 1 120); do
+        checked=$(adb logcat -d -s XonosServer | grep -o "Xonos: \(suona=.*\|prova interrotta.*\|collegato al server sul telefono = false.*\)" | tail -n 1)
+        [ -n "$checked" ] && break
+        sleep 5
+    done
+    echo "--- Xonos with its own Music Assistant: ${checked:-no answer in 10 minutes} ---"
+    adb logcat -d -s XonosServer | grep -m 5 "Pacchetto" || true
+    kill "$PACKAGE_SERVER" 2>/dev/null || true
+    phone_token=$(adb shell run-as $XONOS cat shared_prefs/xonos.xml | sed -n 's/.*<string name="token">\([^<]*\)<.*/\1/p')
+    if [ -n "$phone_token" ]; then
+        LOGTAGS="Xonos XonosServer" EXTRA="--es maUrl http://127.0.0.1:8095 --es maToken $phone_token" \
+            shoot phone-xonos 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;1230,48;$WAIT;1300,565;$WAIT;1808,232;$WAIT;$WAIT;993,48;$WAIT;$WAIT;$WAIT"
+        echo "--- Xonos inside myCar on the phone's Music Assistant ---"
+        grep -h "Ponte per\|bridge\|xonos:\|Xonos" previews/phone-xonos/log.txt 2>/dev/null | head -60
+    fi
+fi
+
 # Android 17 (the workflow's "api" input at 37) keeps an app made for it, as myCar is, off the
 # home network until it's given the local network permission: its connections there time out, and
 # 10.0.2.2 is the home network here. Plancia and Xonos inside myCar with the permission taken away,

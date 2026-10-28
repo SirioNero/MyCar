@@ -96,7 +96,12 @@ class AppBridge(val packageName: String, private val label: String, private val 
                     when (code) {
                         NOT_MYCAR -> "it doesn't accept this myCar. Update the $label app."
                         NOT_OURS -> "it's set up with another address. Use the same address in myCar and in the $label app."
-                        NO_ANSWER -> "$server doesn't answer it either. Check that Tailscale is on, and $server is running."
+                        // On the phone itself the server is the app's own, which a woken app starts in a few seconds.
+                        NO_ANSWER -> if (Bridges.onThePhone(host)) {
+                            "$server on this phone is still starting. myCar keeps trying."
+                        } else {
+                            "$server doesn't answer it either. Check that Tailscale is on, and $server is running."
+                        }
                         else -> "no connection ($detail)."
                     },
                 ),
