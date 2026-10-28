@@ -377,8 +377,9 @@ private class Playback(private val context: Context, private val media: CinemaMe
         if (released || problem != null) return
         playing = false
         val at = runCatching { player.currentPosition.toLong() }.getOrDefault(positionMs)
-        if (!media.live && durationMs > 0 && at < durationMs - EARLY_END_MS) {
-            // Well before its end: the stream stopped coming, it didn't finish.
+        if (!media.live && media.uri.scheme?.startsWith("http") == true && durationMs > 0 && at < durationMs - EARLY_END_MS) {
+            // Well before its end: the stream stopped coming, it didn't finish. (A file on the
+            // phone ends where it ends: a recording cut short is not the connection's fault.)
             positionMs = at
             leave()
             problem = "It stopped before the end: check the phone's connection."
@@ -530,7 +531,7 @@ private const val SKIP_MS = 10_000L
 private const val TICK_MS = 500L
 private const val CONTROLS_MS = 4_000L
 
-/** A film that "finishes" this long before its end stopped coming: shown as a problem, not the end. */
+/** A film from the network that "finishes" this long before its end stopped coming: shown as a problem, not the end. */
 private const val EARLY_END_MS = 10_000L
 
 /** A channel's own tries after a problem: 3, 10, then 30 seconds later. */
