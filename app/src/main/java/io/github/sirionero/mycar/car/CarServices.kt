@@ -289,7 +289,7 @@ object CarServices {
             return null
         }
         val playingPackages = sessions
-            .filter { it.playbackState?.state == PlaybackState.STATE_PLAYING }
+            .filter { it.playbackState?.state in SOUNDING }
             .map { it.packageName }
         return playingPackages.firstNotNullOfOrNull { pkg -> catalog.firstOrNull { it.component.packageName == pkg } }
     }
@@ -300,12 +300,18 @@ object CarServices {
      * headphones are, so the apps won't pause themselves. Every playing session is paused, not
      * just the one myCar opened: anything the car was playing was going through the car.
      */
+    /**
+     * Playing, or about to: a stream filling its buffer (after a skip, in a tunnel) starts sounding a
+     * moment later - out of the phone's speaker, once the car has gone.
+     */
+    private val SOUNDING = setOf(PlaybackState.STATE_PLAYING, PlaybackState.STATE_BUFFERING)
+
     fun pausePhoneMedia(why: String = "the car left") {
         val ctx = context ?: return
         val manager = ctx.getSystemService(MediaSessionManager::class.java)
         val listener = ComponentName(ctx, MyCarNotificationListener::class.java)
         val playing = try {
-            manager.getActiveSessions(listener).filter { it.playbackState?.state == PlaybackState.STATE_PLAYING }
+            manager.getActiveSessions(listener).filter { it.playbackState?.state in SOUNDING }
         } catch (e: SecurityException) {
             null
         }
