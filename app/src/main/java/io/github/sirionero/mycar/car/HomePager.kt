@@ -165,8 +165,9 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
 
     Box(Modifier.fillMaxSize()) {
         // Behind the driver's pages, and still while they slide over it; the map's page covers it.
+        // Not under another screen: a moving one went on being drawn there for nobody.
         val wallpaper = rememberWallpaper()
-        if (wallpaper != null && (pager.currentPage != mapIndex || pager.isScrollInProgress)) {
+        if (onHome && wallpaper != null && (pager.currentPage != mapIndex || pager.isScrollInProgress)) {
             WallpaperBackground(wallpaper, Modifier.matchParentSize())
         }
         HorizontalPager(
