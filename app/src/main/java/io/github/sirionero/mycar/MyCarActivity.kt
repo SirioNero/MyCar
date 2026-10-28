@@ -87,8 +87,13 @@ class MyCarActivity : ComponentActivity(), Projection {
     private val audioPermission = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
     ) { granted ->
+        // Android answers "no" without a dialog both when it has stopped asking (refused twice) and
+        // when the question was dropped (another permission dialog was up). Only the first counts
+        // as blocked, so only once myCar has asked before.
+        val askedBefore = AppSettings.getString(this, KEY_MIC_ASKED, "") == "1"
+        if (!granted) AppSettings.putString(this, KEY_MIC_ASKED, "1")
         if (granted) askAudioCapture()
-        else if (!shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
+        else if (askedBefore && !shouldShowRequestPermissionRationale(android.Manifest.permission.RECORD_AUDIO)) {
             // Refused twice: Android now says no without showing anything, so the phone must.
             MyCarLog.w("audio: record permission blocked - Android no longer asks")
             CarAudio.micBlocked()
@@ -603,3 +608,6 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 }
+
+/** Set once myCar has asked for the microphone for the car audio and been told no. */
+private const val KEY_MIC_ASKED = "record_audio_asked"
