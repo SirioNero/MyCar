@@ -128,17 +128,19 @@ class CarAppConnection(private val context: Context) {
 
         val intent = Intent(CarAppService.SERVICE_INTERFACE).setComponent(app.component)
         val connection = object : ServiceConnection {
+            // Each only while this is still the binding: one let go of (another app took the
+            // connection) used to start or fail the new app with the old one's answers.
             override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                main.post { onBound(service) }
+                main.post { if (binding === this) onBound(service) }
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                main.post { fail(Phase.FAILED, "the app's service disconnected") }
+                main.post { if (binding === this) fail(Phase.FAILED, "the app's service disconnected") }
             }
 
             override fun onNullBinding(name: ComponentName) {
                 // A templated app that refuses a host returns no binder at all.
-                main.post { fail(Phase.REJECTED, "the app refused to bind - host not accepted") }
+                main.post { if (binding === this) fail(Phase.REJECTED, "the app refused to bind - host not accepted") }
             }
         }
         binding = connection
@@ -773,15 +775,18 @@ class CarAppConnection(private val context: Context) {
      * destination it turned down) is only logged - it used to take a working map off the screen.
      */
     private fun call(name: String, onValue: (Any?) -> Unit, fatal: Boolean = true, send: (IOnDoneCallback) -> Unit) {
+        // An answer that comes after the app was let go of belongs to it, not to the one there now.
+        val app = binding
         val callback = object : IOnDoneCallback.Stub() {
             override fun onSuccess(response: Bundleable?) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
-                main.post { onValue(value) }
+                main.post { if (binding === app) onValue(value) }
             }
 
             override fun onFailure(response: Bundleable?) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
                 main.post {
+                    if (binding !== app) return@post
                     if (fatal) fail(Phase.REJECTED, describeFailure(name, value))
                     else MyCarLog.w("host: ${describeFailure(name, value)} - it keeps running")
                 }
