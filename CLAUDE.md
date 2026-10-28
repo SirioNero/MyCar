@@ -127,6 +127,11 @@ Rispondi sempre in **italiano**.
 - All'utente si dà **sempre il link diretto** per pubblicare, con tag, destinazione e titolo già
   scritti: `https://github.com/SirioNero/MyCar/releases/new?tag=v<versionName>&target=<branch>&title=myCar%20<versionName>`
   (es. `…?tag=v0.5.14-alpha&target=main&title=myCar%200.5.14-alpha`): gli resta solo Publish.
+  L'utente l'ha chiesto più volte: **ogni volta che c'è qualcosa da rilasciare, i link**, senza
+  aspettare che li chieda. Anche per le app Plancia e Xonos, che si pubblicano da sole a ogni push
+  su `main` che cambia l'app: il link per unire il ramo
+  (`https://github.com/SirioNero/<repo>/compare/main...<ramo>`, poi Create pull request e Merge),
+  oppure, se l'utente lo chiede, il push in `main` lo fa Claude e gli dà il link della release.
 - Una versione verificata ma non ancora pubblicata quando `main` va avanti resta su
   `release/v<versione>` (es. `release/v0.4.00-alpha`), da usare come destinazione del rilascio.
 
