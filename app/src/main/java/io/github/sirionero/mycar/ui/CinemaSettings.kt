@@ -176,6 +176,19 @@ internal fun CinemaSection() {
 /** A site: its name and address; the switch asks for its computer layout; the bin takes it off the list. */
 @Composable
 private fun SiteRow(site: CinemaSite) {
+    // A suggested site comes back from "More sites"; one of the driver's own (Jellyfin at home)
+    // would have to be typed in again: asked first.
+    var removeAsk by remember { mutableStateOf(false) }
+    val own = (Cinema.SUGGESTED + Cinema.MORE).none { it.url == site.url }
+    if (removeAsk) {
+        ConfirmDialog(
+            title = "Remove ${site.name}?",
+            text = "It leaves Cinema. To have it back, its address is typed in again.",
+            confirm = "Remove",
+            onConfirm = { Cinema.remove(site) },
+            onDismiss = { removeAsk = false },
+        )
+    }
     SettingsRow(
         site.name,
         Modifier.toggleable(site.desktop, role = Role.Switch) { Cinema.setDesktop(site, it) },
@@ -184,7 +197,7 @@ private fun SiteRow(site: CinemaSite) {
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(checked = site.desktop, onCheckedChange = null)
-                IconButton(onClick = { Cinema.remove(site) }) {
+                IconButton(onClick = { if (own) removeAsk = true else Cinema.remove(site) }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Remove ${site.name}")
                 }
             }

@@ -1,5 +1,9 @@
 package io.github.sirionero.mycar.ui
 
+import android.content.Intent
+import android.net.Uri
+import android.os.SystemClock
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,10 +57,20 @@ internal fun PhoneVideosRow() {
     val context = LocalContext.current
     var allowed by remember { mutableStateOf(PhoneVideos.allowed(context)) }
     var limited by remember { mutableStateOf(PhoneVideos.limited(context)) }
+    var askedAt by remember { mutableLongStateOf(0L) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { answers ->
         MyCarLog.i("cinema: videos on the phone - ${answers.entries.joinToString { "${it.key.substringAfterLast('.')}=${it.value}" }}")
         allowed = PhoneVideos.allowed(context)
         limited = PhoneVideos.limited(context)
+        // An answer with no question shown: Android won't ask any more (twice "Don't allow"), and
+        // Allow did nothing. myCar's page in Android's settings, where it's turned on by hand.
+        if (!allowed && SystemClock.uptimeMillis() - askedAt < NO_QUESTION_MS) {
+            runCatching {
+                context.startActivity(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+                )
+            }
+        }
     }
     // Back from Android's settings: it may have changed meanwhile.
     LifecycleResumeEffect(Unit) {
@@ -73,7 +88,10 @@ internal fun PhoneVideosRow() {
         icon = if (allowed) Icons.Filled.Check else Icons.Filled.PlayArrow,
         trailing = {
             if (!allowed || limited) {
-                TextButton(onClick = { launcher.launch(PhoneVideos.permissions) }) { Text(if (limited) "Pick" else "Allow") }
+                TextButton(onClick = {
+                    askedAt = SystemClock.uptimeMillis()
+                    launcher.launch(PhoneVideos.permissions)
+                }) { Text(if (limited) "Pick" else "Allow") }
             }
         },
     )
@@ -120,6 +138,17 @@ internal fun CinemaTvSection() {
             "(DRM) and multicast ones are left out.",
     ) {
         LocalNetworkRow(lists.map { it.url })
+        // A list's address is long and often holds the provider's user and password: asked first.
+        var removeAsk by remember { mutableStateOf<TvList?>(null) }
+        removeAsk?.let { list ->
+            ConfirmDialog(
+                title = "Remove ${list.name}?",
+                text = "Its address and its channels leave myCar. To have it back, the address is typed in again.",
+                confirm = "Remove",
+                onConfirm = { TvLists.remove(list) },
+                onDismiss = { removeAsk = null },
+            )
+        }
         lists.forEach { list ->
             val state = states[list.url]
             SettingsRow(
@@ -133,7 +162,7 @@ internal fun CinemaTvSection() {
                 icon = if (state?.problem != null) Icons.Filled.Warning else Icons.Filled.PlayArrow,
                 tint = if (state?.problem != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 trailing = {
-                    IconButton(onClick = { TvLists.remove(list) }) {
+                    IconButton(onClick = { removeAsk = list }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Remove ${list.name}")
                     }
                 },
@@ -177,3 +206,6 @@ internal fun CinemaTvSection() {
         onPauseOrDispose {}
     }
 }
+
+/** An answer sooner than this after asking came with no question on screen. */
+private const val NO_QUESTION_MS = 400L
