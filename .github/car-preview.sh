@@ -125,7 +125,7 @@ shoot pages-layouts 1920 720 240 "$DOCK_MAP;966,675;1138,675;690,72;$WAIT;1430,2
 # Each layout beside the two halves and the four parts, on the page left of the map (--es pageLayout):
 # the weather, the agenda, then empty parts.
 for layout in full half-quarters quarters-half strip-quarters quarters-strip; do
-    EXTRA="--es pageLayout $layout" shoot "layout-$layout" 1920 720 240 "$DOCK_MAP;966,675;$WAIT"
+    EXTRA="--es pageLayout $layout" shoot "layout-$layout" 1920 720 240 "$WAIT;$DOCK_MAP;966,675;$WAIT;$WAIT"
 done
 EXTRA="--es pageLayout half-quarters" shoot layout-800x480 800 480 160 "48,116;404,450;$WAIT"
 

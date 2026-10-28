@@ -349,7 +349,8 @@ private fun PagePart(
     Box(modifier) {
         val fill = Modifier.fillMaxSize()
         when (val shown = withPlanciaInside(content, entries)) {
-            null -> EmptyPart(onChoose, onEdit, fill)
+            // While the page is changed its card says "Nothing yet" over it: no hint under that.
+            null -> EmptyPart(onChoose, onEdit, fill, hint = !editing)
             PageContent.WEATHER -> WeatherWidget(onEdit, fill)
             PageContent.AGENDA -> AgendaWidget(onEdit, fill)
             PageContent.BROWSER -> BrowserPart(inView, onEdit, keyboard, fill)
@@ -519,7 +520,7 @@ internal fun TileBar(title: String, onBack: () -> Unit, onHold: () -> Unit) {
 /** A part with nothing in it: tapped, it offers what can go there. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun EmptyPart(onChoose: () -> Unit, onHold: () -> Unit, modifier: Modifier) {
+private fun EmptyPart(onChoose: () -> Unit, onHold: () -> Unit, modifier: Modifier, hint: Boolean = true) {
     val scheme = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(MyCarRadius.Card)
     Column(
@@ -531,13 +532,15 @@ private fun EmptyPart(onChoose: () -> Unit, onHold: () -> Unit, modifier: Modifi
         verticalArrangement = Arrangement.spacedBy(MyCarSpace.S, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(painterResource(R.drawable.sym_add), null, Modifier.size(40.dp), tint = scheme.onSurfaceVariant)
-        Text(
-            "Tap to choose what goes here",
-            style = MaterialTheme.typography.titleSmall,
-            color = scheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
+        if (hint) {
+            Icon(painterResource(R.drawable.sym_add), null, Modifier.size(40.dp), tint = scheme.onSurfaceVariant)
+            Text(
+                "Tap to choose what goes here",
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
