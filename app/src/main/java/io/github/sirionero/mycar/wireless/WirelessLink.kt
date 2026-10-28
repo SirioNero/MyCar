@@ -86,6 +86,13 @@ object WirelessLink {
     @Volatile private var lostNetwork: Network? = null
     /** Bumped on each Wi-Fi join and on stop, so an older run of TCP tries ends instead of racing the new one. */
     @Volatile private var tcpRun = 0
+
+    /**
+     * Which start-up is the current one. A Bluetooth connect or accept can't be interrupted, so a
+     * start-up stopped while in one carried on once it returned: it took the channel, or the car,
+     * from the start-up that replaced it.
+     */
+    @Volatile private var startRun = 0
     private val writeLock = Any()
 
     /** Paired Bluetooth devices, cars or not: the driver picks theirs. Needs BLUETOOTH_CONNECT. */
@@ -115,6 +122,7 @@ object WirelessLink {
     /** Closes the Bluetooth channel, the socket and the Wi-Fi request. Safe to call any time. */
     fun stop(context: Context) {
         tcpRun++
+        startRun++
         val starting = worker != null && SessionStatus.state.value.phase == SessionStatus.Phase.CONNECTING
         worker?.interrupt()
         worker = null
@@ -142,6 +150,7 @@ object WirelessLink {
 
     @SuppressLint("MissingPermission")
     private fun run(context: Context, device: BluetoothDevice) {
+        val mine = startRun
         val name = name(device)
         log.i("--- wireless start-up with $name (${device.address}) ---")
         SessionStatus.connecting("Bluetooth: reaching $name")
@@ -163,6 +172,11 @@ object WirelessLink {
             // and connect to it, so wait for the car instead.
             log.i("Bluetooth: $name has no Android Auto service to call (${e.message}); waiting for it to call us")
             waitForCar(context, name) ?: return
+        }
+        if (mine != startRun) {
+            log.i("Bluetooth: a newer start-up took over - closing this one's channel")
+            runCatching { socket.close() }
+            return
         }
         rfcomm = socket
         log.i("Bluetooth: channel open")
@@ -279,7 +293,8 @@ object WirelessLink {
             null
         } finally {
             runCatching { server.close() }
-            listener = null
+            // Only this one's: a newer start-up may have published its own by now.
+            if (listener === server) listener = null
         }
     }
 
