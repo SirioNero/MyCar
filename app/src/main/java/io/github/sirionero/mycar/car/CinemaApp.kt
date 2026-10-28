@@ -3,6 +3,8 @@ package io.github.sirionero.mycar.car
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
+import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Handler
 import android.os.Looper
 import android.webkit.PermissionRequest
@@ -51,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -216,6 +219,9 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
     var desktopShown by remember { mutableStateOf(site.desktop) }
     // The page is at home and Android keeps myCar off the home network (see LocalNetwork).
     var offHomeNetwork by remember { mutableStateOf(false) }
+    // The page didn't load for want of a network (a tunnel, no signal): it loads again by itself
+    // when a network comes back, or at a tap.
+    var unreachable by remember { mutableStateOf(false) }
     // A new web view after the web engine's page process died (see CinemaClient), at the page it
     // was showing.
     var generation by remember { mutableIntStateOf(0) }
@@ -280,9 +286,11 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                             ring,
                             onLoading = { url ->
                                 offHomeNetwork = false
+                                unreachable = false
                                 lastUrl = url
                             },
                             onOffHomeNetwork = { offHomeNetwork = true },
+                            onUnreachable = { unreachable = true },
                             onGone = {
                                 web = null
                                 fullScreen = null
@@ -327,6 +335,15 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                     offHomeNetwork = false
                     web?.reload()
                 })
+            } else if (unreachable) {
+                PageCover("The page didn't load", "Check the phone's connection: it loads again by itself when it's back.\nTap to try again.") {
+                    unreachable = false
+                    web?.reload()
+                }
+                ReloadWhenOnline {
+                    unreachable = false
+                    web?.reload()
+                }
             }
             if (!allowed) ParkedCover()
         }
@@ -408,7 +425,12 @@ internal fun ParkedCover() {
 
 /** Over a page at home that Android keeps myCar from: what to allow on the phone; a tap tries again. */
 @Composable
-private fun HomeNetworkCover(onRetry: () -> Unit) {
+private fun HomeNetworkCover(onRetry: () -> Unit) =
+    PageCover("This site is on your home network", LocalNetwork.HINT + "\nTap to try again.", onRetry)
+
+/** Over a page that couldn't load: why, and a tap anywhere tries again. */
+@Composable
+private fun PageCover(title: String, text: String, onRetry: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -417,9 +439,9 @@ private fun HomeNetworkCover(onRetry: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(MyCarSpace.M, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("This site is on your home network", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(
-            LocalNetwork.HINT + "\nTap to try again.",
+            text,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -441,6 +463,7 @@ private class CinemaClient(
     private val ring: String,
     private val onLoading: (String?) -> Unit,
     private val onOffHomeNetwork: () -> Unit,
+    private val onUnreachable: () -> Unit,
     private val onGone: () -> Unit,
 ) : WebViewClient() {
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading(url)
@@ -469,7 +492,11 @@ private class CinemaClient(
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         if (request?.isForMainFrame == true) {
             MyCarLog.w("cinema: ${request.url} didn't load - ${error?.errorCode} ${error?.description}")
-            if (view != null && LocalNetwork.blocks(view.context, listOf(request.url.toString()))) onOffHomeNetwork()
+            if (view != null && LocalNetwork.blocks(view.context, listOf(request.url.toString()))) {
+                onOffHomeNetwork()
+            } else if (error?.errorCode in NO_NETWORK) {
+                onUnreachable()
+            }
         }
     }
 }
@@ -505,3 +532,33 @@ private val IconSize = 112.dp
 private val InitialColors = listOf(
     Color(0xFFD7263D), Color(0xFF6C63FF), Color(0xFF0F9D58), Color(0xFFF4511E), Color(0xFF3D8BFF), Color(0xFF8E24AA),
 )
+
+/** The web engine's errors that mean the page couldn't be reached at all. */
+private val NO_NETWORK = setOf(
+    WebViewClient.ERROR_HOST_LOOKUP, WebViewClient.ERROR_CONNECT, WebViewClient.ERROR_TIMEOUT, WebViewClient.ERROR_IO,
+)
+
+/**
+ * Calls [reload] when a network comes back (out of a tunnel), or the phone moves to another one -
+ * not for the network up already, which didn't reach the page a moment ago.
+ */
+@Composable
+private fun ReloadWhenOnline(reload: () -> Unit) {
+    val context = LocalContext.current
+    val latest by rememberUpdatedState(reload)
+    DisposableEffect(Unit) {
+        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        val now = connectivity?.activeNetwork
+        val main = Handler(Looper.getMainLooper())
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                if (network != now) main.post { latest() }
+            }
+        }
+        runCatching { connectivity?.registerDefaultNetworkCallback(callback) }
+        onDispose {
+            main.removeCallbacksAndMessages(null)
+            runCatching { connectivity?.unregisterNetworkCallback(callback) }
+        }
+    }
+}
