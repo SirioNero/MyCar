@@ -109,7 +109,10 @@ class MyCarActivity : ComponentActivity(), Projection {
         } else {
             MyCarLog.w("audio: capture consent declined")
             CarAudio.denied()
-            if (!CarSettings.audioChoiceAsked) offerBluetooth.value = true
+            // Only when the driver picked "through myCar" by hand. Automatic chose it because the car
+            // takes no music over Bluetooth: offering Bluetooth would leave every drive silent.
+            val chosen = CarSettings.audioRoute.value == io.github.sirionero.mycar.audio.AudioRoute.CAR_LINK
+            if (chosen && !CarSettings.audioChoiceAsked) offerBluetooth.value = true
         }
     }
 
