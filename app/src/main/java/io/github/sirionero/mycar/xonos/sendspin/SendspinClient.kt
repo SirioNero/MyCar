@@ -119,6 +119,9 @@ class SendspinClient(
                 current.close(goodbye = false)
                 throw e
             }
+            // Finita senza che la WebSocket si chiudesse (il server non ha risposto all'hello): la si
+            // chiude qui, o a ogni giro ne restava aperta un'altra verso Music Assistant.
+            current.abandon()
             if (session === current) session = null
             _phase.value = Phase.CONNECTING
             engine.connectionLost()
@@ -172,6 +175,11 @@ class SendspinClient(
                     sync.cancel()
                 }
             }
+        }
+
+        /** Lascia andare la WebSocket senza saluti; non fa niente se è già chiusa. */
+        fun abandon() {
+            socket?.cancel()
         }
 
         fun close(goodbye: Boolean) {
