@@ -56,7 +56,18 @@ class AudioLink(
     private var bytes = 0L
     private var dropped = 0
     @Volatile private var configTimer: Thread? = null
+    /** Underflows the car reported this drive, and the silence still to slip in ahead of the next chunk. */
+    private var underflows = 0
+    @Volatile private var padMs = 0
+    @Volatile private var pendingPadMs = 0
     private val ackLock = Object()
+    /**
+     * Guards starting and stopping the stream. [start] starts it at once for head units that never
+     * answer the focus request, and the car's answer, on the reading thread, starts it too: both
+     * got through, so the car got Start twice and two AAC encoders ran, and a 2014 head unit
+     * dropped the connection on the first audio.
+     */
+    private val startLock = Any()
     /** Only for a sink that takes AAC and nothing else; PCM sinks get the capture as it is. */
     @Volatile private var aac: AacEncoder? = null
     private val aacSink get() = service.codecType == ServiceDiscovery.CODEC_AAC_LC || service.codecType == ServiceDiscovery.CODEC_AAC_LC_ADTS
@@ -146,6 +157,8 @@ class AudioLink(
                 }
             }
 
+            MSG_UNDERFLOW -> onUnderflow()
+
             MSG_ACK -> {
                 val acked = Wire.varint(Wire.fields(body), 2)?.toInt() ?: 1
                 synchronized(ackLock) {
@@ -200,6 +213,26 @@ class AudioLink(
         }
     }
 
+    /**
+     * The car ran out of sound to play (AudioUnderflowNotification, no body): its buffer emptied
+     * before the next chunk arrived, which the driver hears as a gap. The capture runs in real
+     * time, so the car's buffer only ever holds what the window lets through. A little silence
+     * slipped in ahead of the next chunk puts the stream that far ahead, so the next slow patch is
+     * soaked up rather than heard. Capped, as each step adds a little delay to the music.
+     */
+    private fun onUnderflow() {
+        underflows++
+        val step = if (started && padMs < MAX_PAD_MS) PAD_STEP_MS else 0
+        padMs += step
+        pendingPadMs += step
+        if (underflows <= 3 || underflows % 20 == 0) {
+            MyCarLog.w("$tag: <- AudioUnderflow ($underflows this drive) - running ${padMs}ms ahead now")
+        }
+    }
+
+    /** Silence for [ms], whole frames of this sink's 16-bit format. */
+    private fun silence(ms: Int): ByteArray = ByteArray(sampleRate * ms / 1000 * channels * 2)
+
     override fun start() {
         if (!ready || started) return
         // The car has the speakers for now; its GAIN starts the stream.
@@ -215,13 +248,28 @@ class AudioLink(
     }
 
     private fun startStream() {
+        synchronized(startLock) { startStreamLocked() }
+    }
+
+    private fun startStreamLocked() {
         if (!ready || started) return
         sendOnChannel(
             MSG_START,
             Protobuf.varintField(1, sessionId.toLong()) + Protobuf.varintField(2, configIndex.toLong()),
         )
+        // Raw AAC-LC has no header of its own: the car needs the codec's configuration before the
+        // first frame, as video sends SPS/PPS. A GalReceiver 2014 head unit reset the connection
+        // on the first audio without it. PCM and ADTS sinks are unchanged.
+        if (service.codecType == ServiceDiscovery.CODEC_AAC_LC) {
+            val asc = AacEncoder.audioSpecificConfig(sampleRate, channels)
+            sendOnChannel(MSG_CODEC_CONFIG, asc)
+            MyCarLog.hex("$tag: -> CodecConfig (AudioSpecificConfig)", asc)
+        }
         inFlight = 0
         lastAckAt = System.currentTimeMillis()
+        // A new stream starts with the car's buffer empty again: the lead is earned back if needed.
+        padMs = 0
+        pendingPadMs = 0
         if (aacSink && aac == null) {
             aac = runCatching { AacEncoder(sampleRate, channels, adts = service.codecType == ServiceDiscovery.CODEC_AAC_LC_ADTS) }
                 .onSuccess { MyCarLog.i("$tag: the car takes ${service.codecName} only - encoding to AAC") }
@@ -234,6 +282,10 @@ class AudioLink(
     }
 
     override fun stop() {
+        synchronized(startLock) { stopLocked() }
+    }
+
+    private fun stopLocked() {
         val streaming = started
         // Held back, the stream is already stopped but the focus is still asked for: give it back.
         if (!streaming && !focusRequested) return
@@ -255,6 +307,10 @@ class AudioLink(
 
     /** The car has the speakers for a while: stop sending, keeping the focus asked for. */
     private fun hold() {
+        synchronized(startLock) { holdLocked() }
+    }
+
+    private fun holdLocked() {
         if (focusRequested) heldBack = true
         if (!started) return
         started = false
@@ -272,6 +328,17 @@ class AudioLink(
             if (asksFocus && ready) listenForPlayback(pcm, size)
             return
         }
+        // The car ran dry: the silence it earned goes ahead of this chunk (see [onUnderflow]).
+        val pad = pendingPadMs
+        if (pad > 0) {
+            pendingPadMs = 0
+            val quiet = silence(pad)
+            writeNow(quiet, quiet.size)
+        }
+        writeNow(pcm, size)
+    }
+
+    private fun writeNow(pcm: ByteArray, size: Int) {
         val encoder = aac
         if (encoder == null) {
             send(pcm.copyOf(size))
@@ -385,12 +452,16 @@ class AudioLink(
         const val MSG_FOCUS_RESPONSE = 19
         private const val MSG_CHANNEL_OPEN_RESPONSE = 8
         private const val MSG_DATA = 0
+        private const val MSG_CODEC_CONFIG = 1
         private const val MSG_SETUP = 32768
         private const val MSG_START = 32769
         private const val MSG_STOP = 32770
         private const val MSG_CONFIG = 32771
         private const val MSG_ACK = 32772
         private const val MSG_SETUP_ANSWER = 255
+        private const val MSG_UNDERFLOW = 32779 // 0x800B, car to phone, no body
+        private const val PAD_STEP_MS = 60
+        private const val MAX_PAD_MS = 240
         private const val STATUS_READY = 2
         private const val FOCUS_GAIN = 1
         private const val FOCUS_RELEASE = 4

@@ -11,6 +11,17 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            31, "0.5.18-alpha",
+            listOf(
+                "Wireless connects by itself: after your first drive without the cable, Android asks once, then myCar connects to that car whenever you start it. Settings > Connection turns it off.",
+                "Music playing over Bluetooth stays there: the car no longer switches to Android Auto's source the moment myCar connects.",
+                "Steadier car audio: fewer gaps, and cars that take only AAC get the start they expect.",
+                "The car's own margins stay right at every size, Small and Large included.",
+                "On the car's Phone screen, \"Ask on the phone\" asks for the missing permissions on the phone.",
+                "Map apps' route options show time and distance, and a car app that never answers says so instead of \"Starting...\".",
+            ),
+        ),
+        Release(
             30, "0.5.17-alpha",
             listOf(
                 "No Music Assistant at home? The Xonos app can now be one, on the phone itself: Xonos inside myCar plays from it, wirelessly too.",

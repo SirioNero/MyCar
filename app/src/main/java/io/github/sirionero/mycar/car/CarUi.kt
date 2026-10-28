@@ -223,8 +223,10 @@ fun CarUi() {
                     },
                 color = MaterialTheme.colorScheme.background,
             ) {
-                // Insets are in video-frame pixels, so convert with the un-scaled density.
-                val pad = with(base) {
+                // Insets are video-frame pixels. Resolved with the live (size-scaled) density, which
+                // padding() uses too, the margin stays the car's at every size: with the un-scaled one
+                // it grew with Large and ate the sides, and shrank with Small under the car's edge.
+                val pad = with(LocalDensity.current) {
                     PaddingValues(
                         start = insets.left.toDp(), top = insets.top.toDp(),
                         end = insets.right.toDp(), bottom = insets.bottom.toDp(),

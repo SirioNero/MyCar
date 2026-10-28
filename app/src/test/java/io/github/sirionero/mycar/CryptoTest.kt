@@ -33,6 +33,18 @@ class CryptoTest {
         assertEquals("RSA", key.algorithm)
     }
 
+    /** Regression: before the handshake the engine moves nothing, and encrypt spun for ever on the writing thread. */
+    @Test(timeout = 10_000)
+    fun `encrypting before the handshake fails instead of spinning`() {
+        val ss = SelfSignedCert.generate()
+        val tls = PhoneTls(ss.keyStore, SelfSignedCert.PASSWORD)
+        try {
+            tls.encrypt(byteArrayOf(0, 16))
+            throw AssertionError("encrypt returned before the handshake")
+        } catch (_: javax.net.ssl.SSLException) {
+        }
+    }
+
     @Test
     fun `completes a TLS handshake as the server and round-trips data`() {
         val ss = SelfSignedCert.generate()

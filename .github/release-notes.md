@@ -1,6 +1,32 @@
-myCar 0.5.17-alpha: Xonos with Music Assistant on the phone itself.
+myCar 0.5.18-alpha: wireless that connects by itself, and a steadier link to the car.
 
-## Music Assistant on the phone
+## Wireless that connects by itself
+- After your first drive without the cable, Android asks once whether myCar may connect to that car by itself. Allow it, and from then on myCar connects wirelessly whenever the car starts and reaches the phone over Bluetooth: no tap, the phone can stay in your pocket.
+- Only cars that have worked wirelessly are asked about. Plugged in, the cable wins; a drive already under way is left alone.
+- Settings > Connection > Connect wirelessly by itself turns it off. Turned back on, a car you said no to is asked about again at its next wireless drive.
+- Wireless adapters that send their Wi-Fi details again once the picture is up (ZLink ones) no longer drop the drive a second in.
+
+## Music and the car
+- With the music on Bluetooth - the Bluetooth setting, or Automatic when the car takes the phone's music over it - myCar leaves the car's Android Auto music channel closed: many cars switched their source to Android Auto the moment it opened, and the Bluetooth music stopped. It opens as soon as the sound has to go through myCar.
+- myCar no longer sends the start of the music twice when the car answers at the very moment it starts, which could make an older head unit drop the connection.
+- Cars that take music only as AAC get its configuration first, as they expect.
+- When the car runs out of sound to play, myCar runs a little ahead of it (at most a quarter of a second), so the next slow patch isn't heard as a gap.
+
+## A steadier link
+- Long messages, like the video's, go to the car in pieces of the size Android Auto itself uses.
+- The car's pings come back whole, and when the car says goodbye during a drive myCar answers and ends the drive at once, over Wi-Fi too.
+- Fixed a case where myCar could keep the phone busy for nothing when the car said goodbye while still connecting.
+- The car's own margins (the edges it crops) stay right at every size in the car's Settings: Large no longer eats the sides, and Small no longer puts buttons under the edge.
+
+## Also
+- On the car's Phone screen, Ask on the phone shows Android's question for the Phone and Contacts permissions on the phone; the car screen updates by itself once they're allowed.
+- Map apps' route options show their time and distance.
+- A car app that never answers myCar (some apps only run on Google's Android Auto) is reported after 10 seconds instead of showing Starting... for ever.
+- Logs > Earlier shares the log of an earlier launch - the drive before, or one that crashed - straight from the phone. Opening myCar starts a new log, so that one used to need a computer.
+
+These come from Gearslip's own fixes, picked one by one: what could change how a car that works today connects was left out.
+
+## Also in 0.5.17-alpha
 - No Music Assistant at home? Xonos 0.1.42 or later can run one on the phone itself: in the Xonos app, Settings > Make Xonos your Music Assistant server. In myCar, Settings > Xonos > Use the Xonos app's account brings it over, as with any Music Assistant (the first time it comes over by itself).
 - Xonos inside myCar reaches that server through the Xonos app, the same way as with Tailscale: as the drive starts, myCar wakes the app, and the app starts its server. The first start takes a few seconds: the car says the server is still starting, and myCar keeps trying.
 - With the server on the phone, the Xonos app doesn't take Xonos's place in the car when it can't connect: it would play from the same server.

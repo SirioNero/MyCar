@@ -229,6 +229,7 @@ class CarAppConnection(private val context: Context) {
     fun disconnect() = disconnect(keepLocation = false)
 
     private fun disconnect(keepLocation: Boolean) {
+        main.removeCallbacks(handshakeTimeout)
         clearToasts()
         lent?.let { sendSurfaceDestroyed(it) }
         lent = null
@@ -264,6 +265,18 @@ class CarAppConnection(private val context: Context) {
 
     // --- handshake ---------------------------------------------------------------------
 
+    /**
+     * An app that won't have myCar as its host never answers the first question. Car App Library
+     * 1.9 and later (Yandex Maps and 2GIS among them) throw inside the app when a host that isn't
+     * Google's asks, and since the call is one-way the error never comes back: without this the
+     * car showed "Starting..." for ever. Counted from the binding, so a slow start isn't refused.
+     */
+    private val handshakeTimeout = Runnable {
+        if (_status.value.phase == Phase.HANDSHAKE) {
+            fail(Phase.REJECTED, "It didn't answer myCar. Apps built for newer versions of Android Auto only run on Google's.")
+        }
+    }
+
     private fun onBound(service: IBinder) {
         val app = ICarApp.Stub.asInterface(service)
         carApp = app
@@ -276,6 +289,8 @@ class CarAppConnection(private val context: Context) {
         surfaceCallback = null
         update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info", surfaceRequested = false, surfaceAttached = false) }
         MyCarLog.i("host: bound; requesting app info")
+        main.removeCallbacks(handshakeTimeout)
+        main.postDelayed(handshakeTimeout, HANDSHAKE_TIMEOUT_MS)
 
         call("getAppInfo", onValue = { value ->
             val info = value as? AppInfo ?: return@call fail(Phase.FAILED, "app info was ${value?.javaClass?.simpleName}")
@@ -288,6 +303,7 @@ class CarAppConnection(private val context: Context) {
      * offers cannot be rendered correctly, so it is refused here rather than half-drawn.
      */
     private fun onAppInfo(info: AppInfo) {
+        main.removeCallbacks(handshakeTimeout)
         val negotiated = minOf(HOST_API_LEVEL, info.latestCarAppApiLevel)
         MyCarLog.i(
             "host: app api ${info.minCarAppApiLevel}..${info.latestCarAppApiLevel} " +
@@ -876,6 +892,9 @@ class CarAppConnection(private val context: Context) {
 
         /** How long a new destination waits for the old route to end; see [navigateTo]. */
         const val REROUTE_WAIT_MS = 1_500L
+
+        /** How long an app gets to answer the first question before it counts as refusing. */
+        const val HANDSHAKE_TIMEOUT_MS = 10_000L
 
         /** Context.BIND_FOREGROUND_SERVICE; the constant itself is hidden from the SDK. */
         const val BIND_FOREGROUND_SERVICE = 0x04000000

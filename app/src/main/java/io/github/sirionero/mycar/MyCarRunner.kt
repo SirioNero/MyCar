@@ -2,6 +2,7 @@ package io.github.sirionero.mycar
 
 import android.os.Build
 import io.github.sirionero.mycar.audio.AudioLink
+import io.github.sirionero.mycar.audio.CarAudio
 import io.github.sirionero.mycar.audio.CarAudioRoute
 import io.github.sirionero.mycar.audio.CarMic
 import io.github.sirionero.mycar.media.CarMediaStatus
@@ -62,6 +63,8 @@ class MyCarRunner(
     /** Waits for the certificate only when TLS is first needed; see [run]. */
     private val tls: PhoneTls by lazy { identityTask.get() }
     private var authenticationFailed = false
+    /** Ending on our own after answering the car: what's queued still goes out (see [run]). */
+    private var drainWriterOnExit = false
     @Volatile private var stopped = false
 
     /** The certificate shown to the car, once unlocked, and whether its verdict has gone out. */
@@ -158,6 +161,8 @@ class MyCarRunner(
             reportDisconnect()
         } finally {
             running = false
+            writer.shutdown()
+            if (drainWriterOnExit) writer.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS)
             writer.shutdownNow()
             log.flush()
         }
@@ -172,6 +177,7 @@ class MyCarRunner(
         synchronized(ackLock) { ackLock.notifyAll() } // free an encoder waiting on an ack
         videoSource?.stop()
         videoSource = null
+        CarAudio.openSink = null
         audioLink?.close()
         audioLink = null
         guidanceLink?.close()
@@ -194,7 +200,7 @@ class MyCarRunner(
 
     private fun handleFrame(frame: Frames.Frame) {
         // A rejected handshake cannot consume later messages as if authentication succeeded.
-        if (authenticationFailed || stopped) return
+        if (authenticationFailed || stopped || !running) return
         val payload = if (frame.encrypted) {
             if (!tls.handshakeComplete) {
                 log.w("encrypted frame arrived before the handshake finished - ignoring")
@@ -261,6 +267,9 @@ class MyCarRunner(
             MSG_PING_REQUEST -> onPingRequest(body)
             MSG_BYEBYE_REQUEST -> onByeByeRequest(body)
             AudioLink.MSG_FOCUS_RESPONSE -> audioLink?.onFocus(Protobuf.readInt32Field(body, 1) ?: 0)
+            // The car saying it didn't like something it got: its name in the log, the session goes on.
+            MSG_UNEXPECTED_MESSAGE -> log.w("<- the head unit reports an unexpected message from the phone - continuing")
+            MSG_FRAMING_ERROR -> log.w("<- the head unit reports a framing error - continuing")
             else -> log.i("unhandled control message id=$messageId (${body.size} bytes) - continuing")
         }
     }
@@ -278,13 +287,24 @@ class MyCarRunner(
             3 -> "NOT_SUPPORTED"
             4 -> "NOT_CURRENTLY_SUPPORTED"
             5 -> "PROBE_SUPPORTED"
+            6 -> "WIRELESS_PROJECTION_DISABLED"
+            7 -> "POWER_DOWN"
+            8 -> "USER_PROFILE_SWITCH"
             else -> "unknown"
         }
         log.w("<- ByeByeRequest: reason=$reason ($name) in state $state")
         log.hex("   byebye raw", body)
         SessionReport.fail(SessionReport.Category.BYEBYE, "ByeByeRequest reason=$reason ($name)", state.name, "bye $reason")
-        send(MSG_BYEBYE_RESPONSE, ByteArray(0), encrypted = true)
+        // Encrypted only once the car has accepted the certificate: before that it talks in the clear.
+        send(MSG_BYEBYE_RESPONSE, ByteArray(0), encrypted = state == State.WAIT_SDR || state == State.DONE)
         log.i("-> ByeByeResponse")
+        // During setup the car hangs up next, and that hang-up is the certificate's verdict (see
+        // reportDisconnect). A drive under way ends here: over Wi-Fi a car that moved on to another
+        // phone may keep the link open, and the car UI, the encoder and the muted phone went on for nobody.
+        if (state == State.DONE) {
+            drainWriterOnExit = true
+            running = false
+        }
     }
 
     private fun onVersionRequest(body: ByteArray) {
@@ -572,7 +592,19 @@ class MyCarRunner(
             // as Android Auto does, instead of letting it play on to no one.
             onTakenBack = { CarServices.pausePhoneMedia("the car switched to another source") },
         )
-        openChannel(media.serviceId)
+        if (CarSettings.pipeAudio.value) {
+            openChannel(media.serviceId)
+        } else {
+            // Many cars switch their source to Android Auto the moment this channel opens, which
+            // cut off the music playing over Bluetooth. It opens once the sound goes through myCar:
+            // Automatic deciding so, or the driver choosing it (see CarAudio.request).
+            log.i("music goes over Bluetooth for now: the media channel stays closed, so the car keeps its own source")
+            CarAudio.openSink = {
+                CarAudio.openSink = null
+                log.i("the sound goes through myCar now: opening the media channel")
+                openChannel(media.serviceId)
+            }
+        }
     }
 
     /** The car's directions channel, where [DirectionsVoice] reads out each turn. */
@@ -1253,8 +1285,11 @@ class MyCarRunner(
     private fun onPingRequest(body: ByteArray) {
         // The timestamp is an int64 and has to come back unchanged. Read as an int32 it was cut
         // short, and a car that checks the echo (an Audi MIB2+) gave up at its second ping.
-        val timestamp = Protobuf.readInt64Field(body, 1) ?: System.nanoTime()
-        send(MSG_PING_RESPONSE, Protobuf.varintField(1, timestamp), encrypted = tls.handshakeComplete)
+        // A ping that carries data (field 3) gets it back (field 2), as Android Auto answers.
+        val fields = Wire.fields(body)
+        val timestamp = Wire.varint(fields, 1) ?: System.nanoTime()
+        val data = Wire.bytes(fields, 3)?.let { Protobuf.bytesField(2, it) } ?: ByteArray(0)
+        send(MSG_PING_RESPONSE, Protobuf.varintField(1, timestamp) + data, encrypted = tls.handshakeComplete)
         log.i("<- PingRequest(timestamp=$timestamp) / -> PingResponse (keeping the session alive)")
     }
 
@@ -1276,33 +1311,9 @@ class MyCarRunner(
         try {
             writer.execute {
                 try {
-                    if (payload.size <= Frames.MAX_FRAME_PAYLOAD) {
-                        val framePayload = if (encrypted) tls.encrypt(payload) else payload
-                        output.write(Frames.build(channel, encrypted, framePayload, messageType))
-                    } else {
-                        // Split exactly as aasdk does: chunk the *plaintext*, encrypt each chunk
-                        // separately, and carry the total plaintext length in the FIRST frame.
-                        // Video keyframes for anything busier than a test card exceed 16 KB routinely.
-                        var offset = 0
-                        while (offset < payload.size) {
-                            val size = minOf(Frames.MAX_FRAME_PAYLOAD, payload.size - offset)
-                            val chunk = payload.copyOfRange(offset, offset + size)
-                            val frameType = when {
-                                offset == 0 -> Frames.TYPE_FIRST
-                                offset + size >= payload.size -> Frames.TYPE_LAST
-                                else -> Frames.TYPE_MIDDLE
-                            }
-                            val framePayload = if (encrypted) tls.encrypt(chunk) else chunk
-                            output.write(
-                                Frames.build(
-                                    channel, encrypted, framePayload, messageType, frameType,
-                                    if (frameType == Frames.TYPE_FIRST) payload.size else null,
-                                ),
-                            )
-                            offset += size
-                        }
-                        splitMessages++
-                    }
+                    // Video keyframes for anything busier than a test card go out in several frames.
+                    val frames = Frames.writeMessage(output, channel, encrypted, messageType, payload) { tls.encrypt(it) }
+                    if (frames > 1) splitMessages++
                     output.flush()
                 } catch (e: java.io.IOException) {
                     if (running) log.w("send failed, stopping: ${e.message}")
@@ -1434,6 +1445,8 @@ class MyCarRunner(
         const val MSG_BYEBYE_REQUEST = 15
         const val MSG_BYEBYE_RESPONSE = 16
         const val MSG_VOICE_SESSION_NOTIFICATION = 17
+        const val MSG_UNEXPECTED_MESSAGE = 255
+        const val MSG_FRAMING_ERROR = 65535
         const val MSG_CHANNEL_OPEN_REQUEST = 7
         const val MSG_CHANNEL_OPEN_RESPONSE = 8
 

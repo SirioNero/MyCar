@@ -38,6 +38,11 @@ Rispondi sempre in **italiano**.
   installato, Gradle lo scarica da `api.foojay.io`.
 - Servono Android SDK (`ANDROID_HOME` o `local.properties`) e accesso a `dl.google.com`
   (repository Maven Google).
+- Test JVM nella sessione cloud (senza Android): Maven Central risponde 429, il mirror
+  `https://maven-central.storage-download.googleapis.com/maven2/` va. Un progetto Gradle JVM nella
+  scratchpad (Kotlin 2.4.0, JUnit 4, `srcDir` su `app/src` con `setIncludes` dei soli file) compila i
+  file che non usano Android (es. `Framing.kt` + `FramingTest.kt`) e ne fa girare i test in pochi
+  secondi; il resto si prova con la CI.
 - Output: `build/myCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
 - Firma release opzionale via `keystore.properties` (gitignored).
 - Chiave di firma di myCar: alias `mycar`, PKCS12, certificato SHA-256
@@ -161,7 +166,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 
 | Package | Ruolo |
 |---|---|
-| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
+| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
 | `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
@@ -171,7 +176,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | `bridge/` | Il ponte verso le app Plancia e Xonos per myCar lasciata fuori da Tailscale: `AppBridge` (legame e richiesta di una connessione), `Bridges` (quali connessioni passano dal ponte), `BridgedSockets` (`BridgeDns`, `BridgeSocketFactory` per OkHttp), `BridgeProxy` (la pagina di Plancia: proxy SOCKS5 nel WebView) |
 | `xonos/` | Xonos integrato: `Xonos` (account, connessione, libreria), `XonosAccount` (import dall'app Xonos), il motore di Xonos (`data/`, `sendspin/`, `playback/`: Music Assistant, Sendspin, lettore Media3 `PlaybackService`), `sendspin/CarLinkOutput` (uscita dritta verso l'auto) |
 | `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
-| `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
+| `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless (`WirelessLink`; collegamento da solo: `WirelessAuto`, `CarPresenceService`), auto-aggiornamento da GitHub, statistiche d'uso opt-in |
 
 Tema/colori/font:
 - UI dell'auto: `MyCarCarTheme` (in `car/design/MyCarDesign.kt`) alla radice di `CarUi`: colori
@@ -506,6 +511,48 @@ Tutti i token in un solo posto, `car/design/`:
   non riparte né richiede: a fine condivisione la chiede `CarUi`. Accanto alla mappa l'app musicale
   prende il posto solo della scelta automatica del viaggio quando non si collega
   (`mediaAutoPicked`), mai di un'app scelta dal guidatore.
+- **Motore da Gearslip** (0.5.18, branch `fix/engine`): delle 116 modifiche di Gearslip dopo il fork
+  (0.3.01 → 0.3.31) si portano solo quelle che non possono cambiare come si collega un'auto che oggi va
+  (richiesta dell'utente: "porta quello che ha senso, non cose che potrebbero rompere il nostro
+  set-up"). Riscritte a mano su myCar, non unite: i diff si leggono rinominando gli alberi di Gearslip
+  (percorsi, package, Gearslip → MyCar/myCar) e facendone il cherry-pick a 3 vie. Portate: messaggi
+  lunghi in pezzi della misura di Android Auto (0x3f00 compresa l'intestazione: 16120 + 16124…,
+  `Frames.writeMessage`, solo il lato che invia); ping con i dati del campo 3 rimandati nel campo 2;
+  ByeBye in chiaro prima che l'auto accetti il certificato (prima `PhoneTls.encrypt` girava a vuoto per
+  sempre: `SSLEngine.wrap` prima della stretta di mano non consuma niente) e, a viaggio avviato, fine
+  della sessione dopo la risposta (durante l'impostazione il riaggancio resta il verdetto per
+  `CertRotation`); margini dell'auto convertiti con la densità scalata; senza fili da solo (sotto);
+  dettagli Wi-Fi ripetuti ignorati mentre un viaggio usa quella rete (ZLink; dopo la fine di una
+  sessione l'auto che ricomincia sullo stesso canale la richiede ancora); `VideoSource.stop`
+  interrotto; audio: Start una volta (`startLock`), AudioSpecificConfig (messaggio 1) alle auto solo
+  AAC-LC, margine dopo `AudioUnderflow` (0x800B: 60 ms di silenzio a passo, massimo 240, da zero a
+  ogni Start); canale musica chiuso finché il suono non passa da myCar (`CarAudio.openSink`: subito con
+  Tramite myCar, mai con Bluetooth, con Automatico quando decide per myCar); permessi dello schermo
+  Telefono chiesti sul telefono (`PermissionActivity`; senza finestra entro 400 ms apre le impostazioni
+  dell'app); app per auto senza risposta a `getAppInfo` 10 s dopo il legame → rifiutata; span
+  `DurationSpan`/`DistanceSpan` nei testi delle app. **Non portate**: la versione 1.7 (myCar risponde
+  sempre 1.3: le auto che vanno sono state provate così); i controlli severi su frammenti, messaggi
+  fuori stato e protobuf in arrivo; la fine della sessione sugli errori di protocollo 255/65535 (ora
+  solo un nome nel log); la domanda delle casse prima di ogni indicazione (dc61607: una risposta di
+  focus in ritardo andrebbe al canale musica e lo farebbe partire); il canale PhoneStatus per gli
+  schermi dell'auto (f4b8391: due giorni di vita, possibili doppioni con le chiamate Bluetooth); i
+  dati dell'auto alle app (b168eb7); il quadro strumenti video, il bitrate adattivo e lo schermo
+  dalla misura sbagliata (sperimentali o con impostazioni nuove); la scelta dell'app musicale
+  (c888d41: myCar la fa a modo suo). Da altri fork niente per ora: jorgecanut ha concluso che quasi
+  tutte le auto chiamano il telefono da sole quando sono pronte, cioè l'attesa che myCar fa già.
+- **Senza fili da solo** (0.5.18, `wireless/WirelessAuto.kt`, `CarPresenceService`): Android lascia
+  aprire la sua schermata dal background solo a un'app che gestisce il dispositivo come "companion".
+  Quando l'immagine di un'auto arriva senza cavo (`onSurfaceReady` con `wirelessSocket`,
+  `WirelessLink.reachedCar`) myCar chiede l'associazione (`CompanionDeviceManager.associate`, filtro
+  sull'indirizzo Bluetooth): Android mostra una volta il suo "Consenti". Poi `startObservingDevicePresence`,
+  e quando l'auto si collega in Bluetooth Android chiama `CarPresenceService.onDeviceAppeared`, che apre
+  `MyCarActivity` con `CAR_NEARBY` → `WirelessLink.start` come un tocco. Solo auto che hanno funzionato;
+  una risposta (sì o no) conta, una finestra mai mostrata no; niente seconda domanda nello stesso
+  viaggio; un'auto che si collega e scollega apre myCar una volta ogni 15 s. Col cavo resta il cavo, un
+  viaggio in corso non si tocca. Impostazioni → Connection → "Connect wirelessly by itself" (chiave
+  `on` in `mycar_wireless_auto`): spento smette di guardare, riacceso richiede le auto a cui si era
+  detto di no. `REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND` per il `SessionService`
+  col telefono in tasca. Non provato con un'auto vera.
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial

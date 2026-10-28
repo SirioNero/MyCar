@@ -129,7 +129,7 @@ private const val TAB_KEYPAD = 1
 @Composable
 fun PhoneDialerScreen() {
     val context = LocalContext.current
-    val hasPermissions = hasCallPermissions(context)
+    var hasPermissions by remember { mutableStateOf(hasCallPermissions(context)) }
     var tab by remember { mutableStateOf(TAB_CONTACTS) }
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -144,7 +144,7 @@ fun PhoneDialerScreen() {
         }
 
         if (!hasPermissions) {
-            MissingPermission(context)
+            MissingPermission(context) { hasPermissions = true }
             return@Column
         }
 
@@ -155,15 +155,23 @@ fun PhoneDialerScreen() {
 }
 
 @Composable
-private fun MissingPermission(context: Context) {
+private fun MissingPermission(context: Context, onGranted: () -> Unit) {
+    // Android's dialog can't show on the car screen, so it opens on the phone; checking again
+    // every second picks the answer up without the driver having to come back in.
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        while (!hasCallPermissions(context)) kotlinx.coroutines.delay(1_000)
+        onGranted()
+    }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            "myCar needs the Phone and Contacts permissions to dial from here. Grant them " +
-                "from the app's settings.",
+            "myCar needs the Phone and Contacts permissions to dial from here. Allow them on " +
+                "the phone when you're parked.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text("Open app settings") }
+        GsButton(tone = GsTone.Tonal, onClick = {
+            io.github.sirionero.mycar.PermissionActivity.ask(context, CALL_PERMISSIONS)
+        }) { Text("Ask on the phone") }
     }
 }
 

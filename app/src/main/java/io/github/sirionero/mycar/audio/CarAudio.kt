@@ -57,6 +57,12 @@ object CarAudio {
 
     @Volatile private var link: Link? = null
 
+    /**
+     * Opens the car's media channel, left closed while the music goes over Bluetooth (many cars
+     * switch their source to Android Auto the moment it opens); null once open. Set by the session.
+     */
+    @Volatile var openSink: (() -> Unit)? = null
+
     /** myCar's own music on its way to the car, once it has played this drive. */
     @Volatile private var feed: DirectFeed? = null
 
@@ -118,6 +124,7 @@ object CarAudio {
         when (_capture.value) {
             Capture.ON, Capture.ASKING, Capture.DENIED -> return
             Capture.OFF -> if (link == null) {
+                openSink?.invoke()
                 MyCarLog.i("audio: waiting for the car to offer an audio sink")
             } else if (!consentWaits()) {
                 ask()
