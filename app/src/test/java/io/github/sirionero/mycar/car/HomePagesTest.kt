@@ -54,6 +54,34 @@ class HomePagesTest {
     }
 
     @Test
+    fun everyLayoutReadsBackFromItsId() {
+        PageLayout.entries.forEach { assertSame(it, PageLayout.of(it.id)) }
+        assertEquals(listOf(1, 3, 3, 3, 3), listOf(
+            PageLayout.FULL, PageLayout.HALF_QUARTERS, PageLayout.QUARTERS_HALF,
+            PageLayout.STRIP_QUARTERS, PageLayout.QUARTERS_STRIP,
+        ).map { it.slots })
+    }
+
+    @Test
+    fun theNewLayoutsKeepWhatFitsInOrder() {
+        val grid = listOf(HomePage(1, PageLayout.GRID, listOf("a", null, "b", "c")))
+        assertEquals(listOf("a"), grid.withLayout(1, PageLayout.FULL).single().slots)
+        val mixed = grid.withLayout(1, PageLayout.HALF_QUARTERS)
+        assertEquals(listOf("a", "b", "c"), mixed.single().slots)
+        val strip = mixed.withLayout(1, PageLayout.QUARTERS_STRIP).single()
+        assertEquals(PageLayout.QUARTERS_STRIP, strip.layout)
+        assertEquals(listOf("a", "b", "c"), strip.slots)
+        assertEquals(listOf("a", "b", "c", null), listOf(strip).withLayout(1, PageLayout.GRID).single().slots)
+    }
+
+    @Test
+    fun repairFitsTheNewLayoutsToo() {
+        val pages = repaired(listOf(HomePage(0, PageLayout.MAP), HomePage(1, PageLayout.STRIP_QUARTERS, listOf("a"))))
+        assertEquals(listOf("a", null, null), pages[1].slots)
+        assertEquals(listOf("x"), repaired(listOf(HomePage(0, PageLayout.MAP), HomePage(1, PageLayout.FULL, listOf("x", "y"))))[1].slots)
+    }
+
+    @Test
     fun theMapPageStaysPut() {
         val pages = readyMade(plancia)
         assertSame(pages[1], pages.withLayout(0, PageLayout.GRID)[1])

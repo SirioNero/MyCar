@@ -12,11 +12,30 @@ import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** How a page of Home is cut up: the map's own page, two halves side by side, or four tiles two by two. */
+/**
+ * How a page of Home is cut up: the map's own page, two halves side by side, four tiles two by two,
+ * the whole page as one, or a half - or a wide strip - beside two quarters. Each layout's parts go
+ * in the order its [slots] list them: see the comment of each.
+ */
 internal enum class PageLayout(val id: String, val slots: Int) {
     MAP("map", 0),
     HALVES("halves", 2),
     GRID("grid", 4),
+
+    /** One part, the whole page. */
+    FULL("full", 1),
+
+    /** A half on the left; on the right a quarter above another. */
+    HALF_QUARTERS("half-quarters", 3),
+
+    /** A quarter above another on the left; a half on the right. */
+    QUARTERS_HALF("quarters-half", 3),
+
+    /** A strip the page's whole width on top; two quarters side by side below. */
+    STRIP_QUARTERS("strip-quarters", 3),
+
+    /** Two quarters side by side on top; a strip the page's whole width below. */
+    QUARTERS_STRIP("quarters-strip", 3),
     ;
 
     companion object {

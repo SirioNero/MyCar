@@ -17,6 +17,7 @@ import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.car.CarUi
 import java.io.File
 import java.io.FileOutputStream
+import io.github.sirionero.mycar.car.withLayout
 
 /**
  * Debug-only harness: runs the real car UI on a virtual display (the same path a head unit
@@ -87,6 +88,13 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
         // Home's ready-made pages every run, so a shot that changed one leaves the next alone.
         io.github.sirionero.mycar.car.HomePages.reset()
+        // --es pageLayout <id>: the page left of the map in that layout (the weather, the agenda, then
+        // empty parts), with an empty page right of it as Plancia's would be, for the layout shots.
+        intent.getStringExtra("pageLayout")?.let { io.github.sirionero.mycar.car.PageLayout.of(it) }?.let { layout ->
+            val pages = io.github.sirionero.mycar.car.readyMade(null) +
+                io.github.sirionero.mycar.car.HomePage(2, io.github.sirionero.mycar.car.PageLayout.HALVES)
+            io.github.sirionero.mycar.car.HomePages.save(pages.withLayout(1, layout))
+        }
         // --ez bridge true: Plancia's and Xonos's connections through the Plancia and Xonos apps'
         // bridges, as with myCar left out of Tailscale - the emulator has no Tailscale. Every run.
         io.github.sirionero.mycar.bridge.Bridges.init(this)

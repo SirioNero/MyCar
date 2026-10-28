@@ -89,7 +89,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Home as a row of pages: the map's own page - the map with the music or an app beside it, as
- * Home always was - and the driver's pages either side of it, each two halves or four parts
+ * Home always was - and the driver's pages either side of it, each cut up as the driver likes (a
+ * whole page, halves, quarters, or a half or a strip beside two quarters), each part
  * holding the weather, the agenda, the browser or a car app such as Plancia. A swipe on anything
  * that doesn't move under the finger itself (the map, the browser and car apps do) turns the
  * page, and so do the dots at the foot; the pencil beside them changes the page in view.
@@ -110,6 +111,8 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
     val pager = rememberPagerState(initialPage = mapIndex) { pages.size }
     var editing by remember { mutableStateOf<Int?>(null) }
     var choosing by remember { mutableStateOf<Int?>(null) }
+    // The list of layouts for the page being changed.
+    var choosingLayout by remember { mutableStateOf(false) }
     // A page to turn to once a change has moved it, when the pager has the new pages.
     var follow by remember { mutableStateOf<Int?>(null) }
 
@@ -144,6 +147,8 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
             choosing = null
         }
     }
+    // Each page changed starts without the list of layouts open.
+    LaunchedEffect(editing) { choosingLayout = false }
     // Back on one of the driver's pages turns to the map's; while a page is being changed, it closes
     // the list of what can go in it first, then the changing. Only on Home: another screen up may
     // want Back for itself (the browser, for its pages).
@@ -153,6 +158,7 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
         if (!changing && !besideMap) return@DisposableEffect onDispose { }
         val back: () -> Boolean = {
             when {
+                choosingLayout -> choosingLayout = false
                 choosing != null -> choosing = null
                 editing != null -> editing = null
                 else -> navigator.home()
@@ -212,7 +218,7 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
                 edited,
                 canMoveLeft = index > 0,
                 canMoveRight = index < pages.lastIndex,
-                onLayout = { HomePages.save(latest.withLayout(edited.id, it)) },
+                onLayout = { choosingLayout = true },
                 onMove = { by ->
                     HomePages.save(latest.moved(edited.id, by))
                     follow = edited.id
@@ -231,6 +237,16 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
                 onDone = { editing = null },
                 modifier = Modifier.align(Alignment.TopCenter).padding(MyCarSpace.S),
             )
+            if (choosingLayout) {
+                LayoutChooser(
+                    edited.layout,
+                    onChoose = { layout ->
+                        HomePages.save(latest.withLayout(edited.id, layout))
+                        choosingLayout = false
+                    },
+                    onClose = { choosingLayout = false },
+                )
+            }
             choosing?.let { slot ->
                 ContentChooser(
                     edited,
@@ -256,6 +272,9 @@ private fun DriverPage(page: HomePage, inView: Boolean, editing: Boolean, onEdit
     val keyboard = remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
     // A page runs one car app, in the first part that holds one; the list of choices keeps it so.
     val runner = page.slots.indexOfFirst { carAppIn(it, entries) != null }
+    val part: @Composable (Int, Modifier) -> Unit = { slot, modifier ->
+        PagePart(page.slots[slot], entries, inView, inView && slot == runner, editing, onEdit, { onChoose(slot) }, keyboard, modifier)
+    }
     Column(Modifier.fillMaxSize()) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when (page.layout) {
@@ -273,6 +292,35 @@ private fun DriverPage(page: HomePage, inView: Boolean, editing: Boolean, onEdit
                             }
                         }
                     }
+                }
+                PageLayout.FULL -> part(0, Modifier.fillMaxSize())
+                PageLayout.HALF_QUARTERS -> Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(PageGap)) {
+                    part(0, Modifier.weight(1f).fillMaxHeight())
+                    Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(PageGap)) {
+                        part(1, Modifier.weight(1f).fillMaxWidth())
+                        part(2, Modifier.weight(1f).fillMaxWidth())
+                    }
+                }
+                PageLayout.QUARTERS_HALF -> Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(PageGap)) {
+                    Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(PageGap)) {
+                        part(0, Modifier.weight(1f).fillMaxWidth())
+                        part(1, Modifier.weight(1f).fillMaxWidth())
+                    }
+                    part(2, Modifier.weight(1f).fillMaxHeight())
+                }
+                PageLayout.STRIP_QUARTERS -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(PageGap)) {
+                    part(0, Modifier.weight(1f).fillMaxWidth())
+                    Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(PageGap)) {
+                        part(1, Modifier.weight(1f).fillMaxHeight())
+                        part(2, Modifier.weight(1f).fillMaxHeight())
+                    }
+                }
+                PageLayout.QUARTERS_STRIP -> Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(PageGap)) {
+                    Row(Modifier.weight(1f).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(PageGap)) {
+                        part(0, Modifier.weight(1f).fillMaxHeight())
+                        part(1, Modifier.weight(1f).fillMaxHeight())
+                    }
+                    part(2, Modifier.weight(1f).fillMaxWidth())
                 }
                 PageLayout.MAP -> Unit
             }
@@ -588,15 +636,16 @@ private fun PageDots(pages: List<HomePage>, current: Int, onPage: (Int) -> Unit,
 }
 
 /**
- * Across the top while a page is changed: two halves or four parts, move it left or right (past
- * the map's page too), a new page after it, delete it (a second tap to be sure), and Done.
+ * Across the top while a page is changed: its layout (the list of them, [LayoutChooser]), move it
+ * left or right (past the map's page too), a new page after it, delete it (a second tap to be
+ * sure), and Done.
  */
 @Composable
 private fun EditBar(
     page: HomePage,
     canMoveLeft: Boolean,
     canMoveRight: Boolean,
-    onLayout: (PageLayout) -> Unit,
+    onLayout: () -> Unit,
     onMove: (Int) -> Unit,
     onAdd: () -> Unit,
     onDelete: () -> Unit,
@@ -619,8 +668,7 @@ private fun EditBar(
         horizontalArrangement = Arrangement.spacedBy(MyCarSpace.S),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        BarButton(R.drawable.sym_view_column_2, "Two halves", selected = page.layout == PageLayout.HALVES) { onLayout(PageLayout.HALVES) }
-        BarButton(R.drawable.sym_view_cozy, "Four parts", selected = page.layout == PageLayout.GRID) { onLayout(PageLayout.GRID) }
+        LayoutButton(page.layout, onLayout)
         Spacer(Modifier.width(MyCarSpace.S))
         BarButton(R.drawable.sym_chevron_left, "Move left", enabled = canMoveLeft) { onMove(-1) }
         BarButton(R.drawable.sym_chevron_right, "Move right", enabled = canMoveRight) { onMove(1) }
@@ -762,7 +810,7 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
 }
 
 @Composable
-private fun Choice(label: String, selected: Boolean, enabled: Boolean = true, onClick: () -> Unit, icon: @Composable () -> Unit) {
+internal fun Choice(label: String, selected: Boolean, enabled: Boolean = true, onClick: () -> Unit, icon: @Composable () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     GsIconBox(
         onClick = onClick,
@@ -798,7 +846,7 @@ internal fun HomePagesSettings() {
         Text("Pages beside the map", style = MaterialTheme.typography.titleMedium, color = scheme.primary)
         Text(
             "Swipe across Home, or tap the dots at its foot, for your pages: the weather, the agenda, the browser " +
-                "or a car app such as Plancia, in two halves or four parts. The pencil beside the dots changes the page in view.",
+                "or a car app such as Plancia, as a whole page, halves, quarters or a mix. The pencil beside the dots changes the page in view.",
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,
         )
@@ -830,6 +878,6 @@ private val DotSize = 44.dp
 private const val DotsFadeMs = 250
 private const val DELETE_ARMED_MS = 4_000L
 private val PlaceholderIcon = 72.dp
-private val ChoiceWidth = 150.dp
+internal val ChoiceWidth = 150.dp
 private val ChoiceHeight = 120.dp
 private val ChoiceIcon = 52.dp
