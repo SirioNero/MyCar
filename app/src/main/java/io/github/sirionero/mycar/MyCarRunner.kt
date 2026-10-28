@@ -71,7 +71,9 @@ class MyCarRunner(
     private var selectedConfigIndex: Int? = null
     private var vehicleProfile: VehicleProfile? = null
     @Volatile private var videoStarted = false
-    private var videoSource: VideoSource? = null
+    @Volatile private var videoSource: VideoSource? = null
+    /** New encoders made after one died mid-drive; see [onEncoderFailed]. */
+    private var videoRestarts = 0
     @Volatile private var inFlight = 0
     /** Guards [inFlight]: the encoder thread waits on it for the head unit's acks. */
     private val ackLock = Object()
@@ -996,7 +998,7 @@ class MyCarRunner(
         }
 
         val useProjection = projection != null
-        videoSource = VideoSource(
+        val source = VideoSource(
             width = width,
             height = height,
             // 60fps only over a cable: over Wi-Fi it doubles the data for little the driver sees.
@@ -1012,19 +1014,53 @@ class MyCarRunner(
             onFrame = { data, presentationTimeUs, keyFrame ->
                 sendVideoFrame(data, presentationTimeUs, keyFrame)
             },
-        ).also { source ->
-            runCatching {
-                source.start()
-                val surface = source.inputSurface
-                if (projection != null && surface != null) {
-                    projection.onSurfaceReady(surface, width, height, config.density)
-                    SessionStatus.projecting()
-                    CarAudioRoute.onProjecting()
-                    BluetoothAudioCheck.onProjecting()
-                    LocationCheck.onProjecting()
-                }
-            }.onFailure { e -> log.e("encoder start failed", e) }
+            onError = ::onEncoderFailed,
+        )
+        // Known before it starts, so a stop() that comes while it does stops it too.
+        videoSource = source
+        runCatching {
+            source.start()
+            // Unplugged while the encoder was starting: no car UI for a car that's gone.
+            if (stopped) {
+                source.stop()
+                return
+            }
+            val surface = source.inputSurface
+            if (projection != null && surface != null) {
+                projection.onSurfaceReady(surface, width, height, config.density)
+                SessionStatus.projecting()
+                CarAudioRoute.onProjecting()
+                BluetoothAudioCheck.onProjecting()
+                LocationCheck.onProjecting()
+            }
+        }.onFailure { e ->
+            log.e("encoder start failed", e)
+            if (!stopped) {
+                SessionStatus.failed("No picture for the car", "The phone's video encoder wouldn't start (${e.message}). Disconnect and connect again.")
+            }
         }
+    }
+
+    /**
+     * The encoder died mid-drive - Android takes a codec back for an app in front, now and then -
+     * and the car's screen would stay on its last picture for the rest of the drive. A new
+     * encoder takes over, a couple of times; the car gets its codec config and a keyframe again.
+     */
+    private fun onEncoderFailed(error: Throwable) {
+        if (stopped) return
+        Thread({
+            if (stopped) return@Thread
+            if (videoRestarts >= MAX_VIDEO_RESTARTS) {
+                log.e("the encoder failed again - no more restarts")
+                SessionStatus.failed("The car's picture stopped", "The phone's video encoder keeps failing (${error.message}). Disconnect and connect again.")
+                return@Thread
+            }
+            videoRestarts++
+            log.w("restarting the encoder ($videoRestarts of $MAX_VIDEO_RESTARTS) after: ${error.message}")
+            videoSource?.stop()
+            videoSource = null
+            startVideoSource()
+        }, "mycar-video-restart").start()
     }
 
     /**
@@ -1325,6 +1361,9 @@ class MyCarRunner(
     }
 
     private companion object {
+        /** New encoders after one dies mid-drive, before giving up on the picture. */
+        const val MAX_VIDEO_RESTARTS = 2
+
         /**
          * The protocol version myCar answers every car with, as (major, minor), or null to echo
          * the head unit's. Kept at 1.3 because every working car was tested with it; see

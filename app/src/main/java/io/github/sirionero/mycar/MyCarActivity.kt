@@ -461,6 +461,13 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     override fun onSurfaceReady(surface: Surface, width: Int, height: Int, densityDpi: Int) {
         runOnUiThread {
+            // The session ended while its video was starting: nothing to show it on.
+            if (runner == null) return@runOnUiThread
+            // A new encoder after one died: the car UI moves to its surface.
+            if (this.surface != null && this.surface !== surface) {
+                screenProjector?.stop()
+                screenProjector = null
+            }
             this.surface = surface
             frameWidth = width
             frameHeight = height
