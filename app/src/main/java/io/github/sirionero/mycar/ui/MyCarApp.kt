@@ -75,9 +75,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
         }
     }
 
-    // Home stays upright; every other screen turns with the phone.
+    // Home and the intro stay upright (the intro is drawn to the width of a phone held upright,
+    // and it often shows on the first start after an update, opened by the car with the phone
+    // in its holder); every other screen turns with the phone.
     LaunchedEffect(screen) {
-        (context as? Activity)?.requestedOrientation = if (screen == Screen.HOME) {
+        (context as? Activity)?.requestedOrientation = if (screen == Screen.HOME || screen == Screen.INTRO) {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         } else {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
