@@ -44,14 +44,21 @@ internal fun BluetoothPairOverlay() {
             val warn by CarSettings.bluetoothWarning.collectAsState()
             val locationOff by LocationCheck.off.collectAsState()
             val locationDismissed by LocationCheck.carDismissed.collectAsState()
-            if (missing && warn && !dismissed) PairCard(
+            val bluetoothDue = missing && warn && !dismissed
+            val locationDue = locationOff && !locationDismissed
+            // These two cover the map with a veil until OK: they wait for the car to stop, as
+            // What's new does, instead of coming up mid-drive when Bluetooth drops. The car's own
+            // driving status says so, else the phone's GPS (see CarDriving).
+            val moving = if (bluetoothDue || locationDue) !rememberVideoAllowed() else false
+            if (moving) return
+            if (bluetoothDue) PairCard(
                 title = "Bluetooth isn't connected",
                 body = (if (bluetoothAudio) "Calls and music play" else "Calls play") +
                     " over Bluetooth, but your phone isn't connected to the car. " +
                     "Connect it from the car's Bluetooth menu or your phone's.",
                 secondary = "Don't show again" to BluetoothAudioCheck::neverAgain,
                 primary = "OK" to BluetoothAudioCheck::dismissOnCar,
-            ) else if (locationOff && !locationDismissed) PairCard(
+            ) else if (locationDue) PairCard(
                 title = "Location is off",
                 body = "Map apps can't show where you are or give directions. Turn on location " +
                     "in your phone's quick settings when you're parked.",
