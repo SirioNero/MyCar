@@ -168,7 +168,9 @@ object VoiceReply {
     }
 
     private fun ask(id: Int) {
-        CarAssistant.say("What's your reply?") {
+        // Whose chat, out loud: a reply asked for by voice ("reply to Anna") can't be checked by eye.
+        val who = _state.value.target?.title?.takeIf { it.isNotBlank() }
+        CarAssistant.say(if (who != null) "What's your reply to $who?" else "What's your reply?") {
             if (id == run) listen(id)
         }
     }
@@ -189,7 +191,8 @@ object VoiceReply {
     private fun confirm(id: Int, text: String) {
         _state.value = _state.value.copy(phase = Phase.CONFIRMING, heard = text, until = 0L, span = 0L, held = 0f)
         // The countdown starts once the driver has heard the whole reply, not while it's read out.
-        CarAssistant.say("Sending: $text") {
+        val who = _state.value.target?.title?.takeIf { it.isNotBlank() }
+        CarAssistant.say(if (who != null) "Sending to $who: $text" else "Sending: $text") {
             if (id != run) return@say
             startCountdown(id, SEND_DELAY_MS)
             // A moment for the read-back to finish playing in the car before the microphone opens.

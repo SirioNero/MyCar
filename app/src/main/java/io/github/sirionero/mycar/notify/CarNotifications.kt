@@ -72,8 +72,11 @@ object CarNotifications {
     private val _unread = MutableStateFlow(0)
     val unread: StateFlow<Int> = _unread.asStateFlow()
 
-    /** The chats behind the dot: something new the driver hasn't looked at, heard or answered. */
-    private val unreadKeys = java.util.Collections.synchronizedSet(mutableSetOf<String>())
+    /**
+     * The chats behind the dot, with how many new posts each: something the driver hasn't looked
+     * at, heard or answered. The count is what "read my messages" reads out (up to a few).
+     */
+    private val unreadKeys = java.util.Collections.synchronizedMap(mutableMapOf<String, Int>())
 
     /** True while the system has bound the listener - i.e. the user has granted access. */
     private val _listening = MutableStateFlow(false)
@@ -108,10 +111,10 @@ object CarNotifications {
         if (quiet || echo || nothingNew) return
         // The dot on the dock's clock, until it's seen: the notifications screen, read aloud,
         // answered, or its app's messages screen (see seen). It used to stay after all but the first.
-        unreadKeys.add(notification.key)
+        unreadKeys.merge(notification.key, 1) { a, b -> a + b }
         // A chat gone from the history (it only keeps the latest) can't be seen any more.
         val kept = _history.value.map { it.key }.toSet()
-        unreadKeys.retainAll(kept)
+        unreadKeys.keys.retainAll(kept)
         _unread.value = unreadKeys.size
         val now = android.os.SystemClock.uptimeMillis()
         _popup.update { shown ->
@@ -134,6 +137,8 @@ object CarNotifications {
         if (history.none { it.key == key }) return
         dismissed.add(key)
         if (dismissed.size > MAX_HISTORY) dismissed.retainAll(history.map { it.key }.toSet())
+        // Taken off the phone (read there, most often): not new in the car either.
+        seen(key)
         _history.update { list -> list.map { if (it.key == key) it.copy(reply = null, markRead = null) else it } }
     }
 
@@ -154,7 +159,10 @@ object CarNotifications {
     }
 
     /** Something new in [key]'s chat that the driver hasn't looked at, heard or answered. */
-    fun isUnread(key: String): Boolean = key in unreadKeys
+    fun isUnread(key: String): Boolean = unreadKeys.containsKey(key)
+
+    /** How many posts came in [key]'s chat since it was last seen: 0 when it's all been seen. */
+    fun unreadCount(key: String): Int = unreadKeys[key] ?: 0
 
     /** [key] read aloud, answered or marked read: it no longer keeps the dot on. */
     fun seen(key: String) {
@@ -165,7 +173,7 @@ object CarNotifications {
     /** An app's messages screen is up: its chats are being looked at. */
     fun seenFrom(packageName: String) {
         val keys = _history.value.filter { it.packageName == packageName }.map { it.key }.toSet()
-        unreadKeys.removeAll(keys)
+        unreadKeys.keys.removeAll(keys)
         _unread.value = unreadKeys.size
     }
 
