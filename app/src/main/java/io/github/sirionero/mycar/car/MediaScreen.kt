@@ -39,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -427,10 +428,14 @@ internal fun LyricsPanel(
     lineStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.titleLarge,
 ) {
     val context = LocalContext.current
-    val lyrics by produceState<LyricsState>(LyricsState.Loading, now.title, now.artist, now.album, now.durationMs) {
+    // Asked again with Try again, after a lookup that couldn't reach lrclib.net.
+    var attempt by remember { mutableIntStateOf(0) }
+    val lyrics by produceState<LyricsState>(LyricsState.Loading, now.title, now.artist, now.album, now.durationMs, attempt) {
         value = LyricsState.Loading
-        value = Lyrics.find(context, now.title, now.artist, now.album, now.durationMs)
-            ?.let { LyricsState.Found(it) } ?: LyricsState.Missing
+        value = Lyrics.find(context, now.title, now.artist, now.album, now.durationMs).fold(
+            onSuccess = { found -> found?.let { LyricsState.Found(it) } ?: LyricsState.Missing },
+            onFailure = { LyricsState.Unreachable },
+        )
     }
     val list = rememberLazyListState()
 
@@ -451,6 +456,11 @@ internal fun LyricsPanel(
         LyricsState.Missing -> Notice(
             if (now.title.isEmpty()) "Nothing playing." else "No lyrics found for this track.",
             null,
+        )
+        LyricsState.Unreachable -> Notice(
+            "Couldn't reach the lyrics.",
+            "They come from lrclib.net: check the phone's connection.",
+            action = "Try again" to { attempt++ },
         )
         is LyricsState.Found -> {
             val lines = state.result.lines
@@ -479,6 +489,7 @@ internal fun LyricsPanel(
 private sealed interface LyricsState {
     data object Loading : LyricsState
     data object Missing : LyricsState
+    data object Unreachable : LyricsState
     class Found(val result: LyricsResult) : LyricsState
 }
 
