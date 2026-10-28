@@ -30,6 +30,9 @@ object ChannelLogos {
         override fun sizeOf(key: String, value: ImageBitmap) = value.width * value.height * 4
     }
 
+    /** Logos that didn't come (a tunnel, a slow server) are tried again: when a list opens. */
+    fun forgetFailures() = failed.clear()
+
     /** The logo at [url], if it's kept already: no waiting. */
     fun kept(url: String): ImageBitmap? = logos.get(url)
 
