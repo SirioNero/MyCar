@@ -50,7 +50,8 @@ object SiteIcons {
                 val icon = fromDisk(app, host) ?: runCatching { fetch(site.url) }
                     .onFailure { MyCarLog.i("cinema: no icon for $host (${it.javaClass.simpleName})") }
                     .getOrNull()?.also { keep(app, host, it) }
-                icon?.let { put(host, it) }
+                // None (no signal, say): asked again the next time the sites show.
+                if (icon != null) put(host, icon) else synchronized(asked) { asked.remove(host) }
             }
         }
     }

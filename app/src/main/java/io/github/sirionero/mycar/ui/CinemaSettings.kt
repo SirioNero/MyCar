@@ -104,7 +104,8 @@ internal fun CinemaSection() {
                         address = ""
                         askLocalNetwork(listOf(url)) {}
                     },
-                    enabled = address.isNotBlank(),
+                    // Only an address with a host: "my site" made a tile with no name that opened nothing.
+                    enabled = CinemaSite("", Cinema.normalizeUrl(address)).host.isNotEmpty(),
                 ) { Text("Add the site") }
                 TextButton(onClick = { Cinema.backToSuggested() }) { Text("Suggested sites") }
             }
