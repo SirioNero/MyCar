@@ -265,9 +265,12 @@ class PlaybackService : MediaLibraryService() {
             onFocusChange(AudioFocus.Change.PAUSED)
             return
         }
-        // Finita: si riprova il focus (myCar può essere in vista ora) e si riprende.
+        // Finita: se la chiamata aveva fermato Xonos si riprova il focus (myCar può essere in vista
+        // ora) e si riprende. Da fermo no: il focus andava tolto all'app che suona adesso, che
+        // non riprendeva più dopo la chiamata.
+        if (!resumeAfterInterruption) return
         if (focus.request()) watchCalls(false)
-        if (resumeAfterInterruption) onFocusChange(AudioFocus.Change.RESUMED)
+        onFocusChange(AudioFocus.Change.RESUMED)
     }
 
     /** Una telefonata in corso, o che squilla: l'unico motivo per cui Xonos cede la musica da sé. */
