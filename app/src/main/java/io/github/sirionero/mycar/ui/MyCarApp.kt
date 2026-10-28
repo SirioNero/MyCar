@@ -1,9 +1,7 @@
 package io.github.sirionero.mycar.ui
 
-import android.Manifest
 import android.app.Activity
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
-import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.home.HomeAssistant
@@ -43,21 +40,18 @@ import io.github.sirionero.mycar.stats.UsageStats
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
 
-private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP, SETUP_GUIDE, USAGE_NOTES, HELP, WHATS_NEW, RECOMMENDED_APPS }
+private enum class Screen { INTRO, HOME, LOGS, SETTINGS, CAR_PREVIEW, CERT_SETUP, SETUP_GUIDE, USAGE_NOTES, HELP, WHATS_NEW, RECOMMENDED_APPS, SETUP }
 
 /** Three screens and a back stack of depth one: no navigation library needed. */
 @Composable
 fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     val context = LocalContext.current
-    val needsCertSetup = remember {
-        !AppSettings.hasSkippedCertSetup(context) && !CertProvider.hasAnyCert(context)
-    }
+    // The first run starts on the setup list; anything left for later stays on Home (SetupLeftCard).
     val needsSetupGuide = remember { !AppSettings.hasSeenPermissionsSetup(context) }
     // Where launch goes once the intro (if any) is done.
     val afterIntro = remember {
         when {
-            needsCertSetup -> Screen.CERT_SETUP
-            needsSetupGuide -> Screen.SETUP_GUIDE
+            needsSetupGuide -> Screen.SETUP
             // Set up before usage notes existed: ask once, on the setup guide's own page.
             UsageStats.sends && !UsageStats.asked(context) -> Screen.USAGE_NOTES
             else -> Screen.HOME
@@ -70,6 +64,9 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     var settingsAtUsageNotes by rememberSaveable { mutableStateOf(false) }
     // What's new and Connection help open from Home and from Settings; back returns to whichever.
     var backTo by rememberSaveable { mutableStateOf(Screen.SETTINGS) }
+    // The setup list: from the first run, or back to it later; it returns where it came from.
+    var setupEntry by rememberSaveable { mutableStateOf(if (needsSetupGuide) SetupEntry.FIRST_RUN else SetupEntry.RETURN) }
+    var setupReturn by rememberSaveable { mutableStateOf(Screen.HOME) }
     BackHandler(enabled = screen != Screen.HOME && screen != Screen.INTRO) {
         screen = when (screen) {
             Screen.RECOMMENDED_APPS, Screen.LOGS, Screen.CAR_PREVIEW -> Screen.SETTINGS
@@ -87,24 +84,9 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
         }
     }
 
-    // The guide asks for this now, but anyone who finished it before that never saw the page.
-    // Android shows one permission question at a time and drops one asked meanwhile: the home
-    // network's waits for this one's answer.
-    var notificationAsking by remember { mutableStateOf(false) }
-    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        notificationAsking = false
-    }
     // Reads the certificate once in the background, so Settings has it ready when opened.
     LaunchedEffect(Unit) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { runCatching { CertSummary.read(context) } }
-    }
-    LaunchedEffect(Unit) {
-        if (!needsSetupGuide &&
-            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationAsking = true
-            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
     }
 
     // Android 17 keeps myCar off the home network until it's allowed (see LocalNetwork), and
@@ -117,8 +99,8 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     val plancia by HomeAssistant.config.collectAsState()
     val xonos by Xonos.setUp.collectAsState()
     LaunchedEffect(Unit) { XonosAccount.adoptIfUnset(context) }
-    LaunchedEffect(plancia, xonos, screen, notificationAsking) {
-        if (notificationAsking || screen != Screen.HOME || LocalNetwork.askedAtStart || LocalNetwork.allowed(context)) return@LaunchedEffect
+    LaunchedEffect(plancia, xonos, screen) {
+        if (screen != Screen.HOME || LocalNetwork.askedAtStart || LocalNetwork.allowed(context)) return@LaunchedEffect
         val urls = plancia.urls + if (xonos) Xonos.settings.load().urls else emptyList()
         if (LocalNetwork.mayBlock(context, urls)) {
             LocalNetwork.askedAtStart = true
@@ -142,6 +124,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                     onOpenWhatsNew = { backTo = Screen.HOME; screen = Screen.WHATS_NEW },
                     onOpenHelp = { backTo = Screen.HOME; screen = Screen.HELP },
                     onOpenUsageNotes = { settingsAtUsageNotes = true; screen = Screen.SETTINGS },
+                    onOpenSetup = {
+                        setupEntry = SetupEntry.RETURN
+                        setupReturn = Screen.HOME
+                        screen = Screen.SETUP
+                    },
                     onDisconnect = onDisconnect,
                 )
                 Screen.WHATS_NEW -> WhatsNewScreen(onBack = { screen = backTo })
@@ -153,7 +140,12 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                     onOpenHelp = { settingsAtUsageNotes = false; backTo = Screen.SETTINGS; screen = Screen.HELP },
                     onOpenCarPreview = { settingsAtUsageNotes = false; screen = Screen.CAR_PREVIEW },
                     onOpenLogs = { settingsAtUsageNotes = false; screen = Screen.LOGS },
-                    onReplayTutorial = { screen = Screen.SETUP_GUIDE },
+                    onReplayTutorial = {
+                        settingsAtUsageNotes = false
+                        setupEntry = SetupEntry.RETURN
+                        setupReturn = Screen.SETTINGS
+                        screen = Screen.SETUP
+                    },
                     onReplayIntro = { Intro.replay(context); introReturn = Screen.SETTINGS; screen = Screen.INTRO },
                     atUsageNotes = settingsAtUsageNotes,
                 )
@@ -162,6 +154,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                 Screen.HELP -> HelpScreen(
                     onBack = { screen = backTo },
                     onRequestCallScreening = onRequestCallScreening,
+                    onOpenSetup = {
+                        setupEntry = SetupEntry.RETURN
+                        setupReturn = Screen.HELP
+                        screen = Screen.SETUP
+                    },
                 )
                 Screen.CERT_SETUP -> CertSetupScreen(
                     onDone = {
@@ -171,6 +168,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                 Screen.SETUP_GUIDE -> SetupGuideScreen(
                     onRequestCallScreening = onRequestCallScreening,
                     onDone = { screen = Screen.HOME },
+                )
+                Screen.SETUP -> SetupScreen(
+                    entry = setupEntry,
+                    onDone = { screen = setupReturn },
+                    onRequestCallScreening = onRequestCallScreening,
                 )
                 Screen.USAGE_NOTES -> SetupGuideScreen(
                     onRequestCallScreening = onRequestCallScreening,

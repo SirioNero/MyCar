@@ -150,6 +150,17 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
+    /** Android's one-time "Allow" for a car to connect by itself; see [io.github.sirionero.mycar.wireless.WirelessAuto]. */
+    private var approvingCar: String? = null
+    private val carApproval = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        val address = approvingCar ?: return@registerForActivityResult
+        approvingCar = null
+        if (result.resultCode == RESULT_OK) io.github.sirionero.mycar.wireless.WirelessAuto.approved(this, address)
+        else io.github.sirionero.mycar.wireless.WirelessAuto.declined(this, address)
+    }
+
     /** Setting myCar as the phone's caller ID and spam app - what lets it decline a ringing call. */
     private val callScreeningRole = registerForActivityResult(StartActivityForResult()) { result ->
         if (result.resultCode != RESULT_OK) MyCarLog.w("calls: call screening role declined")
@@ -171,7 +182,14 @@ class MyCarActivity : ComponentActivity(), Projection {
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = { socket ->
             runOnUiThread { startWireless(socket) }
         }
+        io.github.sirionero.mycar.wireless.WirelessAuto.showApproval = { chooser, address ->
+            runOnUiThread {
+                approvingCar = address
+                carApproval.launch(androidx.activity.result.IntentSenderRequest.Builder(chooser).build())
+            }
+        }
         CarSettings.init(this)
+        CertRotation.init(this)
         AppSettings.applyMyCarEnabled(this)
         // A capture that died without tidying up would leave notifications exposed to every
         // later screen share, and the phone's music muted. Nothing is capturing if the service is
@@ -287,6 +305,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     override fun onDestroy() {
         super.onDestroy()
         io.github.sirionero.mycar.wireless.WirelessLink.onConnected = null
+        io.github.sirionero.mycar.wireless.WirelessAuto.showApproval = null
         runCatching { unregisterReceiver(detachReceiver) }
         PhoneMirror.onStartRequested = null
         PhoneMirror.onTokenReady = null
@@ -465,6 +484,10 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     private fun handleIntent(intent: Intent?) {
+        if (intent?.action == io.github.sirionero.mycar.wireless.WirelessAuto.ACTION_CAR_NEARBY) {
+            connectToNearbyCar(intent.getStringExtra(io.github.sirionero.mycar.wireless.WirelessAuto.EXTRA_ADDRESS))
+            return
+        }
         if (intent?.action != UsbManager.ACTION_USB_ACCESSORY_ATTACHED) return
         // Switched off in Settings: the system shouldn't route the car here at all, but if it
         // does, leave the accessory alone.
@@ -480,6 +503,36 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
         MyCarLog.i("accessory attached by the system - permission is implicit on this path")
         start(accessory)
+    }
+
+    /** A car allowed to connect by itself came up over Bluetooth: connect wirelessly, unless the cable or another try is on it. */
+    private fun connectToNearbyCar(address: String?) {
+        if (address == null) return
+        if (!AppSettings.myCarEnabled(this)) {
+            MyCarLog.i("auto-connect: myCar is switched off - not connecting")
+            return
+        }
+        if (descriptor != null) {
+            MyCarLog.i("auto-connect: the car is on the cable already - staying on it")
+            return
+        }
+        // Only a session still running counts: one the car ended is cleared by [runSession].
+        if (worker?.isAlive == true || io.github.sirionero.mycar.wireless.WirelessLink.busy) {
+            MyCarLog.i("auto-connect: a session is already under way")
+            return
+        }
+        if (checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            MyCarLog.w("auto-connect: needs the Nearby devices permission")
+            return
+        }
+        val adapter = getSystemService(android.bluetooth.BluetoothManager::class.java)?.adapter
+        val device = adapter?.let { runCatching { it.getRemoteDevice(address) }.getOrNull() }
+        if (device == null) {
+            MyCarLog.w("auto-connect: Bluetooth couldn't hand over the car")
+            return
+        }
+        MyCarLog.i("auto-connect: connecting")
+        io.github.sirionero.mycar.wireless.WirelessLink.start(this, device)
     }
 
     private fun start(accessory: UsbAccessory) {
@@ -520,6 +573,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             identityProvider = { CertProvider.load(this) },
             projection = this,
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
+            onCertVerdict = { identity, verdict -> CertRotation.report(applicationContext, identity, verdict) },
         )
         this.runner = runner
         worker = runSession(runner)
@@ -566,6 +620,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             projection = this,
             vehicleProfileFor = { info -> VehicleProfiles.find(VehicleProfiles.load(this), info) },
             wireless = true,
+            onCertVerdict = { identity, verdict -> CertRotation.report(applicationContext, identity, verdict) },
         )
         this.runner = runner
         worker = runSession(runner)
@@ -617,6 +672,8 @@ class MyCarActivity : ComponentActivity(), Projection {
             frameWidth = width
             frameHeight = height
             frameDensity = densityDpi
+            // The car's picture is up without the cable: next time it can connect by itself.
+            if (wirelessSocket != null) io.github.sirionero.mycar.wireless.WirelessLink.reachedCar(this)
             CarEnvironment.setDisplay(width, height, densityDpi)
             CarEnvironment.start(this)
             // The session holds the drive's services too, so they outlast its car UI (see CarServices.init).

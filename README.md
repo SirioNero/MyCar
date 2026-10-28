@@ -68,6 +68,10 @@ behind it all — still or moving.
   while it moves the picture is covered and the sound carries on. That's a setting, on by default,
   which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN)
   most likely stays black in the car: Android hides it from a screen sent to the car as video.
+- **Plancia and Xonos with Tailscale, wirelessly too.** Over wireless myCar has to be left out of
+  Tailscale, so the built-in Plancia and Xonos reach your servers through the Plancia and Xonos
+  apps on the phone, which stay inside it: set the apps to the same addresses. When even that
+  fails - a wrong address or token - the apps take their place for the drive, by themselves.
 - **Weather and the day ahead.** A dashboard screen shows the week's calendar next to
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the
@@ -107,9 +111,11 @@ behind it all — still or moving.
 - **Wired or wireless.** Plug the phone into the car's USB port, or, in a car with wireless
   Android Auto, tap Connect wirelessly and pick the car. Pair the phone with the car over
   Bluetooth first.
-- **Setup walks you through it.** First launch asks for the Android Auto certificate,
-  then one permission at a time, each with a plain reason and an Allow or Skip. A help
-  screen inside the car answers anything setup didn't cover.
+- **Setup is one list.** First launch shows what's needed to connect and what the drive
+  needs, with a tick on what's done and one button for the next step: get the certificates,
+  then allow calls, map and music in one go. "Take me back to the initial setup", in How to
+  connect, opens the same list later, with nothing deleted or reset. A help screen inside the
+  car answers anything setup didn't cover.
 - **Templated apps work.** myCar renders all 16 template types that the Car App
   Library defines, and it draws its own keyboard for search, sign-in, and text fields.
 - **It works with [LIVI](https://github.com/f-io/LIVI),** the open-source head unit
@@ -191,9 +197,13 @@ the protocol comes from Gearslip and from public open-source projects such as
 [aasdk](https://github.com/opencardev/aasdk) and open-android-auto, and it contains none
 of Google's Android Auto code.
 
-myCar ships without a certificate. On first launch you choose where yours comes from:
-download the one the aasdk project publishes, or import a file of your own. The
-certificate stays on your phone. myCar never uploads, backs up, or logs it.
+myCar ships without a certificate. On first launch, Get certificates downloads two public
+ones from open-source projects on GitHub: the one [aasdk](https://github.com/opencardev/aasdk)
+publishes, recommended, and the one in
+[Headunit Revived](https://github.com/andreknieriem/headunit-revived), as a spare. myCar checks
+each against its fingerprint before keeping it, and if your car turns down the first, it uses
+the other. You can also pick one in Settings, or import a file of your own. Certificates stay
+on your phone. myCar never uploads, backs up, or logs them.
 
 ## Based on Gearslip
 

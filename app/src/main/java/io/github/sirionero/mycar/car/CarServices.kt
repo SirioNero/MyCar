@@ -98,6 +98,12 @@ object CarServices {
         // car's music, which it plays into the car by itself, Android isn't asked to share the audio.
         XonosAccount.adoptIfUnset(appContext)
         CarAudio.consentWaits = ::xonosIsTheMusic
+        // Connected through the drive too, like Plancia: ready when it's opened, and known to reach
+        // Music Assistant or not before the drive's music is picked.
+        Xonos.init(appContext)
+        Xonos.repo.acquire()
+        // The Plancia and Xonos apps in place of the ones inside myCar, if those can't connect.
+        InsideOrApp.start(appContext)
         // Loaded now, while nothing's waiting on it, so the first reply isn't slower than the rest.
         io.github.sirionero.mycar.speech.SpeechEngine.warm(appContext)
     }
@@ -290,16 +296,36 @@ object CarServices {
      * or none yet, with Xonos the music app there is.
      */
     private fun xonosIsTheMusic(): Boolean {
-        if (!Xonos.setUp.value) return false
+        if (!Xonos.setUp.value || Xonos.appTakesOver.value) return false
         val app = _mediaApp.value?.component
             ?: CarSettings.lastMedia.value?.let(ComponentName::unflattenFromString)
             ?: return true
         return Xonos.isInside(app) || app.packageName == Xonos.APP_PACKAGE
     }
 
-    /** Xonos inside myCar, in place of the Xonos app last used in the car, once it's set up. */
-    private fun xonosFor(last: ComponentName, catalog: List<MediaApp>): MediaApp? =
-        if (last.packageName == Xonos.APP_PACKAGE) catalog.firstOrNull { Xonos.isInside(it.component) } else null
+    /**
+     * The other Xonos, for one used last that the car hasn't got this drive: Xonos inside myCar for
+     * the Xonos app once it's set up, and the app for it while the app takes over (see [InsideOrApp]).
+     */
+    private fun xonosFor(last: ComponentName, catalog: List<MediaApp>): MediaApp? = when {
+        last.packageName == Xonos.APP_PACKAGE -> catalog.firstOrNull { Xonos.isInside(it.component) }
+        Xonos.isInside(last) -> catalog.firstOrNull { it.component.packageName == Xonos.APP_PACKAGE }
+        else -> null
+    }
+
+    /**
+     * The Xonos app took Xonos's place for the drive (see [InsideOrApp]): if Xonos inside myCar was
+     * the car's music, the app is now, playing if the music was meant to play. Not remembered: the
+     * next drive tries Xonos inside myCar first again.
+     */
+    suspend fun xonosAppTakesOver() {
+        val ctx = context ?: return
+        val inside = _mediaApp.value?.takeIf { Xonos.isInside(it.component) } ?: return
+        val app = withContext(Dispatchers.IO) { MediaCatalog.installed(ctx) }
+            .firstOrNull { it.component.packageName == Xonos.APP_PACKAGE } ?: return
+        if (_mediaApp.value !== inside) return
+        openMedia(app, autoplay = CarSettings.autoplay.value || media.now.value.playing, remember = false, auto = mediaAutoPicked)
+    }
 
     /**
      * Whichever known car media app has an actively playing session right now, system-wide - not
@@ -365,6 +391,10 @@ object CarServices {
         runCatching { browse.disconnect() }
         CarAssistant.cancel()
         io.github.sirionero.mycar.home.HomeAssistant.release()
+        InsideOrApp.stop()
+        Xonos.repo.release()
+        // The way Plancia's page came through the Plancia app, this drive.
+        io.github.sirionero.mycar.bridge.BridgeProxy.stop()
         // About 900 MB that nothing needs once the car's gone.
         io.github.sirionero.mycar.speech.SpeechEngine.unload()
         CarAudio.release()

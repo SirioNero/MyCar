@@ -87,6 +87,10 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
         // Home's ready-made pages every run, so a shot that changed one leaves the next alone.
         io.github.sirionero.mycar.car.HomePages.reset()
+        // --ez bridge true: Plancia's and Xonos's connections through the Plancia and Xonos apps'
+        // bridges, as with myCar left out of Tailscale - the emulator has no Tailscale. Every run.
+        io.github.sirionero.mycar.bridge.Bridges.init(this)
+        io.github.sirionero.mycar.bridge.Bridges.forced = intent.getBooleanExtra("bridge", false)
         // --es haUrl http://10.0.2.2:8123 --es haToken ...: Plancia inside myCar on that Home
         // Assistant (the workflow's own, in Docker beside the emulator). Set every run: without
         // them Plancia is off, and the Plancia app stays as it was.

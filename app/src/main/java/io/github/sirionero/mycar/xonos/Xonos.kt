@@ -9,6 +9,9 @@ import android.os.Process
 import androidx.core.content.ContextCompat
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.bridge.BridgeDns
+import io.github.sirionero.mycar.bridge.BridgeSocketFactory
+import io.github.sirionero.mycar.bridge.Bridges
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.xonos.data.ArtCache
 import io.github.sirionero.mycar.xonos.data.Library
@@ -36,10 +39,18 @@ object Xonos {
     /** Idempotent; any context will do. */
     fun init(context: Context) {
         if (!::app.isInitialized) app = context.applicationContext
+        Bridges.init(app)
     }
 
     val settings: Settings by lazy { Settings(app) }
-    val repo: MaRepository by lazy { MaRepository(settings) }
+
+    /** Left out of Tailscale to connect wirelessly, myCar reaches a Tailscale address through the Xonos app (see bridge/Bridges). */
+    val repo: MaRepository by lazy {
+        MaRepository(settings) {
+            dns(BridgeDns(Bridges.xonos))
+            socketFactory(BridgeSocketFactory(Bridges.xonos))
+        }
+    }
     val library: Library by lazy { Library(repo) }
 
     /** The covers fetched for the car, the notification and the player (see playback/Artwork). */
@@ -47,6 +58,13 @@ object Xonos {
 
     /** True once the player is Music Assistant's: its API and its audio both connected. */
     val playerReady = MutableStateFlow(false)
+
+    /**
+     * The Xonos app plays in the car instead, for the rest of the drive: this one can't reach Music
+     * Assistant - myCar left out of Tailscale to connect wirelessly, a wrong address or token - and
+     * the app, on the phone, can (see car/InsideOrApp). Xonos is never missing from the car's music.
+     */
+    val appTakesOver = MutableStateFlow(false)
 
     private val _setUp = MutableStateFlow(false)
 
@@ -87,10 +105,10 @@ object Xonos {
     /** Whether [component] is Xonos inside myCar rather than an installed app. */
     fun isInside(component: ComponentName) = component.className == PlaybackService::class.java.name
 
-    /** Xonos as one of the car's music apps, once it's set up; null until then. */
+    /** Xonos as one of the car's music apps, once it's set up; null until then, and while the app takes over. */
     fun mediaApp(context: Context): MediaApp? {
         refresh(context)
-        return if (_setUp.value) MediaApp(component(context), LABEL, Process.myUid()) else null
+        return if (_setUp.value && !appTakesOver.value) MediaApp(component(context), LABEL, Process.myUid()) else null
     }
 
     /** Xonos's icon as an adaptive one, so it's framed exactly as the Xonos app's was. */

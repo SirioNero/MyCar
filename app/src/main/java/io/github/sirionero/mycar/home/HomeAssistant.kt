@@ -7,6 +7,9 @@ import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.bridge.BridgeDns
+import io.github.sirionero.mycar.bridge.BridgeSocketFactory
+import io.github.sirionero.mycar.bridge.Bridges
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +33,8 @@ sealed interface HaConnection {
     data object NotConfigured : HaConnection
     data class Connecting(val url: String) : HaConnection
     data class Connected(val url: String, val version: String) : HaConnection
-    data class Failed(val message: String) : HaConnection
+    /** [tokenRefused]: Home Assistant itself turned the token down, which no retry mends. */
+    data class Failed(val message: String, val tokenRefused: Boolean = false) : HaConnection
 }
 
 /**
@@ -65,6 +69,7 @@ object HomeAssistant {
 
     fun init(context: Context) {
         val app = context.applicationContext.also { this.app = it }
+        Bridges.init(app)
         configFlow.value = Config(
             AppSettings.getString(app, KEY_HOME, ""),
             AppSettings.getString(app, KEY_REMOTE, ""),
@@ -151,6 +156,10 @@ object HomeAssistant {
         .connectTimeout(8, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .pingInterval(20, TimeUnit.SECONDS)
+        // Left out of Tailscale to connect wirelessly, myCar reaches a Tailscale address through the
+        // Plancia app, inside it (see bridge/Bridges).
+        .dns(BridgeDns(Bridges.plancia))
+        .socketFactory(BridgeSocketFactory(Bridges.plancia))
         .build()
 
     private val _dashboards = MutableStateFlow<List<Dashboard>>(emptyList())
@@ -162,6 +171,13 @@ object HomeAssistant {
 
     private val _connection = MutableStateFlow<HaConnection>(HaConnection.NotConfigured)
     val connection: StateFlow<HaConnection> = _connection.asStateFlow()
+
+    /**
+     * The Plancia app has Plancia's place in the car for the rest of the drive: this one can't
+     * reach Home Assistant - myCar left out of Tailscale to connect wirelessly, a wrong address or
+     * token - and the app, on the phone, can (see car/InsideOrApp).
+     */
+    val appTakesOver = MutableStateFlow(false)
 
     @Volatile private var client: HaClient? = null
     private var loop: Job? = null
@@ -273,7 +289,10 @@ object HomeAssistant {
                 // Trying a refused token again and again counts as failed logins in Home Assistant,
                 // which can ban the phone's address: wait for a new one instead.
                 MyCarLog.w("plancia: Home Assistant refused the token - waiting for a new one")
-                _connection.value = HaConnection.Failed("Home Assistant refused the token: make a new one there, and set it in myCar on the phone.")
+                _connection.value = HaConnection.Failed(
+                    "Home Assistant refused the token: make a new one there, and set it in myCar on the phone.",
+                    tokenRefused = true,
+                )
                 configFlow.first { it != config }
                 failures = 0
                 continue

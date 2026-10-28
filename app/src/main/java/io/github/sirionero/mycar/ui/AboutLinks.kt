@@ -186,4 +186,11 @@ internal fun AboutLinkRows() {
             "(CC BY-SA 4.0), and Parakeet and Canary by NVIDIA (CC BY 4.0)",
         icon = Icons.Filled.Favorite,
     )
+    SettingsDivider()
+    SettingsRow(
+        "Certificate credits",
+        subtitle = "The car certificates come from aasdk (GPL-3.0) and Headunit Revived (AGPL-3.0), " +
+            "downloaded only when you ask",
+        icon = Icons.Filled.Favorite,
+    )
 }

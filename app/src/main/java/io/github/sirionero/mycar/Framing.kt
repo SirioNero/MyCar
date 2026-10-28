@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar
 
 import java.io.ByteArrayOutputStream
+import java.io.OutputStream
 
 /**
  * Android Auto frame layout, transcribed from aasdk.
@@ -36,8 +37,18 @@ object Frames {
     const val MESSAGE_SPECIFIC = 0
     const val MESSAGE_CONTROL = 1 shl 2
 
-    /** aasdk splits at this size (MessageOutStream.hpp:62). Nothing the spike sends is close. */
-    const val MAX_FRAME_PAYLOAD = 0x4000
+    /**
+     * How big a frame the phone sends, header included, before TLS: Android Auto's own budget.
+     * Split this way, the first frame of a long message carries 16120 bytes and the others 16124,
+     * as a real phone's do; at aasdk's 0x4000 plus the header and TLS, frames came out larger
+     * than any the car sees from Android Auto.
+     */
+    private const val FRAGMENT_SIZE = 0x3f00
+    private const val HEADER_SIZE = 4
+    private const val FIRST_HEADER_SIZE = 8
+
+    /** The longest message that goes out in one frame. */
+    const val MAX_FRAME_PAYLOAD = FRAGMENT_SIZE - HEADER_SIZE
 
     class Frame(
         val channel: Int,
@@ -75,6 +86,44 @@ object Frames {
             (totalSize and 0xFF).toByte(),
         )
         return header + extended + payload
+    }
+
+    /**
+     * Writes one message as frames, as aasdk does: the *plaintext* is split, each piece is
+     * encrypted on its own, and the FIRST frame carries the whole plaintext length. Returns how
+     * many frames went out.
+     */
+    fun writeMessage(
+        output: OutputStream,
+        channel: Int,
+        encrypted: Boolean,
+        messageType: Int,
+        message: ByteArray,
+        encrypt: (ByteArray) -> ByteArray,
+    ): Int {
+        val fragmented = message.size > MAX_FRAME_PAYLOAD
+        var offset = 0
+        var frames = 0
+        do {
+            val first = fragmented && offset == 0
+            val end = minOf(offset + FRAGMENT_SIZE - if (first) FIRST_HEADER_SIZE else HEADER_SIZE, message.size)
+            val type = when {
+                !fragmented -> TYPE_BULK
+                first -> TYPE_FIRST
+                end == message.size -> TYPE_LAST
+                else -> TYPE_MIDDLE
+            }
+            val chunk = message.copyOfRange(offset, end)
+            output.write(
+                build(
+                    channel, encrypted, if (encrypted) encrypt(chunk) else chunk, messageType, type,
+                    if (type == TYPE_FIRST) message.size else null,
+                ),
+            )
+            offset = end
+            frames++
+        } while (offset < message.size)
+        return frames
     }
 
     /**

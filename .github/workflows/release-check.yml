@@ -18,7 +18,7 @@ on:
       tag:
         description: "myCar release to run, or \"branch\" for this branch built as a release"
         required: false
-        default: "v0.5.13-alpha"
+        default: "v0.5.16-alpha"
       apis:
         description: "Android API levels of the emulator, as JSON (37.0 = Android 17, 36 = Android 16)"
         required: false
@@ -31,6 +31,14 @@ on:
         description: "System image"
         required: false
         default: "google_apis"
+      plancia_ref:
+        description: "The Plancia app built from this branch of its own (a debug build), not its latest release"
+        required: false
+        default: ""
+      xonos_ref:
+        description: "The Xonos app built from this branch of its own (a debug build), not its latest release"
+        required: false
+        default: ""
 
 jobs:
   check:
@@ -84,6 +92,15 @@ jobs:
           curl -fsSL -o third-party/plancia.apk https://github.com/SirioNero/Home-Assistant-on-Gearslip/releases/latest/download/Plancia-release.apk
           curl -fsSL -o third-party/xonos.apk https://github.com/SirioNero/Music-Assistant-on-Gearslip/releases/latest/download/Xonos.apk
           ls -l third-party
+
+      # The apps from a branch of theirs, when asked: what myCar does with them that no release has
+      # yet - the bridge, myCar's connections through them when Tailscale leaves it out.
+      - name: Build the Plancia and Xonos apps from their branches
+        if: inputs.plancia_ref != '' || inputs.xonos_ref != ''
+        env:
+          PLANCIA_REF: ${{ inputs.plancia_ref }}
+          XONOS_REF: ${{ inputs.xonos_ref }}
+        run: bash .github/build-apps.sh
 
       - name: Download Tailscale for the phone
         if: matrix.net != 'lan'

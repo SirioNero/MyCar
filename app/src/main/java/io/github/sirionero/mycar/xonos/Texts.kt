@@ -23,7 +23,12 @@ private fun plainly(context: Context, problem: Problem, detail: String?): String
     Problem.BAD_TOKEN -> context.getString(R.string.xonos_problem_bad_token)
     Problem.DENIED -> context.getString(R.string.xonos_problem_denied)
     Problem.HTTP -> context.getString(R.string.xonos_problem_http, detail.orEmpty())
-    Problem.NETWORK -> if (detail != null) context.getString(R.string.xonos_problem_network, detail) else context.getString(R.string.xonos_problem_unreachable)
+    Problem.NETWORK -> when {
+        detail == null -> context.getString(R.string.xonos_problem_unreachable)
+        // Attraverso l'app Xonos: il motivo come lo dice myCar (bridge/AppBridge), senza "Network error" davanti.
+        detail.startsWith(io.github.sirionero.mycar.bridge.AppBridge.THROUGH) -> detail
+        else -> context.getString(R.string.xonos_problem_network, detail)
+    }
     Problem.LOST -> context.getString(R.string.xonos_problem_lost)
     Problem.NOT_CONNECTED -> context.getString(R.string.xonos_problem_not_connected)
     Problem.BAD_LOGIN -> context.getString(R.string.xonos_problem_bad_login)

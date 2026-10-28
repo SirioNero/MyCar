@@ -38,6 +38,11 @@ Rispondi sempre in **italiano**.
   installato, Gradle lo scarica da `api.foojay.io`.
 - Servono Android SDK (`ANDROID_HOME` o `local.properties`) e accesso a `dl.google.com`
   (repository Maven Google).
+- Test JVM nella sessione cloud (senza Android): Maven Central risponde 429, il mirror
+  `https://maven-central.storage-download.googleapis.com/maven2/` va. Un progetto Gradle JVM nella
+  scratchpad (Kotlin 2.4.0, JUnit 4, `srcDir` su `app/src` con `setIncludes` dei soli file) compila i
+  file che non usano Android (es. `Framing.kt` + `FramingTest.kt`) e ne fa girare i test in pochi
+  secondi; il resto si prova con la CI.
 - Output: `build/myCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
 - Firma release opzionale via `keystore.properties` (gitignored).
 - Chiave di firma di myCar: alias `mycar`, PKCS12, certificato SHA-256
@@ -97,6 +102,24 @@ Rispondi sempre in **italiano**.
   arriva all'anteprima con `--es haUrl` / `--es haToken` (solo debug). Scatti `plancia-app/`
   (dalla griglia, poi il menu dal ☰ di Home Assistant), `plancia-page/` (pagina pronta a destra
   della mappa), `plancia-side/` (accanto alla mappa).
+  Ponte: con gli ingressi `plancia_ref` / `xonos_ref` le app Plancia e Xonos si compilano da quel
+  loro ramo (`.github/build-apps.sh`, build debug, Gradle 8.14.3 scaricato: le app non hanno il
+  wrapper) al posto degli ultimi rilasci, e gli scatti `bridge-plancia`, `bridge-plancia-page`,
+  `bridge-xonos` aprono Plancia e Xonos dentro myCar con `--ez bridge true` (tutto dal ponte: senza
+  Tailscale nell'emulatore), le app configurate da root sugli stessi server; nel log le app scrivono
+  "Ponte per <myCar> verso <server>" per ogni connessione. Dopo la compilazione delle app lo script
+  ferma i demoni di Gradle e Kotlin: con quella memoria occupata l'emulatore cadeva con Xonos che
+  suonava. Un emulatore caduto non blocca più la corsa: adb si arrende dopo 3 minuti, il log di ogni
+  scatto resta in `stream.txt`, gli scatti si pubblicano comunque.
+  Con `xonos_server` (e `xonos_ref`) `build-apps.sh` costruisce anche il pacchetto di Music Assistant per
+  il telefono che Xonos scarica su richiesta (modulo `:server` + `make_payload.py` di Xonos, solo x86_64:
+  Python 3.13 sul runner, FFmpeg e librespot compilati con NDK e Rust, una ventina di minuti), firmato
+  con una chiave usa e getta che firma anche la build di Xonos (Xonos usa solo un pacchetto firmato come
+  lui), in `third-party/xonos-server/`; lo scatto lo serve all'emulatore con un server HTTP sul runner
+  (`10.0.2.2:8000`, file `files/server-package-url` di Xonos). Lo scatto `phone-xonos` prova Xonos
+  integrato sul Music Assistant del telefono: `ServerCheckActivity --ez xonos true` di Xonos scarica il
+  pacchetto e prepara server, account e album di toni, poi myCar con `--es maUrl http://127.0.0.1:8095` e
+  il token di Xonos; lo scatto parte con Xonos fermo, che il ponte risveglia.
   Ogni esecuzione sovrascrive `ci/car-preview`: con più branch in CI, scaricarlo appena finisce.
 - Prova della release in CI: il workflow **Release check** (`.github/workflows/release-check.yml` +
   `.github/release-check.sh`, `.github/tailscale.sh`) installa una release pubblicata (o il branch
@@ -107,7 +130,8 @@ Rispondi sempre in **italiano**.
   0.29.6 sul runner, server a `http://umbrel:<porta>` via MagicDNS), `tailscale-out` (lo stesso con
   myCar esclusa da Tailscale). Scatti, dump, log e preferenze sul branch
   `ci/release-check-<api>-<net>`. Verificato (0.5.13): in `tailscale-out` l'app Plancia si collega e
-  myCar dice che Tailscale la lascia fuori; dentro il tunnel myCar si collega.
+  myCar dice che Tailscale la lascia fuori; dentro il tunnel myCar si collega. Anche qui `plancia_ref`
+  e `xonos_ref` (app dai loro rami): in `tailscale-out` myCar firmata come la release passa dal ponte.
 - Screenshot del README (`docs/screenshots/`): dagli scatti dell'anteprima di `main` (non di un
   branch: devono mostrare la versione che si rilascia), coprendo il badge DEBUG BUILD in basso a
   destra. Mai scatti con la mappa ancora nera o col segnaposto "Map" del player di debug: del
@@ -124,6 +148,14 @@ Rispondi sempre in **italiano**.
   (non pre-release, così Obtainium lo trova).
 - Dalla sessione cloud di Claude il push dei tag è rifiutato (403): il rilascio lo crea l'utente su
   GitHub (Releases → nuovo tag `v<versionName>` → branch di destinazione → Publish).
+- All'utente si dà **sempre il link diretto** per pubblicare, con tag, destinazione e titolo già
+  scritti: `https://github.com/SirioNero/MyCar/releases/new?tag=v<versionName>&target=<branch>&title=myCar%20<versionName>`
+  (es. `…?tag=v0.5.14-alpha&target=main&title=myCar%200.5.14-alpha`): gli resta solo Publish.
+  L'utente l'ha chiesto più volte: **ogni volta che c'è qualcosa da rilasciare, i link**, senza
+  aspettare che li chieda. Anche per le app Plancia e Xonos, che si pubblicano da sole a ogni push
+  su `main` che cambia l'app: il link per unire il ramo
+  (`https://github.com/SirioNero/<repo>/compare/main...<ramo>`, poi Create pull request e Merge),
+  oppure, se l'utente lo chiede, il push in `main` lo fa Claude e gli dà il link della release.
 - Una versione verificata ma non ancora pubblicata quando `main` va avanti resta su
   `release/v<versione>` (es. `release/v0.4.00-alpha`), da usare come destinazione del rilascio.
 
@@ -134,17 +166,18 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 
 | Package | Ruolo |
 |---|---|
-| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `MyCarLog` |
+| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
 | `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `LocalNetworkAccess` (permesso della rete di casa), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma"), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono) |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
+| `bridge/` | Il ponte verso le app Plancia e Xonos per myCar lasciata fuori da Tailscale: `AppBridge` (legame e richiesta di una connessione), `Bridges` (quali connessioni passano dal ponte), `BridgedSockets` (`BridgeDns`, `BridgeSocketFactory` per OkHttp), `BridgeProxy` (la pagina di Plancia: proxy SOCKS5 nel WebView) |
 | `xonos/` | Xonos integrato: `Xonos` (account, connessione, libreria), `XonosAccount` (import dall'app Xonos), il motore di Xonos (`data/`, `sendspin/`, `playback/`: Music Assistant, Sendspin, lettore Media3 `PlaybackService`), `sendspin/CarLinkOutput` (uscita dritta verso l'auto) |
 | `call/` | Chiamate: `CarCalls` (stato da `TelephonyCallback` + numero dal broadcast `PHONE_STATE`; risponde/rifiuta/chiude con `TelecomManager`, serve `ANSWER_PHONE_CALLS`), `MyCarCallScreening` (filtro facoltativo: trattiene le chiamate da numeri fuori rubrica solo con l'auto collegata; ignora quelle in uscita) |
-| `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless, auto-aggiornamento da GitHub, statistiche d'uso opt-in |
+| `media/`, `notify/`, `speech/`, `mirror/`, `wireless/`, `update/`, `stats/` | Media, notifiche, voce (sherpa-onnx), mirroring, AA wireless (`WirelessLink`; collegamento da solo: `WirelessAuto`, `CarPresenceService`), auto-aggiornamento da GitHub, statistiche d'uso opt-in |
 
 Tema/colori/font:
 - UI dell'auto: `MyCarCarTheme` (in `car/design/MyCarDesign.kt`) alla radice di `CarUi`: colori
@@ -287,6 +320,20 @@ Tutti i token in un solo posto, `car/design/`:
   avanza; accanto alla mappa la scelta fatta con l'app passa a lui. L'uscita diretta verso l'auto
   ha solo i test (`DirectFeedTest`): l'emulatore non ha un canale Android Auto. Lo scatto ferma la
   musica alla fine: una volta l'emulatore è caduto un minuto dopo, con l'album ancora in corso.
+  **Music Assistant sul telefono** (Xonos con il server, ramo `claude/server-ma` di Xonos): l'account che
+  l'app Xonos passa a myCar punta a `127.0.0.1:8095`, e quel server vive dentro l'app Xonos. Allora le
+  connessioni di Xonos integrato passano sempre dal ponte (`Bridges.through`, `onThePhone`): il legame
+  sveglia l'app (che riavvia il suo server) e la tiene sveglia per il viaggio; myCar riprova finché il
+  server non risponde (al primo avvio una quindicina di secondi).
+  Il ripiego sull'app (`InsideOrApp`) qui non scatta: l'app suonerebbe dallo stesso server, che un'app appena
+  risvegliata fa partire in una quindicina di secondi; il ponte lo dice ("on this phone is still starting").
+  Verificato (scatto `phone-xonos`, Xonos da `claude/server-ma` con il server): myCar sveglia l'app Xonos, si
+  collega dopo 6 s attraverso il ponte e suona l'album dal Music Assistant del telefono. Di nuovo con Xonos 0.1.42,
+  che il server lo scarica come pacchetto e lo avvia come processo a sé: Xonos scarica il pacchetto dal runner e
+  suona; poi myCar sveglia l'app Xonos, che avvia Music Assistant, dice "still starting" e riprova, si collega
+  attraverso il ponte dopo circa 14 s e Music Assistant suona sul lettore "myCar". Subito dopo l'emulatore è
+  caduto: le immagini dello scatto mancano, il log è in `stream.txt`.
+
 - **Cinema** (dopo la 0.5.13; `cinema/`, `car/CinemaApp.kt`, `car/CarDriving.kt`, `ui/CinemaSettings.kt`,
   nome scelto dall'utente): l'app video, che in realtà è un browser fatto per il video. In auto i
   siti come riquadri con l'icona che il sito dà di sé (manifest, apple-touch-icon, `<link rel=icon>`,
@@ -426,6 +473,53 @@ Tutti i token in un solo posto, `car/design/`:
   scavalca: dentro la VPN Android rifiuta a myCar il legame alla rete Wi-Fi dell'auto (EPERM), e il
   senza fili passa allora dalla strada normale (`WirelessLink`, `bindRefused`); con myCar dentro
   Tailscale conviene il cavo. Gli indirizzi tailnet non sono "rete di casa" (`LocalNetwork.isLocal`).
+  Lo split tunneling per il senza fili non si evita da myCar: con una VPN non scavalcabile netd
+  rifiuta a un'app dentro la VPN il legame a un'altra rete, e a un'app fuori la VPN stessa
+  (`checkUserNetworkAccess`); serve un secondo programma con un altro uid. **Ripiego** (0.5.15,
+  `car/InsideOrApp.kt`, regola pura `car/TakeOver.kt` + `TakeOverTest`): per tutto il viaggio si
+  guardano i collegamenti di Plancia e Xonos dentro myCar (Xonos ora resta collegato a Music
+  Assistant per tutto il viaggio, come Plancia); se non si collegano e l'app è sul telefono, l'app
+  prende il loro posto fino a fine viaggio (`HomeAssistant.appTakesOver`, `Xonos.appTakesOver`):
+  subito se gli indirizzi sono tutti su una tailnet che lascia fuori myCar (`Tailnet.outOfReach`) o
+  se il token è rifiutato, dopo 10 s senza collegamento a inizio viaggio, 30 s se c'era e si è perso
+  (il tempo senza rete non conta). Griglia, pagine, accanto alla mappa, icone fissate e Plancia a
+  tutto schermo passano all'app (`withPlancia`, `withPlanciaInside`, `withXonosInside`, `xonosFor`,
+  nei due versi); la musica che era Xonos dentro myCar passa all'app senza cambiare l'ultima app
+  ricordata; la pagina web di Plancia non si crea. Sul telefono, se l'indirizzo è su una tailnet,
+  Plancia e Xonos dicono che senza fili passano dall'app (stesso indirizzo), o che basta aggiornarla
+  (`ui/TailscaleCableRow.kt`).
+  Scatto in CI `standin` (indirizzi che non rispondono, app installate). Il secondo programma sono
+  le app Plancia e Xonos: vedi "Il ponte".
+- **Il ponte** (0.5.16, `bridge/`): con myCar lasciata fuori da Tailscale (per il senza fili) Plancia
+  e Xonos dentro myCar raggiungono i server attraverso le app Plancia e Xonos, che restano dentro
+  Tailscale. myCar si lega al loro servizio `MyCarBridge` (azione `io.github.sirionero.mycar.BRIDGE`,
+  `BIND_IMPORTANT` + `BIND_INCLUDE_CAPABILITIES`: l'app resta sveglia e con la rete quanto myCar;
+  lasciata 5 minuti dopo l'ultima connessione) e chiede con una transazione Binder (`OPEN`,
+  interfaccia `io.github.sirionero.mycar.Bridge`, host e porta) una connessione: l'app la apre e
+  passa l'altro capo di un `socketpair` (`AppBridge`). Le app rispondono solo a myCar firmata col suo
+  certificato (le loro build di prova anche a `.dev`) e solo verso gli indirizzi scritti nelle loro
+  impostazioni: serve lo stesso indirizzo in myCar e nell'app. I rifiuti hanno un codice (OK 1,
+  NOT_MYCAR 2, NOT_OURS 3, NO_ANSWER 4, OTHER 0) e myCar li dice con parole sue ("Through the Plancia
+  app: …", che `Tailnet.why` lascia come sono). Passano dal ponte (`Bridges.through`) solo con myCar
+  fuori dalla VPN, verso un indirizzo della tailnet o un IPv4 di casa mentre il telefono è fuori casa
+  (route di Tailscale); tutto il resto va per la strada solita. OkHttp (HomeAssistant, MaRepository:
+  API, Sendspin, copertine, accesso): `BridgeDns` lascia il nome all'app (segnaposto TEST-NET-1) e
+  `BridgedSocket` è un socket vero collegato a un ascolto su 127.0.0.1 per quella sola connessione,
+  poi copiato su quello dell'app; TLS ci passa sopra come sempre. La pagina di Plancia (WebView) passa
+  da `BridgeProxy`: un proxy SOCKS5 su 127.0.0.1 che il WebView usa (`ProxyController` di
+  androidx.webkit, "reverse bypass") solo per gli indirizzi di Home Assistant, deciso prima di ogni
+  caricamento (`PlanciaWeb.prepareWay`); la pagina resta sul suo indirizzo vero (TLS, certificato, il
+  nome con cui un reverse proxy la smista). Il primo tentativo, la pagina caricata da un indirizzo
+  locale al posto di quello di Home Assistant, rompeva i reverse proxy che smistano per nome: scartato.
+  Con il ponte una tailnet fuori portata non fa più passare subito l'auto alle app (`InsideOrApp`): il
+  ripiego resta dopo 10 s. Lato app: `it/plancia/ha/data/MyCarBridge.kt` e Xonos 0.1.40
+  `data/MyCarBridge.kt` (rami `claude/ponte-mycar`). Gli ascolti locali sono su 127.0.0.1
+  (`LOOPBACK`): su Android `InetAddress.getLoopbackAddress()` è ::1, e il WebView, mandato al proxy
+  su 127.0.0.1, non trovava niente (`ERR_PROXY_CONNECTION_FAILED`). Verificato (0.5.16): Release check
+  `tailscale-out` su Android 17 (Tailscale vero, myCar esclusa e firmata come la release): Plancia e
+  Xonos dentro myCar si collegano attraverso le app ("Ponte per io.github.sirionero.mycar verso
+  umbrel:8123" e ":8095"); anteprima `bridge-*`: la pagina di Plancia e il suo menu attraverso proxy
+  e ponte, Xonos suona l'album con Sendspin dal ponte.
 - **Il viaggio in primo piano** (0.5.13, `SessionService`): dal collegamento dell'auto alla fine un
   servizio in primo piano `connectedDevice` (notifica "myCar is connected to the car") tiene vivo
   il viaggio col telefono bloccato, con un wake lock parziale e, senza fili, un Wi-Fi lock. Si
@@ -442,6 +536,84 @@ Tutti i token in un solo posto, `car/design/`:
   non riparte né richiede: a fine condivisione la chiede `CarUi`. Accanto alla mappa l'app musicale
   prende il posto solo della scelta automatica del viaggio quando non si collega
   (`mediaAutoPicked`), mai di un'app scelta dal guidatore.
+- **Motore da Gearslip** (0.5.18, branch `fix/engine`): delle 116 modifiche di Gearslip dopo il fork
+  (0.3.01 → 0.3.31) si portano solo quelle che non possono cambiare come si collega un'auto che oggi va
+  (richiesta dell'utente: "porta quello che ha senso, non cose che potrebbero rompere il nostro
+  set-up"). Riscritte a mano su myCar, non unite: i diff si leggono rinominando gli alberi di Gearslip
+  (percorsi, package, Gearslip → MyCar/myCar) e facendone il cherry-pick a 3 vie. Portate: messaggi
+  lunghi in pezzi della misura di Android Auto (0x3f00 compresa l'intestazione: 16120 + 16124…,
+  `Frames.writeMessage`, solo il lato che invia); ping con i dati del campo 3 rimandati nel campo 2;
+  ByeBye in chiaro prima che l'auto accetti il certificato (prima `PhoneTls.encrypt` girava a vuoto per
+  sempre: `SSLEngine.wrap` prima della stretta di mano non consuma niente) e, a viaggio avviato, fine
+  della sessione dopo la risposta (durante l'impostazione il riaggancio resta il verdetto per
+  `CertRotation`); margini dell'auto convertiti con la densità scalata; senza fili da solo (sotto);
+  dettagli Wi-Fi ripetuti ignorati mentre un viaggio usa quella rete (ZLink; dopo la fine di una
+  sessione l'auto che ricomincia sullo stesso canale la richiede ancora); `VideoSource.stop`
+  interrotto; audio: Start una volta (`startLock`), AudioSpecificConfig (messaggio 1) alle auto solo
+  AAC-LC, margine dopo `AudioUnderflow` (0x800B: 60 ms di silenzio a passo, massimo 240, da zero a
+  ogni Start); canale musica chiuso finché il suono non passa da myCar (`CarAudio.openSink`: subito con
+  Tramite myCar, mai con Bluetooth, con Automatico quando decide per myCar); permessi dello schermo
+  Telefono chiesti sul telefono (`PermissionActivity`; senza finestra entro 400 ms apre le impostazioni
+  dell'app); app per auto senza risposta a `getAppInfo` 10 s dopo il legame → rifiutata; span
+  `DurationSpan`/`DistanceSpan` nei testi delle app. **Non portate**: la versione 1.7 (myCar risponde
+  sempre 1.3: le auto che vanno sono state provate così); i controlli severi su frammenti, messaggi
+  fuori stato e protobuf in arrivo; la fine della sessione sugli errori di protocollo 255/65535 (ora
+  solo un nome nel log); la domanda delle casse prima di ogni indicazione (dc61607: una risposta di
+  focus in ritardo andrebbe al canale musica e lo farebbe partire); il canale PhoneStatus per gli
+  schermi dell'auto (f4b8391: due giorni di vita, possibili doppioni con le chiamate Bluetooth); i
+  dati dell'auto alle app (b168eb7); il quadro strumenti video, il bitrate adattivo e lo schermo
+  dalla misura sbagliata (sperimentali o con impostazioni nuove); la scelta dell'app musicale
+  (c888d41: myCar la fa a modo suo). Da altri fork niente per ora: jorgecanut ha concluso che quasi
+  tutte le auto chiamano il telefono da sole quando sono pronte, cioè l'attesa che myCar fa già.
+- **Senza fili da solo** (0.5.18, `wireless/WirelessAuto.kt`, `CarPresenceService`): Android lascia
+  aprire la sua schermata dal background solo a un'app che gestisce il dispositivo come "companion".
+  Quando l'immagine di un'auto arriva senza cavo (`onSurfaceReady` con `wirelessSocket`,
+  `WirelessLink.reachedCar`) myCar chiede l'associazione (`CompanionDeviceManager.associate`, filtro
+  sull'indirizzo Bluetooth): Android mostra una volta il suo "Consenti". Poi `startObservingDevicePresence`,
+  e quando l'auto si collega in Bluetooth Android chiama `CarPresenceService.onDeviceAppeared`, che apre
+  `MyCarActivity` con `CAR_NEARBY` → `WirelessLink.start` come un tocco. Solo auto che hanno funzionato;
+  una risposta (sì o no) conta, una finestra mai mostrata no; niente seconda domanda nello stesso
+  viaggio; un'auto che si collega e scollega apre myCar una volta ogni 15 s. Col cavo resta il cavo, un
+  viaggio in corso non si tocca. Impostazioni → Connection → "Connect wirelessly by itself" (chiave
+  `on` in `mycar_wireless_auto`): spento smette di guardare, riacceso richiede le auto a cui si era
+  detto di no. `REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND` per il `SessionService`
+  col telefono in tasca. Non provato con un'auto vera.
+- **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
+  avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
+  la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial
+  setup" (in cima a "How to connect", `BackToSetupCard`) o da Impostazioni → "Initial setup". Tre
+  gruppi: per collegarsi (certificato, myCar accesa se era spenta, Android Auto da spegnere o da
+  tenere scegliendo myCar quando Android chiede), per il viaggio (chiamate, mappa e musica: un solo
+  "Allow" con tutti i permessi in una richiesta; bloccati: "Open settings"), "More" facoltativi
+  (messaggi, calendario, notifiche, filtro chiamate, audio in auto, note d'uso). Un tasto grande
+  fa sempre il prossimo passo. Lo stato si legge dal telefono ogni volta (`SetupSignals`;
+  `SetupSteps` senza Android, `SetupStepsTest`): tornarci non cancella né azzera niente.
+  `FirstSetup` ricorda solo Android Auto tenuto, passi saltati, permessi chiesti; all'uscita la
+  guida conta come vista (le Novità al primo viaggio le salta già `CarSettings.init`). Su Home
+  "Finish setting up" (`SetupLeftCard`) finché manca qualcosa per collegarsi. Tolta la domanda delle
+  notifiche a ogni avvio. La scheda del passo successivo scorre in vista quando lo diventa (non
+  all'apertura); aperta la pagina di Android Auto, al ritorno "Keep Android Auto" è già aperto.
+  Nelle schede i tasti stanno uno sotto l'altro: affiancati, su un telefono stretto il secondo
+  diventava una colonna di lettere. Scatti in CI: `setup-phone` (installa senza permessi, scarica
+  davvero i certificati, tocca i tasti per testo con uiautomator, scorre a piccoli passi; schermo
+  dell'emulatore 320×640). Verificato (0.5.14): lista dal titolo, certificati scaricati e
+  controllati, Android Auto tenuto, un "Allow" con sei domande di Android in fila, tutto spuntato,
+  Home senza "Finish setting up", ritorno dalla Guida, e con i contatti tolti di nuovo "Allow".
+- **Certificati** (`CertCatalog`, `CertChecks`, `CertRotation`, `CertRotationPolicy`): due
+  certificati pubblici, scaricati solo dopo un tocco e mai dentro l'APK: aasdk (consigliato, chiave
+  PKCS#1, SHA-256 `1C0E0EF9…3C35`) e Headunit Revived (riserva, valido fino al 2044, chiave PKCS#8,
+  `E323CC6D…ED6D`), da `raw.githubusercontent.com` a un commit fissato, poi dai rami. Prima di
+  tenerli: impronta, chiave che corrisponde, RSA ≥ 2048, validità, stretta di mano TLS sul
+  telefono. Ognuno in `identity-catalog/<id>.p12`; quello in uso si copia nello slot che
+  `CertProvider` legge (`identity-downloaded/phone.p12`). `MyCarRunner` manda il verdetto
+  dell'auto (`onCertVerdict`) solo dopo averle mostrato il certificato: accettato, rifiutato
+  (allarme TLS, AuthComplete −2/−3), riaggancio durante la verifica (debole), data dell'auto
+  (−23/−24, "Check the car's date"). Rifiutato: si passa al successivo; tutti rifiutati: si torna al
+  primo e ci si ferma fino a "Try again from the first"; un riaggancio non conta per un certificato
+  già accettato; quello del guidatore non si cambia mai. Avvisi su Home (`CertNoticeCard`), scelta a
+  mano in Impostazioni (aasdk · Recommended, Headunit Revived · Spare). jsDelivr come terza fonte non
+  usato: non raggiungibile dalla sessione cloud per verificarlo. Senza fili non riprova da solo col
+  successivo: va provato in auto.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.

@@ -4,6 +4,10 @@
 # the PNGs it writes (plus the app's log and any crash) into previews/. Car apps the workflow
 # downloaded into third-party/ are installed first and opened from the app grid.
 set -u
+# An emulator that goes away (it has, once or twice, in the middle of Xonos playing) would leave
+# adb waiting for good, and the run with it: every adb call gives up after three minutes.
+ADB_BIN=$(command -v adb)
+adb() { timeout 180 "$ADB_BIN" "$@"; }
 PKG=io.github.sirionero.mycar.dev
 ACT=$PKG/io.github.sirionero.mycar.CarPreviewActivity
 FILES=/sdcard/Android/data/$PKG/files
@@ -55,10 +59,18 @@ WAIT="-100,-100"       # a tap off the screen: only gives an app time before the
 # ONLY (the workflow's "shots" input) names the shots to take, all of them when empty.
 shoot() {
     case " ${ONLY:-$1} " in *" $1 "*) ;; *) return ;; esac
+    if ! adb get-state >/dev/null 2>&1; then
+        echo "no emulator any more: $1 left out"
+        return
+    fi
     adb shell am force-stop "$PKG"
     for p in $VELA $PLANCIA $XONOS; do adb shell am force-stop "$p"; done
     adb shell rm -rf "$FILES" 2>/dev/null
     adb logcat -c
+    # The log as it comes, kept only if the emulator is gone by the end of the shot.
+    mkdir -p "previews/$1"
+    timeout 600 "$ADB_BIN" logcat -v time -s myCar ${LOGTAGS:-} AndroidRuntime > "previews/$1/stream.txt" 2>&1 &
+    local streaming=$!
     if [ -n "${BEFORE:-}" ]; then eval "$BEFORE"; fi
     # One string for the device's shell, with the taps quoted for it: their ";" would end the command.
     adb shell "am start -n $ACT --ei w $2 --ei h $3 --ei dpi $4 --ez skipIntro true ${EXTRA:-} --es taps '$5'"
@@ -70,9 +82,13 @@ shoot() {
     local taps
     taps=$(($(tr -cd ';' <<< "$5" | wc -c) + 1))
     sleep $((12 + 3 * taps))
-    mkdir -p "previews/$1"
     adb pull "$FILES/." "previews/$1/" || echo "nothing to pull for $1"
-    adb logcat -d -s myCar ${LOGTAGS:-} > "previews/$1/log.txt" 2>&1
+    if adb logcat -d -s myCar ${LOGTAGS:-} > "previews/$1/log.txt" 2>&1; then
+        rm -f "previews/$1/stream.txt"
+    else
+        echo "$1: the emulator went away during the shot, its log so far is in stream.txt"
+    fi
+    kill "$streaming" 2>/dev/null
     adb logcat -d -b crash > "previews/$1/crash.txt" 2>&1
 }
 
@@ -145,6 +161,100 @@ shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_FIRST;$
 EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_FIRST;$WAIT;$WAIT"
 echo "--- Cinema ---"
 grep -h "cinema" previews/cinema/log.txt previews/cinema-moving/log.txt 2>/dev/null | head -20 || echo "cinema: nothing in the log"
+
+# Plancia and Xonos inside myCar set up on addresses that don't answer (as Tailscale ones do when
+# myCar is left out of it), the Plancia and Xonos apps on the phone: a few seconds in, the apps take
+# their places for the drive (car/InsideOrApp). The grid, shot as it changes, then the page right
+# of the map, whose ready-made Plancia part shows the app.
+if installed $PLANCIA && installed $XONOS; then
+    DOWN="--es haUrl http://10.0.2.2:1 --es haToken x --es maUrl http://10.0.2.2:2 --es maToken x"
+    LOGTAGS=Xonos EXTRA="$DOWN" shoot standin 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT;$WAIT;$WAIT;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT"
+    echo "--- the apps in place of the ones inside myCar ---"
+    grep -h "takes .* place\|InsideOrApp" previews/standin/log.txt 2>/dev/null || echo "standin: no app took a place"
+fi
+
+# The bridge (bridge/): Plancia and Xonos inside myCar reaching their servers through the Plancia
+# and Xonos apps, as with myCar left out of Tailscale (--ez bridge true: the emulator has none).
+# Wants the apps built from a branch of theirs with the bridge (the workflow's plancia_ref and
+# xonos_ref), set up as a driver's would be: their own settings, written as root. Plancia from the
+# grid, then its menu; its page right of the map; Xonos from the grid, an album played through it.
+# The apps log "Ponte per <myCar> verso <server>" for each connection they open for myCar.
+case " ${ONLY:-bridge} " in *bridge*) BRIDGE_SHOTS=yes ;; *) BRIDGE_SHOTS= ;; esac
+if [ -n "${PLANCIA_REF:-}${XONOS_REF:-}" ] && [ -n "$BRIDGE_SHOTS" ]; then
+    adb root >/dev/null 2>&1; sleep 3; adb wait-for-device
+    # Each app started once, so its data folder exists, then stopped.
+    for p in $PLANCIA $XONOS; do adb shell monkey -p $p -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; done
+    sleep 8
+    for p in $PLANCIA $XONOS; do adb shell am force-stop $p; done
+    # app_prefs <package> <file> <entries>: the app's SharedPreferences, owned by it as if it wrote them.
+    app_prefs() {
+        local pkg=$1 file=$2 body=$3 owner
+        owner=$(adb shell stat -c %u:%g /data/data/$pkg | tr -d '\r')
+        printf "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n<map>\n%s\n</map>\n" "$body" > "/tmp/$file"
+        adb shell mkdir -p /data/data/$pkg/shared_prefs
+        adb push "/tmp/$file" "/data/data/$pkg/shared_prefs/$file" >/dev/null
+        adb shell chown "$owner" /data/data/$pkg/shared_prefs "/data/data/$pkg/shared_prefs/$file"
+        adb shell chmod 660 "/data/data/$pkg/shared_prefs/$file"
+        adb shell restorecon -R /data/data/$pkg/shared_prefs >/dev/null 2>&1
+    }
+    [ -n "${HA_TOKEN:-}" ] && app_prefs $PLANCIA plancia.xml "    <string name=\"url_home\">http://10.0.2.2:8123</string>
+    <string name=\"token\">$HA_TOKEN</string>"
+    [ -n "${MA_TOKEN:-}" ] && app_prefs $XONOS xonos.xml "    <string name=\"url_home\">http://10.0.2.2:8095</string>
+    <string name=\"token\">$MA_TOKEN</string>
+    <string name=\"username\">mycar</string>"
+    adb unroot >/dev/null 2>&1; sleep 3; adb wait-for-device
+    if [ -n "${PLANCIA_REF:-}" ] && [ -n "${HA_TOKEN:-}" ]; then
+        LOGTAGS=Plancia EXTRA="$HA --ez bridge true" shoot bridge-plancia 1920 720 240 "$WAIT;$WAIT;$GRID_BUTTON;$(at plancia);$WAIT;$WAIT;$WAIT;$PLANCIA_MENU;$WAIT"
+        LOGTAGS=Plancia EXTRA="$HA --ez bridge true" shoot bridge-plancia-page 1920 720 240 "$WAIT;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT;$WAIT"
+    fi
+    if [ -n "${XONOS_REF:-}" ] && [ -n "${MA_TOKEN:-}" ]; then
+        LOGTAGS=Xonos EXTRA="$MA --ez bridge true" shoot bridge-xonos 1920 720 240 "$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;1230,48;$WAIT;1300,565;$WAIT;1808,232;$WAIT;$WAIT;993,48;$WAIT;$WAIT;$WAIT"
+        adb shell am force-stop "$PKG"
+    fi
+    echo "--- the bridge: Plancia and Xonos inside myCar through the apps ---"
+    for d in bridge-plancia bridge-plancia-page bridge-xonos; do
+        [ -d "previews/$d" ] || continue
+        echo "[$d]"
+        grep -h "Ponte per\|bridge\|proxy\|plancia:\|xonos:\|Xonos" "previews/$d/log.txt" 2>/dev/null | head -50
+    done
+fi
+
+# Music Assistant on the phone, in the Xonos app (the workflow's xonos_server, with xonos_ref): the
+# package Xonos downloads when asked comes from the runner (third-party/xonos-server, made by
+# build-apps.sh), as it would from Xonos's release. Xonos's own debug check downloads it and sets the
+# server up (ServerCheckActivity: the account, an album of tones from its folder, a first track
+# played), then Xonos inside myCar runs on it, from the grid as in xonos-inside. 127.0.0.1 always
+# goes through the Xonos app (the bridge): the shot starts with Xonos stopped, and myCar's binding
+# wakes it, and its server with it.
+case " ${ONLY:-phone-xonos} " in *" phone-xonos "*) PHONE_XONOS=yes ;; *) PHONE_XONOS= ;; esac
+if [ -n "${XONOS_SERVER:-}" ] && [ -n "$PHONE_XONOS" ] && installed $XONOS && [ -f third-party/xonos-server/xonos-server-x86_64.zip ]; then
+    python3 -m http.server 8000 --bind 127.0.0.1 --directory third-party/xonos-server > /tmp/xonos-package.txt 2>&1 &
+    PACKAGE_SERVER=$!
+    python3 apps-src/xonos/tools/server/tones.py /tmp/tones >/dev/null
+    adb shell rm -rf /data/local/tmp/music
+    adb push /tmp/tones /data/local/tmp/music >/dev/null
+    adb shell run-as $XONOS mkdir -p files
+    adb shell run-as $XONOS cp -r /data/local/tmp/music files/
+    adb shell "echo http://10.0.2.2:8000/ | run-as $XONOS sh -c 'cat > files/server-package-url'"
+    adb logcat -c
+    adb shell am start -n $XONOS/.ServerCheckActivity --ez xonos true
+    checked=""
+    for _ in $(seq 1 120); do
+        checked=$(adb logcat -d -s XonosServer | grep -o "Xonos: \(suona=.*\|prova interrotta.*\|collegato al server sul telefono = false.*\)" | tail -n 1)
+        [ -n "$checked" ] && break
+        sleep 5
+    done
+    echo "--- Xonos with its own Music Assistant: ${checked:-no answer in 10 minutes} ---"
+    adb logcat -d -s XonosServer | grep -m 5 "Pacchetto" || true
+    kill "$PACKAGE_SERVER" 2>/dev/null || true
+    phone_token=$(adb shell run-as $XONOS cat shared_prefs/xonos.xml | sed -n 's/.*<string name="token">\([^<]*\)<.*/\1/p')
+    if [ -n "$phone_token" ]; then
+        LOGTAGS="Xonos XonosServer" EXTRA="--es maUrl http://127.0.0.1:8095 --es maToken $phone_token" \
+            shoot phone-xonos 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$GRID_BUTTON;$(at xonos);$WAIT;$WAIT;1230,48;$WAIT;1300,565;$WAIT;1808,232;$WAIT;$WAIT;993,48;$WAIT;$WAIT;$WAIT"
+        echo "--- Xonos inside myCar on the phone's Music Assistant ---"
+        grep -h "Ponte per\|bridge\|xonos:\|Xonos" previews/phone-xonos/log.txt 2>/dev/null | head -60
+    fi
+fi
 
 # Android 17 (the workflow's "api" input at 37) keeps an app made for it, as myCar is, off the
 # home network until it's given the local network permission: its connections there time out, and
@@ -290,6 +400,77 @@ adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG"
 echo "--- the microphone with the phone locked ---"
 grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
     echo "assistant-locked: nothing in the log"
+
+# The setup list on the phone, as a new user finds it: myCar's data cleared and no permissions
+# (the install above granted them all). Last, since it wipes myCar's data. 01 the list; 02 after
+# "Get certificates", a real download from GitHub checked against the fingerprints; 03-* Android's
+# dialogs after "Allow"; 04 the list after them; 05 Home after "Done"; 06 "How to connect" with the
+# way back; 07 the list again; 08 the list with the contacts taken away.
+tap_match() {
+    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+    local b
+    b=$(adb shell cat /sdcard/ui.xml | tr '>' '\n' | grep -m1 -F "$1" |
+        sed -nE 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/p')
+    if [ -z "$b" ]; then echo "setup-phone: nothing like $1 on screen"; return 1; fi
+    set -- $b
+    adb shell input tap $(( ($1 + $3) / 2 )) $(( ($2 + $4) / 2 ))
+}
+tap_text() { tap_match "text=\"$1\""; }
+has_text() {
+    adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
+    adb shell cat /sdcard/ui.xml | grep -qF "text=\"$1\""
+}
+# Scrolls the list a little at a time until $1 is on screen: a card's buttons can sit under the
+# bar. Steps shorter than the list's height, so nothing goes by between two looks.
+scroll_to() {
+    local i
+    for i in 1 2 3 4 5 6 7 8; do
+        has_text "$1" && return 0
+        adb shell input swipe 160 380 160 260 400; sleep 1
+    done
+    echo "setup-phone: $1 never came into sight"; return 1
+}
+setup_phone() {
+    case " ${ONLY:-setup-phone} " in *" setup-phone "*) ;; *) return ;; esac
+    local d=previews/setup-phone i
+    mkdir -p $d
+    adb shell pm clear "$PKG" >/dev/null
+    adb logcat -c
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 6; adb exec-out screencap -p > $d/01-first.png
+    tap_text "Get certificates"; sleep 12; adb exec-out screencap -p > $d/02-certificates.png
+    # Android Auto comes with the emulator's Google image, as with many phones: kept, not turned off.
+    if has_text "Open Android Auto"; then
+        # The card can sit under the bar: brought into sight first, as a thumb would.
+        scroll_to "No Disable button?" && tap_text "No Disable button?"; sleep 1
+        scroll_to "Keep Android Auto"
+        adb exec-out screencap -p > $d/02b-android-auto.png
+        tap_text "Keep Android Auto"; sleep 2
+        adb exec-out screencap -p > $d/02c-kept.png
+    fi
+    # The big button at the foot, always in sight: the step's own may be scrolled away.
+    tap_text "Allow calls, map and music"
+    for i in 1 2 3 4 5 6 7; do
+        sleep 3
+        adb exec-out screencap -p > $d/03-dialog-$i.png
+        tap_match "permission_allow_foreground_only_button" || tap_match "permission_allow_button" || break
+    done
+    sleep 3; adb exec-out screencap -p > $d/04-after-allow.png
+    tap_text "Done"; sleep 3; adb exec-out screencap -p > $d/05-home.png
+    tap_text "How to connect"; sleep 3; adb exec-out screencap -p > $d/06-help.png
+    tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/07-return.png
+    # Taking a permission away stops the app: open it again, and go back to the list.
+    adb shell pm revoke "$PKG" android.permission.READ_CONTACTS
+    sleep 2
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 5; tap_text "How to connect"; sleep 3
+    tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/08-partial.png
+    adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
+    adb logcat -d -b crash > $d/crash.txt 2>&1
+    echo "--- setup on the phone ---"
+    grep -hE "CERT|DOWNL" $d/log.txt | tail -20 || echo "setup-phone: nothing in the log"
+}
+setup_phone
 
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews

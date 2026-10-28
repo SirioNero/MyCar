@@ -48,16 +48,6 @@ private class Step(
     val onClick: (() -> Unit)? = null,
 )
 
-private val FIRST_DRIVE = listOf(
-    Step("Turn off Android Auto.", "Disable or uninstall the Android Auto app, so the car talks to myCar instead."),
-    Step("Load a certificate.", "In Settings, download one or import your own."),
-    Step(
-        "Allow the microphone.",
-        "Android won't let an app pass music to the car without it. myCar listens only when " +
-            "you tap the mic or press the talk button on your wheel.",
-    ),
-)
-
 private fun inTheCar(onRequestCallScreening: () -> Unit) = listOf(
     Step(
         "Plug in, or connect wirelessly.",
@@ -96,7 +86,7 @@ private val USB_AUDIO = listOf(
 /** Which cars work, and the setup the one-time guide walks through, to reread at any time. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
+fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit, onOpenSetup: () -> Unit) {
     val car = remember(onRequestCallScreening) { inTheCar(onRequestCallScreening) }
     val route by CarSettings.audioRoute.collectAsState()
     val context = LocalContext.current
@@ -123,6 +113,8 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Spacer(Modifier.height(0.dp))
+            // What used to be the steps before the first drive: the setup list itself, as it stands.
+            BackToSetupCard(onOpenSetup)
             SettingsSection("Which cars work") {
                 Text(
                     "Most cars work. Starting around 2020, some cars added newer security " +
@@ -135,7 +127,6 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit) {
                     modifier = Modifier.padding(16.dp),
                 ) { Text("See the full list") }
             }
-            Steps("Before your first drive", FIRST_DRIVE)
             Steps("In the car", car)
             if (route != AudioRoute.BLUETOOTH) Steps("Sound through myCar", USB_AUDIO)
             Spacer(Modifier.height(16.dp))

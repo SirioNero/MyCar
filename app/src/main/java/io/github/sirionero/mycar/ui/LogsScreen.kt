@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,6 +56,9 @@ fun LogsScreen(onBack: () -> Unit) {
     val version by MyCarLog.version.collectAsStateWithLifecycle()
     val lines = remember(version) { MyCarLog.snapshot() }
 
+    var pastOpen by remember { mutableStateOf(false) }
+    if (pastOpen) PastLogsDialog(onDismiss = { pastOpen = false })
+
     val listState = rememberLazyListState()
     val atEnd by remember {
         derivedStateOf {
@@ -99,17 +103,16 @@ fun LogsScreen(onBack: () -> Unit) {
                             // A full phone (the file can't be written) must not close myCar, and the car's session with it.
                             runCatching {
                             val uri = withContext(Dispatchers.IO) { MyCarLog.shareableFile(context) }
-                            val send = Intent(Intent.ACTION_SEND)
-                                .setType("text/plain")
-                                .putExtra(Intent.EXTRA_SUBJECT, "myCar log")
-                                .putExtra(Intent.EXTRA_STREAM, uri)
-                                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                            context.startActivity(Intent.createChooser(send, "Share log"))
+                            shareLog(context, uri)
                             }.onFailure { MyCarLog.w("logs: couldn't share the log: ${it.message}") }
                         }
                         },
                         modifier = Modifier.weight(1f).height(56.dp),
                     ) { Text("Share") }
+                    OutlinedButton(
+                        onClick = { pastOpen = true },
+                        modifier = Modifier.weight(1f).height(56.dp),
+                    ) { Text("Earlier") }
                     OutlinedButton(
                         onClick = { MyCarLog.clearLive() },
                         modifier = Modifier.weight(1f).height(56.dp),
@@ -154,6 +157,71 @@ fun LogsScreen(onBack: () -> Unit) {
             }
         }
     }
+}
+
+private fun shareLog(context: android.content.Context, uri: android.net.Uri) {
+    val send = Intent(Intent.ACTION_SEND)
+        .setType("text/plain")
+        .putExtra(Intent.EXTRA_SUBJECT, "myCar log")
+        .putExtra(Intent.EXTRA_STREAM, uri)
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    context.startActivity(Intent.createChooser(send, "Share log"))
+}
+
+/**
+ * Logs from earlier launches. Opening the app after a crash starts a new log, so the one that
+ * saw the crash is only reachable here.
+ */
+@Composable
+private fun PastLogsDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val logs by androidx.compose.runtime.produceState<List<MyCarLog.PastLog>?>(null) {
+        value = withContext(Dispatchers.IO) { MyCarLog.pastLogs(context) }
+    }
+    val format = remember { java.text.SimpleDateFormat("EEE d MMM, h:mm a", java.util.Locale.getDefault()) }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Earlier logs") },
+        text = {
+            val list = logs
+            when {
+                list == null -> Text("Loading…")
+                list.isEmpty() -> Text("No earlier logs yet. Each time myCar starts, it begins a new one.")
+                else -> LazyColumn {
+                    itemsIndexed(list) { _, log ->
+                        androidx.compose.foundation.layout.Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch {
+                                        // As Share: a full phone must not close myCar.
+                                        runCatching {
+                                            val uri = withContext(Dispatchers.IO) { MyCarLog.shareableFile(context, log.file) }
+                                            shareLog(context, uri)
+                                        }.onFailure { MyCarLog.w("logs: couldn't share the earlier log: ${it.message}") }
+                                    }
+                                }
+                                .padding(vertical = 12.dp),
+                        ) {
+                            Text(log.started?.let(format::format) ?: log.file.name, style = MaterialTheme.typography.titleMedium)
+                            val detail = listOfNotNull(
+                                "Crashed".takeIf { log.crashed },
+                                log.car,
+                                "${(log.file.length() + 1023) / 1024} KB",
+                            ).joinToString(" · ")
+                            Text(
+                                detail,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (log.crashed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Close") } },
+    )
 }
 
 /** Lines look like "HH:mm:ss.SSS L message"; the level letter sits at index 13. */

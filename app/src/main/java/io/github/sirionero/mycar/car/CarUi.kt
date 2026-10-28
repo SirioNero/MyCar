@@ -137,7 +137,11 @@ fun CarUi() {
     // is up rather than with it: making it takes the main thread, and the first frames and the map
     // app's start go first.
     val carContext = LocalContext.current
-    val homeSetUp = io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState().value.isComplete
+    // Not while the Plancia app takes its place (see InsideOrApp): a page nothing shows, and its start
+    // holds the car's screen up for a moment.
+    val homeComplete = io.github.sirionero.mycar.home.HomeAssistant.config.collectAsState().value.isComplete
+    val planciaApp = io.github.sirionero.mycar.home.HomeAssistant.appTakesOver.collectAsState().value
+    val homeSetUp = homeComplete && !planciaApp
     var settled by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(PLANCIA_AFTER_MS)
@@ -219,8 +223,10 @@ fun CarUi() {
                     },
                 color = MaterialTheme.colorScheme.background,
             ) {
-                // Insets are in video-frame pixels, so convert with the un-scaled density.
-                val pad = with(base) {
+                // Insets are video-frame pixels. Resolved with the live (size-scaled) density, which
+                // padding() uses too, the margin stays the car's at every size: with the un-scaled one
+                // it grew with Large and ate the sides, and shrank with Small under the car's edge.
+                val pad = with(LocalDensity.current) {
                     PaddingValues(
                         start = insets.left.toDp(), top = insets.top.toDp(),
                         end = insets.right.toDp(), bottom = insets.bottom.toDp(),

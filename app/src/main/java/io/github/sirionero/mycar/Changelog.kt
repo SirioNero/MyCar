@@ -11,6 +11,48 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            31, "0.5.18-alpha",
+            listOf(
+                "Wireless connects by itself: after your first drive without the cable, Android asks once, then myCar connects to that car whenever you start it. Settings > Connection turns it off.",
+                "Music playing over Bluetooth stays there: the car no longer switches to Android Auto's source the moment myCar connects.",
+                "Steadier car audio: fewer gaps, and cars that take only AAC get the start they expect.",
+                "The car's own margins stay right at every size, Small and Large included.",
+                "On the car's Phone screen, \"Ask on the phone\" asks for the missing permissions on the phone.",
+                "Map apps' route options show time and distance, and a car app that never answers says so instead of \"Starting...\".",
+            ),
+        ),
+        Release(
+            30, "0.5.17-alpha",
+            listOf(
+                "No Music Assistant at home? The Xonos app can now be one, on the phone itself: Xonos inside myCar plays from it, wirelessly too.",
+                "myCar wakes the Xonos app and its server as the drive starts. The first start takes a few seconds, and the car says so.",
+            ),
+        ),
+        Release(
+            29, "0.5.16-alpha",
+            listOf(
+                "Plancia and Xonos now work wirelessly with Tailscale too: with myCar left out of Tailscale, they reach your servers through the Plancia and Xonos apps on the phone, which stay inside it.",
+                "Update the Plancia and Xonos apps, and keep them set to the same addresses as myCar. They open connections only for myCar, and only to their own server.",
+                "If even the apps can't reach your server, they take the place of the ones inside myCar for the drive, as before.",
+            ),
+        ),
+        Release(
+            28, "0.5.15-alpha",
+            listOf(
+                "Plancia and Xonos keep working with Tailscale over wireless: when the ones inside myCar can't reach your server, the Plancia and Xonos apps on the phone take their place for the drive, by themselves.",
+                "The same when the address or the token set in myCar is wrong: the apps step in instead of an error.",
+                "Xonos connects as the drive starts, so it's ready when you open it.",
+            ),
+        ),
+        Release(
+            27, "0.5.14-alpha",
+            listOf(
+                "Setup is one list on the phone, with one button for the next step. How to connect and Settings bring it back, with nothing reset.",
+                "A spare certificate: if your car turns down the first, myCar uses the other, and the phone says to connect again.",
+                "A car with its clock set wrong is now told apart: the phone says to check the car's date.",
+            ),
+        ),
+        Release(
             26, "0.5.13-alpha",
             listOf(
                 "Plancia and Xonos say why they can't connect: Tailscale leaving myCar out, a Tailscale name that isn't found, or Android 17 keeping myCar off your home network.",

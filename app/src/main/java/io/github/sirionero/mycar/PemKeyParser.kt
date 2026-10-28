@@ -6,16 +6,19 @@ import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
+import java.security.interfaces.RSAPrivateCrtKey
+import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.RSAPrivateCrtKeySpec
 import java.security.spec.RSAPublicKeySpec
 
 /**
- * Converts a PEM-encoded X.509 certificate and PEM-encoded RSA PKCS#1 private key into a
- * PKCS#12 [KeyStore], using only standard JCA APIs — no BouncyCastle.
+ * Converts a PEM-encoded X.509 certificate and PEM-encoded RSA private key, PKCS#1 or PKCS#8,
+ * into a PKCS#12 [KeyStore], using only standard JCA APIs — no BouncyCastle.
  *
  * The DER parsing of the PKCS#1 key is done by hand (matching the same approach used in
  * [SelfSignedCert] for writing). Android's Conscrypt [KeyFactory] only accepts PKCS#8,
- * so we translate PKCS#1 → [RSAPrivateCrtKeySpec] ourselves.
+ * so we translate PKCS#1 → [RSAPrivateCrtKeySpec] ourselves. PKCS#8 ("BEGIN PRIVATE KEY", as
+ * Headunit Revived ships its key) goes to the [KeyFactory] as it is.
  */
 object PemKeyParser {
 
@@ -23,6 +26,8 @@ object PemKeyParser {
     private const val CERT_FOOTER = "-----END CERTIFICATE-----"
     private const val KEY_HEADER = "-----BEGIN RSA PRIVATE KEY-----"
     private const val KEY_FOOTER = "-----END RSA PRIVATE KEY-----"
+    private const val PKCS8_HEADER = "-----BEGIN PRIVATE KEY-----"
+    private const val PKCS8_FOOTER = "-----END PRIVATE KEY-----"
 
     class Result(val keyStore: KeyStore, val certificate: X509Certificate)
 
@@ -54,14 +59,28 @@ object PemKeyParser {
             .generateCertificate(ByteArrayInputStream(der)) as X509Certificate
     }
 
-    /** Parses an RSA PKCS#1 private key (ASN.1 DER) into a key spec. */
+    /** Parses an RSA private key, PKCS#1 or PKCS#8 (ASN.1 DER), into a key spec. */
     fun parsePrivateKey(pem: String): KeySpec {
+        if (pem.contains(PKCS8_HEADER)) return parsePkcs8(pem)
+        require(!pem.contains("ENCRYPTED PRIVATE KEY")) { "the private key is protected by a password" }
         val der = pemToDer(pem, KEY_HEADER, KEY_FOOTER)
         val integers = readPkcs1Sequence(der)
         require(integers.size == 9) { "PKCS#1 RSA key needs 9 integers, got ${integers.size}" }
         val spec = RSAPrivateCrtKeySpec(integers[1], integers[2], integers[3], integers[4], integers[5], integers[6], integers[7], integers[8])
         val privateKey = KeyFactory.getInstance("RSA").generatePrivate(spec)
         return KeySpec(spec, privateKey)
+    }
+
+    private fun parsePkcs8(pem: String): KeySpec {
+        val der = pemToDer(pem, PKCS8_HEADER, PKCS8_FOOTER)
+        val key = KeyFactory.getInstance("RSA").generatePrivate(PKCS8EncodedKeySpec(der))
+        // The public exponent is needed to match the key against the certificate.
+        require(key is RSAPrivateCrtKey) { "the PKCS#8 key has no CRT parameters" }
+        val spec = RSAPrivateCrtKeySpec(
+            key.modulus, key.publicExponent, key.privateExponent, key.primeP, key.primeQ,
+            key.primeExponentP, key.primeExponentQ, key.crtCoefficient,
+        )
+        return KeySpec(spec, key)
     }
 
     /** Holds both the spec and the constructed key for matching against a certificate's public key. */

@@ -431,7 +431,7 @@ private fun VoiceDownloadStatus() {
 }
 
 @Composable
-private fun AudioChoice() {
+internal fun AudioChoice() {
     val route by CarSettings.audioRoute.collectAsState()
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AudioCard(

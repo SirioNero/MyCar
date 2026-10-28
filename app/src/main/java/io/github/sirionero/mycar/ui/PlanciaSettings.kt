@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.car.InsideOrApp
 import io.github.sirionero.mycar.home.HaException
 import io.github.sirionero.mycar.home.HomeAssistant
 import kotlinx.coroutines.CancellationException
@@ -51,6 +52,8 @@ internal fun PlanciaSection() {
     var token by rememberSaveable(saved) { mutableStateOf(saved.token) }
     var status by remember { mutableStateOf<String?>(null) }
     val planciaApp = remember { HomeAssistant.planciaAppCanShare(context) }
+    val planciaThere = remember { InsideOrApp.planciaAppThere(context) }
+    val planciaBridge = remember { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
     val askLocalNetwork = rememberLocalNetworkAsk()
 
     fun test(config: HomeAssistant.Config) {
@@ -87,6 +90,7 @@ internal fun PlanciaSection() {
             "Long-lived access tokens.",
     ) {
         if (saved.isComplete) LocalNetworkRow(saved.urls)
+        if (saved.isComplete) TailscaleCableRow(saved.urls, "Home Assistant", "Plancia", planciaThere, planciaBridge)
         if (planciaApp) {
             SettingsRow(
                 "Use the Plancia app's account",

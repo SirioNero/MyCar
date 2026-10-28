@@ -65,6 +65,53 @@ object MyCarLog {
         SessionReport.init(context)
     }
 
+    private fun logFiles(dir: File): List<File> =
+        dir.listFiles { f -> f.isFile && f.name.startsWith("mycar-") && f.name.endsWith(".log") }
+            ?.sortedByDescending { it.name }.orEmpty()
+
+    /** A log from an earlier launch: when it started, and what a glance at it tells. */
+    class PastLog(val file: File, val started: Date?, val crashed: Boolean, val car: String?)
+
+    /**
+     * Earlier launches' logs, newest first. Each launch starts a fresh file, so after a crash the
+     * one that saw it is here rather than on the live screen.
+     */
+    fun pastLogs(context: Context): List<PastLog> {
+        val dir = context.getExternalFilesDir(null) ?: return emptyList()
+        val parse = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US)
+        val carName = Regex("""car="([^"]+)"""")
+        return logFiles(dir).filter { it != file }.map { f ->
+            // Line by line: a long drive's log runs to megabytes.
+            var crashed = false
+            var car: String? = null
+            runCatching {
+                f.useLines { lines ->
+                    lines.forEach { line ->
+                        if ("FATAL uncaught" in line) crashed = true
+                        carName.find(line)?.let { car = it.groupValues[1] }
+                    }
+                }
+            }
+            PastLog(
+                file = f,
+                started = runCatching { parse.parse(f.name.removePrefix("mycar-").removeSuffix(".log")) }.getOrNull(),
+                crashed = crashed,
+                car = car,
+            )
+        }
+    }
+
+    /** An earlier launch's log, copied to the cache dir for sharing like [shareableFile]. */
+    fun shareableFile(context: Context, past: File): android.net.Uri {
+        val dir = File(context.cacheDir, "shared").apply { mkdirs() }
+        dir.listFiles()?.forEach { it.delete() }
+        val out = File(dir, "mycar-log-${past.name.removePrefix("mycar-").removeSuffix(".log")}.txt")
+        past.copyTo(out, overwrite = true)
+        return androidx.core.content.FileProvider.getUriForFile(
+            context, "${context.packageName}.logshare", out,
+        )
+    }
+
     private fun pruneOldLogs(dir: File) {
         dir.listFiles { f -> f.isFile && f.name.startsWith("mycar-") && f.name.endsWith(".log") }
             ?.sortedByDescending { it.name } // the name is the start time, so newest first

@@ -63,7 +63,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
+import io.github.sirionero.mycar.CertRotation
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.notify.TestMessage
@@ -173,9 +175,9 @@ private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Uni
         )
         SettingsDivider()
         SettingsRow(
-            "Replay the setup guide",
+            "Initial setup",
             Modifier.clickable(onClick = onReplayTutorial),
-            subtitle = "Go through the first-run steps again",
+            subtitle = "What's done and what's left. Nothing is deleted.",
             icon = Icons.Filled.Refresh,
             trailing = { Arrow() },
         )
@@ -200,6 +202,8 @@ private fun ConnectionSection() {
             icon = Icons.Filled.Settings,
             trailing = { Switch(checked = enabled, onCheckedChange = null) },
         )
+        SettingsDivider()
+        WirelessAutoRow()
     }
 }
 
@@ -211,9 +215,9 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
     val live = status.phase == SessionStatus.Phase.CONNECTING || status.phase == SessionStatus.Phase.PROJECTING
     SettingsSection("Help and tools") {
         SettingsRow(
-            "Connection help",
+            "How to connect",
             Modifier.clickable(onClick = onOpenHelp),
-            subtitle = "Which cars work, and what to set up first",
+            subtitle = "Which cars work, and what's left to set up",
             icon = Icons.Filled.Info,
             trailing = { Arrow() },
         )
@@ -347,25 +351,48 @@ private fun CertificateSection() {
                 s?.issuer?.let { Detail("Issuer", it) }
             }
         }
-        SettingsDivider()
-        SettingsRow(
-            if (downloading) "Downloading…" else "Download from aasdk",
-            Modifier.clickable(enabled = !downloading) {
-                downloading = true
-                scope.launch {
-                    val result = withContext(Dispatchers.IO) { runCatching { CertProvider.downloadAndImport(context) } }
-                    downloading = false
-                    result.onSuccess {
-                        notice = "Certificate downloaded."
+        // The public certificates: the recommended one and the spare, picked here by hand.
+        val present = remember(refresh) { CertCatalog.present(context) }
+        CertCatalog.entries.forEachIndexed { index, entry ->
+            val inUse = s?.kind == CertProvider.Kind.DOWNLOADED && s?.catalogId == entry.id
+            val stored = entry.id in present
+            SettingsDivider()
+            SettingsRow(
+                entry.label + if (index == 0) " · Recommended" else " · Spare",
+                Modifier.selectable(inUse, enabled = !downloading, role = Role.RadioButton) {
+                    if (inUse) return@selectable
+                    downloading = true
+                    scope.launch {
+                        val result = withContext(Dispatchers.IO) {
+                            runCatching {
+                                if (!stored) CertCatalog.downloadAll(context)
+                                check(entry.id in CertCatalog.present(context)) { "it couldn't be downloaded" }
+                                CertRotation.choose(context, entry.id)
+                            }
+                        }
+                        downloading = false
+                        notice = result.fold(
+                            onSuccess = {
+                                // An imported certificate comes before the downloaded ones.
+                                if (s?.kind == CertProvider.Kind.IMPORTED) "${entry.label} is ready, but your own certificate comes first: remove it to use ${entry.label}."
+                                else "${entry.label} is in use from the next connection."
+                            },
+                            onFailure = { "Couldn't get ${entry.label}: check your internet connection, then try again." },
+                        )
                         refresh++
-                    }.onFailure {
-                        notice = "Download failed: ${it.message}"
                     }
-                }
-            },
-            subtitle = "The certificate the open-source aasdk project publishes on GitHub. myCar doesn't include one",
-            icon = Icons.Filled.Refresh,
-        )
+                },
+                subtitle = (if (index == 0) "Works in most cars tried so far. From the aasdk project." else "Valid until 2044, for cars that turn down the first one. From the Headunit Revived project.") +
+                    when {
+                        inUse -> " In use."
+                        stored -> " Downloaded."
+                        downloading -> ""
+                        else -> " Not downloaded yet: tap to get it."
+                    },
+                icon = Icons.Filled.Refresh,
+                trailing = { RadioButton(selected = inUse, onClick = null) },
+            )
+        }
         SettingsDivider()
         SettingsRow(
             "Import my own file",
