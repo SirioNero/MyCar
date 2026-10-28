@@ -63,6 +63,7 @@ fun HomeScreen(
     onOpenWhatsNew: () -> Unit,
     onOpenHelp: () -> Unit,
     onOpenUsageNotes: () -> Unit,
+    onOpenSetup: () -> Unit,
     onDisconnect: () -> Unit,
 ) {
     val status by SessionStatus.state.collectAsStateWithLifecycle()
@@ -112,6 +113,7 @@ fun HomeScreen(
                     Spacer(Modifier.height(16.dp))
                     StatusCard(status)
                     if (!live) CertNoticeCard(onOpenHelp = onOpenHelp, onOpenSettings = onOpenSettings)
+                    if (!live) SetupLeftCard(onOpenSetup)
                     if (live) BluetoothMissingCard()
                     VoiceDownloadCard()
                     // The first drive that worked asks once to share it, right under the result.
