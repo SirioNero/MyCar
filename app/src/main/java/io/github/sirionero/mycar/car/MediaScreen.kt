@@ -132,6 +132,11 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                             "${app.label} would not let myCar browse it.",
                             "Some media apps only accept Google's own host.",
                         )
+                        CarMedia.Rejection.KEEPS_CLOSING -> Notice(
+                            "${app.label} keeps closing on the phone.",
+                            "It closed twice in a minute, so myCar stopped reconnecting to it.",
+                            action = "Try again" to { CarServices.openMedia(app) },
+                        )
                     }
                     else -> Notice("Connecting to ${app.label}…", null)
                 }
