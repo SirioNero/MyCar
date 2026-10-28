@@ -1276,33 +1276,9 @@ class MyCarRunner(
         try {
             writer.execute {
                 try {
-                    if (payload.size <= Frames.MAX_FRAME_PAYLOAD) {
-                        val framePayload = if (encrypted) tls.encrypt(payload) else payload
-                        output.write(Frames.build(channel, encrypted, framePayload, messageType))
-                    } else {
-                        // Split exactly as aasdk does: chunk the *plaintext*, encrypt each chunk
-                        // separately, and carry the total plaintext length in the FIRST frame.
-                        // Video keyframes for anything busier than a test card exceed 16 KB routinely.
-                        var offset = 0
-                        while (offset < payload.size) {
-                            val size = minOf(Frames.MAX_FRAME_PAYLOAD, payload.size - offset)
-                            val chunk = payload.copyOfRange(offset, offset + size)
-                            val frameType = when {
-                                offset == 0 -> Frames.TYPE_FIRST
-                                offset + size >= payload.size -> Frames.TYPE_LAST
-                                else -> Frames.TYPE_MIDDLE
-                            }
-                            val framePayload = if (encrypted) tls.encrypt(chunk) else chunk
-                            output.write(
-                                Frames.build(
-                                    channel, encrypted, framePayload, messageType, frameType,
-                                    if (frameType == Frames.TYPE_FIRST) payload.size else null,
-                                ),
-                            )
-                            offset += size
-                        }
-                        splitMessages++
-                    }
+                    // Video keyframes for anything busier than a test card go out in several frames.
+                    val frames = Frames.writeMessage(output, channel, encrypted, messageType, payload) { tls.encrypt(it) }
+                    if (frames > 1) splitMessages++
                     output.flush()
                 } catch (e: java.io.IOException) {
                     if (running) log.w("send failed, stopping: ${e.message}")
