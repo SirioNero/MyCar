@@ -63,6 +63,7 @@ fun HomeScreen(
     onOpenWhatsNew: () -> Unit,
     onOpenHelp: () -> Unit,
     onOpenUsageNotes: () -> Unit,
+    onOpenCertificate: () -> Unit,
     onOpenSetup: () -> Unit,
     onDisconnect: () -> Unit,
 ) {
@@ -112,7 +113,7 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     StatusCard(status)
-                    if (!live) CertNoticeCard(onOpenHelp = onOpenHelp, onOpenSettings = onOpenSettings)
+                    if (!live) CertNoticeCard(onOpenHelp = onOpenHelp, onOpenSettings = onOpenCertificate)
                     if (!live) SetupLeftCard(onOpenSetup)
                     if (live) BluetoothMissingCard()
                     VoiceDownloadCard()

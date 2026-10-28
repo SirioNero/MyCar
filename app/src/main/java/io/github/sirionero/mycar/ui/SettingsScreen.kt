@@ -78,6 +78,9 @@ import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
+/** Where Settings opens: at the top, or at the section a card on Home sent the driver to. */
+enum class SettingsAt { TOP, USAGE_NOTES, CERTIFICATE }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -89,14 +92,16 @@ fun SettingsScreen(
     onOpenLogs: () -> Unit,
     onReplayTutorial: () -> Unit,
     onReplayIntro: () -> Unit,
-    atUsageNotes: Boolean = false,
+    at: SettingsAt = SettingsAt.TOP,
 ) {
     val scroll = rememberScrollState()
-    // Opened from Home's "it worked" card: start at usage notes.
+    // Opened from Home's "it worked" card: start at usage notes; from its certificate card: at
+    // the certificate, second to last.
     var usageNotesY by remember { mutableIntStateOf(-1) }
-    if (atUsageNotes) {
+    var certificateY by remember { mutableIntStateOf(-1) }
+    if (at != SettingsAt.TOP) {
         LaunchedEffect(Unit) {
-            val y = snapshotFlow { usageNotesY }.first { it >= 0 }
+            val y = snapshotFlow { if (at == SettingsAt.CERTIFICATE) certificateY else usageNotesY }.first { it >= 0 }
             snapshotFlow { scroll.maxValue }.first { it > 0 && it < Int.MAX_VALUE }
             scroll.scrollTo(y)
         }
@@ -145,7 +150,7 @@ fun SettingsScreen(
                 ) { UsageStatsRows() }
             }
             SettingsSection("Updates") { UpdateRow() }
-            CertificateSection()
+            CertificateSection(Modifier.onGloballyPositioned { certificateY = it.positionInParent().y.toInt() })
             AboutSection(onOpenWhatsNew, onReplayTutorial, onReplayIntro)
             Spacer(Modifier.height(16.dp))
         }
@@ -309,7 +314,7 @@ private fun AppsSection(onOpenRecommendedApps: () -> Unit) {
 }
 
 @Composable
-private fun CertificateSection() {
+private fun CertificateSection(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -328,7 +333,7 @@ private fun CertificateSection() {
         if (uri != null) pendingUri = uri
     }
 
-    SettingsSection("Certificate", footer = notice ?: "Changes take effect on the next connection.") {
+    SettingsSection("Certificate", modifier, footer = notice ?: "Changes take effect on the next connection.") {
         val s = summary
         val loaded = s != null && s.kind != CertProvider.Kind.SELF_SIGNED
         val hasDetails = s?.subject != null || s?.issuer != null
