@@ -132,6 +132,7 @@ fun SettingsScreen(
             PlanciaSection()
             XonosSection()
             CinemaSection()
+            CinemaTvSection()
             VoiceModelSection()
             if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
             SettingsSection(

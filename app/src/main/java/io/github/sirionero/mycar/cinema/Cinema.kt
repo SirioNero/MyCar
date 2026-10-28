@@ -37,6 +37,20 @@ object Cinema {
     )
 
     /**
+     * More sites, a tap away on the phone: free to watch, and their video isn't protected, so it
+     * shows in the car.
+     */
+    val MORE = listOf(
+        CinemaSite("Dailymotion", "https://www.dailymotion.com"),
+        CinemaSite("Vimeo", "https://vimeo.com"),
+        CinemaSite("La7", "https://www.la7.it"),
+        CinemaSite("TED", "https://www.ted.com"),
+        CinemaSite("Arte", "https://www.arte.tv"),
+        CinemaSite("NASA+", "https://plus.nasa.gov"),
+        CinemaSite("Internet Archive", "https://archive.org/details/feature_films"),
+    )
+
+    /**
      * Sites whose video is protected (DRM): Android hides protected video from a screen made into
      * a video stream, as the car's is, so their picture most likely stays black in the car.
      */
@@ -59,6 +73,7 @@ object Cinema {
         val saved = AppSettings.getString(app, KEY_SITES, "")
         sitesFlow.value = if (saved.isEmpty()) SUGGESTED else read(saved)
         parkedOnlyFlow.value = AppSettings.getString(app, KEY_PARKED_ONLY, "true") == "true"
+        TvLists.init(app)
     }
 
     fun add(site: CinemaSite) = save(sitesFlow.value.filterNot { it.url == site.url } + site)

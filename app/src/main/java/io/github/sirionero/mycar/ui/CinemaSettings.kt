@@ -72,6 +72,8 @@ internal fun CinemaSection() {
             tint = if (parkedOnly) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
             trailing = { Switch(checked = parkedOnly, onCheckedChange = null) },
         )
+        SettingsDivider()
+        PhoneVideosRow()
         sites.forEach { site ->
             SettingsDivider()
             SiteRow(site)
@@ -110,6 +112,7 @@ internal fun CinemaSection() {
                 TextButton(onClick = { Cinema.backToSuggested() }) { Text("Suggested sites") }
             }
         }
+        MoreSitesRow()
     }
 
     if (warning) {
