@@ -161,6 +161,7 @@ class PlaybackService : MediaLibraryService() {
         main.removeCallbacksAndMessages(null)
         setNoisyReceiver(false)
         releaseLocks()
+        watchCalls(false)
         focus.abandon()
         session.release()
         player.release()
@@ -229,6 +230,10 @@ class PlaybackService : MediaLibraryService() {
                     }
                     else -> Log.w(TAG, "Focus audio negato senza telefonate (Android 17 in background?): continuo")
                 }
+                // Senza focus Android non avvisa delle telefonate: le si guarda dal modo dell'audio.
+                if (!inCall()) watchCalls(true)
+            } else {
+                watchCalls(false)
             }
         } else {
             releaseLocks()
@@ -236,6 +241,33 @@ class PlaybackService : MediaLibraryService() {
             // Ferma per un po': si lascia l'audio alle altre app, ma non durante una telefonata.
             if (!resumeAfterInterruption) main.postDelayed(abandonFocus, FOCUS_GRACE_MS)
         }
+    }
+
+    private var watchingCalls = false
+
+    private val modeListener = AudioManager.OnModeChangedListener { onModeChanged() }
+
+    /**
+     * Mentre si suona senza focus (negato in background su Android 17): una telefonata non arriva
+     * come perdita del focus, e la musica andava avanti per tutta la chiamata, senza riprendere dopo.
+     */
+    private fun watchCalls(on: Boolean) {
+        if (on == watchingCalls) return
+        val audio = getSystemService(AudioManager::class.java) ?: return
+        runCatching {
+            if (on) audio.addOnModeChangedListener(mainExecutor, modeListener) else audio.removeOnModeChangedListener(modeListener)
+            watchingCalls = on
+        }
+    }
+
+    private fun onModeChanged() {
+        if (inCall()) {
+            onFocusChange(AudioFocus.Change.PAUSED)
+            return
+        }
+        // Finita: si riprova il focus (myCar può essere in vista ora) e si riprende.
+        if (focus.request()) watchCalls(false)
+        if (resumeAfterInterruption) onFocusChange(AudioFocus.Change.RESUMED)
     }
 
     /** Una telefonata in corso, o che squilla: l'unico motivo per cui Xonos cede la musica da sé. */
