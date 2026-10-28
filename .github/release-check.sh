@@ -287,4 +287,7 @@ adb logcat -d -b crash > "$OUT/crash.txt" 2>&1
 adb pull /sdcard/Android/data/$PKG/files/. "$OUT/files/" >/dev/null 2>&1 || true
 echo "--- myCar's log ---"
 grep -iE "plancia|xonos|local network|home assistant|music assistant" "$OUT/log.txt" | head -60
+# The bridge (apps from a branch with it): the connections the apps opened for myCar.
+echo "--- the bridge ---"
+grep -E "Ponte per|bridge" "$OUT/log.txt" | head -30 || echo "(no connection through the apps)"
 ls -l "$OUT"

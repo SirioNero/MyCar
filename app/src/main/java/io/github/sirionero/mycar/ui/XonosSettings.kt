@@ -56,6 +56,7 @@ internal fun XonosSection() {
     LaunchedEffect(Unit) { XonosAccount.adoptIfUnset(context) }
     val saved = remember(setUp) { Xonos.settings.load() }
     val xonosThere = remember { InsideOrApp.xonosAppThere(context) }
+    val xonosBridge = remember { io.github.sirionero.mycar.bridge.Bridges.xonos.available(context) }
     var home by rememberSaveable(saved) { mutableStateOf(saved.homeUrl) }
     var remote by rememberSaveable(saved) { mutableStateOf(saved.remoteUrl) }
     var username by rememberSaveable(saved) { mutableStateOf(Xonos.settings.username.orEmpty()) }
@@ -93,7 +94,7 @@ internal fun XonosSection() {
             "its music goes straight to the car, and Android doesn't ask to share the audio while you listen to it.",
     ) {
         if (setUp) LocalNetworkRow(saved.urls)
-        if (setUp) TailscaleCableRow(saved.urls, "Music Assistant", "Xonos", xonosThere)
+        if (setUp) TailscaleCableRow(saved.urls, "Music Assistant", "Xonos", xonosThere, xonosBridge)
         if (xonosApp) {
             SettingsRow(
                 "Use the Xonos app's account",

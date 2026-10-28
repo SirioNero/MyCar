@@ -21,7 +21,11 @@ import org.json.JSONObject
  * Tiene viva una connessione all'API di Music Assistant mentre l'app serve: dice quale indirizzo
  * risponde (casa o remoto), inoltra gli eventi del server e i comandi dell'app.
  */
-class MaRepository(private val settings: Settings) {
+class MaRepository(
+    private val settings: Settings,
+    /** In myCar: la strada per Music Assistant, attraverso l'app Xonos quando serve (vedi bridge/Bridges). */
+    network: OkHttpClient.Builder.() -> Unit = {},
+) {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -30,6 +34,7 @@ class MaRepository(private val settings: Settings) {
         .connectTimeout(8, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .pingInterval(20, TimeUnit.SECONDS)
+        .apply(network)
         .build()
 
     private val _connection = MutableStateFlow<Connection>(Connection.Connecting(""))

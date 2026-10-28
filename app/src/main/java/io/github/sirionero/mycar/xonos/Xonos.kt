@@ -9,6 +9,9 @@ import android.os.Process
 import androidx.core.content.ContextCompat
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.bridge.BridgeDns
+import io.github.sirionero.mycar.bridge.BridgeSocketFactory
+import io.github.sirionero.mycar.bridge.Bridges
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.xonos.data.ArtCache
 import io.github.sirionero.mycar.xonos.data.Library
@@ -36,10 +39,18 @@ object Xonos {
     /** Idempotent; any context will do. */
     fun init(context: Context) {
         if (!::app.isInitialized) app = context.applicationContext
+        Bridges.init(app)
     }
 
     val settings: Settings by lazy { Settings(app) }
-    val repo: MaRepository by lazy { MaRepository(settings) }
+
+    /** Left out of Tailscale to connect wirelessly, myCar reaches a Tailscale address through the Xonos app (see bridge/Bridges). */
+    val repo: MaRepository by lazy {
+        MaRepository(settings) {
+            dns(BridgeDns(Bridges.xonos))
+            socketFactory(BridgeSocketFactory(Bridges.xonos))
+        }
+    }
     val library: Library by lazy { Library(repo) }
 
     /** The covers fetched for the car, the notification and the player (see playback/Artwork). */

@@ -61,10 +61,10 @@ behind it all — still or moving.
   the start of the drive and kept loaded, so they're there the moment you open them — full
   screen from the app grid, on a page beside the map, or beside the map itself. Set it up in
   myCar's settings on the phone, or bring your account over from the Plancia app with one tap.
-- **Always a Plancia and a Xonos that work.** When the ones built in can't reach your server -
-  a wrong address or token, or Tailscale over wireless, where myCar has to be left out of
-  Tailscale - the Plancia and Xonos apps on the phone take their place for the drive, by
-  themselves. With Tailscale, the built-in ones work with the cable only, for now.
+- **Plancia and Xonos with Tailscale, wirelessly too.** Over wireless myCar has to be left out of
+  Tailscale, so the built-in Plancia and Xonos reach your servers through the Plancia and Xonos
+  apps on the phone, which stay inside it: set the apps to the same addresses. When even that
+  fails - a wrong address or token - the apps take their place for the drive, by themselves.
 - **Weather and the day ahead.** A dashboard screen shows the week's calendar next to
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the

@@ -9,6 +9,7 @@ import android.service.media.MediaBrowserService
 import androidx.car.app.CarAppService
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.bridge.Bridges
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
 import io.github.sirionero.mycar.xonos.Xonos
@@ -64,8 +65,10 @@ internal object InsideOrApp {
             val home = HomeAssistant.config.value
             val ha = HomeAssistant.connection.value
             val haUp = ha is HaConnection.Connected
-            // Asked of Android only when it can matter.
-            val haOut = !haUp && home.isComplete && planciaThere && Tailnet.outOfReach(app, home.urls)
+            // Asked of Android only when it can matter. Out of reach for myCar, but not through the
+            // app's bridge, when the app has one: then Plancia inside myCar connects through it.
+            val haOut = !haUp && home.isComplete && planciaThere && Tailnet.outOfReach(app, home.urls) &&
+                !Bridges.plancia.available(app)
             if (!HomeAssistant.appTakesOver.value &&
                 plancia.update(now, home.isComplete, planciaThere, haUp, online, haOut, (ha as? HaConnection.Failed)?.tokenRefused == true)
             ) {
@@ -75,7 +78,8 @@ internal object InsideOrApp {
 
             val ma = Xonos.repo.connection.value
             val maUp = ma is Connection.Connected
-            val maOut = !maUp && Xonos.setUp.value && xonosThere && Tailnet.outOfReach(app, Xonos.settings.load().urls)
+            val maOut = !maUp && Xonos.setUp.value && xonosThere && Tailnet.outOfReach(app, Xonos.settings.load().urls) &&
+                !Bridges.xonos.available(app)
             if (!Xonos.appTakesOver.value &&
                 xonos.update(now, Xonos.setUp.value, xonosThere, maUp, online, maOut, (ma as? Connection.Failed)?.problem in MISSET)
             ) {
