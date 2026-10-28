@@ -46,6 +46,8 @@ data class CarNotification(
     val burst: Int = 1,
     /** Uptime when it popped up, which sets when the popup goes. 0 until it's shown. */
     val shownAt: Long = 0L,
+    /** The phone's "missed call": the popup offers to call back, and it's read as one. */
+    val missedCall: Boolean = false,
 )
 
 /**

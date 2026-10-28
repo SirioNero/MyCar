@@ -365,6 +365,8 @@ object VoiceReply {
     /** "Alex says: ..." or, in a group, "Sam in Climbing says: ...", for the newest messages. */
     private fun spoken(n: CarNotification): String {
         val from = n.title.ifBlank { n.appLabel }
+        // Not a chat: "Mario Rossi says: Missed call" told it the wrong way round.
+        if (n.missedCall) return "Missed call from $from."
         val lines = n.lines.filter { it.sender != null }.takeLast(n.burst.coerceIn(1, MAX_READ))
         if (lines.isEmpty()) return "$from says: ${n.text}"
         return lines.joinToString(". ") { line ->

@@ -26,10 +26,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,6 +44,7 @@ import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /*
  * A new message on the car screen: a card at the top right, over the player beside the map on
@@ -98,6 +101,9 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
         return
     }
     val n = popup?.takeIf { showNew } ?: return
+    val context = LocalContext.current
+    val navigator = LocalCarNavigator.current
+    val scope = rememberCoroutineScope()
     PopupCard(n.until(), POPUP_MS, modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             NotificationIcon(n, size = 44.dp)
@@ -116,6 +122,23 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
                 GsButton(onClick = { VoiceReply.reply(n) }, modifier = Modifier.weight(1f)) {
                     ReplyGlyph(Modifier.size(20.dp))
                     Text("Reply", Modifier.padding(start = 8.dp))
+                }
+            } else if (n.missedCall) {
+                // Calling back is what a missed call is for: from the call log, or the Phone's
+                // Recents when the log can't say which number it was.
+                GsButton(
+                    onClick = {
+                        // The card goes once the call is found: going first, it took this scope with it.
+                        scope.launch {
+                            if (!askCallBackMissed(context, n.title)) BuiltInApps.Phone.open(navigator)
+                            CarNotifications.seen(n.key)
+                            CarNotifications.dismissPopup(n.id)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(ImageVector.vectorResource(R.drawable.sym_call), contentDescription = null, Modifier.size(20.dp))
+                    Text("Call back", Modifier.padding(start = 8.dp))
                 }
             }
         }

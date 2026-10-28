@@ -273,6 +273,17 @@ private fun whenLabel(at: Long, now: Long = System.currentTimeMillis()): String 
     }
 }
 
+/**
+ * "Call back" on a missed call's popup: the latest missed call in the phone's log, asked first -
+ * the driver sees whom and which number. False when the log can't tell (not allowed, or empty).
+ */
+internal suspend fun askCallBackMissed(context: Context, from: String): Boolean {
+    val call = withContext(Dispatchers.IO) { loadRecents(context, grouped = false) }
+        .firstOrNull { it.kind == RecentKind.MISSED && it.number.isNotBlank() } ?: return false
+    CallPrompt.ask(call.name ?: from.ifBlank { shownNumber(call.number) }, call.number)
+    return true
+}
+
 /** Lines shown, and at most how many rows of the log are read to fill them. */
 private const val SHOWN = 60
 private const val READ_ROWS = 300

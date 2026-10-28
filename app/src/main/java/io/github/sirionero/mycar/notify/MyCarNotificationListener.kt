@@ -70,6 +70,7 @@ class MyCarNotificationListener : NotificationListenerService() {
                 lines = lines,
                 isGroup = style?.isGroupConversation == true,
                 markRead = markReadOf(n),
+                missedCall = n.category == Notification.CATEGORY_MISSED_CALL,
             ),
             quiet || !alerts(sbn, style != null),
         )
