@@ -259,7 +259,8 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
-                    WebView(ctx).apply {
+                    // A site's dropdown can't close myCar on the car's screen (see carWebContext).
+                    WebView(carWebContext(ctx)).apply {
                         settings.javaScriptEnabled = true
                         settings.domStorageEnabled = true
                         settings.mediaPlaybackRequiresUserGesture = false
