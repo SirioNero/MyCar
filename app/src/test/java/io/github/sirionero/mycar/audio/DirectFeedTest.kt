@@ -171,6 +171,28 @@ class DirectFeedTest {
         }
     }
 
+    @Test
+    fun `a write the car held up makes no burst, nor a long sleep after`() {
+        var held = true
+        val slow = object : CarAudio.Link {
+            override val sampleRate = RATE
+            override val channels = 2
+            override fun start() = Unit
+            override fun stop() = Unit
+            override fun write(pcm: ByteArray, size: Int) {
+                chunks += ShortArray(size / 2)
+                // The first write waits half a second for the car.
+                if (held) {
+                    held = false
+                    now += ms(500)
+                }
+            }
+        }
+        val wait = DirectFeed(slow, { captureOn }, Any(), { now }).pump(0)
+        assertTrue("${chunks.size} chunks at once", chunks.size <= 3)
+        assertTrue("then slept ${wait / 1_000_000} ms", wait <= ms(40))
+    }
+
     private companion object {
         const val RATE = 48_000
         const val CHUNK_FRAMES = RATE * DirectFeed.CHUNK_MS / 1000
