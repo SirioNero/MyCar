@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.car
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -92,8 +93,10 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
             surfaceContainerHighest = Color.White.copy(alpha = 0.16f),
             onSurfaceVariant = Color.White.copy(alpha = 0.92f),
         )
-        // White glyphs whatever the car's theme: the pane is dark glass over the cover.
-        MaterialTheme(colorScheme = scheme) { CompositionLocalProvider(LocalContentColor provides Color.White) {
+        // White glyphs whatever the car's theme: the pane is dark glass over the cover. The focus
+        // ring kept, which MaterialTheme would swap for its plain ripple.
+        val ring = LocalIndication.current
+        MaterialTheme(colorScheme = scheme) { CompositionLocalProvider(LocalContentColor provides Color.White, LocalIndication provides ring) {
             Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)).background(ground)) {
                 if (cover != null) {
                     Image(cover, null, Modifier.fillMaxSize().clickable { navigator.media() }, contentScale = ContentScale.Crop)

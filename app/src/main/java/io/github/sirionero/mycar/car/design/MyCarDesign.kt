@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.car.design
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -9,6 +10,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -235,5 +237,10 @@ fun MyCarCarTheme(dark: Boolean, content: @Composable () -> Unit) {
     val colors = remember(dark) { if (dark) myCarDarkColors() else myCarLightColors() }
     val typography = remember { myCarTypography() }
     val shapes = remember { myCarShapes() }
-    MaterialTheme(colorScheme = colors, typography = typography, shapes = shapes, content = content)
+    // MaterialTheme sets its plain ripple: a theme inside the car UI (the players' dark one) keeps
+    // the indication around it instead - the ring a knob's focus moves (CarUi), lost there before.
+    val around = LocalIndication.current
+    MaterialTheme(colorScheme = colors, typography = typography, shapes = shapes) {
+        CompositionLocalProvider(LocalIndication provides around, content = content)
+    }
 }
