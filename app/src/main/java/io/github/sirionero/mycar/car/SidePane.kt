@@ -121,7 +121,10 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
  */
 @Composable
 internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
-    LaunchedEffect(app.component) {
+    // Again once the music app is closed from its menu: its player stays beside the map, and
+    // without a connection its buttons did nothing for the rest of the drive.
+    val none = CarServices.mediaApp.collectAsState().value == null
+    LaunchedEffect(app.component, none) {
         // After the drive has picked its music: what's already playing on the phone comes first.
         CarServices.mediaDecided.first { it }
         if (CarServices.mediaApp.value == null) CarServices.openMedia(app)

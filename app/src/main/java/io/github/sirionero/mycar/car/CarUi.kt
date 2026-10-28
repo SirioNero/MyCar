@@ -268,7 +268,11 @@ fun CarUi() {
                                 when (screen) {
                                     CarScreen.Home -> Unit
                                     CarScreen.Apps -> CarLauncher()
-                                    CarScreen.Media -> mediaApp?.let { MediaScreen(it) { navigator.back() } }
+                                    CarScreen.Media -> {
+                                        val app = mediaApp
+                                        // No music app (closed from its menu): nothing to show, so back.
+                                        if (app != null) MediaScreen(app) { navigator.back() } else LaunchedEffect(Unit) { navigator.back() }
+                                    }
                                     CarScreen.Browse -> BrowseAppScreen(navigator)
                                     CarScreen.Settings -> CarSettingsScreen()
                                     CarScreen.Dashboard -> CarDashboardScreen()
