@@ -1,8 +1,10 @@
 package io.github.sirionero.mycar.ui
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.SystemClock
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -46,6 +48,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -161,8 +164,18 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
     }
 
     // --- Calls, map and music: one request for all of it ------------------------------------
+    // What Android said of each permission before the request, and when it went: refused again
+    // after an explanation, or answered quicker than a person can tap (no dialog), it's blocked.
+    var explainedBefore by remember { mutableStateOf(emptyMap<String, Boolean>()) }
+    var askedAt by remember { mutableLongStateOf(0L) }
     val driveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        val activity = context as? Activity
+        val noDialog = SystemClock.uptimeMillis() - askedAt < NO_DIALOG_MS
+        val blocked = if (activity == null) emptyList() else result.filterValues { !it }.keys.filter { permission ->
+            !activity.shouldShowRequestPermissionRationale(permission) && (explainedBefore[permission] == true || noDialog)
+        }
         FirstSetup.markAsked(context, result.keys)
+        FirstSetup.answered(context, blocked, result.filterValues { it }.keys)
         // Refused here, the microphone counts as asked: refused again in the car, the phone says why.
         if (result[Manifest.permission.RECORD_AUDIO] == false) AppSettings.putString(context, KEY_MIC_ASKED, "1")
         if (result.values.any { it }) {
@@ -173,7 +186,15 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
     }
     fun allowDrive() {
         val missing = SetupSignals.missingDrivePermissions(context)
-        if (missing.isEmpty()) refresh() else driveLauncher.launch(missing)
+        if (missing.isEmpty()) {
+            refresh()
+        } else {
+            explainedBefore = (context as? Activity)?.let { activity ->
+                missing.associateWith { activity.shouldShowRequestPermissionRationale(it) }
+            }.orEmpty()
+            askedAt = SystemClock.uptimeMillis()
+            driveLauncher.launch(missing)
+        }
     }
     fun openAppSettings() {
         runCatching {
@@ -570,3 +591,6 @@ private fun CertificatePasswordDialog(onDismiss: () -> Unit, onConfirm: (String,
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
 }
+
+/** An answer quicker than this came with no dialog: nobody can tap that fast (as in PermissionActivity). */
+private const val NO_DIALOG_MS = 400L
