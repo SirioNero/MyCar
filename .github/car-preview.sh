@@ -137,6 +137,17 @@ else
     echo "--- no Music Assistant: Xonos's shots left out ---"
 fi
 
+# Plancia and Xonos inside myCar set up on addresses that don't answer (as Tailscale ones do when
+# myCar is left out of it), the Plancia and Xonos apps on the phone: a few seconds in, the apps take
+# their places for the drive (car/InsideOrApp). The grid, shot as it changes, then the page right
+# of the map, whose ready-made Plancia part shows the app.
+if installed $PLANCIA && installed $XONOS; then
+    DOWN="--es haUrl http://10.0.2.2:1 --es haToken x --es maUrl http://10.0.2.2:2 --es maToken x"
+    LOGTAGS=Xonos EXTRA="$DOWN" shoot standin 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT;$WAIT;$WAIT;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT"
+    echo "--- the apps in place of the ones inside myCar ---"
+    grep -h "takes .* place\|InsideOrApp" previews/standin/log.txt 2>/dev/null || echo "standin: no app took a place"
+fi
+
 # Android 17 (the workflow's "api" input at 37) keeps an app made for it, as myCar is, off the
 # home network until it's given the local network permission: its connections there time out, and
 # 10.0.2.2 is the home network here. Plancia and Xonos inside myCar with the permission taken away,
