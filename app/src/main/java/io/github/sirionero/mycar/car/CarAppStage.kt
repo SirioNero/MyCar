@@ -64,14 +64,16 @@ fun CarAppStage(
 ) {
     val template by connection.template.collectAsStateWithLifecycle()
 
-    Box(Modifier.fillMaxSize()) {
-        // The app's own drawing goes underneath; everything else is the host's rendering of
-        // the template it described, laid over the top.
-        if (status.surfaceRequested) {
-            AppSurface(connection, frame, template, Modifier.fillMaxSize())
+    androidx.compose.runtime.CompositionLocalProvider(LocalCarAppConnection provides connection) {
+        Box(Modifier.fillMaxSize()) {
+            // The app's own drawing goes underneath; everything else is the host's rendering of
+            // the template it described, laid over the top.
+            if (status.surfaceRequested) {
+                AppSurface(connection, frame, template, Modifier.fillMaxSize())
+            }
+            TemplateChrome(template, Modifier.fillMaxSize().padding(top = if (embedded) 0.dp else CHROME_BAR))
+            if (!embedded) ChromeBar(status, endLabel, onDisconnect, Modifier.align(Alignment.TopCenter))
         }
-        TemplateChrome(template, Modifier.fillMaxSize().padding(top = if (embedded) 0.dp else CHROME_BAR))
-        if (!embedded) ChromeBar(status, endLabel, onDisconnect, Modifier.align(Alignment.TopCenter))
     }
 }
 

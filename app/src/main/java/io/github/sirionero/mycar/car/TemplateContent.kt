@@ -517,7 +517,7 @@ private val sectionCache = android.util.LruCache<String, List<Item>>(64)
  */
 @Composable
 private fun SectionedContent(template: SectionedItemTemplate, modifier: Modifier, showActionsInHeader: Boolean = true, tabId: String = "") {
-    val appPackage = CarServices.nav.appPackage.orEmpty()
+    val appPackage = templateConnection().appPackage.orEmpty()
     ContentSurface(modifier) {
         // The app's own actions (Spotify's search and Liked Songs shortcut, for two) come from
         // template.actions, not the header - but a bottom-of-content row is wrong for a driver
