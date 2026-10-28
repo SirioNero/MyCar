@@ -91,6 +91,9 @@ class VideoSource(
         }
 
         var encoder = MediaCodec.createEncoderByType(MIME)
+        // Known at once: if starting it fails below, stop() still lets go of the hardware encoder,
+        // which otherwise stayed taken until a garbage collection, and the next drive found none.
+        codec = encoder
         try {
             encoder.configure(format(tuned = true), null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         } catch (e: Exception) {
@@ -98,6 +101,7 @@ class VideoSource(
             log.w("encoder refused the tuned format (${e.message}) - using the plain one")
             encoder.release()
             encoder = MediaCodec.createEncoderByType(MIME)
+            codec = encoder
             encoder.configure(format(tuned = false), null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         }
         if (mode == Mode.SURFACE) inputSurface = encoder.createInputSurface()
