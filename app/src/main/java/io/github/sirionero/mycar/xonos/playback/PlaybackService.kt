@@ -109,6 +109,11 @@ class PlaybackService : MediaLibraryService() {
         }
         tree = BrowseTree(Menu(app.library, ResourceLabels(this)) { settings.playerId }, artwork)
         player.onPlayRequest = { item -> tree.play(item) }
+        player.onUserPause = {
+            resumeAfterInterruption = false
+            // Music Assistant non sente la pausa senza rete: l'audio già ricevuto si ferma qui.
+            if (app.repo.connection.value !is Connection.Connected) engine.end()
+        }
 
         // Toccando la notifica si apre myCar sul telefono.
         val openPlayer = PendingIntent.getActivity(
