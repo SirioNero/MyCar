@@ -50,6 +50,8 @@ import java.io.FileOutputStream
  */
 class MyCarActivity : ComponentActivity(), Projection {
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    /** Opened over another myCar screen, and gone at once after handing it the intent. */
+    private var handedOver = false
 
 
     private var descriptor: ParcelFileDescriptor? = null
@@ -168,6 +170,20 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // A second myCar screen, opened over the first while something sat above it (Android's
+        // capture question, PermissionActivity) by the drive's notification, the car coming up
+        // over Bluetooth or the cable: singleTop reuses only a screen on top. It took over the
+        // drive's hooks and, closing, ended the first one's drive - its music, its screen sharing.
+        // Now the first screen gets the intent, and this one goes.
+        val first = current?.get()
+        if (first != null && first !== this && !first.isFinishing && !first.isDestroyed) {
+            MyCarLog.i("myCar was opened again over itself - handing the intent to the first screen")
+            if (savedInstanceState == null && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) first.handleIntent(intent)
+            handedOver = true
+            finish()
+            return
+        }
+        current = java.lang.ref.WeakReference(this)
         // Location, calendar, the phone/contacts group, and the microphone are asked for one at
         // a time by PermissionsSetupScreen instead of here, each only after the driver taps
         // Allow on a screen explaining what it is for. Firing them all from onCreate, unprompted,
@@ -304,13 +320,20 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     override fun onDestroy() {
         super.onDestroy()
-        io.github.sirionero.mycar.wireless.WirelessLink.onConnected = null
-        io.github.sirionero.mycar.wireless.WirelessAuto.showApproval = null
+        // Handed its intent to the first screen: nothing of the drive is this one's.
+        if (handedOver) return
+        // A screen that went while a newer one was already up (closed, then opened again at once)
+        // ends its own drive but leaves the hooks to the newer one.
+        if (current?.get() === this) {
+            current = null
+            io.github.sirionero.mycar.wireless.WirelessLink.onConnected = null
+            io.github.sirionero.mycar.wireless.WirelessAuto.showApproval = null
+            PhoneMirror.onStartRequested = null
+            PhoneMirror.onTokenReady = null
+            PhoneMirror.onEnded = null
+            CarAudio.onConsentRequested = null
+        }
         runCatching { unregisterReceiver(detachReceiver) }
-        PhoneMirror.onStartRequested = null
-        PhoneMirror.onTokenReady = null
-        PhoneMirror.onEnded = null
-        CarAudio.onConsentRequested = null
         CarAudio.release()
         PhoneMirror.requestStop()
         closeAccessory()
@@ -746,6 +769,9 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 }
+
+/** The myCar screen that holds the drive and myCar's hooks: a second one hands it its intent and goes. */
+private var current: java.lang.ref.WeakReference<MyCarActivity>? = null
 
 /** Set once myCar has asked for the microphone, for the car audio or in the setup guide, and been told no. */
 internal const val KEY_MIC_ASKED = "record_audio_asked"
