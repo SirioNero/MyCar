@@ -174,9 +174,14 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         CarKeys.screenKeys.collect { key ->
             when (key) {
+                // What's open over the screens goes first: Back closed the screen under it and left
+                // the call question, the assistant or its help up.
                 CarKeys.ScreenKey.BACK -> when {
                     navigator.appMenu != null -> navigator.dismissAppMenu()
                     VoiceReply.state.value.phase != VoiceReply.Phase.IDLE -> VoiceReply.cancel()
+                    CallPrompt.pending.value != null -> CallPrompt.pending.value = null
+                    VoiceHelp.shown.value -> VoiceHelp.hide()
+                    CarAssistant.state.value.phase != CarAssistant.Phase.IDLE -> CarAssistant.cancel()
                     else -> navigator.back()
                 }
                 // Home is the dashboard, over the map, so Back from it lands on the map.

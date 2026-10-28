@@ -90,6 +90,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
     val search by media.search.collectAsStateWithLifecycle()
     var tab by remember { mutableStateOf(Tab.NOW_PLAYING) }
     var searching by remember { mutableStateOf(false) }
+    BackCloses(searching) { searching = false }
 
     // The connection outlives this screen: the home screen's player is the same one.
     LaunchedEffect(app) { CarServices.openMedia(app) }

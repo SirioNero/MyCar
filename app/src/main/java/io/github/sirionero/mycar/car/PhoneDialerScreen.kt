@@ -262,6 +262,8 @@ private fun ContactsList(context: Context) {
     var query by remember { mutableStateOf("") }
     var searching by remember { mutableStateOf(false) }
     var pendingCall by remember { mutableStateOf<Contact?>(null) }
+    // The question first, then the search under it.
+    BackCloses(pendingCall != null || searching) { if (pendingCall != null) pendingCall = null else searching = false }
 
     val filtered = remember(contacts, query) {
         if (query.isBlank()) contacts
