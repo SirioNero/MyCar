@@ -3,7 +3,10 @@ package io.github.sirionero.mycar.car
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import io.github.sirionero.mycar.media.CarMedia
+import io.github.sirionero.mycar.notify.CarNotifications
 import io.github.sirionero.mycar.speech.VoiceFocus
 import java.text.DateFormat
 import java.util.Date
@@ -33,6 +36,8 @@ object AssistantCommands {
 
         navigateCommand(context, navigator, frame, heard)?.let { return it }
         stopRouteCommand(heard)?.let { return it }
+        // Before "play X": "play my messages" isn't a song.
+        messageCommand(heard)?.let { return it }
         playSearchCommand(context, navigator, heard)?.let { return it }
         mediaCommand(heard)?.let { return it }
         navCommand(navigator, heard)?.let { return it }
@@ -220,6 +225,31 @@ object AssistantCommands {
         }
         media.playBestMatch(query)
         return "Looking for $query on $app."
+    }
+
+    /**
+     * "Read my messages": the newest chat with something new, read aloud ("my last message": the
+     * newest, read or not), then the offer to reply. "Reply to Anna", "text Anna": straight to the
+     * reply, in Anna's latest chat. Only chats the phone showed during the drive: a new message
+     * to someone who hasn't written isn't something myCar can send.
+     */
+    private fun messageCommand(heard: String): String? {
+        val read = READ_MESSAGES.matchEntire(heard)
+        val to = REPLY_TO.matchEntire(heard)?.groupValues?.get(1)?.trim()
+        if (read == null && to.isNullOrEmpty()) return null
+        if (!CarNotifications.listening.value) return "myCar needs notification access to read messages. Allow it on the phone."
+        val chats = CarNotifications.history.value.filter { it.lines.isNotEmpty() || it.reply != null }
+        val n = if (to != null) {
+            chats.firstOrNull { it.reply != null && it.title.lowercase().contains(to) }
+                ?: return "I couldn't find a message from $to to reply to."
+        } else {
+            val newest = read?.groupValues?.get(1).orEmpty().let { "last" in it || "latest" in it }
+            (if (newest) chats.firstOrNull() else chats.firstOrNull { CarNotifications.isUnread(it.key) })
+                ?: return if (newest) "There are no messages yet." else "No new messages."
+        }
+        // VoiceReply speaks from here: the assistant's own answer is nothing, which closes it.
+        Handler(Looper.getMainLooper()).post { if (to != null) VoiceReply.reply(n, readFirst = false) else VoiceReply.read(n) }
+        return ""
     }
 
     /** "Stop navigation", "cancel the route": ends the guidance - it used to pause the music. */
@@ -431,6 +461,12 @@ object AssistantCommands {
     private val ANOTHER = Regex("^(?:(?:play|put on) )?(?:something else|another (?:song|track|one)|a different (?:song|track))$")
 
     private val PLAY_TRIGGERS = listOf("play me ", "play ", "put on ", "listen to ", "i want to hear ", "shuffle ")
+
+    /** "Read my messages", "play my new texts", "read me the last message". */
+    private val READ_MESSAGES = Regex("^(?:read|play|check)(?: me)?(?: my| the)?((?: new| last| latest| unread)?) (?:messages?|texts?)$")
+
+    /** "Reply to Anna", "text Anna", "send a message to Anna". */
+    private val REPLY_TO = Regex("^(?:reply to|respond to|text|message|send a message to|write to) (.+)$")
 
     private val CALL_BACK_PHRASES = setOf(
         "call back", "call them back", "call him back", "call her back", "call back the last call",

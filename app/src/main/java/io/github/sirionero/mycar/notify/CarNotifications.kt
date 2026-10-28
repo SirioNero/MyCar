@@ -151,6 +151,9 @@ object CarNotifications {
         _popup.value = null
     }
 
+    /** Something new in [key]'s chat that the driver hasn't looked at, heard or answered. */
+    fun isUnread(key: String): Boolean = key in unreadKeys
+
     /** [key] read aloud, answered or marked read: it no longer keeps the dot on. */
     fun seen(key: String) {
         unreadKeys.remove(key)
