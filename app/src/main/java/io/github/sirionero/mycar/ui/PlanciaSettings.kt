@@ -51,6 +51,7 @@ internal fun PlanciaSection() {
     var remote by rememberSaveable(saved) { mutableStateOf(saved.remoteUrl) }
     var token by rememberSaveable(saved) { mutableStateOf(saved.token) }
     var status by remember { mutableStateOf<String?>(null) }
+    var removeAsk by remember { mutableStateOf(false) }
     val planciaApp = remember { HomeAssistant.planciaAppCanShare(context) }
     val planciaThere = remember { InsideOrApp.planciaAppThere(context) }
     val planciaBridge = remember { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
@@ -150,16 +151,26 @@ internal fun PlanciaSection() {
                     askLocalNetwork(config.urls) { test(config) }
                 }) { Text("Save and test") }
                 if (saved.isComplete) {
-                    TextButton(onClick = {
-                        HomeAssistant.remove()
-                        status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
-                    }) { Text("Remove") }
+                    TextButton(onClick = { removeAsk = true }) { Text("Remove") }
                 }
             }
             status?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+    }
+
+    if (removeAsk) {
+        ConfirmDialog(
+            title = "Remove Plancia from myCar?",
+            text = "myCar forgets its addresses and token. The Plancia app, if it's on the phone, is back in the car.",
+            confirm = "Remove",
+            onConfirm = {
+                HomeAssistant.remove()
+                status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
+            },
+            onDismiss = { removeAsk = false },
+        )
     }
 }
 

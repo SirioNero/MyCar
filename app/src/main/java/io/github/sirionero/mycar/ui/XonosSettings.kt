@@ -62,6 +62,7 @@ internal fun XonosSection() {
     var username by rememberSaveable(saved) { mutableStateOf(Xonos.settings.username.orEmpty()) }
     var password by remember { mutableStateOf("") }
     var status by remember { mutableStateOf<String?>(null) }
+    var removeAsk by remember { mutableStateOf(false) }
     val xonosApp = remember { XonosAccount.xonosAppCanShare(context) }
     val askLocalNetwork = rememberLocalNetworkAsk()
 
@@ -194,15 +195,26 @@ internal fun XonosSection() {
                     }
                 }) { Text("Sign in") }
                 if (setUp) {
-                    TextButton(onClick = {
-                        Xonos.remove(context)
-                        status = "Xonos is off in myCar: the Xonos app is back in the car, if it's on the phone."
-                    }) { Text("Remove") }
+                    TextButton(onClick = { removeAsk = true }) { Text("Remove") }
                 }
             }
             status?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+    }
+
+    if (removeAsk) {
+        ConfirmDialog(
+            title = "Remove Xonos from myCar?",
+            text = "myCar forgets its address and sign-in, and signing in again takes the password. " +
+                "The Xonos app, if it's on the phone, is back in the car.",
+            confirm = "Remove",
+            onConfirm = {
+                Xonos.remove(context)
+                status = "Xonos is off in myCar: the Xonos app is back in the car, if it's on the phone."
+            },
+            onDismiss = { removeAsk = false },
+        )
     }
 }

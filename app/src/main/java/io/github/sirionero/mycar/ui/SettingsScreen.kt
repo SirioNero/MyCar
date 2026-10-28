@@ -323,6 +323,7 @@ private fun CertificateSection() {
     var notice by remember { mutableStateOf<String?>(null) }
     var downloading by remember { mutableStateOf(false) }
     var detailsOpen by remember { mutableStateOf(false) }
+    var removeAsk by remember { mutableStateOf<CertProvider.Kind?>(null) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) pendingUri = uri
     }
@@ -407,23 +408,38 @@ private fun CertificateSection() {
         )
         val removable = when (s?.kind) {
             CertProvider.Kind.IMPORTED -> "Remove imported certificate"
-            CertProvider.Kind.DOWNLOADED -> "Remove downloaded certificate"
+            CertProvider.Kind.DOWNLOADED -> "Remove downloaded certificates"
             else -> null
         }
         if (removable != null) {
             SettingsDivider()
             SettingsRow(
                 removable,
-                Modifier.clickable {
-                    if (s?.kind == CertProvider.Kind.IMPORTED) CertProvider.removeImported(context) else CertProvider.removeDownloaded(context)
-                    notice = if (s?.kind == CertProvider.Kind.IMPORTED) "Removed the imported certificate." else "Removed the downloaded certificate."
-                    refresh++
-                },
+                Modifier.clickable { removeAsk = s?.kind },
                 icon = Icons.Filled.Delete,
                 tint = MaterialTheme.colorScheme.error,
                 titleColor = MaterialTheme.colorScheme.error,
             )
         }
+    }
+
+    removeAsk?.let { kind ->
+        val imported = kind == CertProvider.Kind.IMPORTED
+        ConfirmDialog(
+            title = if (imported) "Remove the imported certificate?" else "Remove the downloaded certificates?",
+            text = if (imported) {
+                "myCar goes back to the downloaded certificates, if it has them. Without one, it can't connect to a car."
+            } else {
+                "myCar can't connect to a car until it downloads them again, which needs the internet."
+            },
+            confirm = "Remove",
+            onConfirm = {
+                if (imported) CertProvider.removeImported(context) else CertProvider.removeDownloaded(context)
+                notice = if (imported) "Removed the imported certificate." else "Removed the downloaded certificates."
+                refresh++
+            },
+            onDismiss = { removeAsk = null },
+        )
     }
 
     pendingUri?.let { uri ->
