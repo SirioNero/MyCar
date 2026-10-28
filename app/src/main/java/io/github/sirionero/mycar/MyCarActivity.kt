@@ -59,6 +59,9 @@ class MyCarActivity : ComponentActivity(), Projection {
     private var screenProjector: ScreenProjector? = null
     private var worker: Thread? = null
 
+    /** Whether this session holds the drive's services (CarServices.init) - from its first picture to its end. */
+    private var holdsServices = false
+
     /** The encoder's input Surface, kept so the car's picture can be switched to the mirror. */
     private var surface: Surface? = null
     private var frameWidth = 0
@@ -496,6 +499,11 @@ class MyCarActivity : ComponentActivity(), Projection {
             frameDensity = densityDpi
             CarEnvironment.setDisplay(width, height, densityDpi)
             CarEnvironment.start(this)
+            // The session holds the drive's services too, so they outlast its car UI (see CarServices.init).
+            if (!holdsServices) {
+                holdsServices = true
+                io.github.sirionero.mycar.car.CarServices.init(applicationContext)
+            }
             showCarUi()
             io.github.sirionero.mycar.car.CarKeys.focusSink = { code, down ->
                 runOnUiThread { screenProjector?.dispatchKey(code, down) }
@@ -540,6 +548,10 @@ class MyCarActivity : ComponentActivity(), Projection {
             screenProjector?.stop()
             screenProjector = null
             surface = null
+            if (holdsServices) {
+                holdsServices = false
+                io.github.sirionero.mycar.car.CarServices.shutdown()
+            }
             CarEnvironment.stop()
         }
     }

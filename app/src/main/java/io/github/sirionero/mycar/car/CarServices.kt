@@ -65,8 +65,17 @@ object CarServices {
     val navStoppedByDriver: Boolean get() = navStopped
     private var autoplayPending = false
 
+    /**
+     * Who holds the drive's services: the car session itself and each car UI composed (the car's,
+     * and the phone's preview of it). They go only when the last lets go: a car UI torn down for
+     * screen sharing, or the preview closed mid-drive, used to end them all - the map unhooked,
+     * Plancia and Xonos gone - in the middle of a drive.
+     */
+    private var holders = 0
+
     fun init(appContext: Context) {
         context = appContext.applicationContext
+        if (holders++ > 0) return
         io.github.sirionero.mycar.notify.CarMotion.start(appContext)
         io.github.sirionero.mycar.call.CarCalls.start(appContext, inCar = true)
         CarAssistant.init(appContext)
@@ -290,6 +299,7 @@ object CarServices {
 
     /** The car went away: nothing should keep running for a screen that no longer exists. */
     fun shutdown() {
+        if (holders == 0 || --holders > 0) return
         context?.let { io.github.sirionero.mycar.notify.CarMotion.stop(it) }
         io.github.sirionero.mycar.call.CarCalls.stop()
         runCatching { nav.disconnect() }
