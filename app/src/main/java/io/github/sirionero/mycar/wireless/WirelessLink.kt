@@ -95,6 +95,13 @@ object WirelessLink {
     @Volatile private var startRun = 0
     private val writeLock = Any()
 
+    /** Guards [channelOver] and [releaseWithChannel], set from the session's end and the channel's. */
+    private val ends = Any()
+    /** The current start-up's Bluetooth channel is over. */
+    private var channelOver = false
+    /** The car ended the session on Wi-Fi with the channel still open: the car's network goes with the channel. */
+    private var releaseWithChannel = false
+
     /** Paired Bluetooth devices, cars or not: the driver picks theirs. Needs BLUETOOTH_CONNECT. */
     @SuppressLint("MissingPermission")
     fun pairedDevices(context: Context): List<BluetoothDevice> =
@@ -107,6 +114,10 @@ object WirelessLink {
 
     fun start(context: Context, device: BluetoothDevice) {
         stop(context)
+        synchronized(ends) {
+            channelOver = false
+            releaseWithChannel = false
+        }
         val app = context.applicationContext
         // Taken here, not in the thread: a start-up stopped before its thread ran is old already.
         val mine = startRun
@@ -127,8 +138,29 @@ object WirelessLink {
      * next tap. While the channel is open the car may start over on it, so it stays.
      */
     fun sessionEnded(context: Context) {
-        tcp = null
-        if (worker?.isAlive == true) return
+        synchronized(ends) {
+            tcp = null
+            if (worker?.isAlive == true && !channelOver) {
+                releaseWithChannel = true
+                return
+            }
+            releaseNetwork(context)
+        }
+    }
+
+    /**
+     * The Bluetooth channel is over. If the car had ended the session on Wi-Fi first, the request
+     * for its network goes now: it stayed until the next tap, with Android looking for the car.
+     */
+    private fun channelEnded(context: Context, mine: Int) {
+        synchronized(ends) {
+            if (mine != startRun) return
+            channelOver = true
+            if (releaseWithChannel && tcp == null) releaseNetwork(context)
+        }
+    }
+
+    private fun releaseNetwork(context: Context) {
         network?.let { cb ->
             runCatching { context.getSystemService(ConnectivityManager::class.java).unregisterNetworkCallback(cb) }
         }
@@ -273,6 +305,8 @@ object WirelessLink {
             }
         } catch (e: IOException) {
             if (rfcomm != null) log.w("Bluetooth: channel closed (${e.message})")
+        } finally {
+            channelEnded(context, mine)
         }
     }
 
@@ -401,6 +435,8 @@ object WirelessLink {
         }
         network?.let { runCatching { manager.unregisterNetworkCallback(it) } }
         network = callback
+        // The car started over on the channel: this network is for the new session.
+        synchronized(ends) { releaseWithChannel = false }
         manager.requestNetwork(request, callback, WIFI_WAIT_MS)
     }
 
