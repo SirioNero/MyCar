@@ -65,6 +65,11 @@ class AudioCaptureService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+
+    /** Which capture is the current one, so an old capture's end doesn't stop a new one. */
+    @Volatile private var captureRun = 0
+
     override fun onCreate() {
         super.onCreate()
         running = true
@@ -95,6 +100,15 @@ class AudioCaptureService : Service() {
             (if (micGranted) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else 0)
         startForeground(NOTIFICATION_ID, notification(), type)
         ScreenShareGuard.lift(this)
+        // Asked again while a capture was still here (the last one's reading had ended): let it go
+        // first. Android stops it anyway for the new one, and its end used to stop this service,
+        // the new capture with it.
+        projection?.let { old ->
+            reading = false
+            runCatching { thread?.join(500) }
+            projection = null
+            runCatching { old.stop() }
+        }
         projection = try {
             getSystemService(MediaProjectionManager::class.java).getMediaProjection(resultCode, data)
         } catch (t: Throwable) {
@@ -109,6 +123,7 @@ class AudioCaptureService : Service() {
         }
         token.registerCallback(object : MediaProjection.Callback() {
             override fun onStop() {
+                if (token !== projection) return
                 MyCarLog.w("audio: projection stopped")
                 unmutePhone()
                 stopSelf()
@@ -150,6 +165,7 @@ class AudioCaptureService : Service() {
         }
 
         reading = true
+        val run = ++captureRun
         thread = Thread({
             // A busy phone (a map app drawing, the video encoder) would otherwise starve this
             // loop, and the car hears every late read as a skip.
@@ -202,6 +218,9 @@ class AudioCaptureService : Service() {
                 record.release()
                 unmutePhone()
                 CarAudio.captureStopped()
+                // Ended on its own (the audio server restarted): the service goes too, so the next
+                // question starts clean instead of finding this one's projection still here.
+                if (reading && run == captureRun) main.post { if (run == captureRun) stopSelf() }
             }
         }, "mycar-audio").apply { isDaemon = true; start() }
     }
