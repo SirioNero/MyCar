@@ -636,7 +636,7 @@ private fun QueuePanel(queue: List<QueueTrack>, now: NowPlaying, media: CarMedia
 private fun QueueRow(track: QueueTrack, media: CarMedia) {
     val context = LocalContext.current
     val icon by produceState(track.iconBitmap, track.iconUri) {
-        value = track.iconBitmap ?: MediaArt.load(context, track.iconUri)
+        value = track.iconBitmap ?: MediaArt.load(context, track.iconUri, MediaArt.ROW_SIDE_PX)
     }
     Surface(
         onClick = { media.playQueueItem(track) },
@@ -663,7 +663,7 @@ private fun QueueRow(track: QueueTrack, media: CarMedia) {
 private fun EntryRow(entry: MediaEntry, media: CarMedia, onClick: () -> Unit = { media.select(entry) }) {
     val context = LocalContext.current
     val icon by produceState(entry.iconBitmap, entry.iconUri) {
-        value = entry.iconBitmap ?: MediaArt.load(context, entry.iconUri)
+        value = entry.iconBitmap ?: MediaArt.load(context, entry.iconUri, MediaArt.ROW_SIDE_PX)
     }
     Surface(
         onClick = onClick,
