@@ -42,8 +42,9 @@ behind it all — still or moving.
 
 ## Features
 
-- **Phone calls.** Dial from a keypad, or search your contacts, then confirm before the
-  call goes out. When a call comes in, answer or decline it on the car screen.
+- **Phone calls.** Your recent calls, missed ones in red; your contacts, favourites first; a
+  keypad. Tap, then confirm before the call goes out. When a call comes in, answer or decline
+  it on the car screen; a missed call's card offers to call back.
 - **Navigation.** myCar hosts real Car App Library map apps on the car screen.
   Organic Maps, OsmAnd, Flitsmeister, and Vela Maps work today.
 - **Music.** Browse, play, and queue tracks from a car-enabled media app, with a Now
@@ -78,15 +79,17 @@ behind it all — still or moving.
 - **Weather and the day ahead.** A dashboard screen shows the week's calendar next to
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the
-  nearest gas station", "play Daft Punk", or "call Mom". Say "help" for the full list.
+  nearest gas station", "play Daft Punk", "call Mom on mobile", "call back", "read my messages",
+  "reply to Anna" or "when do I arrive?". Say "help" for the full list.
   Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
   assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
   the way the swipe up from a bottom corner of the phone does, rather than in a typed chat.
   With the phone locked, myCar lights it and asks you to unlock it, and the assistant starts
   listening as soon as it opens.
 - **Messages.** New messages appear as a small card on the car screen. myCar reads
-  each one aloud, and you reply by voice or with a quick reply. Music pauses while
-  myCar speaks or listens. Speech runs on the phone, so it needs no Google account.
+  each one aloud, and you reply by voice or with a quick reply - written in your phone's
+  language. Music pauses while myCar speaks or listens. Speech runs on the phone, so it
+  needs no Google account.
 - **Notifications.** Only messages, missed calls, alarms, and reminders interrupt you.
   The rest wait on the dashboard.
 - **Your apps, your order.** The launcher groups apps by kind: phone, maps, music,
