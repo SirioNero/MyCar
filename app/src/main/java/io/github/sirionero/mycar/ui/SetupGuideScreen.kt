@@ -198,7 +198,9 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
                 explanation = "The car's map and nearby searches need it. Without it, the dashboard " +
                     "shows no map.",
                 icon = glyph(Icons.Filled.LocationOn),
-                permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                // Both, in one request: from Android 12 one asking for the precise location alone
+                // is dropped without a dialog.
+                permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
             ),
         )
     }

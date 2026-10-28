@@ -37,13 +37,21 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import io.github.sirionero.mycar.wireless.WirelessLink
 
-/** What the wireless start-up needs: Bluetooth to reach the car, nearby Wi-Fi to join its network, local network to talk to it. */
+/**
+ * What the wireless start-up needs: Bluetooth to reach the car, nearby Wi-Fi to join its network,
+ * local network to talk to it. Location only before Android 13, where joining a Wi-Fi network
+ * needs it: from 13 nearby Wi-Fi does it (declared never for location). Asked together with the
+ * approximate one, since Android drops a request for the precise location alone.
+ */
 private val WIRELESS_PERMISSIONS = buildList {
     add(Manifest.permission.BLUETOOTH_CONNECT)
     if (Build.VERSION.SDK_INT >= 33) add(Manifest.permission.NEARBY_WIFI_DEVICES)
     // Android 17 silently drops traffic to local addresses, the car included, without it.
     if (Build.VERSION.SDK_INT >= 37) add("android.permission.ACCESS_LOCAL_NETWORK")
-    add(Manifest.permission.ACCESS_FINE_LOCATION)
+    if (Build.VERSION.SDK_INT < 33) {
+        add(Manifest.permission.ACCESS_FINE_LOCATION)
+        add(Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
 }.toTypedArray()
 
 /**
