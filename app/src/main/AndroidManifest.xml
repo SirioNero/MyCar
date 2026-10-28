@@ -193,6 +193,13 @@
 
         </activity>
 
+        <!-- Android's permission dialog on the phone, for a car screen that can't show it (PermissionActivity). -->
+        <activity
+            android:name=".PermissionActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <!--
           Answers the car's USB connection on MyCarActivity's behalf. Kept apart from the
           activity so Settings can switch off just this (AppSettings.setMyCarEnabled) and leave
