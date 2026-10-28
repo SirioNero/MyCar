@@ -69,6 +69,7 @@ import io.github.sirionero.mycar.CertRotation
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.notify.TestMessage
+import io.github.sirionero.mycar.stats.UsageStats
 import io.github.sirionero.mycar.car.CarSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -135,11 +136,14 @@ fun SettingsScreen(
             CinemaTvSection()
             VoiceModelSection()
             if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
-            SettingsSection(
-                "Usage notes",
-                Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
-                header = USAGE_STATS_INTRO,
-            ) { UsageStatsRows() }
+            // A build without a stats server sends nothing: no switch that would do nothing.
+            if (UsageStats.sends) {
+                SettingsSection(
+                    "Usage notes",
+                    Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
+                    header = USAGE_STATS_INTRO,
+                ) { UsageStatsRows() }
+            }
             SettingsSection("Updates") { UpdateRow() }
             CertificateSection()
             AboutSection(onOpenWhatsNew, onReplayTutorial, onReplayIntro)
