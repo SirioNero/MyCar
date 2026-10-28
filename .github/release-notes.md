@@ -22,6 +22,7 @@ myCar 0.5.18-alpha: wireless that connects by itself, and a steadier link to the
 - On the car's Phone screen, Ask on the phone shows Android's question for the Phone and Contacts permissions on the phone; the car screen updates by itself once they're allowed.
 - Map apps' route options show their time and distance.
 - A car app that never answers myCar (some apps only run on Google's Android Auto) is reported after 10 seconds instead of showing Starting... for ever.
+- Logs > Earlier shares the log of an earlier launch - the drive before, or one that crashed - straight from the phone. Opening myCar starts a new log, so that one used to need a computer.
 
 These come from Gearslip's own fixes, picked one by one: what could change how a car that works today connects was left out.
 
