@@ -33,9 +33,20 @@ object CertRotation {
         _notice.value = Notice(kind, prefs.getString(KEY_NOTICE_CERT, null))
     }
 
-    /** The car's verdict on [identity], once per session. Called on the session's thread. */
-    @Synchronized
+    /**
+     * Off the session's thread: reading a certificate file can take a second on a phone, and the
+     * car is waiting for the session to go on meanwhile.
+     */
+    private val worker = java.util.concurrent.Executors.newSingleThreadExecutor { Thread(it, "mycar-cert-verdict") }
+
+    /** The car's verdict on [identity], once per session. Returns at once; the work goes on aside. */
     fun report(context: Context, identity: CertProvider.Identity, verdict: CertVerdict) {
+        val app = context.applicationContext
+        worker.execute { runCatching { decide(app, identity, verdict) }.onFailure { log.e("the certificate's verdict went unhandled", it) } }
+    }
+
+    @Synchronized
+    private fun decide(context: Context, identity: CertProvider.Identity, verdict: CertVerdict) {
         // An aasdk downloaded before the catalog counts as one of its own.
         runCatching { CertCatalog.adoptLegacy(context) }
         val presented = if (identity.kind == CertProvider.Kind.DOWNLOADED) CertCatalog.idOf(identity.certificate) else null

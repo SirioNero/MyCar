@@ -368,10 +368,11 @@ class MyCarRunner(
         when (status) {
             0 -> {
                 log.i("STATUS_SUCCESS - certificate accepted; confirming with service discovery")
-                verdict(CertVerdict.Accepted)
                 state = State.WAIT_SDR
                 SessionStatus.connecting("Certificate accepted - discovering services")
                 sendServiceDiscoveryRequest()
+                // After the request: the car is waiting for it, not for the bookkeeping.
+                verdict(CertVerdict.Accepted)
             }
             -2 -> {
                 SessionReport.fail(SessionReport.Category.CERTIFICATE, "AuthComplete status -2 (certificate error)", state.name, "auth -2")
