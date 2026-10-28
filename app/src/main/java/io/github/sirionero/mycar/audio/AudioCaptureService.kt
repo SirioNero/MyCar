@@ -67,6 +67,9 @@ class AudioCaptureService : Service() {
 
     private val main = android.os.Handler(android.os.Looper.getMainLooper())
 
+    /** The capture was started again once after ending on its own; see beginCapture. */
+    private var restarted = false
+
     /** Which capture is the current one, so an old capture's end doesn't stop a new one. */
     @Volatile private var captureRun = 0
 
@@ -218,9 +221,22 @@ class AudioCaptureService : Service() {
                 record.release()
                 unmutePhone()
                 CarAudio.captureStopped()
-                // Ended on its own (the audio server restarted): the service goes too, so the next
-                // question starts clean instead of finding this one's projection still here.
-                if (reading && run == captureRun) main.post { if (run == captureRun) stopSelf() }
+                // Ended on its own (the audio server restarted). Once, a new recorder on the same
+                // projection carries on, with no new question and the microphone kept for voice
+                // replies. Otherwise the service goes, so the next question starts clean - and it's
+                // asked now, not only when a music app is opened again.
+                if (reading && run == captureRun) main.post {
+                    if (run != captureRun) return@post
+                    val token = projection
+                    if (token != null && !restarted) {
+                        restarted = true
+                        MyCarLog.w("audio: capture ended on its own - starting it again on the same projection")
+                        beginCapture(token)
+                    } else {
+                        stopSelf()
+                        CarAudio.captureNow()
+                    }
+                }
             }
         }, "mycar-audio").apply { isDaemon = true; start() }
     }
