@@ -347,6 +347,8 @@ private fun DockNowPlaying(navigator: CarNavigator) {
             } else {
                 AppIcon(appIcon, null, MyCarSize.DockIcon)
             }
+            // How it is, not a button: bars while it plays, faded in pause. A pause glyph here read
+            // as the pause button, and a tap only showed or hid the player.
             Box(
                 Modifier
                     .align(Alignment.BottomEnd)
@@ -356,14 +358,14 @@ private fun DockNowPlaying(navigator: CarNavigator) {
                     .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(2.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(if (now.playing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painterResource(if (now.playing) R.drawable.sym_pause else R.drawable.sym_play_arrow),
+                    MediaIcons.Equalizer,
                     contentDescription = null,
                     modifier = Modifier.size(12.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = if (now.playing) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
