@@ -161,6 +161,9 @@ object CarCalls {
                 activeCaller = if (waited && !answeredHere) null else ringingCaller
                 _state.value = CallUiState.Active(activeCaller)
                 answeredHere = false
+                // Taken: a call waiting later starts from no name, not this caller's, until its
+                // own number comes.
+                ringingCaller = null
             }
             TelephonyManager.CALL_STATE_RINGING -> {
                 // A contact's call skips screening, so its number may not be here yet: show the
