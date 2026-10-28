@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -101,7 +102,7 @@ fun CarHome() {
         ) {
             MapPane(navStatus, frame)
         }
-        if (splitScreen) {
+        if (splitScreen) CompositionLocalProvider(LocalPlayerInView provides inView) {
             val side = Modifier.weight(1f).fillMaxHeight()
             val sideTemplate = sideApp?.template
             val sideMedia = sideApp?.media

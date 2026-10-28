@@ -417,11 +417,14 @@ internal fun LyricsPanel(
     }
     val list = rememberLazyListState()
 
-    // Ticks with playback so the highlighted line moves; only synced lyrics need it.
+    // Ticks with playback so the highlighted line moves; only synced lyrics need it. Not while
+    // paused, nor beside the map out of sight (see LocalPlayerInView): it went on ticking there.
     var position by remember { mutableLongStateOf(0L) }
-    LaunchedEffect(now) {
+    val inView = LocalPlayerInView.current
+    LaunchedEffect(now, inView) {
         while (true) {
             position = now.currentPosition()
+            if (!now.playing || !inView) break
             kotlinx.coroutines.delay(300)
         }
     }
