@@ -1,8 +1,11 @@
 package io.github.sirionero.mycar.audio
 
 import io.github.sirionero.mycar.MyCarLog
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
@@ -65,6 +68,14 @@ object CarAudio {
     /** Whether myCar's own player can play straight into the car now: the sound goes through myCar, and the car has a sink. */
     val direct: StateFlow<Boolean> = _direct.asStateFlow()
 
+    private val _linkGone = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    /**
+     * The car's sink went with the car (unplugged, switched off): myCar's own music stops there,
+     * rather than move to the phone's speaker as when the sound only changes way. Before [direct].
+     */
+    val linkGone: SharedFlow<Unit> = _linkGone.asSharedFlow()
+
     /**
      * True while the car's music is myCar's own, which needs no capture: the consent question waits
      * for [captureNow]. Set by the car session.
@@ -91,6 +102,7 @@ object CarAudio {
         this.link = null
         feed?.takeIf { it.link === link }?.stop()
         feed = null
+        _linkGone.tryEmit(Unit)
         updateDirect()
     }
 

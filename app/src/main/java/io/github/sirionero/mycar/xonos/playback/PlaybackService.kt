@@ -139,6 +139,14 @@ class PlaybackService : MediaLibraryService() {
         }
         scope.launch { engine.outputting.collect(::onOutputting) }
         // L'auto si collega o se ne va, o l'audio passa al Bluetooth: l'uscita cambia strada.
+        // L'auto se ne va col suo canale: l'audio in coda si ferma qui, invece di finire
+        // sull'altoparlante del telefono finché Music Assistant non sente la pausa.
+        scope.launch {
+            CarAudio.linkGone.collect {
+                engine.end()
+                player.pauseFromSystem()
+            }
+        }
         scope.launch { CarAudio.direct.drop(1).collect { engine.reroute() } }
         connectivity.registerDefaultNetworkCallback(networkCallback)
     }
