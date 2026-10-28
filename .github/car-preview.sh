@@ -107,6 +107,8 @@ EXTRA="--ez demoSong true" shoot split 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WA
 # The full player on the made-up song, opened from the cover beside the map, then its Browse tab:
 # the cover blurred behind it all, and still in sight beside the list.
 EXTRA="--ez demoSong true" shoot media 1920 720 240 "$WAIT;$WAIT;1635,200;$WAIT;1230,48;$WAIT"
+# The same at 800x480, where the tabs are narrow: "Now playing" on two lines, not "Now playi…".
+EXTRA="--ez demoSong true" shoot media-800x480 800 480 160 "$WAIT;$WAIT;703,133;$WAIT;$WAIT"
 # Home with an app chosen to sit beside the map instead (car Settings > Beside the map).
 installed $PLANCIA && EXTRA="--es sidePane $PLANCIA" shoot split-plancia 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
 installed $XONOS && EXTRA="--es sidePane $XONOS" shoot split-xonos 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"

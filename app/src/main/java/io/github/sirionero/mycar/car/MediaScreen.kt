@@ -60,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.MediaApp
@@ -230,8 +231,9 @@ private fun AppIdentity(app: MediaApp, onExit: () -> Unit, modifier: Modifier = 
             Image(it, null, Modifier.size(26.dp).clip(RoundedCornerShape(7.dp)))
             Spacer(Modifier.width(10.dp))
         }
+        // As the app writes its name, as in the dock and the grid: "YouTube Music", not "Youtube music".
         Text(
-            app.label.lowercase().replaceFirstChar { it.titlecase() },
+            app.label,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
@@ -387,7 +389,7 @@ private fun SearchStatus(search: CarMedia.Search, appLabel: String, onDismiss: (
 @Composable
 private fun MediaTab(label: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val tint = MaterialTheme.colorScheme.onSurface
-    Box(
+    BoxWithConstraints(
         modifier
             .height(52.dp)
             .clip(CircleShape)
@@ -395,16 +397,24 @@ private fun MediaTab(label: String, selected: Boolean, modifier: Modifier, onCli
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
+        // A narrow tab (an 800x480 screen, the larger sizes): smaller, on two lines if it must -
+        // "Now playi…" told nobody which tab it was.
+        val narrow = maxWidth < NARROW_TAB
         Text(
             label,
-            style = MaterialTheme.typography.titleSmall,
+            style = if (narrow) MaterialTheme.typography.labelMedium else MaterialTheme.typography.titleSmall,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             color = tint.copy(alpha = if (selected) 1f else 0.75f),
-            maxLines = 1,
+            maxLines = if (narrow) 2 else 1,
             overflow = TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            lineHeight = if (narrow) 13.sp else androidx.compose.ui.unit.TextUnit.Unspecified,
         )
     }
 }
+
+/** Below this a tab's label goes smaller: "Now playing" in its usual style needs about 85 dp. */
+private val NARROW_TAB = 92.dp
 
 /**
  * The song's lyrics, fetched when this tab opens. Synced lyrics follow the playback position with
