@@ -204,8 +204,16 @@ class PlaybackService : MediaLibraryService() {
             acquireLocks()
             setNoisyReceiver(true)
             if (!focus.request()) {
-                Log.i(TAG, "Un'altra app ha l'audio (telefonata?): metto in pausa")
-                player.pauseFromSystem()
+                when {
+                    // Dritto nel canale dell'auto il focus di Android non serve; Android 17 lo nega
+                    // anche a un'app non in vista, col telefono in tasca: si continua a suonare.
+                    CarAudio.direct.value -> Log.i(TAG, "Focus audio negato, ma la musica va dritta all'auto: continuo")
+                    inCall() -> {
+                        Log.i(TAG, "Focus audio negato durante una telefonata: metto in pausa")
+                        player.pauseFromSystem()
+                    }
+                    else -> Log.w(TAG, "Focus audio negato senza telefonate (Android 17 in background?): continuo")
+                }
             }
         } else {
             releaseLocks()
@@ -214,6 +222,14 @@ class PlaybackService : MediaLibraryService() {
             if (!resumeAfterInterruption) main.postDelayed(abandonFocus, FOCUS_GRACE_MS)
         }
     }
+
+    /** Una telefonata in corso, o che squilla: l'unico motivo per cui Xonos cede la musica da sé. */
+    private fun inCall(): Boolean = getSystemService(AudioManager::class.java)?.mode in setOf(
+        AudioManager.MODE_IN_CALL,
+        AudioManager.MODE_IN_COMMUNICATION,
+        AudioManager.MODE_RINGTONE,
+        AudioManager.MODE_CALL_SCREENING,
+    )
 
     private fun onFocusChange(change: AudioFocus.Change) {
         when (change) {
