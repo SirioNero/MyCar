@@ -441,6 +441,9 @@ private class CinemaClient(
 ) : WebViewClient() {
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading(url)
 
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
+        view?.handledAppLink(request) == true
+
     // The web engine's page process is one for the whole app: when it dies (video sites weigh on
     // it most), every web view on it must say it handled that, or Android ends myCar - and the
     // drive. As the browser's (see LoggingClient): this one goes, a new one opens at the same page.

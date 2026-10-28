@@ -161,6 +161,9 @@ private class LoggingClient(private val ring: String, private val onGone: () -> 
         return true
     }
 
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
+        view?.handledAppLink(request) == true
+
     override fun onPageFinished(view: WebView?, url: String?) {
         MyCarLog.i("car web page loaded: $url")
         view?.evaluateJavascript(FOCUS_TRACKING_JS, null)
