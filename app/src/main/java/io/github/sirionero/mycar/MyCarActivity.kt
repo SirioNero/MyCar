@@ -230,6 +230,9 @@ class MyCarActivity : ComponentActivity(), Projection {
         Prefetch.warm(this)
         UsageStats.onAppOpened(this)
         io.github.sirionero.mycar.update.UpdateChecker.onAppOpened(this)
+        if (consentPending) {
+            if (CarAudio.stillWanted) requestAudioCapture() else consentPending = false
+        }
         // Back from the app's settings with the microphone turned on: try car audio again.
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             CarAudio.micAllowed()
@@ -270,7 +273,23 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     // --- Media audio --------------------------------------------------------------------
 
+    /**
+     * The capture question, asked while myCar wasn't in front (the phone locked as the car chose
+     * myCar for its sound): Android drops it as if refused, and the car stayed without music for
+     * the whole drive. It waits for the phone to open instead, and the car says so.
+     */
+    private var consentPending = false
+
     private fun requestAudioCapture() {
+        if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+            if (!consentPending) {
+                consentPending = true
+                MyCarLog.i("audio: myCar isn't on the phone's screen - the capture question waits for it")
+                io.github.sirionero.mycar.car.CarToasts.show(this, "Open myCar on the phone to send its music to the car", androidx.car.app.CarToast.LENGTH_LONG)
+            }
+            return
+        }
+        consentPending = false
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             askAudioCapture()
         } else {
