@@ -306,12 +306,12 @@ object CarServices {
      */
     private val SOUNDING = setOf(PlaybackState.STATE_PLAYING, PlaybackState.STATE_BUFFERING)
 
-    fun pausePhoneMedia(why: String = "the car left") {
+    fun pausePhoneMedia(why: String = "the car left", keep: String? = null) {
         val ctx = context ?: return
         val manager = ctx.getSystemService(MediaSessionManager::class.java)
         val listener = ComponentName(ctx, MyCarNotificationListener::class.java)
         val playing = try {
-            manager.getActiveSessions(listener).filter { it.playbackState?.state in SOUNDING }
+            manager.getActiveSessions(listener).filter { it.playbackState?.state in SOUNDING && it.packageName != keep }
         } catch (e: SecurityException) {
             null
         }

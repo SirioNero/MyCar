@@ -76,8 +76,18 @@ class MyCarActivity : ComponentActivity(), Projection {
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             // Answered once the car had gone: there's no screen to share with.
-            if (surface != null) MirrorService.start(this, result.resultCode, data)
-            else MyCarLog.i("screen capture allowed, but the car is gone")
+            if (surface != null) {
+                // Android keeps one projection: sharing the screen ends the one that sends the
+                // phone's sound to the car, which unmutes the phone. The music pauses first, rather
+                // than carrying on out of the phone's speaker for the whole sharing.
+                if (CarAudio.capture.value == CarAudio.Capture.ON) {
+                    io.github.sirionero.mycar.car.CarServices.pausePhoneMedia("screen sharing", keep = packageName)
+                    io.github.sirionero.mycar.car.CarToasts.show(this, "The phone's music pauses while its screen is shared", androidx.car.app.CarToast.LENGTH_LONG)
+                }
+                MirrorService.start(this, result.resultCode, data)
+            } else {
+                MyCarLog.i("screen capture allowed, but the car is gone")
+            }
         } else {
             MyCarLog.w("screen capture consent declined")
         }
