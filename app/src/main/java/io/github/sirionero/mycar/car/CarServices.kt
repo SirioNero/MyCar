@@ -155,6 +155,9 @@ object CarServices {
     /** Opens a templated app that isn't navigation, on its own screen - never on Home. */
     fun connectBrowse(app: TemplateApp, frame: CarEnvironment.Frame) {
         closedBrowse = null
+        // Already open ("open Plancia" to the assistant, with it beside the map): connecting again
+        // threw away the screens the driver had opened in it.
+        if (browse.connectedComponent == app.component && browse.status.value.phase in LIVE) return
         browse.connect(app, frame.width, frame.height, frame.densityDpi)
     }
 
