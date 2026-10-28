@@ -128,6 +128,12 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
     fun goBack(): Boolean {
         val w = web ?: return false
         if (!w.canGoBack()) return false
+        // Only within the address the page is on now: the entry before may be the home address,
+        // left when the Wi-Fi went - unreachable now, and a Back that no longer left Plancia.
+        val history = w.copyBackForwardList()
+        val previous = history.getItemAtIndex(history.currentIndex - 1)?.url ?: return false
+        val base = _page.value.base ?: return false
+        if (!Uri.parse(previous).host.equals(Uri.parse(base).host, ignoreCase = true)) return false
         w.goBack()
         return true
     }
