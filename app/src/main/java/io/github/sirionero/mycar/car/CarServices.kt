@@ -333,6 +333,7 @@ object CarServices {
         _mediaApp.value = null
         _mediaDecided.value = false
         closedBrowse = null
+        clearSectionCache()
         navStopped = false
     }
 }

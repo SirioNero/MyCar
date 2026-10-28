@@ -510,6 +510,9 @@ private fun Modifier.verticalScrollNone(): Modifier = this
  */
 private val sectionCache = android.util.LruCache<String, List<Item>>(64)
 
+/** The drive is over: next time the sections come fresh, with the next drive's click handlers. */
+internal fun clearSectionCache() = sectionCache.evictAll()
+
 /**
  * Sections fetch their items across the binder on demand rather than carrying them, so each one
  * is asked for its full range once and the answer is held while the section is on screen (and,
@@ -547,8 +550,9 @@ private fun SectionedContent(template: SectionedItemTemplate, modifier: Modifier
 private fun SectionRows(section: Section<*>, cacheKey: String) {
     var items by remember(section) { mutableStateOf(sectionCache.get(cacheKey).orEmpty()) }
 
+    // Shown at once from the cache, but always asked again: the app's sections change ("Recent"),
+    // and the cached ones never did for the rest of the drive.
     LaunchedEffect(section) {
-        if (sectionCache.get(cacheKey) != null) return@LaunchedEffect
         val delegate = section.itemsDelegate
         val sizeResult = runCatching { delegate.size }
         val size = sizeResult.getOrDefault(0)
