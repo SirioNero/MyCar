@@ -73,6 +73,7 @@ class MyCarActivity : ComponentActivity(), Projection {
      * so the car UI asks, and the request surfaces here on the phone.
      */
     private val captureConsent = registerForActivityResult(StartActivityForResult()) { result ->
+        questionUp = false
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             // Answered once the car had gone: there's no screen to share with.
@@ -97,6 +98,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     private val audioPermission = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.RequestPermission(),
     ) { granted ->
+        questionUp = false
         // Android answers "no" without a dialog both when it has stopped asking (refused twice) and
         // when the question was dropped (another permission dialog was up). Only the first counts
         // as blocked, so only once myCar has asked before.
@@ -115,6 +117,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     private val audioConsent = registerForActivityResult(StartActivityForResult()) { result ->
+        questionUp = false
         val data = result.data
         if (result.resultCode == RESULT_OK && data != null) {
             // Answered after the car went away, or after the sound moved to Bluetooth: starting now
@@ -317,7 +320,21 @@ class MyCarActivity : ComponentActivity(), Projection {
      */
     private var consentPending = false
 
+    /**
+     * One of Android's questions is up on the phone (the microphone, the audio, the screen sharing):
+     * the next waits for its answer, and is asked in onResume. Both at once, the projection accepted
+     * last ended the other - Android keeps one.
+     */
+    private var questionUp = false
+
     private fun requestAudioCapture() {
+        // The phone's screen is shared with the car: accepting the audio now would end the sharing,
+        // Android keeping one projection. The car asks again when the sharing ends.
+        if (MirrorService.sharing) {
+            consentPending = false
+            CarAudio.askLater()
+            return
+        }
         if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
             if (!consentPending) {
                 consentPending = true
@@ -326,11 +343,21 @@ class MyCarActivity : ComponentActivity(), Projection {
             }
             return
         }
+        if (questionUp) {
+            consentPending = true
+            return
+        }
         consentPending = false
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             askAudioCapture()
         } else {
-            audioPermission.launch(android.Manifest.permission.RECORD_AUDIO)
+            questionUp = true
+            runCatching { audioPermission.launch(android.Manifest.permission.RECORD_AUDIO) }
+                .onFailure {
+                    questionUp = false
+                    MyCarLog.e("could not ask for the microphone", it)
+                    CarAudio.denied()
+                }
         }
     }
 
@@ -343,8 +370,10 @@ class MyCarActivity : ComponentActivity(), Projection {
         } else {
             manager.createScreenCaptureIntent()
         }
+        questionUp = true
         runCatching { audioConsent.launch(intent) }
             .onFailure {
+                questionUp = false
                 MyCarLog.e("could not ask for audio capture", it)
                 CarAudio.denied()
             }
@@ -366,6 +395,10 @@ class MyCarActivity : ComponentActivity(), Projection {
             }
             return
         }
+        if (questionUp) {
+            capturePending = true
+            return
+        }
         capturePending = false
         val manager = getSystemService(MediaProjectionManager::class.java)
         // The whole screen, as for the audio: with "a single app" Android shares the app picked
@@ -375,8 +408,12 @@ class MyCarActivity : ComponentActivity(), Projection {
         } else {
             manager.createScreenCaptureIntent()
         }
+        questionUp = true
         runCatching { captureConsent.launch(intent) }
-            .onFailure { MyCarLog.e("could not ask for screen capture", it) }
+            .onFailure {
+                questionUp = false
+                MyCarLog.e("could not ask for screen capture", it)
+            }
     }
 
     /** A Surface has a single producer, so our own display must go before the mirror arrives. */

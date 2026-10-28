@@ -178,6 +178,11 @@ object CarAudio {
         _capture.value = Capture.DENIED
     }
 
+    /** The question can't be asked now (the phone's screen is shared): the next [request] asks it. */
+    fun askLater() {
+        if (_capture.value == Capture.ASKING) _capture.value = Capture.OFF
+    }
+
     private val _micBlocked = MutableStateFlow(false)
 
     /** The microphone permission is off for good: Android refuses without asking, so say why. */
