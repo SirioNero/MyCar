@@ -2,8 +2,6 @@ package io.github.sirionero.mycar.setup
 
 import android.content.Context
 import io.github.sirionero.mycar.AppSettings
-import io.github.sirionero.mycar.BuildConfig
-import io.github.sirionero.mycar.car.CarSettings
 
 /**
  * The few choices the setup screen remembers. Everything else it reads from the phone each time
@@ -40,11 +38,10 @@ object FirstSetup {
     }
 
     /**
-     * Leaving the setup, done or for later. The guide counts as seen, and the car doesn't open on
-     * "What's new" at the very first drive: there's nothing new to someone who just installed it.
+     * Leaving the setup, done or for later: the guide counts as seen. (A new install doesn't open
+     * the car on "What's new" either: CarSettings sees to that.)
      */
     fun finish(context: Context) {
         AppSettings.setSeenPermissionsSetup(context)
-        if (CarSettings.whatsNewSeen.value == 0) CarSettings.closeWhatsNew(BuildConfig.VERSION_CODE)
     }
 }
