@@ -5,7 +5,7 @@ import android.os.SystemClock
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,9 +34,12 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalView
 import io.github.sirionero.mycar.AppSettings
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -366,18 +369,42 @@ private fun DrawScope.drawLights(screen: Size, motion: Motion.Lights, seconds: D
 /**
  * The phone's uptime in milliseconds, moved on every [MOTION_FRAME_MS]: about 30 redraws a
  * second, for smooth motion. Every copy of the wallpaper reads uptime, so the dock and the screen
- * beside it move together.
+ * beside it move together - and one clock for all of them, so they're redrawn in the same frame:
+ * with a clock each they ticked at their own moments, each a frame of its own (dock and grid
+ * twice the frames, the settings' moving swatches nearly every frame the screen has).
  */
 @Composable
 private fun rememberMotionClock(): State<Long> {
-    val now = remember { mutableLongStateOf(SystemClock.uptimeMillis()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(MOTION_FRAME_MS)
-            now.longValue = SystemClock.uptimeMillis()
+    DisposableEffect(Unit) {
+        MotionClock.users++
+        if (MotionClock.users == 1) MotionClock.start()
+        onDispose {
+            MotionClock.users--
+            if (MotionClock.users == 0) MotionClock.stop()
         }
     }
-    return now
+    return MotionClock.now
+}
+
+/** The one clock of [rememberMotionClock], running while some moving wallpaper shows. Main thread only. */
+private object MotionClock {
+    val now = mutableLongStateOf(SystemClock.uptimeMillis())
+    var users = 0
+    private var job: Job? = null
+
+    fun start() {
+        job = MainScope().launch {
+            while (true) {
+                delay(MOTION_FRAME_MS)
+                now.longValue = SystemClock.uptimeMillis()
+            }
+        }
+    }
+
+    fun stop() {
+        job?.cancel()
+        job = null
+    }
 }
 
 /** Grey noise, tiled over the wallpaper to break up banding. The same every time: seeded. */

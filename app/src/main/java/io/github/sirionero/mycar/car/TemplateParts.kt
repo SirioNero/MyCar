@@ -47,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.clip
@@ -464,7 +465,7 @@ internal fun CarGlyph(icon: CarIcon?, modifier: Modifier = Modifier, standard: I
     // app's own process for a content:// icon, plus a bitmap decode - done synchronously on the
     // composition thread for every tile on screen, that's what made a shelf of ten covers feel
     // like it was hanging rather than loading.
-    val bitmapState by produceState<ImageBitmap?>(null, icon) {
+    val bitmapState by produceState<ImageBitmap?>(null, icon, icon.pictureKey()) {
         value = withContext(Dispatchers.IO) { icon.image(context) }
     }
     val bitmap = bitmapState
@@ -496,6 +497,15 @@ internal fun CarGlyph(icon: CarIcon?, modifier: Modifier = Modifier, standard: I
     } ?: return
     Icon(vector, contentDescription = null, modifier = modifier)
 }
+
+/**
+ * What tells one picture of an icon from another, beside the [CarIcon] itself: for an icon drawn
+ * from a bitmap, the IconCompat, by identity. CarIcon.equals tells bitmap icons apart by type only
+ * (androidx's own TODO, b/146175636), and Vela sends every turn arrow as a bitmap: the routing card
+ * kept the arrow for "continue" while its text said "turn left". Resources and URIs compare well.
+ */
+internal fun CarIcon?.pictureKey(): Any? =
+    this?.icon?.takeIf { it.type != IconCompat.TYPE_RESOURCE && it.type != IconCompat.TYPE_URI }
 
 // --- lists, grids and panes ---------------------------------------------------------------------
 

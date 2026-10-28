@@ -111,6 +111,9 @@ class CarPreviewActivity : ComponentActivity() {
             ),
             null,
         )
+        // --es startUrl http://10.0.2.2:8002/select.html: the car's browser starts on that page. Set
+        // every run, so other shots start on the usual one.
+        io.github.sirionero.mycar.AppSettings.setStartupUrl(this, intent.getStringExtra("startUrl").orEmpty())
         // --es wallpaper waves: that wallpaper. Set every run, so other shots keep the default.
         io.github.sirionero.mycar.car.design.WallpaperSetting.set(
             intent.getStringExtra("wallpaper") ?: io.github.sirionero.mycar.car.design.Wallpapers.DEFAULT,

@@ -50,6 +50,8 @@ class AudioLink(
     @Volatile private var inFlight = 0
     // The Uconnect asks for 4 on its video channel; assume the same until its Config says otherwise.
     @Volatile private var maxUnacked = 4
+    /** Whether the car has acked anything on this link: some never do, and aren't waited for. */
+    @Volatile private var carAcks = false
     @Volatile private var lastAckAt = 0L
     private var stalls = 0
     private var chunks = 0
@@ -162,6 +164,7 @@ class AudioLink(
             MSG_ACK -> {
                 val acked = Wire.varint(Wire.fields(body), 2)?.toInt() ?: 1
                 synchronized(ackLock) {
+                    carAcks = true
                     inFlight = maxOf(0, inFlight - maxOf(1, acked))
                     lastAckAt = System.currentTimeMillis()
                     ackLock.notifyAll()
@@ -273,8 +276,14 @@ class AudioLink(
         if (aacSink && aac == null) {
             aac = runCatching { AacEncoder(sampleRate, channels, adts = service.codecType == ServiceDiscovery.CODEC_AAC_LC_ADTS) }
                 .onSuccess { MyCarLog.i("$tag: the car takes ${service.codecName} only - encoding to AAC") }
-                .onFailure { MyCarLog.e("$tag: couldn't start the AAC encoder", it) }
+                .onFailure { MyCarLog.e("$tag: couldn't start the AAC encoder - no stream", it) }
                 .getOrNull()
+        }
+        // Without its encoder a car that takes AAC only would get raw PCM, which it plays as noise
+        // or hangs up on: the stream stops here instead.
+        if (aacSink && aac == null) {
+            runCatching { sendOnChannel(MSG_STOP, Protobuf.varintField(1, sessionId.toLong())) }
+            return
         }
         started = true
         armed = false
@@ -347,6 +356,9 @@ class AudioLink(
         val frames = try {
             encoder.encode(pcm, size)
         } catch (e: Exception) {
+            // Let go of meanwhile by a stop or a hold on another thread: no failure of the codec,
+            // and a stream started since has an encoder of its own, not to be ended with this one.
+            if (aac !== encoder) return
             // A codec that dies mid-drive leaves the car silent, as it was before AAC; log it once.
             MyCarLog.e("$tag: AAC encoding failed - no more audio this drive", e)
             aac = null
@@ -361,7 +373,10 @@ class AudioLink(
         // Wait for the car to catch up rather than throw the chunk away: a dropped chunk is a gap
         // the driver hears, while a short wait is soaked up by the capture buffer behind us.
         synchronized(ackLock) {
-            while (started && inFlight >= maxUnacked) {
+            // Only for a car that acks: one that never does (the 2024 VW, the Bolt) left the writer
+            // waiting the whole stall at every Start - two seconds missing at the start of the
+            // music, after every call, in the middle of every spoken direction.
+            while (started && carAcks && inFlight >= maxUnacked) {
                 val waited = System.currentTimeMillis() - lastAckAt
                 if (waited > STALL_MS) {
                     // A lost ack must not silence the stream for good; after a stall assume the window cleared.
@@ -375,6 +390,10 @@ class AudioLink(
                 }
                 ackLock.wait(STALL_MS - waited + 1)
             }
+            // Counted before it goes, as video counts its frames: an ack quicker than this thread
+            // came first, was clamped at nothing, and the late count left a chunk in flight for
+            // good - the window shrank chunk by chunk until a stall.
+            if (started) inFlight++
         }
         if (!started) {
             dropped++
@@ -390,7 +409,6 @@ class AudioLink(
             started = false
             return
         }
-        synchronized(ackLock) { inFlight++ }
         chunks++
         bytes += payload.size
         // The first chunk proves the whole path; after that, an occasional line is enough to show

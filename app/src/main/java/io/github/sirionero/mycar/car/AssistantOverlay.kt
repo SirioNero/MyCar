@@ -53,19 +53,22 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
     val listening = state.phase == CarAssistant.Phase.LISTENING && state.ready
     val glow = MaterialTheme.colorScheme.primary
     val glow2 = MaterialTheme.colorScheme.tertiary
-    val breathe by rememberInfiniteTransition(label = "glow").animateFloat(
+    // Read while drawing only: read here, the overlay was composed again at every frame of the glow.
+    val breathe = rememberInfiniteTransition(label = "glow").animateFloat(
         0.55f, 1f, infiniteRepeatable(tween(900, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "glow",
     )
-    val strength = when (state.phase) {
-        CarAssistant.Phase.LISTENING -> if (state.ready) breathe else 0.3f
-        CarAssistant.Phase.ERROR -> 0.3f
-        else -> 0.6f
-    }
+    val phase = state.phase
+    val ready = state.ready
 
     Box(
         modifier
             .fillMaxWidth()
             .drawBehind {
+                val strength = when (phase) {
+                    CarAssistant.Phase.LISTENING -> if (ready) breathe.value else 0.3f
+                    CarAssistant.Phase.ERROR -> 0.3f
+                    else -> 0.6f
+                }
                 drawRect(Brush.verticalGradient(0f to Color.Transparent, 0.45f to Color.Black.copy(alpha = 0.6f), 1f to Color.Black.copy(alpha = 0.85f)))
                 // A wide, flat oval of light rising from the bottom edge.
                 scale(1f, 0.22f, Offset(size.width / 2, size.height)) {

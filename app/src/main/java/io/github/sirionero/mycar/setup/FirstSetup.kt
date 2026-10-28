@@ -12,6 +12,7 @@ object FirstSetup {
     private const val KEY_KEEP_ANDROID_AUTO = "keep_android_auto"
     private const val KEY_SKIPPED = "skipped"
     private const val KEY_ASKED = "asked"
+    private const val KEY_BLOCKED = "blocked"
 
     private fun prefs(context: Context) = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -30,11 +31,23 @@ object FirstSetup {
         prefs(context).edit().putStringSet(KEY_SKIPPED, skipped(context).map { it.name }.toSet() + id.name).apply()
     }
 
-    /** Permissions myCar has asked for here: refused again, Android stops showing the dialog. */
+    /** Permissions myCar has asked for here. */
     fun asked(context: Context): Set<String> = prefs(context).getStringSet(KEY_ASKED, emptySet()).orEmpty().toSet()
 
     fun markAsked(context: Context, permissions: Collection<String>) {
         prefs(context).edit().putStringSet(KEY_ASKED, asked(context) + permissions).apply()
+    }
+
+    /**
+     * Permissions Android no longer asks for, as myCar saw it happen: refused again after Android
+     * had explained them (it stops there), or answered with no dialog at all. Not Back on a dialog,
+     * nor the dialogs of the same request that never came after it: Android asks for those again,
+     * and setup used to say it wouldn't, with only "Open settings" to offer.
+     */
+    fun blocked(context: Context): Set<String> = prefs(context).getStringSet(KEY_BLOCKED, emptySet()).orEmpty().toSet()
+
+    fun answered(context: Context, blocked: Collection<String>, granted: Collection<String>) {
+        prefs(context).edit().putStringSet(KEY_BLOCKED, blocked(context) - granted.toSet() + blocked).apply()
     }
 
     /**

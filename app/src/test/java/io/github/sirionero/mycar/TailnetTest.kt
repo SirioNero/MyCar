@@ -70,4 +70,17 @@ class TailnetTest {
         assertEquals(Tailnet.Failure.TIMEOUT, HaException.failureOf(HaException("No answer from x", HaException.Reason.NO_RESPONSE)))
         assertEquals(Tailnet.Failure.OTHER, HaException.failureOf(HaException("The token isn't valid", HaException.Reason.INVALID_TOKEN)))
     }
+
+    @Test
+    fun aNameIsTailscalesOnlyBehindTailscale() {
+        // Behind Tailscale: MagicDNS's names, *.ts.net, the search domain's, and the addresses.
+        assertTrue(Tailnet.onTailnetBehind("http://homeassistant:8123", tailscale = true, searchDomains = emptyList()))
+        assertTrue(Tailnet.onTailnetBehind("http://ha.tailnet.test:8123", tailscale = true, searchDomains = listOf("tailnet.test")))
+        // Behind another VPN that leaves myCar out, a name without dots is the router's.
+        assertFalse(Tailnet.onTailnetBehind("http://homeassistant:8123", tailscale = false, searchDomains = emptyList()))
+        assertFalse(Tailnet.onTailnetBehind("http://ha.home.lan:8123", tailscale = false, searchDomains = listOf("home.lan")))
+        // A tailnet address is one whatever the VPN.
+        assertTrue(Tailnet.onTailnetBehind("http://100.101.102.103:8123", tailscale = false, searchDomains = emptyList()))
+        assertTrue(Tailnet.onTailnetBehind("http://[fd7a:115c:a1e0::1]:8095", tailscale = false, searchDomains = emptyList()))
+    }
 }

@@ -1,9 +1,11 @@
 package io.github.sirionero.mycar.car
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,6 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.AppIcon
 import io.github.sirionero.mycar.car.design.MyCarCarTheme
@@ -90,8 +93,10 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
             surfaceContainerHighest = Color.White.copy(alpha = 0.16f),
             onSurfaceVariant = Color.White.copy(alpha = 0.92f),
         )
-        // White glyphs whatever the car's theme: the pane is dark glass over the cover.
-        MaterialTheme(colorScheme = scheme) { CompositionLocalProvider(LocalContentColor provides Color.White) {
+        // White glyphs whatever the car's theme: the pane is dark glass over the cover. The focus
+        // ring kept, which MaterialTheme would swap for its plain ripple.
+        val ring = LocalIndication.current
+        MaterialTheme(colorScheme = scheme) { CompositionLocalProvider(LocalContentColor provides Color.White, LocalIndication provides ring) {
             Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)).background(ground)) {
                 if (cover != null) {
                     Image(cover, null, Modifier.fillMaxSize().clickable { navigator.media() }, contentScale = ContentScale.Crop)
@@ -154,11 +159,19 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                     } else {
                         Spacer(Modifier.height(8.dp))
                     }
-                    TransportRow(now, media, skip = 48.dp, modifier = Modifier.fillMaxWidth())
-                    Spacer(Modifier.height(8.dp))
-                    PlayModeRow(now, media, size = 44.dp, modifier = Modifier.fillMaxWidth()) {
-                        PlainButton(navigator::showSideLyrics, "Lyrics", 44.dp) {
-                            Icon(painterResource(R.drawable.sym_lyrics), null, Modifier.size(23.dp))
+                    // A narrow column (Large or Extra large on a small screen): the buttons shrink to
+                    // fit, rather than "Next" getting squeezed and Lyrics falling off the end.
+                    BoxWithConstraints(Modifier.fillMaxWidth()) {
+                        val skip = min(48.dp, maxWidth / 3.3f)
+                        val mode = min(44.dp, maxWidth / 4)
+                        Column {
+                            TransportRow(now, media, skip = skip, modifier = Modifier.fillMaxWidth())
+                            Spacer(Modifier.height(8.dp))
+                            PlayModeRow(now, media, size = mode, modifier = Modifier.fillMaxWidth()) {
+                                PlainButton(navigator::showSideLyrics, "Lyrics", mode) {
+                                    Icon(painterResource(R.drawable.sym_lyrics), null, Modifier.size(mode * 0.52f))
+                                }
+                            }
                         }
                     }
                 }

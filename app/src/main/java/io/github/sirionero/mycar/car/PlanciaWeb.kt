@@ -62,8 +62,9 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
 
     private val main = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    // A page's dropdown can't close myCar on the car's screen (see carWebContext).
     private val themed = ContextThemeWrapper(
-        context,
+        carWebContext(context),
         if (dark) android.R.style.Theme_Material_NoActionBar else android.R.style.Theme_Material_Light_NoActionBar,
     )
     private val background = if (dark) DARK_BACKGROUND else LIGHT_BACKGROUND

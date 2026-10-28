@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar
 
 import android.os.Build
+import android.os.SystemClock
 import io.github.sirionero.mycar.audio.AudioLink
 import io.github.sirionero.mycar.audio.CarAudio
 import io.github.sirionero.mycar.audio.CarAudioRoute
@@ -1007,7 +1008,7 @@ class MyCarRunner(
                 synchronized(ackLock) {
                     inFlight = maxOf(0, inFlight - maxOf(1, acked))
                     acksSeen++
-                    lastAckAt = System.currentTimeMillis()
+                    lastAckAt = SystemClock.elapsedRealtime()
                     ackLock.notifyAll()
                 }
                 if (framesSent <= 3 || framesSent % 60 == 0) {
@@ -1156,11 +1157,13 @@ class MyCarRunner(
             while (running && inFlight >= maxUnacked) {
                 // A lost ack would otherwise hold the stream forever, which looks like a frozen
                 // picture. After a long silence, assume the window cleared and carry on.
-                val since = System.currentTimeMillis() - lastAckAt
+                // On the clock that only goes forward: a correction of the phone's time backwards
+                // made this negative, and the wait below as long as the jump.
+                val since = SystemClock.elapsedRealtime() - lastAckAt
                 if (since > ACK_STALL_MS) {
                     log.w("no ack for ${since}ms with $inFlight in flight - resetting the window")
                     inFlight = 0
-                    lastAckAt = System.currentTimeMillis() // one warning per stall, not one per frame
+                    lastAckAt = SystemClock.elapsedRealtime() // one warning per stall, not one per frame
                     break
                 }
                 ackLock.wait(ACK_STALL_MS - since + 1)
@@ -1413,8 +1416,10 @@ class MyCarRunner(
                     // of whether we think one is owed. Protects against any future case where
                     // our own drop/resync bookkeeping is wrong or a corruption slips through
                     // some other path - a real decoder desync should never outlive this.
+                    // Not while the car shows its own screen: those frames are thrown away, and
+                    // its return asks for a keyframe of its own.
                     val idleSinceKeyframe = System.currentTimeMillis() - lastKeyframeSentAt
-                    if (idleSinceKeyframe > PERIODIC_KEYFRAME_MS) {
+                    if (videoProjected && idleSinceKeyframe > PERIODIC_KEYFRAME_MS) {
                         videoSource?.requestSyncFrame()
                     }
                 }

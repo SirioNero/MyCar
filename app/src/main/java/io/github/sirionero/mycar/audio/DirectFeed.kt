@@ -111,9 +111,14 @@ internal class DirectFeed(
             }
             sent += chunkFrames
             due = (nanos() - anchor) * rate / 1_000_000_000L + leadFrames
+            // A write the car held up (waiting for its acks) made all that came due meanwhile late:
+            // on from now, as above, rather than in one burst the car would partly drop.
+            if (due - sent > maxBehindFrames) sent = due - chunkFrames
         }
         val nextAt = anchor + (sent + 1 - leadFrames) * 1_000_000_000L / rate
-        return max(MIN_WAIT_NS, nextAt - now)
+        // From the clock as it is now: after a held-up write, [now] is long gone, and the thread
+        // slept as long again with the car's buffer running dry.
+        return max(MIN_WAIT_NS, nextAt - nanos())
     }
 
     /** One chunk out of the ring, silence where it runs short; how many frames were music. */

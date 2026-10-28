@@ -166,6 +166,11 @@ object CarCalls {
                 ringingCaller = null
             }
             TelephonyManager.CALL_STATE_RINGING -> {
+                // Ringing, the call is past screening, whatever myCar answered or didn't: Telecom
+                // stops waiting after five seconds (a main thread held up by a page loading took
+                // that long). A Decline then went to a screening nobody heard any more: the card
+                // went away, and the phone rang on with no way to answer from the car.
+                pendingRespond = null
                 // A contact's call skips screening, so its number may not be here yet: show the
                 // card now, and the number broadcast fills in who it is.
                 val caller = ringingCaller ?: Caller("", null).also { ringingCaller = it }

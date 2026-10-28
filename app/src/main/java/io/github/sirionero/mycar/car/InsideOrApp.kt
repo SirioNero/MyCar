@@ -132,8 +132,14 @@ internal object InsideOrApp {
             (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) || caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN))
     }
 
-    /** What Music Assistant answers when myCar's settings are wrong: no retry mends these during a drive. */
-    private val MISSET = setOf(Problem.BAD_ADDRESS, Problem.NOT_MUSIC_ASSISTANT, Problem.BAD_TOKEN, Problem.DENIED)
+    /**
+     * What Music Assistant answers when myCar's settings are wrong: no retry mends these during a
+     * drive. Not an HTTP 401, 403 or 404 before the socket opens (Problem.DENIED, NOT_MUSIC_ASSISTANT):
+     * a proxy in front of Music Assistant says that for a moment too, as does Music Assistant
+     * restarting or a captive portal, and one such answer gave Xonos away for the whole drive. Those
+     * go the timed way, as Plancia's do.
+     */
+    private val MISSET = setOf(Problem.BAD_ADDRESS, Problem.BAD_TOKEN)
 
     private const val TICK_MS = 2_000L
     private const val APPS_EVERY_MS = 30_000L
