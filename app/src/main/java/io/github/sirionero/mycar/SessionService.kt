@@ -39,6 +39,11 @@ class SessionService : Service() {
         runCatching {
             startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         }.onSuccess {
+            // The drive ended while this was starting: it could only stop once in the foreground.
+            if (!wanted) {
+                stopSelf()
+                return START_NOT_STICKY
+            }
             running = true
             MyCarLog.i("session: in the foreground for the drive")
             hold(intent?.getBooleanExtra(EXTRA_WIRELESS, false) == true)
@@ -93,13 +98,21 @@ class SessionService : Service() {
             private set
 
         /** A car connected: called while myCar is on screen, as its arrival opens it. */
+        /** A drive wants the service; false once it has ended. */
+        @Volatile private var wanted = false
+
         fun start(context: Context, wireless: Boolean = false) {
+            wanted = true
             val intent = Intent(context, SessionService::class.java).putExtra(EXTRA_WIRELESS, wireless)
             runCatching { context.startForegroundService(intent) }
                 .onFailure { MyCarLog.w("session: Android won't start the drive's foreground service now - ${it.message}") }
         }
 
         fun stop(context: Context) {
+            wanted = false
+            // Stopped before it called startForeground, Android takes myCar down with it: a service
+            // still starting stops itself in onStartCommand instead.
+            if (!running) return
             runCatching { context.stopService(Intent(context, SessionService::class.java)) }
         }
     }
