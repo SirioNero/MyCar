@@ -474,14 +474,28 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
+    private class Touch(val action: Int, val actionIndex: Int, val points: List<TouchPoint>)
+
+    private val touches = java.util.concurrent.ConcurrentLinkedQueue<Touch>()
+
+    /** Every touch waiting, in the order the car sent them. */
+    private val dispatchTouches = Runnable {
+        while (true) {
+            val touch = touches.poll() ?: break
+            // Mirroring drives one phone touch at a time, so it follows the first finger only.
+            if (PhoneMirror.active.value) touch.points.firstOrNull()?.let { relayTouch(touch.action, it.x, it.y) }
+            else screenProjector?.dispatchTouch(touch.action, touch.actionIndex, touch.points)
+        }
+    }
+
     override fun onTouch(action: Int, actionIndex: Int, points: List<TouchPoint>) {
         // To the front of the main thread's queue: a touch waiting behind other work is lag the
-        // driver feels, while the work it jumps ahead of can wait a frame.
-        mainHandler.postAtFrontOfQueue {
-            // Mirroring drives one phone touch at a time, so it follows the first finger only.
-            if (PhoneMirror.active.value) points.firstOrNull()?.let { relayTouch(action, it.x, it.y) }
-            else screenProjector?.dispatchTouch(action, actionIndex, points)
-        }
+        // driver feels, while the work it jumps ahead of can wait a frame. One runnable for all
+        // that are waiting, though: posted one by one at the front, they would run newest first,
+        // a lift before its press.
+        touches.add(Touch(action, actionIndex, points))
+        mainHandler.removeCallbacks(dispatchTouches)
+        mainHandler.postAtFrontOfQueue(dispatchTouches)
     }
 
     override fun onProjectionStopped() {
