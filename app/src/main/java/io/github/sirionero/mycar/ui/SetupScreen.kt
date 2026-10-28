@@ -469,13 +469,13 @@ private fun MoreSection(
     StepCard("Calendar", status(Id.CALENDAR), body = "The car screen shows your next event. myCar only reads your calendar.") {
         if (status(Id.CALENDAR) != Status.DONE) Button(onClick = onCalendar) { Text("Allow") }
     }
-    StepCard("Notifications", status(Id.NOTIFICATIONS), body = "While myCar is connected, it shows a notification with a button to stop.") {
+    StepCard("Notifications", status(Id.NOTIFICATIONS), body = "Lets myCar show that it's connected to the car, with Stop while it sends the phone's sound, and tell you when an update is out.") {
         if (status(Id.NOTIFICATIONS) != Status.DONE) Button(onClick = onNotifications) { Text("Allow") }
     }
     StepCard(
         "Screen unknown callers",
         status(Id.SCREENING),
-        body = "With the car connected, calls from numbers outside your contacts wait for you to answer them from the car.",
+        body = "With the car connected, a call from a number outside your contacts waits a few seconds before it rings, so you can turn it down from the car.",
     ) {
         if (status(Id.SCREENING) != Status.DONE) Button(onClick = onScreening) { Text("Set up") }
     }

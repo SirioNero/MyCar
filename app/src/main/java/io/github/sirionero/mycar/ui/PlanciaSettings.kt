@@ -89,7 +89,7 @@ internal fun PlanciaSection() {
     SettingsSection(
         "Plancia",
         footer = "Your Home Assistant dashboards in the car, ready the moment you open them: from the app grid, " +
-            "a page beside the map, or beside it. Make the token in Home Assistant: your profile, Security, " +
+            "on a page next to the map's, or in the panel beside the map. Make the token in Home Assistant: your profile, Security, " +
             "Long-lived access tokens.",
     ) {
         if (saved.isComplete) LocalNetworkRow(saved.urls)

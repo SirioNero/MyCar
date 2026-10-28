@@ -269,7 +269,7 @@ private fun CarAudioSection() {
     SettingsSection(
         "Car audio",
         footer = if (route != AudioRoute.BLUETOOTH) {
-            "Calls go over Bluetooth either way. Run the command in Help once, and myCar stops asking to share audio."
+            "Calls go over Bluetooth either way. Run the command in How to connect once, and myCar stops asking to share audio."
         } else {
             "Calls go over Bluetooth either way."
         },
