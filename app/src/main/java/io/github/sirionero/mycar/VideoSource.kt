@@ -138,7 +138,13 @@ class VideoSource(
 
     fun stop() {
         running = false
-        worker?.join(1_000)
+        // Stop is called from threads that are themselves being shut down. An interrupt here
+        // used to escape as an uncaught exception and take the whole app down with the session.
+        try {
+            worker?.join(1_000)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+        }
         runCatching { inputSurface?.release() }
         inputSurface = null
         runCatching { codec?.stop() }
