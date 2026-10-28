@@ -68,13 +68,15 @@ object CarKeys {
             return true
         }
         if (!down) return keyCode in WANTED
-        val media = CarServices.media
+        // Null until the car UI has started the drive's services: a key pressed before that (the
+        // car still on its own screen) used to throw, and the exception ended the session.
+        val media = CarServices.mediaOrNull()
         when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> media.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_PLAY -> if (!media.now.value.playing) media.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.KEYCODE_MEDIA_STOP -> if (media.now.value.playing) media.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_NEXT -> media.next()
-            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> media.previous()
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> media?.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_PLAY -> if (media != null && !media.now.value.playing) media.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.KEYCODE_MEDIA_STOP -> if (media != null && media.now.value.playing) media.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_NEXT -> media?.next()
+            KeyEvent.KEYCODE_MEDIA_PREVIOUS -> media?.previous()
             KeyEvent.KEYCODE_SEARCH, KeyEvent.KEYCODE_VOICE_ASSIST -> voice()
             KeyEvent.KEYCODE_CALL -> call()
             KeyEvent.KEYCODE_ENDCALL -> endCall()
