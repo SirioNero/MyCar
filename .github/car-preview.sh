@@ -171,6 +171,9 @@ CINEMA_PHONE="302,216"    # the first tile, "On this phone"
 CINEMA_SECOND="594,216"   # YouTube; with a TV list, the list
 shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$WAIT"
 EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT"
+# "Continue" (car/CinemaContinue.kt): YouTube opened, a look at the map, Cinema again - the first
+# tile is now "Continue: YouTube", and a tap on it opens the site again at the page it was on.
+shoot cinema-continue 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$DOCK_MAP;$WAIT;$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT"
 
 # Cinema's shelves on Android's own player: a minute of test picture and tone on the phone (in
 # Movies), and a TV list from the runner (10.0.2.2:8001) with a stream (HLS) and a film file, a
