@@ -162,7 +162,7 @@ object BridgeProxy {
     }
 
     private fun listen(): ServerSocket {
-        val server = ServerSocket(0, BACKLOG, InetAddress.getLoopbackAddress())
+        val server = ServerSocket(0, BACKLOG, LOOPBACK)
         thread(name = "mycar-bridge-proxy", isDaemon = true) {
             while (!server.isClosed) {
                 val client = try {

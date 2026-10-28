@@ -38,6 +38,12 @@ class BridgeDns(private val bridge: AppBridge, private val system: Dns = Dns.SYS
 /** TEST-NET-1's first address, which no network has: a name [BridgeDns] left for the app. */
 private val PLACEHOLDER = byteArrayOf(192.toByte(), 0, 2, 1)
 
+/**
+ * 127.0.0.1, for the listeners on the phone itself. Not InetAddress.getLoopbackAddress(), which on
+ * Android is ::1: a WebView told to use a proxy at 127.0.0.1 found nothing there.
+ */
+internal val LOOPBACK: InetAddress = InetAddress.getByAddress(byteArrayOf(127, 0, 0, 1))
+
 /** Sockets that go through [bridge] when they should (see [Bridges.through]), and the ordinary way otherwise. */
 class BridgeSocketFactory(private val bridge: AppBridge) : SocketFactory() {
     override fun createSocket(): Socket = BridgedSocket(bridge)
@@ -78,7 +84,7 @@ internal class BridgedSocket(private val bridge: AppBridge) : Socket() {
             throw e
         }
         val inner = try {
-            ServerSocket(0, 1, InetAddress.getLoopbackAddress()).use { listener ->
+            ServerSocket(0, 1, LOOPBACK).use { listener ->
                 listener.soTimeout = ACCEPT_MS
                 super.connect(listener.localSocketAddress, timeout)
                 val accepted = listener.accept()
