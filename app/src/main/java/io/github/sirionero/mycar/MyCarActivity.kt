@@ -256,6 +256,9 @@ class MyCarActivity : ComponentActivity(), Projection {
         if (consentPending) {
             if (CarAudio.stillWanted) requestAudioCapture() else consentPending = false
         }
+        if (capturePending) {
+            if (runner != null) requestCapture() else capturePending = false
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -334,7 +337,21 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     // --- Phone mirroring ----------------------------------------------------------------
 
+    /** The screen-sharing question, waiting for myCar to be on the phone's screen; see [consentPending]. */
+    private var capturePending = false
+
     private fun requestCapture() {
+        // Asked from the background, Android blocks the dialog and says nothing: it waits for
+        // myCar to be opened instead, and the car says so.
+        if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+            if (!capturePending) {
+                capturePending = true
+                MyCarLog.i("mirror: myCar isn't on the phone's screen - the sharing question waits for it")
+                io.github.sirionero.mycar.car.CarToasts.show(this, "Open myCar on the phone to share its screen", androidx.car.app.CarToast.LENGTH_LONG)
+            }
+            return
+        }
+        capturePending = false
         val manager = getSystemService(MediaProjectionManager::class.java)
         // The whole screen, as for the audio: with "a single app" Android shares the app picked
         // there, and the car would show it frozen behind the one opened from the car.
