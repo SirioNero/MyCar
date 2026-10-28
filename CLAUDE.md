@@ -690,7 +690,16 @@ Tutti i token in un solo posto, `car/design/`:
   rubrica e comandi vocali protetti (risposta "Something went wrong"), sensori formattati solo con
   "Vehicle data" acceso, gestore dei crash una volta per processo, indice dei colori di Cinema mai
   negativo. Lasciato: `startForeground` senza try in cattura audio e condivisione (nessun percorso
-  che fallisca trovato, e tocca la cattura). Da decidere con l'utente: "Fuck you too." detto ad alta
+  che fallisca trovato, e tocca la cattura). Revisione indipendente dei commit della notte, corretti:
+  "reply to X" per livelli di nome come "call" (prima "Anna" trovava Giovanna) e il destinatario
+  detto nella domanda; "call back" dopo un numero privato; il numero migliore anche nella conferma;
+  "read my messages" con tutti i nuovi della chat (`CarNotifications.unreadCount`) e chat letta sul
+  telefono non più nuova (`gone` → `seen`); chiamata persa riconosciuta anche dal canale "missed" del
+  dialer predefinito o di Telecom (il dialer AOSP non mette la categoria); "Call back" del popup solo
+  sulla sua chiamata (stessa ora, con numero) e con uno scope che sopravvive al popup; ▶ del volante
+  senza app solo se il telefono non suona già altro (`isMusicActive`); "Continue" che segue
+  `doUpdateVisitedHistory`; Telefono su Contatti senza registro, linguette strette sotto 600 dp; testi
+  delle canzoni "non raggiunti" con Try again. Da decidere con l'utente: "Fuck you too." detto ad alta
   voce dall'assistente (anche con passeggeri).
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché

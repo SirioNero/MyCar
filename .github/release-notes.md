@@ -2,16 +2,18 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 
 ## New in the car
 - Phone: a Recents tab, as on a phone - your latest calls, missed ones in red, a tap to call back (it asks first, with the number). The Phone opens on the tab you used last. A missed call's popup has Call back too, and Read says "Missed call from…".
-- Voice: "read my messages" reads the newest message you haven't heard, "reply to Anna" or "text Anna" goes straight to your reply. "Call back" returns the last call, "redial" makes the last one again. "Call Mom on mobile" calls that number; with several numbers myCar picks the phone's default or the mobile, and says which. "When do I arrive?" gives the arrival time and the time left. All in "You can say".
-- Play - said, or the ▶ on the steering wheel - with no music app open starts the one you used last. Before, nothing happened (and the assistant said "Playing."). "Play the next song", "play it again" and "play something else" skip or repeat instead of searching for a song with that name; "call Skip" calls Skip.
+- Voice: "read my messages" reads what's new in your latest chat, "reply to Anna" or "text Anna" goes straight to your reply - and myCar says whose chat it is ("What's your reply to Anna?"). "Call back" returns the last call, "redial" makes the last one again. "Call Mom on mobile" calls that number; with several numbers myCar picks the phone's default or the mobile, and says which. "When do I arrive?" gives the arrival time and the time left. All in "You can say".
+- Play - said, or the ▶ on the steering wheel - with no music app open starts the one you used last (the ▶ leaves alone a video that's already playing). Before, nothing happened (and the assistant said "Playing."). "Play the next song", "play it again" and "play something else" skip or repeat instead of searching for a song with that name; "call Skip" calls Skip.
 - Quick replies to messages go out in your phone's language - Italian, Spanish, French, German or Portuguese - with the arrival time written the way your phone writes it. They went out in English.
 - While a call rings, the next turn shows in the dock: the call's card covers the map. The caller's number is written as on the phone.
 
 ## In the car
 - After a tap on Reply, myCar reads the message and asks straight away for your reply: no more "Do you want to reply?" to answer first.
+- Missed calls pop up, with Call back, on phones whose dialer doesn't mark them as missed calls (LineageOS and other ROMs). Call back calls that very call: after a private number it opens Recents instead.
 - The dot on the dock's clock goes off once a message is read aloud, answered or seen in its app, not only when the dashboard opens.
 - The assistant's errors ("Didn't catch that") go by themselves after a few seconds instead of covering the map; on a phone without a speech engine its answers stay up long enough to read. A "play X" the music app ignored is said outside the player too.
 - No more dead ends: an app beside the map that wouldn't start gets Try again and Close, a music list that didn't load gets Try again, a music app that won't be browsed gets Open on the phone, and a search that found nothing gets "Ask the app to play it".
+- Lyrics with no signal say they couldn't be reached, with Try again, instead of "No lyrics found".
 - Full player: tabs stay readable on small screens ("Now playing" on two lines rather than "Now playi…"), and app names are written as the apps write them ("YouTube Music", not "Youtube music"). The sign on the song in the dock shows that it's playing, instead of looking like a pause button.
 - Beside the map, the player's X closes it even after the music app was closed from its menu (it started the music again).
 - The card to pair the car over Bluetooth shows on the first drive after installing or updating myCar too (it only came from the second drive).
