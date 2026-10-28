@@ -30,6 +30,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -69,7 +70,9 @@ internal fun PlanciaView(modifier: Modifier) {
     val web = LocalPlanciaWeb.current
     val connection by HomeAssistant.connection.collectAsState()
     Box(modifier.background(MaterialTheme.colorScheme.surfaceContainerLowest)) {
-        if (web != null) {
+        // Keyed on the page: a new one (the light changed, so the theme did) gets a new place here.
+        // Without it the place stayed the old page's, and Plancia an empty box.
+        if (web != null) key(web) {
             AndroidView(
                 factory = { context -> FrameLayout(context).also(web::show) },
                 onRelease = web::hide,
