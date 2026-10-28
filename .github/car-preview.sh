@@ -301,8 +301,16 @@ has_text() {
     adb shell uiautomator dump /sdcard/ui.xml >/dev/null 2>&1
     adb shell cat /sdcard/ui.xml | grep -qF "text=\"$1\""
 }
-# Scrolls the list up by about half the screen, to reach a card's buttons under the bar.
-scroll_down() { adb shell input swipe 160 400 160 180 400; sleep 1; }
+# Scrolls the list a little at a time until $1 is on screen: a card's buttons can sit under the
+# bar. Steps shorter than the list's height, so nothing goes by between two looks.
+scroll_to() {
+    local i
+    for i in 1 2 3 4 5 6 7 8; do
+        has_text "$1" && return 0
+        adb shell input swipe 160 380 160 260 400; sleep 1
+    done
+    echo "setup-phone: $1 never came into sight"; return 1
+}
 setup_phone() {
     case " ${ONLY:-setup-phone} " in *" setup-phone "*) ;; *) return ;; esac
     local d=previews/setup-phone i
@@ -314,10 +322,9 @@ setup_phone() {
     tap_text "Get certificates"; sleep 12; adb exec-out screencap -p > $d/02-certificates.png
     # Android Auto comes with the emulator's Google image, as with many phones: kept, not turned off.
     if has_text "Open Android Auto"; then
-        # The card sits under the bar: brought into sight first, as a thumb would.
-        scroll_down; scroll_down
-        tap_text "No Disable button?"; sleep 1
-        scroll_down
+        # The card can sit under the bar: brought into sight first, as a thumb would.
+        scroll_to "No Disable button?" && tap_text "No Disable button?"; sleep 1
+        scroll_to "Keep Android Auto"
         adb exec-out screencap -p > $d/02b-android-auto.png
         tap_text "Keep Android Auto"; sleep 2
         adb exec-out screencap -p > $d/02c-kept.png
