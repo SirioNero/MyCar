@@ -282,6 +282,17 @@ fi
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
 
+# The car's browser on a page that is one big dropdown (<select>), tapped twice: it used to close
+# myCar ("Window type mismatch" for its dialog); now it just doesn't open, and crash.txt stays empty.
+# The page comes from url.txt in myCar's files, as the browser's start page.
+cat > /tmp/select-page.txt <<'HTML'
+<html><body style="margin:0;background:#202830"><select style="position:fixed;left:0;top:0;width:100%;height:100%;font-size:48px"><option>One</option><option>Two</option><option>Three</option></select></body></html>
+HTML
+BEFORE="adb push /tmp/select-page.txt $FILES/url.txt > /dev/null" LOGTAGS="WindowManager cr_SelectPopup" \
+    shoot browser-select 1920 720 240 "$GRID_BUTTON;$(at browser);$WAIT;$WAIT;1000,400;$WAIT;1000,400;$WAIT"
+echo "--- a dropdown in the car's browser ---"
+if [ -s previews/browser-select/crash.txt ]; then head -20 previews/browser-select/crash.txt; else echo "browser-select: no crash"; fi
+
 # The app grid over each kind of moving wallpaper: the same screen shot 2.5s apart, to compare.
 EXTRA="--es wallpaper waves" shoot motion-waves 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT"
 EXTRA="--es wallpaper fireflies" shoot motion-fireflies 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT"
