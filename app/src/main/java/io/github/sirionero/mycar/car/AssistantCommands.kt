@@ -303,10 +303,26 @@ object AssistantCommands {
         if (name.isBlank()) return "Who should I call?"
         if (!hasCallPermissions(context)) return "myCar needs the phone and contacts permissions first, from the phone screen."
 
-        val match = withContext(Dispatchers.IO) {
-            loadContacts(context).firstOrNull { it.name.lowercase().contains(name) }
-        } ?: return "I couldn't find $name in your contacts."
-
+        // The whole name, then a whole word of it ("Luca" in "Luca Rossi"), and only then a piece
+        // of one: "Luca" used to call "Gianluca", first in alphabetical order.
+        val contacts = withContext(Dispatchers.IO) { loadContacts(context) }
+        fun tier(c: Contact): Int {
+            val full = c.name.lowercase().trim()
+            return when {
+                full == name -> 0
+                " $full ".contains(" $name ") -> 1
+                full.contains(name) -> 2
+                else -> 3
+            }
+        }
+        val best = contacts.minOfOrNull(::tier)?.takeIf { it < 3 } ?: return "I couldn't find $name in your contacts."
+        val matches = contacts.filter { tier(it) == best }
+        val match = matches.first()
+        // Only a piece of a name, or more than one person: the driver confirms on the screen.
+        if (best == 2 || matches.distinctBy { it.name }.size > 1) {
+            CallPrompt.ask(match.name, match.number)
+            return "Call ${match.name}?"
+        }
         placeCall(context, match.number)
         return "Calling ${match.name}."
     }
