@@ -330,6 +330,10 @@ private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Un
                                 lastUrl = url
                                 if (url != null && url.startsWith("http")) CinemaContinue.site(context, site, url)
                             },
+                            onVisited = { url ->
+                                lastUrl = url
+                                CinemaContinue.site(context, site, url)
+                            },
                             onOffHomeNetwork = { offHomeNetwork = true },
                             onUnreachable = { unreachable = true },
                             onGone = {
@@ -503,11 +507,19 @@ private val CHROME_VERSION = Regex("Chrome/([\\d.]+)")
 private class CinemaClient(
     private val ring: String,
     private val onLoading: (String?) -> Unit,
+    /** A page the site moved to without loading one (YouTube, Twitch, RaiPlay): for "Continue". */
+    private val onVisited: (String) -> Unit,
     private val onOffHomeNetwork: () -> Unit,
     private val onUnreachable: () -> Unit,
     private val onGone: () -> Unit,
 ) : WebViewClient() {
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading(url)
+
+    // Video sites change page by script (history.pushState), with no page start to tell: a video
+    // opened that way was lost to "Continue", which went back to the site's first page.
+    override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
+        if (!isReload && url != null && url.startsWith("http")) onVisited(url)
+    }
 
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
         view?.handledAppLink(request) == true
