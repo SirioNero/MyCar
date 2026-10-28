@@ -246,6 +246,9 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     override fun onResume() {
         super.onResume()
+        // Refused at the car's arrival (the phone locked, or the wireless link made it minutes after
+        // the tap): on screen, Android lets the drive's foreground service start.
+        if (runner != null && !SessionService.running) SessionService.start(this, wireless = wirelessSocket != null)
         io.github.sirionero.mycar.host.LocationKeepAlive.retry(this)
         // The capture question that waited for myCar to be on screen. Not from onStart: there the
         // lifecycle still reads CREATED - it moves to STARTED only once onStart has returned.
