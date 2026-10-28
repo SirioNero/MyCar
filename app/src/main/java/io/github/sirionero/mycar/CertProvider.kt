@@ -2,7 +2,6 @@ package io.github.sirionero.mycar
 
 import android.content.Context
 import android.net.Uri
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore
 import java.security.cert.X509Certificate
@@ -15,8 +14,8 @@ import java.security.cert.X509Certificate
  *
  *  1. **Imported** in the app (Settings > Certificate): a PKCS#12 file plus its password,
  *     copied into the app's private storage.
- *  2. **Downloaded** from the public opencardev/aasdk repository. Fetched only when the
- *     user asks; the app never ships or hosts the certificate.
+ *  2. **Downloaded**: one of the public certificates of [CertCatalog] (aasdk, or the spare from
+ *     Headunit Revived). Fetched only when the user asks; the app never ships or hosts them.
  *  3. **Staged over adb** into the app's external files directory, the way the spike has
  *     always done it. Still honoured, so existing setups keep working untouched:
  *
@@ -167,10 +166,11 @@ object CertProvider {
         log.i("removed the imported certificate")
     }
 
-    /** Drops the downloaded identity. */
+    /** Drops the downloaded identity, and the catalog's copies with it. */
     fun removeDownloaded(context: Context) {
         downloadedFile(context, P12_NAME).delete()
         downloadedFile(context, PASS_NAME).delete()
+        CertCatalog.removeAll(context)
         log.i("removed the downloaded certificate")
     }
 
@@ -204,29 +204,23 @@ object CertProvider {
     }
 
     /**
-     * Downloads the publicly available head unit certificate from the opencardev/aasdk
-     * repository, converts it from PEM to PKCS#12, and stores it ready for use.
-     * Runs synchronously (caller is responsible for threading). Throws on any failure.
+     * Downloads the public certificates of [CertCatalog], each checked against its fingerprint,
+     * keeps them all, and puts the first in use: the recommended one, or the spare if only that
+     * came. Runs synchronously (caller is responsible for threading). Throws when none came.
      */
     fun downloadAndImport(context: Context): Identity {
-        val download = CertDownloader.fetch()
-        val result = PemKeyParser.build(download.certificatePem, download.privateKeyPem)
-
-        val target = downloadedFile(context, P12_NAME)
-        target.parentFile?.mkdirs()
-        val p12Password = DEFAULT_PASSWORD
-        val keyStore = result.keyStore
-        val p12Bytes = ByteArrayOutputStream().use { stream ->
-            keyStore.store(stream, p12Password.toCharArray())
-            stream.toByteArray()
-        }
-        target.writeBytes(p12Bytes)
-        downloadedFile(context, PASS_NAME).writeText(p12Password)
-
-        log.i("downloaded and stored certificate: ${result.certificate.subjectX500Principal}")
-        return Identity(keyStore, result.certificate, p12Password.toCharArray(),
-            "downloaded certificate (opencardev/aasdk)", Kind.DOWNLOADED)
+        val downloads = CertCatalog.downloadAll(context)
+        val first = downloads.ready.firstOrNull()
+            ?: throw IllegalStateException(downloads.failed.values.firstOrNull() ?: "no certificate could be downloaded")
+        downloads.failed.forEach { (id, why) -> log.w("$id not downloaded: $why") }
+        CertCatalog.activate(context, first)
+        val label = CertCatalog.entry(first)?.label ?: first
+        log.i("certificate in use: $label")
+        return loadP12(downloadedFile(context, P12_NAME), DEFAULT_PASSWORD, "downloaded certificate ($label)", Kind.DOWNLOADED)
     }
+
+    /** Where the downloaded certificate in use is kept, under the app's [filesDir]. */
+    internal fun downloadedSlot(filesDir: File) = File(File(filesDir, "$IMPORT_DIR-downloaded"), P12_NAME)
 
     // The imported files live in the app's private internal storage (not the external files
     // dir), so other apps cannot read the key, and `adb uninstall` clearing it is expected.
