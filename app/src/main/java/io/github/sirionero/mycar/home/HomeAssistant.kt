@@ -7,6 +7,9 @@ import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.bridge.BridgeDns
+import io.github.sirionero.mycar.bridge.BridgeSocketFactory
+import io.github.sirionero.mycar.bridge.Bridges
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +69,7 @@ object HomeAssistant {
 
     fun init(context: Context) {
         val app = context.applicationContext.also { this.app = it }
+        Bridges.init(app)
         configFlow.value = Config(
             AppSettings.getString(app, KEY_HOME, ""),
             AppSettings.getString(app, KEY_REMOTE, ""),
@@ -152,6 +156,10 @@ object HomeAssistant {
         .connectTimeout(8, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.MILLISECONDS)
         .pingInterval(20, TimeUnit.SECONDS)
+        // Left out of Tailscale to connect wirelessly, myCar reaches a Tailscale address through the
+        // Plancia app, inside it (see bridge/Bridges).
+        .dns(BridgeDns(Bridges.plancia))
+        .socketFactory(BridgeSocketFactory(Bridges.plancia))
         .build()
 
     private val _dashboards = MutableStateFlow<List<Dashboard>>(emptyList())
