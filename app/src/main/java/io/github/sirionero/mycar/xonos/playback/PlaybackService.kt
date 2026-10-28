@@ -284,7 +284,7 @@ class PlaybackService : MediaLibraryService() {
                 // Subito zitto, poi la pausa vera; riprende da sola alla fine della telefonata.
                 engine.setDuck(0f)
                 resumeAfterInterruption = true
-                player.pauseFromSystem()
+                player.pauseFromSystem(transient = true)
             }
             AudioFocus.Change.RESUMED -> {
                 engine.setDuck(1f)

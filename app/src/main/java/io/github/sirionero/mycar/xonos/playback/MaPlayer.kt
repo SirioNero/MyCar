@@ -363,6 +363,8 @@ class MaPlayer(
         fetchQueue {
             if (pauseWanted && queue?.playing == true) {
                 Log.i(TAG, "Rimando la pausa chiesta mentre Music Assistant non rispondeva")
+                // Fermata qui: la ripresa, se c'è, la fa chi ha chiesto la pausa (fine telefonata).
+                drop = null
                 command("player_queues/pause") { it?.playing != true }
             } else {
                 resumeAfterDrop()
@@ -600,11 +602,15 @@ class MaPlayer(
         return Futures.immediateVoidFuture()
     }
 
-    /** Lo stesso play o pausa, ma deciso dal telefono (chiamata in arrivo, cuffie staccate). */
-    fun pauseFromSystem() {
+    /**
+     * Lo stesso play o pausa, ma deciso dal telefono (chiamata in arrivo, cuffie staccate).
+     * [transient]: una pausa che finisce da sola (una telefonata). Non cancella la ripresa dopo una
+     * caduta di rete: senza rete durante la chiamata, la musica ripartiva più solo a mano.
+     */
+    fun pauseFromSystem(transient: Boolean = false) {
         val q = queue ?: return
         if (!q.playing) return
-        wantPaused()
+        if (transient) pauseWanted = true else wantPaused()
         command("player_queues/pause") { it?.playing != true }
     }
 
