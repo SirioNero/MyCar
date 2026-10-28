@@ -50,6 +50,8 @@ class AudioLink(
     @Volatile private var inFlight = 0
     // The Uconnect asks for 4 on its video channel; assume the same until its Config says otherwise.
     @Volatile private var maxUnacked = 4
+    /** Whether the car has acked anything on this link: some never do, and aren't waited for. */
+    @Volatile private var carAcks = false
     @Volatile private var lastAckAt = 0L
     private var stalls = 0
     private var chunks = 0
@@ -162,6 +164,7 @@ class AudioLink(
             MSG_ACK -> {
                 val acked = Wire.varint(Wire.fields(body), 2)?.toInt() ?: 1
                 synchronized(ackLock) {
+                    carAcks = true
                     inFlight = maxOf(0, inFlight - maxOf(1, acked))
                     lastAckAt = System.currentTimeMillis()
                     ackLock.notifyAll()
@@ -361,7 +364,10 @@ class AudioLink(
         // Wait for the car to catch up rather than throw the chunk away: a dropped chunk is a gap
         // the driver hears, while a short wait is soaked up by the capture buffer behind us.
         synchronized(ackLock) {
-            while (started && inFlight >= maxUnacked) {
+            // Only for a car that acks: one that never does (the 2024 VW, the Bolt) left the writer
+            // waiting the whole stall at every Start - two seconds missing at the start of the
+            // music, after every call, in the middle of every spoken direction.
+            while (started && carAcks && inFlight >= maxUnacked) {
                 val waited = System.currentTimeMillis() - lastAckAt
                 if (waited > STALL_MS) {
                     // A lost ack must not silence the stream for good; after a stall assume the window cleared.
@@ -375,6 +381,10 @@ class AudioLink(
                 }
                 ackLock.wait(STALL_MS - waited + 1)
             }
+            // Counted before it goes, as video counts its frames: an ack quicker than this thread
+            // came first, was clamped at nothing, and the late count left a chunk in flight for
+            // good - the window shrank chunk by chunk until a stall.
+            if (started) inFlight++
         }
         if (!started) {
             dropped++
@@ -390,7 +400,6 @@ class AudioLink(
             started = false
             return
         }
-        synchronized(ackLock) { inFlight++ }
         chunks++
         bytes += payload.size
         // The first chunk proves the whole path; after that, an occasional line is enough to show

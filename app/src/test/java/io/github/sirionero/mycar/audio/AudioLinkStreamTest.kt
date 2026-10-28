@@ -113,7 +113,55 @@ class AudioLinkStreamTest {
         assertEquals(listOf(8 + 1_920), data().map { it.body.size })
     }
 
+    @Test
+    fun `a car that never acks gets its stream without a wait`() {
+        val link = streaming()
+        val took = kotlin.system.measureTimeMillis { repeat(20) { link.write(ByteArray(1_920), 1_920) } }
+        assertEquals(20, data().size)
+        assertTrue("the writer waited ${took}ms", took < 1_000)
+    }
+
+    @Test
+    fun `once the car acks, a full window waits for its next ack`() {
+        val link = streaming()
+        link.onMessage(ACK, Protobuf.varintField(1, 0) + Protobuf.varintField(2, 1))
+        repeat(4) { link.write(ByteArray(1_920), 1_920) }
+        val fifth = Thread { link.write(ByteArray(1_920), 1_920) }.apply { start() }
+        fifth.join(300)
+        assertTrue("the fifth chunk went before the car had room", fifth.isAlive)
+        link.onMessage(ACK, Protobuf.varintField(1, 0) + Protobuf.varintField(2, 1))
+        fifth.join(1_000)
+        assertEquals(5, data().size)
+    }
+
+    @Test
+    fun `an ack quicker than the writer leaves nothing in flight`() {
+        lateinit var link: AudioLink
+        // The car acks each chunk at once, before send() has returned.
+        link = AudioLink(
+            ServiceDiscovery.AudioService(
+                5, ServiceDiscovery.STREAM_MEDIA, ServiceDiscovery.CODEC_PCM, listOf(ServiceDiscovery.AudioConfig(48_000, 16, 2)),
+            ),
+            sendOnChannel = { id, body ->
+                sent += Sent(id, body)
+                if (id == DATA) link.onMessage(ACK, Protobuf.varintField(1, 0) + Protobuf.varintField(2, 1))
+            },
+            sendControl = { _, _ -> },
+            onReady = {},
+            onClose = {},
+        )
+        link.onMessage(CHANNEL_OPEN_RESPONSE, Protobuf.varintField(1, 0))
+        link.onMessage(CONFIG, Protobuf.varintField(1, READY) + Protobuf.varintField(2, 4) + Protobuf.varintField(3, 0))
+        link.start()
+        link.onFocus(GAIN)
+        sent.clear()
+        val took = kotlin.system.measureTimeMillis { repeat(12) { link.write(ByteArray(1_920), 1_920) } }
+        assertEquals(12, data().size)
+        assertTrue("the window closed on acked chunks: waited ${took}ms", took < 1_000)
+    }
+
     private companion object {
+        const val ACK = 32772
         const val CHANNEL_OPEN_RESPONSE = 8
         const val CONFIG = 32771
         const val READY = 2L
