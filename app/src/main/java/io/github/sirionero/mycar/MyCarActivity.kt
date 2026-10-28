@@ -332,7 +332,14 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     private fun requestCapture() {
         val manager = getSystemService(MediaProjectionManager::class.java)
-        runCatching { captureConsent.launch(manager.createScreenCaptureIntent()) }
+        // The whole screen, as for the audio: with "a single app" Android shares the app picked
+        // there, and the car would show it frozen behind the one opened from the car.
+        val intent = if (Build.VERSION.SDK_INT >= 34) {
+            manager.createScreenCaptureIntent(MediaProjectionConfig.createConfigForDefaultDisplay())
+        } else {
+            manager.createScreenCaptureIntent()
+        }
+        runCatching { captureConsent.launch(intent) }
             .onFailure { MyCarLog.e("could not ask for screen capture", it) }
     }
 
