@@ -340,18 +340,21 @@ fi
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
 
-# The car's browser on a page that is one big dropdown (<select>), tapped twice: it used to close
-# myCar ("Window type mismatch" for its dialog); now it just doesn't open, and crash.txt stays empty.
+# The car's browser on a page that is one big dropdown (<select>): a tap opens myCar's own list over
+# the car's screen (car/WebSelect.kt; Android's dialog can't show there, and before 0.5.19 it closed
+# myCar), a tap on "Two" picks it, and the page says so in its log ("change Two", tag chromium).
 # The page comes from the runner (10.0.2.2:8002), as the browser's start page (--es startUrl).
 mkdir -p /tmp/select-page
 cat > /tmp/select-page/select.html <<'HTML'
-<html><body style="margin:0;background:#202830"><select style="position:fixed;left:0;top:0;width:100%;height:100%;font-size:48px"><option>One</option><option>Two</option><option>Three</option></select></body></html>
+<html><body style="margin:0;background:#202830"><select onchange="console.log('change ' + this.value)" style="position:fixed;left:0;top:0;width:100%;height:100%;font-size:48px"><option>One</option><option>Two</option><optgroup label="More"><option>Three</option><option disabled>Four</option></optgroup></select></body></html>
 HTML
 python3 -m http.server 8002 --bind 127.0.0.1 --directory /tmp/select-page > /tmp/select-page.txt 2>&1 &
-EXTRA="--es startUrl http://10.0.2.2:8002/select.html" LOGTAGS="cr_SelectPopup" \
-    shoot browser-select 1920 720 240 "$GRID_BUTTON;$(at browser);$WAIT;$WAIT;1000,400;$WAIT;1000,400;$WAIT"
+# The list's rows are 64 dp from 108 dp down, centred on the screen: "Two" at 204 dp, 306 px here.
+EXTRA="--es startUrl http://10.0.2.2:8002/select.html" LOGTAGS="chromium cr_SelectPopup" \
+    shoot browser-select 1920 720 240 "$GRID_BUTTON;$(at browser);$WAIT;$WAIT;1000,400;$WAIT;960,306;$WAIT"
 echo "--- a dropdown in the car's browser ---"
 if [ -s previews/browser-select/crash.txt ]; then head -20 previews/browser-select/crash.txt; else echo "browser-select: no crash"; fi
+grep -h "change " previews/browser-select/log.txt previews/browser-select/stream.txt 2>/dev/null | head -3 || true
 
 # The app grid over each kind of moving wallpaper: the same screen shot 2.5s apart, to compare.
 EXTRA="--es wallpaper waves" shoot motion-waves 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT"

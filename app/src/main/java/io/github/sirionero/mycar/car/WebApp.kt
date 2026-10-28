@@ -102,6 +102,7 @@ internal fun WebApp(content: String, tile: WebTile?) {
                             FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
                             "MyCarField",
                         )
+                        WebSelect.install(this)
                         if (content.startsWith("http://") || content.startsWith("https://")) {
                             loadUrl(content)
                         } else {
@@ -117,7 +118,10 @@ internal fun WebApp(content: String, tile: WebTile?) {
                         WebSettingsCompat.setAlgorithmicDarkeningAllowed(it.settings, darkOutside)
                     }
                 },
-                onRelease = { runCatching { it.destroy() } },
+                onRelease = {
+                    WebSelect.cancel(it)
+                    runCatching { it.destroy() }
+                },
             )
         }
         val text = fieldText

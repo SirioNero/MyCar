@@ -177,6 +177,7 @@ fun CarUi() {
                 // What's open over the screens goes first: Back closed the screen under it and left
                 // the call question, the assistant or its help up.
                 CarKeys.ScreenKey.BACK -> when {
+                    WebSelect.asked.value != null -> WebSelect.cancel()
                     navigator.appMenu != null -> navigator.dismissAppMenu()
                     VoiceReply.state.value.phase != VoiceReply.Phase.IDLE -> VoiceReply.cancel()
                     CallPrompt.pending.value != null -> CallPrompt.pending.value = null
@@ -238,6 +239,8 @@ fun CarUi() {
                     )
                 }
                 val screen = navigator.current
+                // A page's dropdown belongs to the screen it was opened on.
+                LaunchedEffect(screen) { WebSelect.cancel() }
                 val safetyWarningSeen by CarSettings.hasSeenSafetyWarning.collectAsState()
                 Box(Modifier.fillMaxSize().padding(pad)) {
                 Row(Modifier.fillMaxSize()) {
@@ -296,6 +299,8 @@ fun CarUi() {
                             }
                         }
                         CarToastOverlay(Modifier.align(Alignment.BottomCenter))
+                        // A page's dropdown (see WebSelect): under a call's question.
+                        WebSelectSheet()
                         CallPromptOverlay()
                         BluetoothPairOverlay()
                         PopupTimer()

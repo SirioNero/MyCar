@@ -148,6 +148,7 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
         main.removeCallbacksAndMessages(null)
         hosts.clear()
         web?.let { w ->
+            WebSelect.cancel(w)
             (w.parent as? ViewGroup)?.removeView(w)
             w.stopLoading()
             w.destroy()
@@ -186,6 +187,7 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
         webView.webChromeClient = Chrome()
         webView.addJavascriptInterface(ExternalAppBridge(), "externalApp")
         webView.addJavascriptInterface(PlanciaBridge(), "plancia")
+        WebSelect.install(webView)
         if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
             // On every origin: it only ever goes to Home Assistant, even after a redirect from http to https.
             WebViewCompat.addDocumentStartJavaScript(webView, PlanciaScripts.SETUP, setOf("*"))

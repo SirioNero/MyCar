@@ -299,11 +299,15 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                             FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
                             "MyCarField",
                         )
+                        WebSelect.install(this)
                         loadUrl(lastUrl ?: site.url)
                         web = this
                     }
                 },
-                onRelease = { runCatching { it.destroy() } },
+                onRelease = {
+                    WebSelect.cancel(it)
+                    runCatching { it.destroy() }
+                },
             )
             }
             fullScreen?.let { (view, _) ->
