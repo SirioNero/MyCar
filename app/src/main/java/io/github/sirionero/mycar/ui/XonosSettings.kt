@@ -55,15 +55,17 @@ internal fun XonosSection() {
     val setUp by Xonos.setUp.collectAsState()
     LaunchedEffect(Unit) { XonosAccount.adoptIfUnset(context) }
     val saved = remember(setUp) { Xonos.settings.load() }
-    val xonosThere = remember { InsideOrApp.xonosAppThere(context) }
-    val xonosBridge = remember { io.github.sirionero.mycar.bridge.Bridges.xonos.available(context) }
+    // Read again on coming back: the Xonos app may have been installed or updated meanwhile.
+    val resumed = rememberResumeCount()
+    val xonosThere = remember(resumed) { InsideOrApp.xonosAppThere(context) }
+    val xonosBridge = remember(resumed) { io.github.sirionero.mycar.bridge.Bridges.xonos.available(context) }
     var home by rememberSaveable(saved) { mutableStateOf(saved.homeUrl) }
     var remote by rememberSaveable(saved) { mutableStateOf(saved.remoteUrl) }
     var username by rememberSaveable(saved) { mutableStateOf(Xonos.settings.username.orEmpty()) }
     var password by remember { mutableStateOf("") }
     var status by remember { mutableStateOf<String?>(null) }
     var removeAsk by remember { mutableStateOf(false) }
-    val xonosApp = remember { XonosAccount.xonosAppCanShare(context) }
+    val xonosApp = remember(resumed) { XonosAccount.xonosAppCanShare(context) }
     val askLocalNetwork = rememberLocalNetworkAsk()
 
     /** Tries the account kept, at home and away, and says what answered. */

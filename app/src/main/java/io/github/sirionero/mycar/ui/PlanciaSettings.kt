@@ -52,9 +52,11 @@ internal fun PlanciaSection() {
     var token by rememberSaveable(saved) { mutableStateOf(saved.token) }
     var status by remember { mutableStateOf<String?>(null) }
     var removeAsk by remember { mutableStateOf(false) }
-    val planciaApp = remember { HomeAssistant.planciaAppCanShare(context) }
-    val planciaThere = remember { InsideOrApp.planciaAppThere(context) }
-    val planciaBridge = remember { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
+    // Read again on coming back: the Plancia app may have been installed or updated meanwhile.
+    val resumed = rememberResumeCount()
+    val planciaApp = remember(resumed) { HomeAssistant.planciaAppCanShare(context) }
+    val planciaThere = remember(resumed) { InsideOrApp.planciaAppThere(context) }
+    val planciaBridge = remember(resumed) { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
     val askLocalNetwork = rememberLocalNetworkAsk()
 
     fun test(config: HomeAssistant.Config) {
