@@ -1,15 +1,16 @@
-myCar 0.5.14-alpha: an easier first connection, with a spare certificate.
+myCar 0.5.15-alpha: Plancia and Xonos that keep working, with Tailscale too.
 
-## Setting up
-- Setup is one list now: what myCar needs to connect, what the drive needs, and the rest, with a tick on what's done and one big button for the next step. Calls, map and music are allowed in one go.
-- "Take me back to the initial setup", at the top of How to connect, and Settings > Initial setup open the same list again: nothing is deleted or reset, and you see only what's left.
-- If you left something for later, Home says what's still needed before your first drive. myCar no longer asks for notifications at every start: they're in the list, with the other optional steps.
+## Plancia and Xonos
+- To connect wirelessly with Tailscale on, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car's Wi-Fi), and then Plancia and Xonos inside myCar can't reach a Tailscale address such as http://umbrel:8123. Now the Plancia and Xonos apps on the phone, which are inside Tailscale, take their place in the car for the drive, by themselves: on the app grid, on your pages, beside the map, and as the car's music.
+- The same when the address or the token set in myCar is wrong: the apps step in instead of an error.
+- It happens at once when the addresses are Tailscale ones that myCar can't reach, otherwise after 10 seconds without a connection (30 if it was connected and dropped). The next drive tries the ones inside myCar first again.
+- Connected with the cable, myCar can stay inside Tailscale: then Plancia and Xonos inside myCar work as before.
+- Settings > Plancia and Settings > Xonos say so when the address is on Tailscale: inside myCar they work with the cable only, for now. We're working on wireless too.
+- Xonos connects to Music Assistant as the drive starts, as Plancia does, so it's ready when you open it.
 
-## Certificates
-- Get certificates downloads two public certificates: the one the aasdk project publishes, recommended, and the one in Headunit Revived, as a spare (valid until 2044). myCar checks each against its fingerprint, and tries it on the phone, before keeping it.
-- If your car turns down the certificate, myCar puts the spare in use and Home says to connect again. If the car turns down both, Home says so, with the list of cars that work and a way to try again from the first.
-- A car whose clock is wrong now gets "Check the car's date", instead of an unexplained error.
-- Settings > Certificate shows both, with the one in use, and lets you pick.
+## Also in 0.5.14-alpha
+- Setup is one list, with one button for the next step. "Take me back to the initial setup", in How to connect, and Settings > Initial setup bring it back, with nothing deleted or reset.
+- Get certificates downloads two public certificates, aasdk (recommended) and Headunit Revived (the spare), each checked against its fingerprint. If your car turns down the first, myCar uses the spare and Home says to connect again. A car with its clock set wrong gets "Check the car's date".
 
 ## Also in 0.5.13-alpha
 - Plancia and Xonos reached through Tailscale (such as http://umbrel:8123) say why they can't connect: Tailscale leaving myCar out, a name it doesn't know, or Android 17 keeping myCar off your home network.

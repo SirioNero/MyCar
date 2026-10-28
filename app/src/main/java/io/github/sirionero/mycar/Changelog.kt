@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            28, "0.5.15-alpha",
+            listOf(
+                "Plancia and Xonos keep working with Tailscale over wireless: when the ones inside myCar can't reach your server, the Plancia and Xonos apps on the phone take their place for the drive, by themselves.",
+                "The same when the address or the token set in myCar is wrong: the apps step in instead of an error.",
+                "Xonos connects as the drive starts, so it's ready when you open it.",
+            ),
+        ),
+        Release(
             27, "0.5.14-alpha",
             listOf(
                 "Setup is one list on the phone, with one button for the next step. How to connect and Settings bring it back, with nothing reset.",
