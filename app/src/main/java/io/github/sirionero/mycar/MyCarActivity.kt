@@ -560,6 +560,12 @@ class MyCarActivity : ComponentActivity(), Projection {
             if (this.surface != null && this.surface !== surface) {
                 screenProjector?.stop()
                 screenProjector = null
+                // The phone's shared screen was drawing on the old one: it ends, or the car showed
+                // myCar while every touch still went to the phone.
+                if (PhoneMirror.active.value) {
+                    PhoneMirror.end()
+                    PhoneMirror.requestStop()
+                }
             }
             this.surface = surface
             frameWidth = width
