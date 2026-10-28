@@ -53,6 +53,7 @@ internal fun PlanciaSection() {
     var status by remember { mutableStateOf<String?>(null) }
     val planciaApp = remember { HomeAssistant.planciaAppCanShare(context) }
     val planciaThere = remember { InsideOrApp.planciaAppThere(context) }
+    val planciaBridge = remember { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
     val askLocalNetwork = rememberLocalNetworkAsk()
 
     fun test(config: HomeAssistant.Config) {
@@ -89,7 +90,7 @@ internal fun PlanciaSection() {
             "Long-lived access tokens.",
     ) {
         if (saved.isComplete) LocalNetworkRow(saved.urls)
-        if (saved.isComplete) TailscaleCableRow(saved.urls, "Home Assistant", "Plancia", planciaThere)
+        if (saved.isComplete) TailscaleCableRow(saved.urls, "Home Assistant", "Plancia", planciaThere, planciaBridge)
         if (planciaApp) {
             SettingsRow(
                 "Use the Plancia app's account",
