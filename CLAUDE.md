@@ -315,6 +315,11 @@ Tutti i token in un solo posto, `car/design/`:
   connessioni di Xonos integrato passano sempre dal ponte (`Bridges.through`, `onThePhone`): il legame
   sveglia l'app (che riavvia il suo server) e la tiene sveglia per il viaggio; myCar riprova finché il
   server non risponde (al primo avvio una quindicina di secondi).
+  Il ripiego sull'app (`InsideOrApp`) qui non scatta: l'app suonerebbe dallo stesso server, che un'app appena
+  risvegliata fa partire in una quindicina di secondi; il ponte lo dice ("on this phone is still starting").
+  Verificato (scatto `phone-xonos`, Xonos da `claude/server-ma` con il server): myCar sveglia l'app Xonos, si
+  collega dopo 6 s attraverso il ponte e suona l'album dal Music Assistant del telefono.
+
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
