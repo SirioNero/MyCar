@@ -3,7 +3,8 @@ package io.github.sirionero.mycar.ui
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,7 @@ import kotlinx.coroutines.withContext
  * What to do after the car turned down the certificate, or found it outside its date; see
  * [CertRotation]. Nothing when there's nothing to say.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) {
     val notice by CertRotation.notice.collectAsStateWithLifecycle()
@@ -88,7 +90,8 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(text, style = MaterialTheme.typography.bodyMedium)
             problem?.let { Text(it, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold) }
-            Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Side by side where they fit: "Try again from the first" beside a button doesn't on a narrow phone.
+            FlowRow(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 when (notice.kind) {
                     Notice.NO_SPARE -> Button(onClick = {
                         act {

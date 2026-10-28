@@ -2,7 +2,8 @@ package io.github.sirionero.mycar.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -75,6 +76,7 @@ private var setupLeftHidden by mutableStateOf(false)
  * On Home, while something needed to connect is still missing (left for later on the first run):
  * what it is, and the way back to the setup. "Not now" hides it until the app opens again.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun SetupLeftCard(onOpenSetup: () -> Unit) {
     val left = SetupSteps.leftToConnect(rememberSetupSteps())
@@ -91,7 +93,8 @@ internal fun SetupLeftCard(onOpenSetup: () -> Unit) {
                 "Left before your first drive: " + left.joinToString { stepName(it.id) } + ".",
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
+            // Side by side where they fit, one under the other on a narrow phone or with large text.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
                 Button(onClick = onOpenSetup) { Text("Continue setup") }
                 TextButton(onClick = { setupLeftHidden = true }) { Text("Not now") }
             }

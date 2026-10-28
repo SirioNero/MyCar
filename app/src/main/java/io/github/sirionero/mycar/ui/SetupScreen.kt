@@ -241,14 +241,13 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                     "first, myCar uses the other.",
             ) {
                 certNote?.let { Text(it, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold) }
+                // One under the other: side by side, a narrow phone squeezed the second to nothing.
                 if (status(Id.CERTIFICATE) != Status.DONE) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = ::getCertificates, enabled = !certBusy) {
-                            Text(if (certBusy) "Getting certificates…" else if (certNote != null) "Try again" else "Get certificates")
-                        }
-                        TextButton(onClick = { importLauncher.launch(arrayOf("*/*")) }, enabled = !certBusy) {
-                            Text("Use my own file")
-                        }
+                    Button(onClick = ::getCertificates, enabled = !certBusy) {
+                        Text(if (certBusy) "Getting certificates…" else if (certNote != null) "Try again" else "Get certificates")
+                    }
+                    TextButton(onClick = { importLauncher.launch(arrayOf("*/*")) }, enabled = !certBusy) {
+                        Text("Use my own file")
                     }
                 }
             }
@@ -372,10 +371,8 @@ private fun AndroidAutoStep(
         },
     ) {
         if (status != Status.DONE) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onOpen) { Text("Open Android Auto") }
-                TextButton(onClick = onShowKeep) { Text("No Disable button?") }
-            }
+            Button(onClick = onOpen) { Text("Open Android Auto") }
+            TextButton(onClick = onShowKeep) { Text("No Disable button?") }
             if (showKeep) {
                 Text(
                     "Then keep it. When you plug in, Android asks which app to open: choose myCar and tap Always. " +
