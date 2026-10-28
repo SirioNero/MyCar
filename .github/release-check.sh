@@ -5,7 +5,8 @@
 # outside myCar) and myCar's settings, where Plancia's "Save and test" and Xonos's "Use the Xonos
 # app's account" try to connect, as on the phone. NET=lan: the servers at 10.0.2.2, as on the home
 # Wi-Fi. NET=tailscale: the Tailscale app on the phone, signed in to the run's headscale, and the
-# servers at http://umbrel:<port> through MagicDNS (.github/tailscale.sh).
+# servers at http://umbrel:<port> through MagicDNS (.github/tailscale.sh). NET=tailscale-out: the
+# same, with myCar left out of Tailscale - what drivers do for the wireless link.
 # Everything it sees goes to checks/: screens, UI dumps, the texts on screen, logs, what myCar kept.
 set -u
 PKG=io.github.sirionero.mycar
@@ -17,7 +18,7 @@ OUT=checks
 mkdir -p "$OUT"
 SDK=$(adb shell getprop ro.build.version.sdk | tr -d '\r')
 echo "Android SDK $SDK ($(adb shell getprop ro.build.version.release | tr -d '\r')), home through $NET" | tee "$OUT/android.txt"
-if [ "$NET" = tailscale ]; then HOST=umbrel; else HOST=10.0.2.2; fi
+if [ "$NET" = lan ]; then HOST=10.0.2.2; else HOST=umbrel; fi
 HA_URL=http://$HOST:8123
 MA_URL=http://$HOST:8095
 
@@ -79,6 +80,18 @@ tap() {
     echo "not found on screen: $1"
     return 1
 }
+# The centre of $1, scrolling down for it ($2: how many tries); empty if it never shows.
+find_scrolling() {
+    local c i
+    for i in $(seq 1 "${2:-14}"); do
+        ui
+        c=$(centre "$1")
+        if [ -n "$c" ]; then echo "$c"; return 0; fi
+        adb shell input swipe $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 3)) 500
+        sleep 1
+    done
+    return 1
+}
 # Taps $1 if it is on screen now, without scrolling.
 tap_if() { ui; local c; c=$(centre "$1"); [ -n "$c" ] && adb shell input tap $c; }
 type_text() { adb shell input text "$1"; sleep 1; }
@@ -87,7 +100,7 @@ for apk in mycar plancia xonos; do adb install -r "third-party/$apk.apk" || echo
 
 # --- Tailscale on the phone, signed in to the run's headscale ---------------------------------
 in_tailnet() { adb shell ip addr 2>/dev/null | grep -q "inet 100\."; }
-if [ "$NET" = tailscale ]; then
+if [ "$NET" != lan ]; then
     adb install -r third-party/tailscale.apk || echo "could not install Tailscale"
     adb shell appops set $TAILSCALE ACTIVATE_VPN allow
     adb shell pm grant $TAILSCALE android.permission.POST_NOTIFICATIONS 2>/dev/null
@@ -137,6 +150,31 @@ PY
     adb shell ping -c 2 -W 3 umbrel 2>&1 | tee -a "$OUT/tailnet.txt"
     adb logcat -d | grep -iE "tailscale|libtailscale|ipn|wgengine|magicsock" | tail -300 > "$OUT/tailscale-log.txt"
     in_tailnet && echo "the phone is in the tailnet" || echo "THE PHONE IS NOT IN THE TAILNET: the rest says nothing about Tailscale"
+
+    # tailscale-out: myCar left out of Tailscale, as drivers do for the wireless link (Tailscale ->
+    # Settings -> App split tunneling, myCar ticked among the excluded apps).
+    if [ "$NET" = tailscale-out ]; then
+        adb shell am start -n $TAILSCALE/.MainActivity >/dev/null 2>&1; sleep 4
+        tap "Open settings" 3; sleep 3
+        tap "App split tunneling" 8; sleep 5
+        shot ts-7-split
+        row=$(find_scrolling "myCar" 30)
+        if [ -n "$row" ]; then
+            # The tick box is at the end of the row.
+            adb shell input tap $((W - 90)) ${row#* }
+            sleep 6
+            shot ts-8-mycar-out
+        else
+            echo "myCar not found among Tailscale's apps"
+        fi
+        adb shell input keyevent KEYCODE_BACK; sleep 2; adb shell input keyevent KEYCODE_BACK; sleep 6
+    fi
+    # What myCar itself can reach: the same probes run as myCar's user (the shell's own user is
+    # one Android lets through everything).
+    uid=$(adb shell pm list packages -U $PKG | tr -d '\r' | sed -n 's/.*uid://p' | head -1)
+    echo "--- umbrel as myCar (user $uid) ---" | tee -a "$OUT/tailnet.txt"
+    adb shell su "$uid" ping -c 2 -W 3 umbrel 2>&1 | tee -a "$OUT/tailnet.txt"
+    adb shell dumpsys connectivity 2>/dev/null | grep -oE "bypassable=[a-z]*|Uids: <[^>]*>" | sort -u | tee -a "$OUT/tailnet.txt"
 fi
 
 # What a driver allowed through myCar's guide before 0.5.12 - not the home network, which only
@@ -206,7 +244,13 @@ sleep 3
 shot 2-settings
 tap "Save and test"
 sleep 20
-shot 3-plancia-test
+# The result is written below the button: scrolled to.
+for i in 1 2 3 4; do
+    shot 3-plancia-test
+    grep -qE "^(At home|Away): " "$OUT/3-plancia-test.txt" && break
+    adb shell input swipe $((W / 2)) $((H * 3 / 4)) $((W / 2)) $((H / 2)) 500
+    sleep 2
+done
 echo "--- Plancia in myCar, Save and test ---"
 grep -E "^(At home|Away|Trying)" "$OUT/3-plancia-test.txt" || echo "(no result line on screen)"
 

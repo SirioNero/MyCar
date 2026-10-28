@@ -12,11 +12,11 @@ on:
   # runs when pushed.
   push:
     branches: ["fix/integrated-connect"]
-    paths: [".github/release-check.sh", ".github/tailscale.sh", ".github/workflows/release-check.yml"]
+    paths: [".github/release-check.sh", ".github/tailscale.sh", ".github/workflows/release-check.yml", "app/src/**"]
   workflow_dispatch:
     inputs:
       tag:
-        description: "myCar release to run"
+        description: "myCar release to run, or \"branch\" for this branch built as a release"
         required: false
         default: "v0.5.12-alpha"
       apis:
@@ -24,9 +24,9 @@ on:
         required: false
         default: '["37.0", "36"]'
       nets:
-        description: "Ways home, as JSON: lan, tailscale"
+        description: "Ways home, as JSON: lan, tailscale, tailscale-out (myCar left out of Tailscale)"
         required: false
-        default: '["lan", "tailscale"]'
+        default: '["lan", "tailscale", "tailscale-out"]'
       target:
         description: "System image"
         required: false
@@ -35,13 +35,15 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 75
     strategy:
       fail-fast: false
       matrix:
         api: ${{ fromJSON(inputs.apis || '["37.0", "36"]') }}
-        net: ${{ fromJSON(inputs.nets || '["lan", "tailscale"]') }}
+        net: ${{ fromJSON(inputs.nets || '["lan", "tailscale", "tailscale-out"]') }}
     env:
-      TAG: ${{ inputs.tag || 'v0.5.12-alpha' }}
+      # Pushed: this branch, built as the release is (R8, myCar's key), so the apps hand it their accounts.
+      TAG: ${{ inputs.tag || 'branch' }}
       TARGET: ${{ inputs.target || 'google_apis' }}
       NET: ${{ matrix.net }}
     permissions:
@@ -49,21 +51,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-java@v4
+        if: env.TAG == 'branch'
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: env.TAG == 'branch'
+
+      - name: Build this branch as a release
+        if: env.TAG == 'branch'
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > mycar-release.jks
+          cat > keystore.properties <<EOF
+          storeFile=mycar-release.jks
+          storePassword=${{ secrets.KEYSTORE_STORE_PASSWORD }}
+          keyAlias=${{ secrets.KEYSTORE_KEY_ALIAS }}
+          keyPassword=${{ secrets.KEYSTORE_KEY_PASSWORD }}
+          EOF
+          ./gradlew :app:assembleRelease --no-daemon
+          rm -f mycar-release.jks keystore.properties
+          mkdir -p third-party
+          cp build/myCar-release.apk third-party/mycar.apk
+
       - name: Download myCar, Plancia and Xonos
         run: |
           mkdir -p third-party
-          curl -fsSL -o third-party/mycar.apk "https://github.com/SirioNero/MyCar/releases/download/${TAG}/myCar-release.apk"
+          if [ "$TAG" != branch ]; then
+            curl -fsSL -o third-party/mycar.apk "https://github.com/SirioNero/MyCar/releases/download/${TAG}/myCar-release.apk"
+          fi
           curl -fsSL -o third-party/plancia.apk https://github.com/SirioNero/Home-Assistant-on-Gearslip/releases/latest/download/Plancia-release.apk
           curl -fsSL -o third-party/xonos.apk https://github.com/SirioNero/Music-Assistant-on-Gearslip/releases/latest/download/Xonos.apk
           ls -l third-party
 
       - name: Download Tailscale for the phone
-        if: matrix.net == 'tailscale'
+        if: matrix.net != 'lan'
         run: |
           # F-Droid's build of the Tailscale app: the one whose native code runs on the x86_64 emulator.
-          info=$(curl -fsSL https://f-droid.org/api/v1/packages/com.tailscale.ipn)
+          info=$(curl -fsSL --retry 3 --max-time 60 https://f-droid.org/api/v1/packages/com.tailscale.ipn)
           for vc in $(echo "$info" | jq -r '.suggestedVersionCode, .packages[].versionCode' | awk '!seen[$0]++'); do
-            curl -fsSL -o /tmp/tailscale.apk "https://f-droid.org/repo/com.tailscale.ipn_$vc.apk" || continue
+            curl -fsSL --retry 2 --max-time 240 -o /tmp/tailscale.apk "https://f-droid.org/repo/com.tailscale.ipn_$vc.apk" || continue
             if unzip -l /tmp/tailscale.apk | grep -q "lib/x86_64/"; then
               mv /tmp/tailscale.apk third-party/tailscale.apk
               echo "Tailscale from F-Droid, version code $vc"
@@ -79,7 +107,7 @@ jobs:
         run: bash .github/music-assistant.sh
 
       - name: Start the tailnet, with this runner as "umbrel"
-        if: matrix.net == 'tailscale'
+        if: matrix.net != 'lan'
         run: bash .github/tailscale.sh
 
       - name: Enable KVM
