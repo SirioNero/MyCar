@@ -56,7 +56,7 @@ class MyCarCallScreening : CallScreeningService() {
             // belong to a newer one by now.
             if (responded) return@mainThreadDelay
             respond(true)
-            CarCalls.screeningExpired()
+            CarCalls.screeningExpired(respond)
         }
     }
 
