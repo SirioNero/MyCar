@@ -322,7 +322,11 @@ Tutti i token in un solo posto, `car/design/`:
   Il ripiego sull'app (`InsideOrApp`) qui non scatta: l'app suonerebbe dallo stesso server, che un'app appena
   risvegliata fa partire in una quindicina di secondi; il ponte lo dice ("on this phone is still starting").
   Verificato (scatto `phone-xonos`, Xonos da `claude/server-ma` con il server): myCar sveglia l'app Xonos, si
-  collega dopo 6 s attraverso il ponte e suona l'album dal Music Assistant del telefono.
+  collega dopo 6 s attraverso il ponte e suona l'album dal Music Assistant del telefono. Di nuovo con Xonos 0.1.42,
+  che il server lo scarica come pacchetto e lo avvia come processo a sé: Xonos scarica il pacchetto dal runner e
+  suona; poi myCar sveglia l'app Xonos, che avvia Music Assistant, dice "still starting" e riprova, si collega
+  attraverso il ponte dopo circa 14 s e Music Assistant suona sul lettore "myCar". Subito dopo l'emulatore è
+  caduto: le immagini dello scatto mancano, il log è in `stream.txt`.
 
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
