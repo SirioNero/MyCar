@@ -166,7 +166,17 @@ internal fun XonosSection() {
                     askLocalNetwork(listOf(url)) {
                         scope.launch {
                             try {
-                                val login = Account(Xonos.repo).login(url, username.trim(), password, "myCar (${Build.MODEL})")
+                                val device = "myCar (${Build.MODEL})"
+                                val login = try {
+                                    Account(Xonos.repo).login(url, username.trim(), password, device)
+                                } catch (e: Exception) {
+                                    // Away from home the home address can't answer: the one away is
+                                    // tried too, in the order the drive uses.
+                                    val away = remoteUrl.isNotBlank() && remoteUrl != url && e !is CancellationException &&
+                                        networkFailure(e) != Tailnet.Failure.OTHER
+                                    if (!away) throw e
+                                    Account(Xonos.repo).login(remoteUrl, username.trim(), password, device)
+                                }
                                 password = ""
                                 val config = Settings.Config(homeUrl, remoteUrl, login.token)
                                 Xonos.save(context, config, login.user)
@@ -174,7 +184,7 @@ internal fun XonosSection() {
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
-                                status = Tailnet.why(context, listOf(url), networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
+                                status = Tailnet.why(context, listOf(homeUrl, remoteUrl).filter { it.isNotBlank() }, networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
                             }
                         }
                     }
