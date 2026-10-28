@@ -214,6 +214,13 @@ private fun setFieldValueJs(value: String) = """
     (function() {
         var el = document.activeElement;
         if (!el) return;
+        // A box that's an editable element rather than a field (many search boxes): it has no
+        // value, and the field setter on it threw - nothing the driver typed arrived.
+        if (el.isContentEditable) {
+            el.textContent = ${JSONObject.quote(value)};
+            el.dispatchEvent(new InputEvent('input', { bubbles: true }));
+            return;
+        }
         var proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
         var setter = Object.getOwnPropertyDescriptor(proto, 'value');
         if (setter && setter.set) { setter.set.call(el, ${JSONObject.quote(value)}); } else { el.value = ${JSONObject.quote(value)}; }
@@ -270,7 +277,7 @@ private const val FOCUS_TRACKING_JS = """
             return skip.indexOf((el.type || 'text').toLowerCase()) === -1;
         }
         document.addEventListener('focusin', function(e) {
-            if (isEditable(e.target)) window.MyCarField.focused(e.target.value || '');
+            if (isEditable(e.target)) window.MyCarField.focused(e.target.isContentEditable ? (e.target.innerText || '') : (e.target.value || ''));
         });
         document.addEventListener('focusout', function(e) {
             if (isEditable(e.target)) window.MyCarField.blurred();
