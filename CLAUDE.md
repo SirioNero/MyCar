@@ -168,11 +168,11 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
-| `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma"), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono) |
+| `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma", `MORE` suggeriti), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono), `PhoneVideos` (video del telefono), `TvLists` + `M3u` (liste IPTV), `ChannelLogos` |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
 | `audio/` | Audio verso l'auto (`AudioLink`, cattura `AudioCaptureService`, `DirectFeed` per la musica di myCar stesso, `CarMic`) |
 | `bridge/` | Il ponte verso le app Plancia e Xonos per myCar lasciata fuori da Tailscale: `AppBridge` (legame e richiesta di una connessione), `Bridges` (quali connessioni passano dal ponte), `BridgedSockets` (`BridgeDns`, `BridgeSocketFactory` per OkHttp), `BridgeProxy` (la pagina di Plancia: proxy SOCKS5 nel WebView) |
@@ -603,6 +603,37 @@ Tutti i token in un solo posto, `car/design/`:
   `on` in `mycar_wireless_auto`): spento smette di guardare, riacceso richiede le auto a cui si era
   detto di no. `REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND` per il `SessionService`
   col telefono in tasca. Non provato con un'auto vera.
+- **Setaccio** (0.5.19, branch `fix/bug-scan-3`): quattro letture del codice (sessione e protocollo,
+  audio e Xonos, interfaccia dell'auto, resto), ogni segnalazione verificata nel codice prima di
+  correggerla. Corretti: la freccia di Vela ferma sulla prima svolta (`CarIcon.equals` confronta le
+  icone bitmap solo per tipo: `pictureKey()` per identità); un `<select>` in una pagina chiudeva myCar
+  ("Window type mismatch" del dialogo sulla Presentation: `carWebContext` dà al WebView il
+  WindowManager semplice del display, dove il dialogo fallisce con la `BadTokenException` che
+  Chromium gestisce; i date picker Chromium li salta già senza Activity; scatto `browser-select`);
+  `CAR_NEARBY` accettato da qualsiasi app (`WirelessAuto.mayConnect`: interruttore acceso e auto
+  approvata); un'auto che ricomincia sullo stesso canale ignorata per il filtro ZLink (fine della
+  connessione segnata subito, `WirelessLink.watched` / `tcpEnded`, e per identità del socket); una
+  seconda `MyCarActivity` (singleTop con un dialogo sopra) che si prendeva gli agganci e chiudendosi
+  fermava la cattura (`current` / `handedOver`: passa l'intento alla prima); `configChanges` senza
+  keyboard/navigation/mcc…; encoder che restava preso se non partiva; attesa delle conferme video
+  sull'ora del telefono; fotogrammi chiave forzati a schermo dell'auto; **2 s di buco a ogni Start con
+  le auto che non confermano l'audio** (`AudioLink.carAcks`: la finestra solo dopo la prima conferma;
+  pezzo contato prima dell'invio); PCM a un'auto solo AAC senza encoder; `DirectFeed` che dopo una
+  scrittura trattenuta mandava tutto di colpo e dormiva altrettanto; AudioTrack morto in Xonos
+  (`PcmOutput.DEAD`); sintesi vocale delle indicazioni mai ritentata; chiamata che squilla ancora "nel
+  filtro" (Decline a vuoto); 401/403/404 di passaggio che davano via Xonos (`MISSET` solo
+  `BAD_ADDRESS`/`BAD_TOKEN`); nomi senza punti presi per Tailscale dietro altre VPN
+  (`Tailnet.onTailnetBehind`); data dell'agenda dopo mezzanotte; bagliore dell'assistente che
+  ricomponeva a ogni fotogramma; un orologio solo per gli sfondi animati (`MotionClock`) e niente
+  sfondo sotto altri schermi; copertina rifatta a ogni play/pausa (`lastMetadata`); tempi del player
+  accanto alla mappa fermi quando non si vede (`LocalPlayerInView`); tasti del player stretti a
+  Large; anello del fuoco perso nei temi dei player (`MyCarCarTheme` tiene l'indicazione attorno);
+  setup che diceva "bloccato" dopo un Indietro (`FirstSetup.blocked`: solo rifiuto dopo spiegazione o
+  risposta senza dialogo). Non provato in un'auto vera. Lasciati (rischio più alto del guadagno, o
+  casi rari): le copie dei byte per fotogramma video e pezzo audio, sospendere l'encoder mentre
+  l'auto mostra il suo schermo, una LOSS in ritardo che risponde al nostro RELEASE (solo dopo un
+  riavvio dell'audio server), `drawWithCache` per gli sfondi. La correzione di `PcmOutput.DEAD` va
+  portata anche nell'app Xonos.
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial

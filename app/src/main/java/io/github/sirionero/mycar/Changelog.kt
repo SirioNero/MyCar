@@ -11,6 +11,18 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            32, "0.5.19-alpha",
+            listOf(
+                "New: Cinema. Your video sites (YouTube, RaiPlay, Twitch and any you add on the phone), the videos on your phone, and TV channels from an IPTV list. Video shows only when the car is parked; the sound carries on.",
+                "Pages beside the map take new layouts: a whole page, a half beside two quarters, a strip above or below two quarters. Pencil, then Layout.",
+                "Vela's turn arrow changes with the turn again, on the routing card and in the dock.",
+                "A dropdown on a web page no longer closes myCar.",
+                "Cars that never confirm the audio no longer lose two seconds at the start of the music, after a call and in the middle of spoken directions.",
+                "Wireless: a car that starts its connection over comes back by itself, and only cars you allowed can make myCar connect.",
+                "Decline works on a call that's already ringing, and Back on Android's permission question no longer stops the setup from asking again.",
+            ),
+        ),
+        Release(
             31, "0.5.18-alpha",
             listOf(
                 "Wireless connects by itself: after your first drive without the cable, Android asks once, then myCar connects to that car whenever you start it. Settings > Connection turns it off.",
