@@ -246,6 +246,7 @@ class MyCarActivity : ComponentActivity(), Projection {
 
     override fun onResume() {
         super.onResume()
+        io.github.sirionero.mycar.host.LocationKeepAlive.retry(this)
         // The capture question that waited for myCar to be on screen. Not from onStart: there the
         // lifecycle still reads CREATED - it moves to STARTED only once onStart has returned.
         if (consentPending) {
