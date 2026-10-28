@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -148,11 +150,22 @@ internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
         val closedHere = cur == null && CarServices.closedMedia == app.component
         if ((cur == null && !closedHere) || failed) CarServices.openMedia(app, remember = false)
     }
+    val navigator = LocalCarNavigator.current
     Box(modifier) {
         GlassDockedPlayer(now, Modifier.matchParentSize())
         // Closed from its menu: the player stays, and a tap on it brings the app back, playing.
         if (current == null) {
             Box(Modifier.matchParentSize().clickable { CarServices.openMedia(app, autoplay = true) })
+            // The player's X stays its X: this layer took its tap too, and the music started
+            // again instead of the player going. Over it, where GlassDockedPlayer draws it.
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp)
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .clickable(onClickLabel = "Close the player", onClick = navigator::closeSidePanel),
+            )
         }
     }
 }
