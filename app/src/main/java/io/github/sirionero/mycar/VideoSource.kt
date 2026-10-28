@@ -263,16 +263,33 @@ class VideoSource(
          * that fits, and the bitrate stays within it, so a car decoder isn't asked for more than
          * the level it was told about.
          */
-        enum class Level(val label: String, val codecLevel: Int, val macroblocksPerSecond: Int, val maxBitRate: Int) {
-            L31("3.1", MediaCodecInfo.CodecProfileLevel.AVCLevel31, 108_000, 14_000_000),
-            L32("3.2", MediaCodecInfo.CodecProfileLevel.AVCLevel32, 216_000, 20_000_000),
-            L4("4", MediaCodecInfo.CodecProfileLevel.AVCLevel4, 245_760, 20_000_000),
-            L42("4.2", MediaCodecInfo.CodecProfileLevel.AVCLevel42, 522_240, 50_000_000),
+        enum class Level(
+            val label: String,
+            val codecLevel: Int,
+            val macroblocksPerSecond: Int,
+            val maxBitRate: Int,
+            /** The biggest frame, in macroblocks, the level allows. */
+            val maxFrame: Int,
+        ) {
+            L31("3.1", MediaCodecInfo.CodecProfileLevel.AVCLevel31, 108_000, 14_000_000, 3_600),
+            L32("3.2", MediaCodecInfo.CodecProfileLevel.AVCLevel32, 216_000, 20_000_000, 5_120),
+            L4("4", MediaCodecInfo.CodecProfileLevel.AVCLevel4, 245_760, 20_000_000, 8_192),
+            L42("4.2", MediaCodecInfo.CodecProfileLevel.AVCLevel42, 522_240, 50_000_000, 8_704),
+            L5("5", MediaCodecInfo.CodecProfileLevel.AVCLevel5, 589_824, 135_000_000, 22_080),
+            L51("5.1", MediaCodecInfo.CodecProfileLevel.AVCLevel51, 983_040, 240_000_000, 36_864),
+            L52("5.2", MediaCodecInfo.CodecProfileLevel.AVCLevel52, 2_073_600, 240_000_000, 36_864),
         }
 
         fun levelFor(width: Int, height: Int, frameRate: Int): Level {
-            val perSecond = ((width + 15) / 16) * ((height + 15) / 16) * frameRate
-            return Level.entries.firstOrNull { perSecond <= it.macroblocksPerSecond } ?: Level.L42
+            val frame = ((width + 15) / 16) * ((height + 15) / 16)
+            val perSecond = frame * frameRate
+            // Up to 1080p as always, by macroblocks a second. A bigger screen (1440p, 4K) needs a
+            // level whose frames are that big too: 4.2 allows 8,704 macroblocks a frame, and a
+            // level outside the standard can make an encoder refuse to start - no picture at all.
+            if (frame <= Level.L42.maxFrame) {
+                return Level.entries.firstOrNull { it <= Level.L42 && perSecond <= it.macroblocksPerSecond } ?: Level.L42
+            }
+            return Level.entries.firstOrNull { frame <= it.maxFrame && perSecond <= it.macroblocksPerSecond } ?: Level.L52
         }
 
         fun defaultBitRate(width: Int, height: Int, frameRate: Int, level: Level): Int {
