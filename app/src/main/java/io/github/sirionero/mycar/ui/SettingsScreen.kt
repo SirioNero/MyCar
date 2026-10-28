@@ -369,7 +369,11 @@ private fun CertificateSection() {
                         }
                         downloading = false
                         notice = result.fold(
-                            onSuccess = { "${entry.label} is in use from the next connection." },
+                            onSuccess = {
+                                // An imported certificate comes before the downloaded ones.
+                                if (s?.kind == CertProvider.Kind.IMPORTED) "${entry.label} is ready, but your own certificate comes first: remove it to use ${entry.label}."
+                                else "${entry.label} is in use from the next connection."
+                            },
                             onFailure = { "Couldn't get ${entry.label}: check your internet connection, then try again." },
                         )
                         refresh++
