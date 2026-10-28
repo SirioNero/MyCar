@@ -32,7 +32,41 @@ import kotlin.math.roundToInt
  */
 
 /** The app's text, preferring the longest variant that will fit; variants are ordered longest first. */
-fun CarText?.text(): String = this?.takeIf { !it.isEmpty }?.toCharSequence()?.toString().orEmpty()
+fun CarText?.text(): String {
+    val chars = this?.takeIf { !it.isEmpty }?.toCharSequence() ?: return ""
+    return chars.withSpansFilledIn()
+}
+
+/**
+ * Apps write a route's time and length as spans over placeholder characters ("\u0000 · \u0000"
+ * with a DurationSpan and a DistanceSpan), leaving the host to format them. Plain toString()
+ * keeps only the placeholders, which is how a route option ended up reading "·".
+ */
+private fun CharSequence.withSpansFilledIn(): String {
+    if (this !is android.text.Spanned) return toString()
+    val spans = getSpans(0, length, androidx.car.app.model.CarSpan::class.java)
+        .filter { it is androidx.car.app.model.DurationSpan || it is androidx.car.app.model.DistanceSpan }
+        .sortedBy { getSpanStart(it) }
+    if (spans.isEmpty()) return toString()
+    val out = StringBuilder()
+    var at = 0
+    spans.forEach { span ->
+        val start = getSpanStart(span)
+        val end = getSpanEnd(span)
+        if (start < at || end > length) return@forEach
+        out.append(this, at, start)
+        out.append(
+            when (span) {
+                is androidx.car.app.model.DurationSpan -> remainingTime(span.durationSeconds)
+                is androidx.car.app.model.DistanceSpan -> span.distance.display()
+                else -> ""
+            },
+        )
+        at = end
+    }
+    out.append(this, at, length)
+    return out.toString().replace("\u0000", "").trim()
+}
 
 /**
  * Icons keep coming back under fresh [CarIcon]/IconCompat objects - every template refetch
