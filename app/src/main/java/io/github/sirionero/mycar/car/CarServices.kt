@@ -240,7 +240,9 @@ object CarServices {
             if (app != null) connectNav(app, frame)
         }
 
-        if (!withMedia) return
+        // Once per drive: a car UI made again (after screen sharing, a new encoder) used to reopen
+        // the music app the driver had closed - and with Autoplay, start it.
+        if (!withMedia || _mediaDecided.value) return
         if (_mediaApp.value == null) {
             val catalog = withContext(Dispatchers.IO) { MediaCatalog.installed(ctx) }
             // Something already playing on the phone wins over whatever was last used in the car -
