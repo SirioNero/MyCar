@@ -442,9 +442,11 @@ object WirelessLink {
                 // opens for myCar's request.
                 val main = mainOnCarNetwork(context, ip, net)
                 if (main != null && attempt == 0) log.i("TCP: the phone's main Wi-Fi is on the car's network, using it")
+                // Once Android has refused a bind - a VPN that apps can't get past, like Tailscale,
+                // refuses one to the main Wi-Fi as well - the ordinary route is the only one left.
                 val socket = when {
-                    main != null -> main.socketFactory.createSocket()
                     lostNetwork == net || bindRefused -> Socket()
+                    main != null -> main.socketFactory.createSocket()
                     else -> net.socketFactory.createSocket()
                 }
                 socket.tcpNoDelay = true
@@ -474,8 +476,9 @@ object WirelessLink {
         if (vpnActive(context)) {
             SessionStatus.failed(
                 "A VPN is blocking the car",
-                "myCar joined $name's network, but a VPN on this phone won't let it reach the car. " +
-                    "Turn the VPN off, or exclude myCar in its settings, then try again.",
+                "myCar joined $name's network, but a VPN on this phone (Tailscale, for one) won't let it reach the car. " +
+                    "Connect with the cable, turn the VPN off, or leave myCar out of it in its settings - then Plancia " +
+                    "and Xonos inside myCar can't use the VPN's addresses, like Tailscale names.",
             )
             return
         }
