@@ -102,10 +102,14 @@ object SpeechModels {
     /** The model that rereads the whole phrase at the end; null to keep the live model's words. */
     val final: StateFlow<Model?> = _final.asStateFlow()
     /**
-     * Downloads the driver cancelled, each until its own job sees it. One shared value was reset by
-     * the next download started, and the cancelled one carried on.
+     * Each model's latest download or delete: a job carries on only while it's still the latest.
+     * A cancel mark, shared or per model, was used up by the wrong job (cancel, download, cancel
+     * again: the old job took the second cancel, and the new one downloaded it all the same).
      */
-    private val cancelled: MutableSet<Model> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+    private val generation = java.util.concurrent.ConcurrentHashMap<Model, Int>()
+
+    /** The generation a delete set, per model: a job stopped by it leaves the model Missing. */
+    private val deletedAt = java.util.concurrent.ConcurrentHashMap<Model, Int>()
 
     fun init(context: Context) {
         val id = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_MODEL, null)
@@ -207,7 +211,7 @@ object SpeechModels {
     }
 
     fun delete(context: Context, model: Model) {
-        if (states.getValue(model).value is State.Downloading) cancelled.add(model)
+        deletedAt[model] = generation.merge(model, 1, Int::plus) ?: 1
         dir(context, model).deleteRecursively()
         states.getValue(model).value = State.Missing
         updateProgress(context.applicationContext)
@@ -222,15 +226,18 @@ object SpeechModels {
         state.value = State.Downloading(0)
         synchronized(batch) { batch.add(model) }
         updateProgress(app)
-        cancelled.remove(model)
+        val gen = generation.merge(model, 1, Int::plus) ?: 1
+        fun latest() = generation[model] == gen
         worker.execute {
+            // Cancelled, or replaced by a newer download, while it waited its turn.
+            if (!latest()) return@execute
             val target = dir(app, model)
             val partial = File(target.parentFile, "${model.id}.partial").apply { deleteRecursively(); mkdirs() }
             try {
                 val total = model.downloadMb * 1_048_576L
                 var done = 0L
                 fun progress(read: Long) {
-                    if (model in cancelled) throw InterruptedException("cancelled")
+                    if (!latest()) throw InterruptedException("cancelled")
                     state.value = State.Downloading((((done + read) * 100) / total).toInt().coerceIn(0, 99))
                     updateProgress(app)
                 }
@@ -245,6 +252,7 @@ object SpeechModels {
                     done += file.length()
                 }
                 check(model.files.all { File(partial, it).isFile }) { "some files were missing" }
+                if (!latest()) throw InterruptedException("cancelled")
                 target.deleteRecursively()
                 check(partial.renameTo(target)) { "couldn't store the model" }
                 MyCarLog.i("speech: downloaded ${model.label}")
@@ -252,8 +260,10 @@ object SpeechModels {
                 updateProgress(app)
             } catch (e: Exception) {
                 partial.deleteRecursively()
-                if (cancelled.remove(model)) {
-                    state.value = State.Missing
+                if (!latest()) {
+                    // Deleted: Missing, whatever the last progress wrote. Replaced by a newer
+                    // download: that one owns the state.
+                    if (deletedAt[model] == generation[model]) state.value = State.Missing
                 } else {
                     MyCarLog.w("speech: download of ${model.label} failed: ${e.message}")
                     state.value = State.Failed(e.message ?: e.javaClass.simpleName)
