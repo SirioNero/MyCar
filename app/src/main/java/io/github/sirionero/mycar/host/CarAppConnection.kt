@@ -267,7 +267,14 @@ class CarAppConnection(private val context: Context) {
     private fun onBound(service: IBinder) {
         val app = ICarApp.Stub.asInterface(service)
         carApp = app
-        update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info") }
+        // Bound again on the same connection after its process died: nothing of the old process
+        // carries over. Its template stayed on screen, every button pointing at a dead app, and a
+        // first template refused by the new one no longer counted as the failure it is.
+        _template.value = null
+        appManager = null
+        navigationManager = null
+        surfaceCallback = null
+        update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info", surfaceRequested = false, surfaceAttached = false) }
         MyCarLog.i("host: bound; requesting app info")
 
         call("getAppInfo", onValue = { value ->
