@@ -101,7 +101,11 @@ object SpeechModels {
 
     /** The model that rereads the whole phrase at the end; null to keep the live model's words. */
     val final: StateFlow<Model?> = _final.asStateFlow()
-    @Volatile private var cancelled: Model? = null
+    /**
+     * Downloads the driver cancelled, each until its own job sees it. One shared value was reset by
+     * the next download started, and the cancelled one carried on.
+     */
+    private val cancelled: MutableSet<Model> = java.util.concurrent.ConcurrentHashMap.newKeySet()
 
     fun init(context: Context) {
         val id = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_MODEL, null)
@@ -203,7 +207,7 @@ object SpeechModels {
     }
 
     fun delete(context: Context, model: Model) {
-        cancelled = model
+        if (states.getValue(model).value is State.Downloading) cancelled.add(model)
         dir(context, model).deleteRecursively()
         states.getValue(model).value = State.Missing
         updateProgress(context.applicationContext)
@@ -218,7 +222,7 @@ object SpeechModels {
         state.value = State.Downloading(0)
         synchronized(batch) { batch.add(model) }
         updateProgress(app)
-        cancelled = null
+        cancelled.remove(model)
         worker.execute {
             val target = dir(app, model)
             val partial = File(target.parentFile, "${model.id}.partial").apply { deleteRecursively(); mkdirs() }
@@ -226,7 +230,7 @@ object SpeechModels {
                 val total = model.downloadMb * 1_048_576L
                 var done = 0L
                 fun progress(read: Long) {
-                    if (cancelled == model) throw InterruptedException("cancelled")
+                    if (model in cancelled) throw InterruptedException("cancelled")
                     state.value = State.Downloading((((done + read) * 100) / total).toInt().coerceIn(0, 99))
                     updateProgress(app)
                 }
@@ -248,7 +252,7 @@ object SpeechModels {
                 updateProgress(app)
             } catch (e: Exception) {
                 partial.deleteRecursively()
-                if (cancelled == model) {
+                if (cancelled.remove(model)) {
                     state.value = State.Missing
                 } else {
                     MyCarLog.w("speech: download of ${model.label} failed: ${e.message}")
