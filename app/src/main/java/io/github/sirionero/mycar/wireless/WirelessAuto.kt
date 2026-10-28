@@ -155,6 +155,17 @@ object WirelessAuto {
     private fun companions(manager: CompanionDeviceManager): List<String> =
         runCatching { manager.associations }.getOrDefault(emptyList())
 
+    /**
+     * Whether [address] is a car myCar may connect to by itself now: the switch on, and the car one
+     * the driver allowed in Android's dialog. MyCarActivity takes [ACTION_CAR_NEARBY] from anyone
+     * (it's the launcher's activity): without this, any app could make it join a device of its own.
+     */
+    fun mayConnect(context: Context, address: String): Boolean {
+        if (!isOn(context)) return false
+        val manager = context.getSystemService(CompanionDeviceManager::class.java) ?: return false
+        return companions(manager).any { it.equals(address, ignoreCase = true) }
+    }
+
     /** From [CarPresenceService]: the car is here, so bring myCar up to connect to it. */
     fun carAppeared(context: Context, address: String) {
         if (!isOn(context)) {

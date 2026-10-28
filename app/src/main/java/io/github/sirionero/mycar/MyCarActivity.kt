@@ -512,6 +512,10 @@ class MyCarActivity : ComponentActivity(), Projection {
             MyCarLog.i("auto-connect: myCar is switched off - not connecting")
             return
         }
+        if (!io.github.sirionero.mycar.wireless.WirelessAuto.mayConnect(this, address)) {
+            MyCarLog.w("auto-connect: not a car allowed to connect by itself - not connecting")
+            return
+        }
         if (descriptor != null) {
             MyCarLog.i("auto-connect: the car is on the cable already - staying on it")
             return
