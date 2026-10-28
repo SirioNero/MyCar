@@ -257,6 +257,13 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         }.getOrDefault(Units.AUTO)
         whatsNewFlow.value = AppSettings.getString(app, KEY_WHATS_NEW, "true") == "true"
         whatsNewSeenFlow.value = AppSettings.getString(app, KEY_WHATS_NEW_SEEN, "0").toIntOrNull() ?: 0
+        // A new install, never in a car yet: there's nothing new to it, and a card of release
+        // notes right after the safety warning was one more step on the first drive. Anyone
+        // updating has seen the warning already, and keeps the notes.
+        if (whatsNewSeenFlow.value == 0 && !seenSafetyWarningFlow.value) {
+            whatsNewSeenFlow.value = io.github.sirionero.mycar.BuildConfig.VERSION_CODE
+            AppSettings.putString(app, KEY_WHATS_NEW_SEEN, whatsNewSeenFlow.value.toString())
+        }
         io.github.sirionero.mycar.car.design.WallpaperSetting.init(app)
         AssistantChoice.init(app)
         SidePaneChoice.init(app)

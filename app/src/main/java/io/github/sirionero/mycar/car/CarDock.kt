@@ -320,8 +320,10 @@ private fun DockNowPlaying(navigator: CarNavigator) {
     val art by produceState(now.art, now.art, now.artUri) { value = now.art ?: MediaArt.load(context, now.artUri) }
     val appIcon = remember(mediaApp) { mediaApp?.let { findEntry(it.component.flattenToString())?.icon } }
     // With an app chosen to sit beside the map instead, the player isn't there to show or hide:
-    // the song opens the full player.
-    val appBesideMap = rememberSidePaneApp()?.template != null
+    // the song opens the full player. Plancia inside myCar is one of them, though not a template:
+    // the song used to hide it and leave the map alone.
+    val sideApp = rememberSidePaneApp()
+    val appBesideMap = sideApp?.template != null || sideApp?.builtIn == BuiltInApps.Plancia
     DockItem(
         selected = navigator.current == CarScreen.Media ||
             (!appBesideMap && navigator.current == CarScreen.Home && navigator.onMapPage && navigator.sidePanel == SidePanel.CONTROLS),
