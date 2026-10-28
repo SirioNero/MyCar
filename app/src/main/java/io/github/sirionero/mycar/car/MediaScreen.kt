@@ -8,8 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
-import android.provider.Settings
-import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -113,14 +111,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                             "${app.label} keeps its library to itself.",
                             "myCar can still control it once it has Notification access on the phone. " +
                                 "Allow it under Settings > Notifications > Notification access.",
-                            action = "Open on phone" to {
-                                val app = context.applicationContext
-                                runCatching {
-                                    app.startActivity(
-                                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                                    )
-                                }
-                            },
+                            action = "Open on phone" to { io.github.sirionero.mycar.notify.NotificationAccess.open(context) },
                         )
                         CarMedia.Rejection.NEEDS_APP_RUNNING -> Notice(
                             "${app.label} isn't running.",

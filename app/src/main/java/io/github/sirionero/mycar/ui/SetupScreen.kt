@@ -67,6 +67,7 @@ import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.KEY_MIC_ASKED
 import io.github.sirionero.mycar.call.CarCalls
+import io.github.sirionero.mycar.notify.NotificationAccess
 import io.github.sirionero.mycar.car.Prefetch
 import io.github.sirionero.mycar.host.AndroidAuto
 import io.github.sirionero.mycar.setup.FirstSetup
@@ -347,8 +348,7 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                 expandedAtStart = entry == SetupEntry.RETURN,
                 onMessages = {
                     // Phones without that screen: the app's own settings instead of a crash.
-                    runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
-                        .onFailure { openAppSettings() }
+                    if (!NotificationAccess.open(context)) openAppSettings()
                 },
                 onCalendar = { askOne(Manifest.permission.READ_CALENDAR) },
                 onNotifications = { askOne(Manifest.permission.POST_NOTIFICATIONS) },
@@ -462,7 +462,8 @@ private fun MoreSection(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     if (!expanded) return
-    StepCard("Messages", status(Id.MESSAGES), body = "The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the list this opens.") {
+    StepCard("Messages", status(Id.MESSAGES), body = "The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the page this opens. " +
+        "If Android says it's a restricted setting: open myCar's app info, tap ⋮, then Allow restricted settings, and try again.") {
         if (status(Id.MESSAGES) != Status.DONE) Button(onClick = onMessages) { Text("Open notification access") }
     }
     StepCard("Calendar", status(Id.CALENDAR), body = "The car screen shows your next event. myCar only reads your calendar.") {

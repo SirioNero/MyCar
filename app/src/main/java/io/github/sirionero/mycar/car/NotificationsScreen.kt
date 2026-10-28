@@ -1,8 +1,6 @@
 package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.car.theme.*
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -88,14 +86,7 @@ fun NotificationsSection() {
         }
 
         if (!listening) {
-            AccessBanner {
-                // From the phone's own context: one tied to the car's display can't host the settings.
-                runCatching {
-                    context.applicationContext.startActivity(
-                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    )
-                }
-            }
+            AccessBanner { io.github.sirionero.mycar.notify.NotificationAccess.open(context) }
         }
 
         if (history.isEmpty()) {
