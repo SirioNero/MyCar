@@ -23,8 +23,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.BuildConfig
-import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
 import kotlinx.coroutines.CoroutineScope
@@ -352,11 +352,13 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
 
         override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
             if (view !== web || !request.isForMainFrame) return
-            val why = if (LocalNetwork.mayBlock(view.context, listOf(request.url.toString()))) {
-                LocalNetwork.HINT
-            } else {
-                error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
+            val failure = when (error.errorCode) {
+                WebViewClient.ERROR_HOST_LOOKUP -> Tailnet.Failure.NO_SUCH_HOST
+                WebViewClient.ERROR_TIMEOUT -> Tailnet.Failure.TIMEOUT
+                else -> Tailnet.Failure.UNREACHABLE
             }
+            val said = error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
+            val why = Tailnet.why(view.context, listOf(request.url.toString()), failure, said)
             MyCarLog.w("plancia: the dashboard didn't load: $why")
             _page.value = _page.value.copy(error = why)
         }

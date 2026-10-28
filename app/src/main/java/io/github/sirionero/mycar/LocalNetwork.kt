@@ -50,6 +50,9 @@ object LocalNetwork {
         val host = runCatching { URI(url.trim()).host }.getOrNull()
             ?.removeSurrounding("[", "]")?.lowercase()?.trimEnd('.')
         if (host.isNullOrEmpty()) return false
+        // Tailscale's addresses go through its VPN, which Android 17 doesn't guard (fd7a:... is a
+        // unique local address only in name).
+        if (Tailnet.isTailnetAddress(host)) return false
         if (host.endsWith(".local") || ('.' !in host && ':' !in host)) return true
         return if (':' in host) localIpv6(host) else privateIpv4(host)
     }

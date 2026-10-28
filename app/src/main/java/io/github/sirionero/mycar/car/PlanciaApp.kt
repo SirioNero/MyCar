@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.car
 
+import android.content.Context
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
 import io.github.sirionero.mycar.car.design.MyCarSpace
@@ -73,11 +75,11 @@ internal fun PlanciaView(modifier: Modifier) {
             )
         }
         val page = web?.page?.collectAsState()?.value
-        // Trying an address at home that Android 17 keeps myCar from: say so the whole time, not
-        // only in the moments between one try and the next.
+        // Trying an address that Tailscale leaves myCar out of, or one at home that Android 17 keeps
+        // myCar from: say so the whole time, not only in the moments between one try and the next.
         val context = LocalContext.current
-        val offHomeNetwork = (connection as? HaConnection.Connecting)?.let { LocalNetwork.mayBlock(context, listOf(it.url)) } == true
-        val (title, detail) = planciaMessage(connection, page, offHomeNetwork) ?: return@Box
+        val blocked = (connection as? HaConnection.Connecting)?.let { connectingHint(context, it.url) }
+        val (title, detail) = planciaMessage(connection, page, blocked) ?: return@Box
         Column(
             Modifier
                 .fillMaxSize()
@@ -100,14 +102,21 @@ internal fun PlanciaView(modifier: Modifier) {
     }
 }
 
+/** Why [url] won't answer, known while still trying it: Tailscale leaving myCar out, or Android 17's home network. */
+private fun connectingHint(context: Context, url: String): String? = when {
+    Tailnet.reach(context) == Tailnet.Reach.VPN_LEAVES_MYCAR_OUT -> Tailnet.explain(context, listOf(url), Tailnet.Failure.NO_SUCH_HOST)
+    LocalNetwork.mayBlock(context, listOf(url)) -> LocalNetwork.HINT
+    else -> null
+}
+
 /** What to say over the page while it can't show, as a title and a line; null once it shows. */
-private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, offHomeNetwork: Boolean): Pair<String, String?>? = when {
+private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, blocked: String?): Pair<String, String?>? = when {
     connection is HaConnection.NotConfigured || page == null ->
         "Set up Plancia on the phone" to "In myCar on the phone: Settings, then Plancia - your Home Assistant's address and a token."
     page.error != null -> "Couldn't open the dashboard" to "${page.error}\nTap to try again."
     page.base != null -> null
     connection is HaConnection.Failed -> "Home Assistant isn't answering" to connection.message
-    connection is HaConnection.Connecting -> "Connecting to Home Assistant" to if (offHomeNetwork) LocalNetwork.HINT else connection.url
+    connection is HaConnection.Connecting -> "Connecting to Home Assistant" to (blocked ?: connection.url)
     else -> "Connecting to Home Assistant" to null
 }
 

@@ -3,8 +3,8 @@ package io.github.sirionero.mycar.home
 import android.content.Context
 import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
-import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.Tailnet
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -207,6 +207,7 @@ object HomeAssistant {
             var version = ""
             var usedUrl = ""
             var lastError = "Home Assistant can't be reached"
+            var lastException: Exception? = null
             for (url in config.urls) {
                 _connection.value = HaConnection.Connecting(url)
                 val candidate = HaClient(http)
@@ -221,12 +222,21 @@ object HomeAssistant {
                 } catch (e: Exception) {
                     candidate.close()
                     lastError = e.message ?: lastError
+                    lastException = e
                 }
             }
 
             if (session == null) {
-                // Android 17 keeping myCar off the home network looks like an address that doesn't answer.
-                if (app?.let { LocalNetwork.mayBlock(it, config.urls) } == true) lastError = LocalNetwork.HINT
+                // Tailscale leaving myCar out, or Android 17 keeping it off the home network, look like
+                // an address that doesn't answer: say which.
+                app?.let { context ->
+                    val failure = failureOf(lastException)
+                    if (failures == 0) {
+                        MyCarLog.w("plancia: can't reach Home Assistant at ${config.urls}: ${lastException?.javaClass?.simpleName}: " +
+                            "${lastException?.cause?.message ?: lastException?.message} - $failure, ${Tailnet.describe(context)}")
+                    }
+                    lastError = Tailnet.why(context, config.urls, failure, lastError)
+                }
                 _connection.value = HaConnection.Failed(lastError)
                 failures++
                 delay((2_000L * failures).coerceAtMost(30_000L))
@@ -297,6 +307,13 @@ object HomeAssistant {
     private fun strings(array: JSONArray?): List<String> {
         if (array == null) return emptyList()
         return (0 until array.length()).mapNotNull { i -> array.optString(i).takeIf { it.isNotEmpty() } }
+    }
+
+    /** How a connection to Home Assistant failed, as far as the network goes. */
+    fun failureOf(e: Throwable?): Tailnet.Failure = when {
+        e is HaException && e.reason == HaException.Reason.NO_RESPONSE -> Tailnet.Failure.TIMEOUT
+        e is HaException && e.reason != HaException.Reason.NETWORK -> Tailnet.Failure.OTHER
+        else -> Tailnet.failureOf(e)
     }
 
     fun normalizeUrl(raw: String): String {

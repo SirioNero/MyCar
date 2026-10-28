@@ -13,8 +13,8 @@ import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-/** Why Home Assistant can't be reached or used, in words for the car and the phone alike. */
-class HaException(message: String, val reason: Reason = Reason.OTHER) : Exception(message) {
+/** Why Home Assistant can't be reached or used, in words for the car and the phone alike; [cause] is the network's error. */
+class HaException(message: String, val reason: Reason = Reason.OTHER, cause: Throwable? = null) : Exception(message, cause) {
     enum class Reason { BAD_ADDRESS, NO_RESPONSE, INVALID_TOKEN, ACCESS_DENIED, HTTP_ERROR, NETWORK, CLOSED, OTHER }
 }
 
@@ -126,7 +126,7 @@ class HaClient(private val http: OkHttpClient) {
                 response != null ->
                     HaException("HTTP error ${response.code}", HaException.Reason.HTTP_ERROR)
                 else ->
-                    HaException(t.message ?: "Network error", HaException.Reason.NETWORK)
+                    HaException(t.message ?: "Network error", HaException.Reason.NETWORK, t)
             }
             shutdown(error)
         }

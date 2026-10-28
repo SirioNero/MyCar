@@ -29,12 +29,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
 import io.github.sirionero.mycar.xonos.data.Account
 import io.github.sirionero.mycar.xonos.data.Settings
 import io.github.sirionero.mycar.xonos.describe
+import io.github.sirionero.mycar.xonos.networkFailure
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,7 +76,7 @@ internal fun XonosSection() {
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    if (LocalNetwork.mayBlock(context, listOf(url))) "$place: $LOCAL_NETWORK_REFUSED" else "$place: ${describe(context, e)}"
+                    "$place: " + Tailnet.why(context, listOf(url), networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
                 } finally {
                     client.close()
                 }
@@ -173,7 +174,7 @@ internal fun XonosSection() {
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
-                                status = if (LocalNetwork.mayBlock(context, listOf(url))) LOCAL_NETWORK_REFUSED else describe(context, e)
+                                status = Tailnet.why(context, listOf(url), networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
                             }
                         }
                     }
