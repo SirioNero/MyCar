@@ -111,6 +111,11 @@ object CarAssistant {
         )
     }
 
+    /** Closes [shown], an error left up a while, unless something else has the overlay since. */
+    fun dismissError(shown: State) {
+        if (_state.value === shown && shown.phase == Phase.ERROR) _state.value = State(Phase.IDLE)
+    }
+
     /** Closes the overlay from wherever it's showing: mid-listen, mid-think, or after speaking. */
     fun cancel() {
         releaseRecognizer()
@@ -128,12 +133,20 @@ object CarAssistant {
         _state.value = _state.value.copy(phase = Phase.SPEAKING, reply = text)
 
         val engine = tts
-        if (engine == null || !ttsReady || text.isBlank()) {
+        if (text.isBlank()) {
             _state.value = _state.value.copy(phase = Phase.IDLE)
             return
         }
-        appContext?.let(VoiceFocus::acquire)
         val mine = ++replies
+        if (engine == null || !ttsReady) {
+            // No voice to say it with (a phone without a speech engine, or one still starting): on
+            // screen long enough to read. It used to go at once, and the answer was never seen.
+            mainHandler.postDelayed({
+                if (mine == replies && _state.value.phase == Phase.SPEAKING) _state.value = _state.value.copy(phase = Phase.IDLE)
+            }, SILENT_REPLY_MS)
+            return
+        }
+        appContext?.let(VoiceFocus::acquire)
         speak(engine, text) {
             VoiceFocus.release()
             // Still this answer on screen: done speaking, or cut short by a message read aloud. Not
@@ -323,3 +336,6 @@ object CarAssistant {
         ttsReady = false
     }
 }
+
+/** An answer with no voice to say it stays on screen this long. */
+private const val SILENT_REPLY_MS = 5_000L

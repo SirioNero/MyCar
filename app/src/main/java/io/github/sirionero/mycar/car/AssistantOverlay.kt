@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import io.github.sirionero.mycar.R
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 /**
  * What the assistant hears and says, laid over the bottom of whatever screen is up: a dark shade
@@ -48,6 +50,15 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AssistantOverlay(modifier: Modifier = Modifier) {
     val state by CarAssistant.state.collectAsState()
+    // An error goes by itself ("Didn't catch that." is frequent in a car): left up, it covered the
+    // map and the player beside it until touched. Longer with "Grant" to tap.
+    val shown = state
+    LaunchedEffect(shown) {
+        if (shown.phase == CarAssistant.Phase.ERROR) {
+            delay(if (shown.missingPermission) ERROR_WITH_ACTION_MS else ERROR_MS)
+            CarAssistant.dismissError(shown)
+        }
+    }
     if (state.phase == CarAssistant.Phase.IDLE) return
     val context = LocalContext.current
     val listening = state.phase == CarAssistant.Phase.LISTENING && state.ready
@@ -134,3 +145,6 @@ private fun PulsingMic(listening: Boolean, modifier: Modifier = Modifier) {
 fun MicGlyph(modifier: Modifier = Modifier) {
     Icon(ImageVector.vectorResource(R.drawable.mic_24), contentDescription = "Assistant", modifier = modifier)
 }
+
+private const val ERROR_MS = 6_000L
+private const val ERROR_WITH_ACTION_MS = 15_000L
