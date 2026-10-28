@@ -464,8 +464,23 @@ class CarMedia(private val context: Context) {
     private fun open(parentId: String) {
         val mb = browser ?: return
         subscribed?.let { runCatching { mb.unsubscribe(it) } }
+        // An empty id is a legal root for an app, but Android won't subscribe to it: it throws, and
+        // thrown as the app connected it ended myCar at every drive (the app was the last one). No
+        // list to show, then; the song's controls stay.
+        if (parentId.isEmpty()) {
+            subscribed = null
+            _browse.value = BrowseState(trail = path.map { it.second }, loading = false, unavailable = path.isEmpty(), failed = path.isNotEmpty())
+            return
+        }
         subscribed = parentId
         _browse.update { BrowseState(trail = path.map { it.second }, loading = true) }
+        runCatching { subscribe(mb, parentId) }.onFailure {
+            MyCarLog.w("media: could not open $parentId: ${it.message}")
+            _browse.value = BrowseState(trail = path.map { it.second }, loading = false, failed = true)
+        }
+    }
+
+    private fun subscribe(mb: MediaBrowser, parentId: String) {
         mb.subscribe(parentId, object : MediaBrowser.SubscriptionCallback() {
             override fun onChildrenLoaded(parentId: String, children: MutableList<MediaBrowser.MediaItem>) {
                 if (parentId != subscribed) return
