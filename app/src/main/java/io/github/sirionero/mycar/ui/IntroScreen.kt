@@ -571,7 +571,7 @@ private fun ThemePicker(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> Text
                         contentPadding = PaddingValues(horizontal = cq(1f), vertical = cq(3f)),
                     ) {
                         Text(
-                            if (theme == chosen) "✓ ${theme.name}" else theme.name,
+                            if (theme == chosen) "✓ ${theme.shownName}" else theme.shownName,
                             style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.Bold),
                             maxLines = 1,
                         )

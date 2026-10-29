@@ -88,7 +88,7 @@ fun CarSettingsScreen() {
 
         ChoiceRow(
             stringResource(R.string.car_settings_open_on_connect),
-            listOf(CarSettings.HOME to stringResource(R.string.car_settings_open_home)) + CarApps.all.filter { it.id != "settings" }.map { it.id to it.label },
+            listOf(CarSettings.HOME to stringResource(R.string.car_settings_open_home)) + CarApps.all.filter { it.id != "settings" }.map { it.id to it.shownLabel },
             open,
         ) { CarSettings.setOpenOnConnect(it) }
 
@@ -122,7 +122,7 @@ fun CarSettingsScreen() {
 
         ChoiceRow(
             stringResource(R.string.car_settings_controls_theme),
-            GsThemes.builtIn.map { it.id to it.name },
+            GsThemes.builtIn.map { it.id to it.shownName },
             uiTheme,
         ) { CarSettings.setUiTheme(it) }
 

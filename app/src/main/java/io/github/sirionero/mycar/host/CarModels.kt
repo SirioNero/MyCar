@@ -238,12 +238,15 @@ fun remainingTimeShown(seconds: Long): String {
     return if (hours > 0) Words.get(R.string.car_nav_hours_minutes, hours, minutes) else Words.get(R.string.car_nav_minutes, minutes)
 }
 
-/** "1:10 AM" - the clock at the destination, not the phone's own, in case a route crosses a zone. */
+/**
+ * "1:10 AM", "13:10": the clock at the destination, not the phone's own, in case a route crosses a
+ * zone, written the way myCar's language writes times.
+ */
 fun androidx.car.app.model.DateTimeWithZone?.clockTime(): String {
     val at = this ?: return ""
     val shifted = java.util.Date(at.timeSinceEpochMillis + at.zoneOffsetSeconds * 1000L)
     return runCatching {
-        java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault()).apply {
+        java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT, java.util.Locale.getDefault()).apply {
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }.format(shifted)
     }.getOrDefault("")

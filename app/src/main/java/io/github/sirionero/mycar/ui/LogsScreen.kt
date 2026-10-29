@@ -186,7 +186,11 @@ private fun PastLogsDialog(onDismiss: () -> Unit) {
     val logs by androidx.compose.runtime.produceState<List<MyCarLog.PastLog>?>(null) {
         value = withContext(Dispatchers.IO) { MyCarLog.pastLogs(context) }
     }
-    val format = remember { java.text.SimpleDateFormat("EEE d MMM, h:mm a", java.util.Locale.getDefault()) }
+    // "Thu 29 Oct, 1:10 PM", "gio 29 ott, 13:10": the day and time the way myCar's language writes them.
+    val format = remember {
+        val locale = java.util.Locale.getDefault()
+        java.text.SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(locale, "EEEdMMMjmm"), locale)
+    }
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.logs_earlier_title)) },
