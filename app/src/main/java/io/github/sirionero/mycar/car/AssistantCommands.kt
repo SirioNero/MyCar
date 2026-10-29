@@ -267,13 +267,13 @@ object AssistantCommands {
             // The whole name, then a whole word of it, and only then a piece of one: "Anna" found
             // Giovanna, if she wrote last. The reply's question then says whose chat it is.
             val writers = chats.filter { it.reply != null }
-            val wanted = bare(to)
+            val said = bare(to)
             fun tier(title: String): Int {
                 val full = bare(title)
                 return when {
-                    full == wanted -> 0
-                    " $full ".contains(" $wanted ") -> 1
-                    full.contains(wanted) -> 2
+                    full == said -> 0
+                    " $full ".contains(" $said ") -> 1
+                    full.contains(said) -> 2
                     else -> 3
                 }
             }
@@ -453,13 +453,13 @@ object AssistantCommands {
         // The whole name, then a whole word of it ("Luca" in "Luca Rossi"), and only then a piece
         // of one: "Luca" used to call "Gianluca", first in alphabetical order.
         val contacts = withContext(Dispatchers.IO) { loadContacts(context) }
-        val wanted = bare(name)
+        val said = bare(name)
         fun tier(c: Contact): Int {
             val full = bare(c.name)
             return when {
-                full == wanted -> 0
-                " $full ".contains(" $wanted ") -> 1
-                full.contains(wanted) -> 2
+                full == said -> 0
+                " $full ".contains(" $said ") -> 1
+                full.contains(said) -> 2
                 else -> 3
             }
         }
