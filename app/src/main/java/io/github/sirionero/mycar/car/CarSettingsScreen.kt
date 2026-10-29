@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +31,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -212,24 +217,40 @@ fun CarSettingsScreen() {
     }
 }
 
+/** The narrowest a choice gets before the row scrolls instead. */
+private val ROOMY_CHOICE = 110.dp
+
 @Composable
 private fun <T> ChoiceRow(title: String, options: List<Pair<T, String>>, selected: T, onSelect: (T) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        // Too narrow for each name whole (six choices at Extra large broke "Browse/r"): wider choices
+        // that scroll, as the ones beside the map do.
+        var width by remember { mutableIntStateOf(0) }
+        val density = LocalDensity.current
+        val roomy = width == 0 || with(density) { (width.toDp() - 12.dp * (options.size - 1)) / options.size } >= ROOMY_CHOICE
+        val scroll = rememberScrollState()
+        Row(
+            Modifier.fillMaxWidth().onSizeChanged { width = it.width }.then(if (roomy) Modifier else Modifier.horizontalScroll(scroll)),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             options.forEach { (value, label) ->
                 val on = value == selected
                 val scheme = MaterialTheme.colorScheme
                 GsIconBox(
                     onClick = { onSelect(value) },
-                    modifier = Modifier
-                        .weight(1f)
+                    modifier = (if (roomy) Modifier.weight(1f) else Modifier.widthIn(min = ROOMY_CHOICE))
                         .height(64.dp),
                     colors = if (on) GsColors(scheme.primaryContainer, scheme.onPrimaryContainer)
                     else GsColors(scheme.surfaceContainerHigh, scheme.onSurface),
                     latched = on,
                 ) {
-                    Text(label, style = MaterialTheme.typography.titleMedium, fontWeight = if (on) FontWeight.Bold else FontWeight.Normal)
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+                        modifier = if (roomy) Modifier else Modifier.padding(horizontal = 16.dp),
+                    )
                 }
             }
         }
@@ -350,6 +371,7 @@ private fun Info(label: String, value: String) {
 @Composable
 private fun ScreenFit(vehicle: String) {
     val insets by CarEnvironment.insets.collectAsState()
+    val frame by CarEnvironment.frame.collectAsState()
     val context = LocalContext.current.applicationContext
     var saved by remember { mutableStateOf<String?>(null) }
     val known = vehicle.isNotEmpty() && vehicle != "Unknown vehicle"
@@ -364,7 +386,7 @@ private fun ScreenFit(vehicle: String) {
         Stepper("Top", insets.top) { change(insets.copy(top = (insets.top + it).coerceAtLeast(0))) }
         Stepper("Bottom", insets.bottom) { change(insets.copy(bottom = (insets.bottom + it).coerceAtLeast(0))) }
         Text(
-            "Usable height ${480 - insets.top - insets.bottom}px of 480",
+            "Usable height ${frame.height - insets.top - insets.bottom}px of ${frame.height}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

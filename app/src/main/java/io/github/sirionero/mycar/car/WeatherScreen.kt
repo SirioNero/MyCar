@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.DateFormat
@@ -115,7 +116,8 @@ private fun Forecast(w: WeatherData) {
                         Modifier.width(120.dp), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold,
                     )
                     WeatherIcon(d.code, true, size = 28.dp)
-                    Text(Weather.describe(d.code), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    // One line: at Extra large on a small screen it broke into pieces ("Partl/y clou/dy"); the icon says it too.
+                    Text(Weather.describe(d.code), Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     if (d.rainChance > 0) Text("${d.rainChance}%", color = MaterialTheme.colorScheme.primary)
                     Text("${d.low}° / ${d.high}°", style = MaterialTheme.typography.bodyLarge)
                 }
