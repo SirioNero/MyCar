@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_idle">Non collegato</string>
+    <string name="session_idle_detail">Collega il telefono alla porta USB dell\'auto, o collegati senza fili. myCar si apre da sola quando l\'auto risponde.</string>
+    <string name="session_connecting">Collegamento in corso</string>
+    <string name="session_connected">Collegato</string>
+    <string name="session_connected_detail">myCar è sullo schermo dell\'auto.</string>
+    <string name="session_disconnected">Scollegato</string>
+    <string name="session_disconnected_detail">L\'auto non è più collegata.</string>
+    <string name="session_cert_turned_down">L\'auto ha rifiutato il certificato</string>
+
+    <string name="connection_stage_talking">Parlo con l\'auto</string>
+    <string name="connection_stage_securing">Proteggo la connessione</string>
+    <string name="connection_stage_accepted">Certificato accettato: mi preparo</string>
+    <string name="connection_stage_picture">Avvio l\'immagine</string>
+
+    <string name="connection_cert_tls_refused">L\'auto ha chiuso la connessione sicura: non accetta il certificato del telefono.</string>
+    <string name="connection_cert_error">L\'auto ha rifiutato il certificato del telefono (errore di certificato).</string>
+    <string name="connection_cert_untrusted">L\'auto non si fida del certificato in uso.</string>
+    <string name="connection_car_date">Controlla la data dell\'auto</string>
+    <string name="connection_car_date_detail">L\'auto dice che il certificato del telefono non è valido alla sua data. Regola l\'orologio dell\'auto, poi ricollega il telefono.</string>
+    <string name="connection_unexpected">Risposta inattesa</string>
+    <string name="connection_unexpected_detail">L\'auto ha risposto al controllo del certificato con il codice %1$s.</string>
+    <string name="connection_picture_refused">L\'auto ha rifiutato l\'immagine</string>
+    <string name="connection_picture_refused_detail">L\'auto non ha aperto il suo schermo a myCar (codice %1$s).</string>
+    <string name="connection_no_picture">Nessuna immagine per l\'auto</string>
+    <string name="connection_no_picture_detail">L\'encoder video del telefono non è partito (%1$s). myCar ha chiuso la connessione: ricollegati.</string>
+    <string name="connection_picture_stopped">L\'immagine dell\'auto si è fermata</string>
+    <string name="connection_picture_stopped_detail">L\'encoder video del telefono continua a non funzionare (%1$s). myCar ha chiuso la connessione: ricollegati.</string>
+    <string name="connection_no_answer">L\'auto non ha risposto</string>
+    <string name="connection_no_answer_detail">La connessione si è aperta ma l\'auto non ha mandato niente. Se Android chiede quale app aprire per l\'auto, scegli myCar.</string>
+    <string name="connection_hung_up_setup">L\'auto ha chiuso durante l\'avvio</string>
+    <string name="connection_hung_up_setup_detail">L\'auto ha chiuso la connessione mentre veniva protetta. Di solito vuol dire che ha rifiutato il certificato.</string>
+    <string name="connection_hung_up_after_cert">L\'auto ha chiuso dopo il certificato</string>
+    <string name="connection_hung_up_after_cert_detail">L\'auto ha accettato il certificato ma ha chiuso la connessione prima della fine dell\'avvio.</string>
+
+    <string name="wireless_link_bt_reaching">Bluetooth: raggiungo %1$s</string>
+    <string name="wireless_link_bt_talking">Bluetooth: parlo con %1$s</string>
+    <string name="wireless_link_bt_waiting">Aspetto %1$s. Se non succede niente, scollega il telefono dal menu Bluetooth dell\'auto e ricollegalo</string>
+    <string name="wireless_link_wifi_joining">Wi-Fi: entro nella rete di %1$s</string>
+    <string name="wireless_link_wifi_reaching">Wi-Fi: raggiungo %1$s</string>
+    <string name="wireless_link_failed">Avvio senza fili non riuscito</string>
+    <string name="wireless_link_bt_permission">Manca il permesso Bluetooth</string>
+    <string name="wireless_link_bt_permission_detail">myCar ha bisogno del permesso Dispositivi nelle vicinanze per raggiungere %1$s. Consentilo nelle impostazioni dell\'app, poi riprova.</string>
+    <string name="wireless_link_bt_publish_failed">Impossibile pubblicare il servizio Android Auto</string>
+    <string name="wireless_link_bt_no_car">L\'auto non si è collegata via Bluetooth</string>
+    <string name="wireless_link_bt_no_car_detail">%1$s non ha aperto Android Auto con il telefono. Controlla che Android Auto senza fili sia attivo nelle impostazioni dell\'auto, poi ricollega il telefono dal menu Bluetooth dell\'auto.</string>
+    <string name="wireless_link_wifi_failed">Impossibile entrare nel Wi-Fi dell\'auto</string>
+    <string name="wireless_link_wifi_failed_detail">Android non si è collegato alla rete di %1$s. Se è comparsa la richiesta «Connetti al dispositivo», va accettata.</string>
+    <string name="wireless_link_vpn">Una VPN blocca l\'auto</string>
+    <string name="wireless_link_vpn_detail">myCar è entrata nella rete di %1$s, ma una VPN su questo telefono (Tailscale, per esempio) non le lascia raggiungere l\'auto. Collegati col cavo, spegni la VPN o lascia fuori myCar dalle sue impostazioni: in quel caso Plancia e Xonos dentro myCar non possono usare gli indirizzi della VPN, come i nomi Tailscale.</string>
+    <string name="wireless_link_no_connection">Nel Wi-Fi dell\'auto, ma senza connessione</string>
+    <string name="wireless_link_no_connection_detail">myCar è entrata nella rete di %1$s ma non ha raggiunto Android Auto a %2$s.</string>
+
+    <string name="bridge_through">Tramite l\'app %1$s: %2$s</string>
+    <string name="bridge_no_answer">non ha risposto. Apri l\'app %1$s una volta, poi riprova.</string>
+    <string name="bridge_unknown">non conosce il ponte di questa myCar. Aggiorna l\'app %1$s.</string>
+    <string name="bridge_not_mycar">non accetta questa myCar. Aggiorna l\'app %1$s.</string>
+    <string name="bridge_not_ours">è configurata con un altro indirizzo. Usa lo stesso indirizzo in myCar e nell\'app %1$s.</string>
+    <string name="bridge_not_understood">la sua risposta non è stata capita. Aggiorna l\'app %1$s.</string>
+    <string name="bridge_closed">si è chiusa. Riprova.</string>
+    <string name="bridge_server_starting">%1$s su questo telefono si sta ancora avviando. myCar continua a provare.</string>
+    <string name="bridge_server_silent">%1$s non risponde neanche all\'app. Controlla che Tailscale sia attivo e che %1$s sia acceso.</string>
+    <string name="bridge_no_connection">nessuna connessione (%1$s).</string>
+
+    <string name="channel_session">Collegamento all\'auto</string>
+    <string name="channel_audio">Audio in auto</string>
+    <string name="channel_mirror">Condivisione dello schermo</string>
+    <string name="session_notification_title">myCar è collegata all\'auto</string>
+    <string name="audio_notification_title">Audio verso l\'auto</string>
+    <string name="audio_notification_text">myCar manda l\'audio del telefono all\'auto.</string>
+    <string name="mirror_notification_title">Schermo condiviso con l\'auto</string>
+    <string name="mirror_notification_text">Lo schermo dell\'auto mostra questo telefono.</string>
+    <string name="service_notification_stop">Interrompi</string>
+
+    <string name="accessibility_touch_label">Tocco di myCar</string>
+    <string name="listener_notifications_label">Notifiche di myCar</string>
+    <string name="service_calls_label">Chiamate di myCar</string>
+</resources>
