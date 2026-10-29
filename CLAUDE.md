@@ -386,6 +386,10 @@ Tutti i token in un solo posto, `car/design/`:
   ffmpeg), `--es tvList <indirizzo>`, scatti `cinema-videos/`, `cinema-tv/`, `cinema-videos-moving/`.
   Verificato in emulatore (API 34): anteprime, video che suona, gruppi e loghi, canale HLS in diretta,
   copertura in movimento. Non provato: in auto, con liste IPTV vere.
+  **La musica dopo Cinema** (0.5.21, richiesta dell'utente): un film prende le casse e l'app musicale
+  si ferma per sempre (perdita del focus, come con ogni lettore); uscendo da Cinema la musica che
+  suonava quando si è aperta riparte da sola (`car/CinemaMusic.kt`: mezzo secondo dopo, se ferma, se
+  l'app musicale dell'auto è ancora quella e collegata).
 - **Schermo condiviso**: con la musica accesa il player sta da solo accanto alla mappa
   (`CarNavigator.sidePanel` parte da `CONTROLS`), come nella vecchia barra in basso; la X lo
   chiude per il viaggio, un tocco sul brano nel dock lo riporta o lo toglie, tenerlo premuto apre
