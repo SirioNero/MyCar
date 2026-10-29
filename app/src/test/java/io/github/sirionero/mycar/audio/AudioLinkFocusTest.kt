@@ -56,6 +56,28 @@ class AudioLinkFocusTest {
     }
 
     @Test
+    fun `a car that never gives the speakers back is asked again while the phone plays on`() {
+        val link = streaming()
+        link.onFocus(LOSS_TRANSIENT)
+        sent.clear()
+        link.play(19_000, loud = true)
+        assertEquals(emptyList<String>(), sent)
+        link.play(2_000, loud = true)
+        assertEquals(listOf("focus:1"), sent)
+        link.onFocus(GAIN)
+        assertEquals(listOf("focus:1", "start"), sent)
+    }
+
+    @Test
+    fun `held back with the phone quiet, as in a call, nothing is asked`() {
+        val link = streaming()
+        link.onFocus(LOSS_TRANSIENT)
+        sent.clear()
+        link.play(30_000, loud = false)
+        assertEquals(emptyList<String>(), sent)
+    }
+
+    @Test
     fun `ducking keeps the music playing`() {
         val link = streaming()
         link.onFocus(LOSS_TRANSIENT_CAN_DUCK)

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_38">
+        <item>A través de myCar, la música ya no se queda apagada cuando el coche toma los altavoces para su propia voz y olvida devolverlos: al rato myCar los pide de nuevo.</item>
+        <item>En Automático, la conexión Bluetooth de la música que se corta por una llamada o un momento ya no pasa el sonido a myCar a mitad del viaje: espera a que vuelva.</item>
+    </string-array>
     <string-array name="changelog_37">
         <item>En el teléfono, la franja bajo la barra de estado también toma el color del tema, con Claro, Oscuro, Negro y Monokai.</item>
     </string-array>

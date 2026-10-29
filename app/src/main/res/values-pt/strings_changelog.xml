@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_38">
+        <item>Pelo myCar, a música não fica mais desligada quando o carro pega os alto-falantes para a própria voz e esquece de devolvê-los: depois de um tempo, o myCar pede de novo.</item>
+        <item>No Automático, a conexão Bluetooth da música que cai por uma chamada ou por um instante não leva mais o som para o myCar no meio da viagem: ele espera que ela volte.</item>
+    </string-array>
     <string-array name="changelog_37">
         <item>No telefone, a faixa sob a barra de status também fica com a cor do tema, com Claro, Escuro, Preto e Monokai.</item>
     </string-array>

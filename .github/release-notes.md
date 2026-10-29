@@ -1,7 +1,12 @@
-myCar 0.6.1-alpha: the phone's themes colour the band under the status bar too.
+myCar 0.6.2-alpha: the car's music doesn't go quiet for good, and a passing Bluetooth drop doesn't move it.
 
-## On the phone
-- With Light, Dark, Black (AMOLED) or Monokai picked in Settings > General, the band under the status bar took the window's colour instead of the theme's: now it takes the theme's, and so does whatever shows while a screen opens.
+## Car audio
+- Through myCar: when the car takes the speakers for a moment (its own voice, for example) it should give them back when done. A car that never did left the music off for the rest of the drive, as the phone played on with no pause to ask again after. Now, after 20 seconds of the phone playing with no word from the car, myCar asks for the speakers again. During a call the phone's music is paused or silenced, so it doesn't ask then.
+- Automatic, with the music on Bluetooth: when the car's Bluetooth music connection dropped - for a call, or for a moment - myCar moved the sound to its own link at once, which opened the car's Android Auto music channel and could put Android's sharing question up mid-drive. Now it waits for the connection to come back: the sound moves only if it's still gone 10 seconds later, with no call on.
+- To have every app's sound - Spotify and Cinema included - reach the car through myCar, choose Settings > Connection > Car audio > Through myCar.
+
+## Also in 0.6.1-alpha
+- The phone's themes colour the band under the status bar too.
 
 ## Also in 0.6.0-alpha
 - myCar in your language - English, Italian, Spanish, German, French, Portuguese, Greek, Russian or Chinese - on the phone, on the car's screen and in the voice assistant.

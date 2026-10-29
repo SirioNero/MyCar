@@ -437,6 +437,16 @@ class AudioLink(
         }
         quietBytes = 0
         soundBytes += size
+        // Held back, the car said it would give the speakers back. One that never does (no GAIN
+        // after its own voice) left the music off for the rest of the drive while the phone played
+        // on, with no quiet spell to ask again after: so after a while of sound, ask anyway. During
+        // a call the phone's music is paused or silenced, so this doesn't ask then.
+        if (heldBack && millis(soundBytes) >= HELD_SOUND_MS) {
+            soundBytes = 0
+            runCatching { sendControl(MSG_FOCUS_REQUEST, Protobuf.varintField(1, FOCUS_GAIN.toLong())) }
+            MyCarLog.i("$tag: no GAIN ${HELD_SOUND_MS / 1000}s after the car took the speakers, the phone still playing - -> AudioFocusRequest(GAIN)")
+            return
+        }
         if (!armed || millis(soundBytes) < SOUND_MS) return
         armed = false
         focusRequested = true
@@ -494,6 +504,8 @@ class AudioLink(
         private const val QUIET_MS = 1_500L
         /** Sound long enough not to be a click. */
         private const val SOUND_MS = 300L
+        /** Sound held back this long, with no GAIN from the car, asks for the speakers again. */
+        private const val HELD_SOUND_MS = 20_000L
         /** About -54 dB: below it, a sample is silence or noise. */
         private const val WHISPER = 64
         private const val SESSION_ID = 2
