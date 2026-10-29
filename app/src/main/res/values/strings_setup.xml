@@ -23,7 +23,7 @@
 
     <!-- Setup list: the car certificate step -->
     <string name="setup_cert_title">Car certificate</string>
-    <string name="setup_cert_body">Cars only talk to phones with a certificate they trust. myCar doesn\'t include one: it downloads two public ones from open-source projects on GitHub (about 10 KB). If your car turns down the first, myCar uses the other.</string>
+    <string name="setup_cert_body">Cars only talk to phones with a certificate they trust. myCar doesn\'t include one: it downloads public ones from open-source projects on GitHub (about 10 KB each). If your car turns one down, myCar tries the next.</string>
     <string name="setup_cert_get">Get certificates</string>
     <!-- On the button while the download runs -->
     <string name="setup_cert_getting">Getting certificates…</string>
