@@ -59,6 +59,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -68,6 +70,8 @@ import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.KEY_MIC_ASKED
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.notify.NotificationAccess
 import io.github.sirionero.mycar.car.Prefetch
@@ -135,10 +139,10 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
             val ready = downloads?.ready.orEmpty()
             certNote = when {
                 ready.isEmpty() && downloads?.failed?.values?.any { "not the expected certificate" in it } == true ->
-                    "A downloaded file wasn't the expected certificate, so myCar left it out. Try again later."
-                ready.isEmpty() -> "Couldn't download the certificates. Check your internet connection, then try again."
+                    Words.get(R.string.setup_cert_wrong_file)
+                ready.isEmpty() -> Words.get(R.string.setup_cert_no_download)
                 ready.size < CertCatalog.entries.size ->
-                    "Got ${ready.size} of ${CertCatalog.entries.size}. ${label(ready.first())} is ready; you can get the others later in Settings."
+                    Words.get(R.string.setup_cert_some_ready, ready.size, CertCatalog.entries.size, label(ready.first()))
                 else -> null
             }
             refresh()
@@ -257,52 +261,54 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
         ) {
             Spacer(Modifier.height(16.dp))
             Text(
-                "Set up myCar",
+                stringResource(R.string.setup_title),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                if (entry == SetupEntry.FIRST_RUN) "A few taps before your first drive."
-                else "What's left to do. Nothing you've set up changes.",
+                if (entry == SetupEntry.FIRST_RUN) stringResource(R.string.setup_subtitle_first_run)
+                else stringResource(R.string.setup_subtitle_return),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                "myCar is unofficial: set it up while parked, then keep your eyes on the road.",
+                stringResource(R.string.setup_unofficial),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            SectionLabel("To connect")
+            SectionLabel(stringResource(R.string.setup_section_connect))
             StepCard(
-                "Car certificate",
+                stringResource(R.string.setup_cert_title),
                 status(Id.CERTIFICATE),
                 emphasized = next?.id == Id.CERTIFICATE,
                 body = if (status(Id.CERTIFICATE) == Status.DONE) certificateSummary(context)
-                else "Cars only talk to phones with a certificate they trust. myCar doesn't include one: it downloads " +
-                    "two public ones from open-source projects on GitHub (about 10 KB). If your car turns down the " +
-                    "first, myCar uses the other.",
+                else stringResource(R.string.setup_cert_body),
             ) {
                 certNote?.let { Text(it, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold) }
                 // One under the other: side by side, a narrow phone squeezed the second to nothing.
                 if (status(Id.CERTIFICATE) != Status.DONE) {
                     Button(onClick = ::getCertificates, enabled = !certBusy) {
-                        Text(if (certBusy) "Getting certificates…" else if (certNote != null) "Try again" else "Get certificates")
+                        Text(
+                            if (certBusy) stringResource(R.string.setup_cert_getting)
+                            else if (certNote != null) stringResource(R.string.common_retry)
+                            else stringResource(R.string.setup_cert_get),
+                        )
                     }
                     TextButton(onClick = { importLauncher.launch(arrayOf("*/*")) }, enabled = !certBusy) {
-                        Text("Use my own file")
+                        Text(stringResource(R.string.setup_cert_own_file))
                     }
                 }
             }
             if (status(Id.MYCAR_ON) != Status.HIDDEN) {
                 StepCard(
-                    "Turn myCar on for the car",
+                    stringResource(R.string.setup_mycar_on_title),
                     status(Id.MYCAR_ON),
                     emphasized = next?.id == Id.MYCAR_ON,
-                    body = "It's switched off in Settings, so the car can't reach it.",
+                    body = stringResource(R.string.setup_mycar_on_body),
                 ) {
-                    Button(onClick = ::turnOn) { Text("Turn on") }
+                    Button(onClick = ::turnOn) { Text(stringResource(R.string.setup_mycar_on_button)) }
                 }
             }
             if (status(Id.ANDROID_AUTO) != Status.HIDDEN) AndroidAutoStep(
@@ -318,30 +324,27 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                 },
             )
 
-            SectionLabel("For your drive")
+            SectionLabel(stringResource(R.string.setup_section_drive))
             val permissions = status(Id.PERMISSIONS)
             StepCard(
-                "Calls, map and music",
+                stringResource(R.string.setup_drive_title),
                 permissions,
                 emphasized = next?.id == Id.PERMISSIONS,
                 body = when (permissions) {
-                    Status.DONE -> "Allowed."
-                    Status.BLOCKED -> "Android won't ask again for ${signals.driveBlocked.joinToString()}. " +
-                        "Turn it on in myCar's app info, under Permissions."
-                    Status.SKIPPED -> "Skipped. Tap Allow when you're ready."
+                    Status.DONE -> stringResource(R.string.setup_drive_allowed)
+                    Status.BLOCKED -> stringResource(R.string.setup_drive_blocked, signals.driveBlocked.joinToString(stringResource(R.string.common_list_separator)))
+                    Status.SKIPPED -> stringResource(R.string.setup_drive_skipped)
                     else -> if (signals.driveMissing.size < SetupSignals.driveGroups().size && FirstSetup.asked(context).isNotEmpty()) {
-                        "Still off: ${signals.driveMissing.joinToString()}."
+                        stringResource(R.string.setup_drive_still_off, signals.driveMissing.joinToString(stringResource(R.string.common_list_separator)))
                     } else {
-                        "Your car shows who's calling and your recent calls, and can dial your contacts, the map knows where you are, and " +
-                            "music can reach the car without Bluetooth. Android asks a few times: tap Allow each " +
-                            "time. myCar only reads, and listens only when you tap the mic."
+                        stringResource(R.string.setup_drive_body)
                     }
                 },
             ) {
                 when (permissions) {
-                    Status.BLOCKED -> Button(onClick = ::openAppSettings) { Text("Open settings") }
+                    Status.BLOCKED -> Button(onClick = ::openAppSettings) { Text(stringResource(R.string.common_open_settings)) }
                     Status.DONE -> Unit
-                    else -> Button(onClick = ::allowDrive) { Text("Allow") }
+                    else -> Button(onClick = ::allowDrive) { Text(stringResource(R.string.common_allow)) }
                 }
             }
 
@@ -371,7 +374,7 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                         certNote = null
                         refresh()
                     }.onFailure {
-                        reportError("Wrong password, or not a .p12 file with a private key.")
+                        reportError(Words.get(R.string.setup_cert_password_wrong))
                     }
                 }
             },
@@ -383,13 +386,14 @@ private fun label(id: String) = CertCatalog.entry(id)?.label ?: id
 
 /** What the phone holds, without unlocking it (that takes a second). */
 private fun certificateSummary(context: android.content.Context): String {
-    if (CertProvider.hasImported(context)) return "Ready: your own certificate."
+    if (CertProvider.hasImported(context)) return Words.get(R.string.setup_cert_ready_own)
     val present = CertCatalog.present(context)
     return when {
-        present.size >= 2 -> "Ready: ${label(present[0])}. " + (if (present.size == 2) "Spare: " else "Spares: ") +
-            present.drop(1).joinToString { label(it) } + "."
-        present.size == 1 -> "Ready: ${label(present[0])}."
-        else -> "Ready."
+        present.size >= 2 -> Words.plural(
+            R.plurals.setup_cert_ready_spares, present.size - 1, label(present[0]), present.drop(1).joinToString(Words.get(R.string.common_list_separator)) { label(it) },
+        )
+        present.size == 1 -> Words.get(R.string.setup_cert_ready_one, label(present[0]))
+        else -> Words.get(R.string.setup_cert_ready)
     }
 }
 
@@ -404,27 +408,24 @@ private fun AndroidAutoStep(
     onKeep: () -> Unit,
 ) {
     StepCard(
-        "Turn off Android Auto",
+        stringResource(R.string.setup_aa_title),
         status,
         emphasized = emphasized,
         body = when {
-            off -> "Android Auto is off."
-            status == Status.DONE -> "You'll choose myCar when you plug in."
-            else -> "Android Auto is on, and it can take the car's connection before myCar does. On the screen this " +
-                "opens, tap Disable, then OK, then come back here."
+            off -> stringResource(R.string.setup_aa_off)
+            status == Status.DONE -> stringResource(R.string.setup_aa_kept)
+            else -> stringResource(R.string.setup_aa_body)
         },
     ) {
         if (status != Status.DONE) {
-            Button(onClick = onOpen) { Text("Open Android Auto") }
-            TextButton(onClick = onShowKeep) { Text("No Disable button?") }
+            Button(onClick = onOpen) { Text(stringResource(R.string.setup_aa_open)) }
+            TextButton(onClick = onShowKeep) { Text(stringResource(R.string.setup_aa_no_disable)) }
             if (showKeep) {
                 Text(
-                    "Then keep it. When you plug in, Android asks which app to open: choose myCar and tap Always. " +
-                        "If Android Auto opens by itself, it was set to always open: on its app info, tap Open by " +
-                        "default, then Clear defaults.",
+                    stringResource(R.string.setup_aa_keep_body),
                     style = MaterialTheme.typography.bodyMedium,
                 )
-                OutlinedButton(onClick = onKeep) { Text("Keep Android Auto") }
+                OutlinedButton(onClick = onKeep) { Text(stringResource(R.string.setup_aa_keep)) }
             }
         }
     }
@@ -448,45 +449,44 @@ private fun MoreSection(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            if (left > 0) "More ($left)" else "More",
+            if (left > 0) stringResource(R.string.setup_more_count, left) else stringResource(R.string.common_more),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.weight(1f),
         )
         Icon(
             if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-            contentDescription = if (expanded) "Show less" else "Show more",
+            contentDescription = if (expanded) stringResource(R.string.setup_more_show_less) else stringResource(R.string.setup_more_show_more),
             tint = MaterialTheme.colorScheme.primary,
         )
     }
     Text(
-        "Everything here also works later.",
+        stringResource(R.string.setup_more_later),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     if (!expanded) return
-    StepCard("Messages", status(Id.MESSAGES), body = "The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the page this opens. " +
-        "If Android says it's a restricted setting: open myCar's app info, tap ⋮, then Allow restricted settings, and try again.") {
-        if (status(Id.MESSAGES) != Status.DONE) Button(onClick = onMessages) { Text("Open notification access") }
+    StepCard(stringResource(R.string.setup_messages_title), status(Id.MESSAGES), body = stringResource(R.string.setup_messages_body)) {
+        if (status(Id.MESSAGES) != Status.DONE) Button(onClick = onMessages) { Text(stringResource(R.string.setup_messages_open)) }
     }
-    StepCard("Calendar", status(Id.CALENDAR), body = "The car screen shows your next event. myCar only reads your calendar.") {
-        if (status(Id.CALENDAR) != Status.DONE) Button(onClick = onCalendar) { Text("Allow") }
+    StepCard(stringResource(R.string.setup_calendar_title), status(Id.CALENDAR), body = stringResource(R.string.setup_calendar_body)) {
+        if (status(Id.CALENDAR) != Status.DONE) Button(onClick = onCalendar) { Text(stringResource(R.string.common_allow)) }
     }
-    StepCard("Notifications", status(Id.NOTIFICATIONS), body = "Lets myCar show that it's connected to the car, with Stop while it sends the phone's sound, and tell you when an update is out.") {
-        if (status(Id.NOTIFICATIONS) != Status.DONE) Button(onClick = onNotifications) { Text("Allow") }
+    StepCard(stringResource(R.string.setup_notifications_title), status(Id.NOTIFICATIONS), body = stringResource(R.string.setup_notifications_body)) {
+        if (status(Id.NOTIFICATIONS) != Status.DONE) Button(onClick = onNotifications) { Text(stringResource(R.string.common_allow)) }
     }
     StepCard(
-        "Screen unknown callers",
+        stringResource(R.string.setup_screening_title),
         status(Id.SCREENING),
-        body = "With the car connected, a call from a number outside your contacts waits a few seconds before it rings, so you can turn it down from the car.",
+        body = stringResource(R.string.setup_screening_body),
     ) {
-        if (status(Id.SCREENING) != Status.DONE) Button(onClick = onScreening) { Text("Set up") }
+        if (status(Id.SCREENING) != Status.DONE) Button(onClick = onScreening) { Text(stringResource(R.string.setup_screening_button)) }
     }
-    StepCard("Car audio", Status.DONE, body = "How music reaches the car. Calls go over Bluetooth either way.") {
+    StepCard(stringResource(R.string.setup_audio_title), Status.DONE, body = stringResource(R.string.setup_audio_body)) {
         AudioChoice()
     }
     if (UsageStats.sends) {
-        StepCard("Help other drivers", if (UsageStats.asked(context)) Status.DONE else Status.TODO, body = USAGE_STATS_INTRO.text) {
+        StepCard(stringResource(R.string.setup_usage_title), if (UsageStats.asked(context)) Status.DONE else Status.TODO, body = USAGE_STATS_INTRO.text) {
             UsageStatsChoices()
         }
     }
@@ -541,10 +541,10 @@ private fun StepMark(status: Status) {
     when (status) {
         Status.DONE -> Surface(color = scheme.primary, shape = CircleShape, modifier = Modifier.size(28.dp)) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(Icons.Filled.Check, contentDescription = "Done", tint = scheme.onPrimary, modifier = Modifier.size(18.dp))
+                Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.setup_status_done), tint = scheme.onPrimary, modifier = Modifier.size(18.dp))
             }
         }
-        Status.BLOCKED -> Icon(Icons.Filled.Warning, contentDescription = "Blocked", tint = scheme.error, modifier = Modifier.size(28.dp))
+        Status.BLOCKED -> Icon(Icons.Filled.Warning, contentDescription = stringResource(R.string.setup_status_blocked), tint = scheme.error, modifier = Modifier.size(28.dp))
         else -> Surface(
             color = scheme.surfaceContainerHigh,
             shape = CircleShape,
@@ -565,14 +565,14 @@ private fun BottomBar(
 ) {
     val leftToConnect = SetupSteps.leftToConnect(steps).size
     val (line, action) = when {
-        leftToConnect > 0 -> (if (leftToConnect == 1) "1 step left before your first drive." else "$leftToConnect steps left before your first drive.") to
+        leftToConnect > 0 -> pluralStringResource(R.plurals.setup_bar_steps_left, leftToConnect, leftToConnect) to
             when (next?.id) {
-                Id.CERTIFICATE -> if (busy) "Getting certificates…" else "Get certificates"
-                Id.MYCAR_ON -> "Turn myCar on"
-                else -> "Open Android Auto"
+                Id.CERTIFICATE -> if (busy) stringResource(R.string.setup_cert_getting) else stringResource(R.string.setup_cert_get)
+                Id.MYCAR_ON -> stringResource(R.string.setup_bar_turn_on)
+                else -> stringResource(R.string.setup_aa_open)
             }
-        next?.id == Id.PERMISSIONS -> "You're ready to connect." to "Allow calls, map and music"
-        else -> "You're ready. Plug into the car; if Android asks, choose myCar and tap Always." to "Done"
+        next?.id == Id.PERMISSIONS -> stringResource(R.string.setup_bar_ready_to_connect) to stringResource(R.string.setup_bar_allow_drive)
+        else -> stringResource(R.string.setup_bar_ready) to stringResource(R.string.common_done)
     }
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
         // Above the three-button navigation bar: drawn to the edge, its buttons were under it.
@@ -587,7 +587,13 @@ private fun BottomBar(
             // Without the big button's step done: leave it for later, it stays on Home.
             if (next != null) {
                 TextButton(onClick = onFinish, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (leftToConnect > 0) (if (entry == SetupEntry.FIRST_RUN) "Finish later" else "Close") else "Done")
+                    Text(
+                        if (leftToConnect > 0) {
+                            if (entry == SetupEntry.FIRST_RUN) stringResource(R.string.setup_bar_finish_later) else stringResource(R.string.common_close)
+                        } else {
+                            stringResource(R.string.common_done)
+                        },
+                    )
                 }
             }
         }
@@ -600,7 +606,7 @@ private fun CertificatePasswordDialog(onDismiss: () -> Unit, onConfirm: (String,
     var error by remember { mutableStateOf<String?>(null) }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Certificate password") },
+        title = { Text(stringResource(R.string.setup_cert_password_title)) },
         text = {
             OutlinedTextField(
                 value = password,
@@ -609,15 +615,15 @@ private fun CertificatePasswordDialog(onDismiss: () -> Unit, onConfirm: (String,
                     error = null
                 },
                 singleLine = true,
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.setup_cert_password_label)) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 isError = error != null,
-                supportingText = { Text(error ?: "Leave empty if the file has none.") },
+                supportingText = { Text(error ?: stringResource(R.string.setup_cert_password_hint)) },
             )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(password) { error = it } }) { Text("Use it") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { onConfirm(password) { error = it } }) { Text(stringResource(R.string.setup_cert_password_use)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
     )
 }
 

@@ -29,9 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.Changelog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.theme.GsButton
 import io.github.sirionero.mycar.car.theme.GsSwitch
 import io.github.sirionero.mycar.notify.CarMotion
@@ -76,7 +78,7 @@ fun CarWhatsNew() {
         ) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text(
-                    "What's new in ${release.versionName}",
+                    stringResource(R.string.car_whatsnew_title, release.versionName),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
@@ -99,12 +101,12 @@ fun CarWhatsNew() {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     GsSwitch(afterUpdates, CarSettings::setWhatsNewAfterUpdates)
                     Text(
-                        "Show after updates",
+                        stringResource(R.string.car_whatsnew_show_after_updates),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.weight(1f),
                     )
                     GsButton(onClick = close, modifier = Modifier.height(56.dp)) {
-                        Text("Got it", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.car_whatsnew_got_it), style = MaterialTheme.typography.titleMedium)
                     }
                 }
             }

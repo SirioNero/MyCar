@@ -36,11 +36,13 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import io.github.sirionero.mycar.R
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan
@@ -61,6 +63,9 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun PirateShip(key: Any, ink: Color, modifier: Modifier) {
     val measurer = rememberTextMeasurer()
+    val description = stringResource(R.string.update_ship_description)
+    val local = stringResource(R.string.update_flag_local)
+    val motto = stringResource(R.string.update_flag_motto)
     // A light ink is a dark page: the sun becomes the moon, the sea goes deep, the lanterns glow.
     val night = ink.luminance() > 0.5f
     // Seconds since the step opened, up to the end of the arrival; then only the sea's clock runs.
@@ -73,7 +78,7 @@ internal fun PirateShip(key: Any, ink: Color, modifier: Modifier) {
     val clock by sea.animateFloat(0f, LOOP_S, infiniteRepeatable(tween((LOOP_S * 1000).toInt(), easing = LinearEasing)), label = "clock")
     Spacer(
         modifier
-            .semantics { contentDescription = "A pirate ship flying the myCar flag: 100% local. We defend our data." }
+            .semantics { contentDescription = description }
             // One layer, so the edges can fade into the page.
             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
             .drawWithCache {
@@ -81,7 +86,7 @@ internal fun PirateShip(key: Any, ink: Color, modifier: Modifier) {
                 val flagW = (FLAG_W * k).roundToInt().coerceAtLeast(12)
                 val flagH = (flagW / 1.5f).roundToInt().coerceAtLeast(8)
                 val face = ImageBitmap(flagW, flagH)
-                CanvasDrawScope().draw(this, layoutDirection, Canvas(face), Size(flagW.toFloat(), flagH.toFloat())) { drawCloth(measurer) }
+                CanvasDrawScope().draw(this, layoutDirection, Canvas(face), Size(flagW.toFloat(), flagH.toFloat())) { drawCloth(measurer, local, motto) }
                 val hull = hullPath()
                 val sheer = sheerPath()
                 val planks = plankPaths()
@@ -194,21 +199,13 @@ private fun DrawScope.drawGlitter(t: Float, behind: Boolean, night: Boolean) {
     }
 }
 
-/**
- * A round glow, drawn as the square around it: the gradient has faded out before the square's
- * edges, so there's no circle's edge at all. On the emulator's GPU the sun's rim, where the
- * gradient reached nothing, came out as bright orange specks.
- */
-internal fun DrawScope.drawGlow(brush: Brush, center: Offset, radius: Float) =
-    drawRect(brush, topLeft = center - Offset(radius, radius), size = Size(radius * 2, radius * 2))
-
 /** The sun, or by night the moon with its halo. */
 private fun DrawScope.drawSun(t: Float, night: Boolean) {
     val c = Offset(size.width * SUN_X, size.height * 0.22f)
     val breathe = 1f + 0.03f * sin(TWO_PI * t / 6f)
     if (night) {
         val r = size.width * 0.15f * breathe
-        drawGlow(Brush.radialGradient(0f to Color(0x66C9D8FF), 0.35f to Color(0x22A9BFFF), 1f to Color(0x00A9BFFF), center = c, radius = r), c, r)
+        drawGlow(c, r, 0f to Color(0x66C9D8FF), 0.35f to Color(0x22A9BFFF), 1f to Color(0x00A9BFFF))
         val disc = size.width * 0.045f
         drawCircle(Brush.radialGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE3E9F7)), center = c - Offset(disc * 0.3f, disc * 0.3f), radius = disc * 1.4f), radius = disc, center = c)
         // Its seas, faintly.
@@ -219,13 +216,7 @@ private fun DrawScope.drawSun(t: Float, night: Boolean) {
     }
     val r = size.width * 0.15f * breathe
     // Out to a clear orange, not a clear black, which turned the edge brown.
-    drawGlow(
-        Brush.radialGradient(
-            0f to Color(0xFFFFF1C4), 0.28f to Color(0xFFFFD27A), 0.5f to Color(0x99FFB347), 1f to Color(0x00FFB347),
-            center = c, radius = r,
-        ),
-        c, r,
-    )
+    drawGlow(c, r, 0f to Color(0xFFFFF1C4), 0.28f to Color(0xFFFFD27A), 0.5f to Color(0x99FFB347), 1f to Color(0x00FFB347))
 }
 
 /** A night sky's stars, twinkling slowly. */
@@ -379,7 +370,7 @@ private fun DrawScope.drawHull(hull: Path, sheer: Path, planks: List<Path>, nigh
     // The stern lantern, glowing; more so by night.
     drawLine(Color(0xFF3A2414), Offset(-33.6f, -15f), Offset(-33.6f, -17.6f), strokeWidth = 0.35f)
     val glow = if (night) 5f else 2.6f
-    drawGlow(Brush.radialGradient(listOf(Color(0xCCFFD27A), Color(0x00FFD27A)), center = Offset(-33.6f, -18.4f), radius = glow), Offset(-33.6f, -18.4f), glow)
+    drawGlow(Offset(-33.6f, -18.4f), glow, 0f to Color(0xCCFFD27A), 1f to Color(0x00FFD27A))
     drawCircle(Color(0xFFFFE3A0), radius = 0.7f, center = Offset(-33.6f, -18.4f))
     // The bowsprit.
     drawLine(Color(0xFF5E3B1F), Offset(31f, -10.5f), Offset(44f, -20f), strokeWidth = 1.1f, cap = StrokeCap.Round)

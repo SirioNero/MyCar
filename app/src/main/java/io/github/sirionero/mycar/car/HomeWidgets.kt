@@ -38,11 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarMotion
 import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.car.design.MyCarRadius
@@ -76,8 +78,8 @@ internal fun WeatherWidget(onHold: () -> Unit, modifier: Modifier = Modifier) {
 
     WidgetCard(onClick = navigator::weather, onHold = onHold, modifier = modifier) {
         when (val s = state) {
-            WeatherState.Loading -> WidgetNote("Getting the weather…")
-            is WeatherState.Unavailable -> WidgetNote(s.reason)
+            WeatherState.Loading -> WidgetNote(stringResource(R.string.car_weather_loading))
+            is WeatherState.Unavailable -> WidgetNote(stringResource(s.reason))
             is WeatherState.Ready -> BoxWithConstraints(Modifier.fillMaxSize().padding(MyCarSpace.L)) {
                 val w = s.data
                 val today = w.days.firstOrNull()
@@ -97,8 +99,11 @@ internal fun WeatherWidget(onHold: () -> Unit, modifier: Modifier = Modifier) {
                         WeatherIcon(w.code, w.isDay, size = 56.dp)
                         Text("${w.temp}°", fontSize = 48.sp, fontWeight = FontWeight.Bold, maxLines = 1)
                     }
+                    val highLow = today?.let {
+                        stringResource(R.string.car_widget_high, it.high) + "  " + stringResource(R.string.car_widget_low, it.low)
+                    }
                     Text(
-                        listOfNotNull(Weather.describe(w.code), today?.let { "H ${it.high}°  L ${it.low}°" }).joinToString("  ·  "),
+                        listOfNotNull(weatherWords(w.code), highLow).joinToString("  ·  "),
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -186,12 +191,12 @@ internal fun AgendaWidget(onHold: () -> Unit, modifier: Modifier = Modifier) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text("Coming up", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.car_dashboard_coming_up), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 val list = events
                 when {
-                    !allowed -> WidgetText("Allow the calendar for myCar on the phone to see what's coming up.")
-                    list == null -> WidgetText("Loading calendar…")
-                    list.isEmpty() -> WidgetText("Nothing in the next week.")
+                    !allowed -> WidgetText(stringResource(R.string.car_dashboard_allow_calendar))
+                    list == null -> WidgetText(stringResource(R.string.car_dashboard_calendar_loading))
+                    list.isEmpty() -> WidgetText(stringResource(R.string.car_dashboard_nothing_coming))
                     else -> list.take(fit).forEach { EventLine(it) }
                 }
             }

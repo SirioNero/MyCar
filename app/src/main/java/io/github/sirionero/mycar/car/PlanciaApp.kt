@@ -40,13 +40,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
 import io.github.sirionero.mycar.car.design.MyCarSpace
@@ -118,14 +121,14 @@ private fun connectingHint(context: Context, url: String): String? = when {
 private fun planciaMessage(connection: HaConnection, page: PlanciaWeb.Page?, blocked: String?): Pair<String, String?>? = when {
     // Not "not configured" only because the drive's connection hasn't started yet.
     connection is HaConnection.NotConfigured && !HomeAssistant.config.value.isComplete ->
-        "Set up Plancia on the phone" to "In myCar on the phone: Settings, then Plancia - your Home Assistant's address and a token."
+        Words.get(R.string.plancia_set_up_title) to Words.get(R.string.plancia_set_up_text)
     // Set up, but the dashboard is made a moment after the car connects (PLANCIA_AFTER_MS).
-    page == null -> "Connecting to Home Assistant" to null
-    page.error != null -> "Couldn't open the dashboard" to "${page.error}\nTap to try again."
+    page == null -> Words.get(R.string.plancia_connecting) to null
+    page.error != null -> Words.get(R.string.plancia_dashboard_failed) to Words.get(R.string.plancia_dashboard_failed_detail, page.error)
     page.base != null -> null
-    connection is HaConnection.Failed -> "Home Assistant isn't answering" to connection.message
-    connection is HaConnection.Connecting -> "Connecting to Home Assistant" to (blocked ?: connection.url)
-    else -> "Connecting to Home Assistant" to null
+    connection is HaConnection.Failed -> Words.get(R.string.ha_not_answering) to connection.message
+    connection is HaConnection.Connecting -> Words.get(R.string.plancia_connecting) to (blocked ?: connection.url)
+    else -> Words.get(R.string.plancia_connecting) to null
 }
 
 /** Plancia full screen, from the app grid: the dashboard under a slim bar, and its menu. */
@@ -206,17 +209,21 @@ private fun PlanciaMenu(web: PlanciaWeb, dashboards: List<Dashboard>, haDefault:
                 item {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = MyCarSpace.S)) {
                         Text(
-                            if (choosingDefault) "Plancia opens" else "Dashboards",
+                            stringResource(if (choosingDefault) R.string.plancia_menu_opens else R.string.plancia_menu_dashboards),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f),
                         )
-                        GsIconButton(Icons.Filled.Close, "Close", onClose, size = MyCarSize.TouchTarget)
+                        GsIconButton(Icons.Filled.Close, stringResource(R.string.common_close), onClose, size = MyCarSize.TouchTarget)
                     }
                 }
                 if (choosingDefault) {
                     item {
-                        MenuRow("As in Home Assistant", haDefault?.let { "Now: ${titleOf(it, dashboards)}" }, selected = default == null) {
+                        MenuRow(
+                            stringResource(R.string.plancia_as_in_ha),
+                            haDefault?.let { stringResource(R.string.plancia_now, titleOf(it, dashboards)) },
+                            selected = default == null,
+                        ) {
                             HomeAssistant.setDefaultDashboard(null)
                             choosingDefault = false
                         }
@@ -232,7 +239,7 @@ private fun PlanciaMenu(web: PlanciaWeb, dashboards: List<Dashboard>, haDefault:
                 if (dashboards.isEmpty()) {
                     item {
                         MenuRow(
-                            if (connection is HaConnection.Connected) "No dashboards" else "Connecting to Home Assistant",
+                            stringResource(if (connection is HaConnection.Connected) R.string.plancia_no_dashboards else R.string.plancia_connecting),
                             null,
                             selected = false,
                             onClick = null,
@@ -241,8 +248,8 @@ private fun PlanciaMenu(web: PlanciaWeb, dashboards: List<Dashboard>, haDefault:
                 }
                 items(dashboards, key = { it.urlPath }) { dashboard ->
                     val notes = listOfNotNull(
-                        "Open".takeIf { dashboard.urlPath == open },
-                        "Opens first".takeIf { dashboard.urlPath == opens },
+                        stringResource(R.string.plancia_note_open).takeIf { dashboard.urlPath == open },
+                        stringResource(R.string.plancia_note_opens_first).takeIf { dashboard.urlPath == opens },
                     ).joinToString(" · ")
                     MenuRow(dashboard.title, notes.ifBlank { null }, selected = dashboard.urlPath == open) {
                         web.open(dashboard.urlPath)
@@ -250,25 +257,29 @@ private fun PlanciaMenu(web: PlanciaWeb, dashboards: List<Dashboard>, haDefault:
                     }
                 }
                 item {
-                    MenuRow("Plancia opens", opens?.let { titleOf(it, dashboards) } ?: "As in Home Assistant", selected = false) {
+                    MenuRow(
+                        stringResource(R.string.plancia_menu_opens),
+                        opens?.let { titleOf(it, dashboards) } ?: stringResource(R.string.plancia_as_in_ha),
+                        selected = false,
+                    ) {
                         choosingDefault = true
                     }
                 }
                 item {
                     Column(Modifier.padding(horizontal = MyCarSpace.S, vertical = MyCarSpace.S)) {
-                        Text("Size", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.plancia_size), style = MaterialTheme.typography.titleMedium)
                         Row(
                             Modifier.horizontalScroll(rememberScrollState()).padding(top = MyCarSpace.S),
                             horizontalArrangement = Arrangement.spacedBy(MyCarSpace.S),
                         ) {
                             HomeAssistant.ZOOM_LEVELS.forEach { level ->
-                                SizeChip("$level%", selected = level == zoom) { HomeAssistant.setZoom(level) }
+                                SizeChip(stringResource(R.string.plancia_size_percent, level), selected = level == zoom) { HomeAssistant.setZoom(level) }
                             }
                         }
                     }
                 }
                 item {
-                    MenuRow("Reload the dashboard", null, selected = false) {
+                    MenuRow(stringResource(R.string.plancia_reload), null, selected = false) {
                         web.reload()
                         onClose()
                     }
@@ -356,7 +367,7 @@ internal fun PlanciaPane(modifier: Modifier) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = MyCarSpace.L)) {
                 Text("Plancia", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 Text(
-                    "Close",
+                    stringResource(R.string.common_close),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .clickable(onClick = navigator::closeSidePanel)

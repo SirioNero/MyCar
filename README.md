@@ -44,6 +44,9 @@ behind it all — still or moving.
 
 ## Features
 
+- **Your language.** myCar on the phone and on the car screen, and its voice assistant, in
+  English, Italian, Spanish, German, French, Portuguese, Greek, Russian or Chinese: the phone's
+  language, or another one picked in Settings > Language.
 - **Phone calls.** Your recent calls, missed ones in red; your contacts, favourites first; a
   keypad. Tap, then confirm before the call goes out. When a call comes in, answer or decline
   it on the car screen; a missed call's card offers to call back.
@@ -82,16 +85,20 @@ behind it all — still or moving.
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the
   nearest gas station", "play Daft Punk", "call Mom on mobile", "call back", "read my messages",
-  "reply to Anna" or "when do I arrive?". Say "help" for the full list. With the phone in
-  Italian, Spanish, French, German or Portuguese, the assistant listens and answers in that
-  language, once the speech model that knows it is on the phone (Settings > Voice).
-  Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
+  "reply to Anna" or "when do I arrive?". Say "help" for the full list. The assistant listens
+  and answers in myCar's language, any of its nine, once the speech model that knows it is on
+  the phone (Settings > Voice). With Home
+  Assistant set up (Plancia), what myCar can't do itself goes to the voice assistant you chose in
+  Home Assistant - Claude, Gemini, ChatGPT, a model at home, or its own, which runs the house - also
+  with the phone locked in your pocket.
+  Speech turns into text on the phone, and nothing you say leaves it, except what goes to your
+  Home Assistant, as text, when it's set up. Prefer your own
   assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
   the way the swipe up from a bottom corner of the phone does, rather than in a typed chat.
   With the phone locked, myCar lights it and asks you to unlock it, and the assistant starts
   listening as soon as it opens.
 - **Messages.** New messages appear as a small card on the car screen. myCar reads
-  each one aloud, and you reply by voice or with a quick reply - written in your phone's
+  each one aloud, and you reply by voice or with a quick reply - written in myCar's
   language. Music pauses while myCar speaks or listens. Speech runs on the phone, so it
   needs no Google account.
 - **Notifications.** Only messages, missed calls, alarms, and reminders interrupt you.
@@ -257,6 +264,9 @@ Changes since October 26, 2026, when myCar forked Gearslip 0.3.01-alpha:
   dependencies.
 
 **Features and fixes**
+- myCar in nine languages, the Xonos app's: English, Italian, Spanish, German, French,
+  Portuguese, Greek, Russian and Simplified Chinese, on the phone, on the car screen and in the
+  voice assistant, following the phone or picked in Settings > Language.
 - Incoming calls from contacts show on the car screen; answer, decline, or end them there, and a
   declined call no longer leaves its card stuck. myCar says when call audio stays on the phone
   because the car's Bluetooth hands-free isn't connected.

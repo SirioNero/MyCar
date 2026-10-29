@@ -5,7 +5,9 @@ import android.content.Context
 import android.os.Build
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.ServiceDiscovery
+import io.github.sirionero.mycar.Words
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -310,8 +312,8 @@ object UsageStats {
             .put("failed_at", 1500)
             .put("seconds", 1500)
             .put("cert", "downloaded")
-            .put("name", "Head unit name")
-            .put("car", "Car model")
+            .put("name", Words.get(R.string.stats_example_head_unit))
+            .put("car", Words.get(R.string.stats_example_car))
             .put("year", "2021")
             .put("protocol", "1.5")
             .put("link", "usb")

@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +42,7 @@ import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
 import io.github.sirionero.mycar.car.theme.GsThemes
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.ui.CertSummary
 import kotlinx.coroutines.Dispatchers
@@ -82,11 +84,11 @@ fun CarSettingsScreen() {
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        ScreenHeader("Settings")
+        ScreenHeader(stringResource(R.string.common_settings))
 
         ChoiceRow(
-            "Open on connect",
-            listOf(CarSettings.HOME to "Home") + CarApps.all.filter { it.id != "settings" }.map { it.id to it.label },
+            stringResource(R.string.car_settings_open_on_connect),
+            listOf(CarSettings.HOME to stringResource(R.string.car_settings_open_home)) + CarApps.all.filter { it.id != "settings" }.map { it.id to it.shownLabel },
             open,
         ) { CarSettings.setOpenOnConnect(it) }
 
@@ -95,77 +97,94 @@ fun CarSettingsScreen() {
         HomePagesSettings()
 
         ChoiceRow(
-            "Size",
-            listOf(0.83f to "Extra small", 0.9f to "Small", 1f to "Normal", 1.25f to "Large", 1.5f to "Extra large"),
+            stringResource(R.string.car_settings_size),
+            listOf(
+                0.83f to stringResource(R.string.car_settings_size_extra_small),
+                0.9f to stringResource(R.string.car_settings_size_small),
+                1f to stringResource(R.string.car_settings_size_normal),
+                1.25f to stringResource(R.string.car_settings_size_large),
+                1.5f to stringResource(R.string.car_settings_size_extra_large),
+            ),
             scale,
         ) { CarSettings.setScale(it) }
 
         ChoiceRow(
-            "App theme",
-            listOf(AppTheme.PHONE to "Follow phone", AppTheme.LIGHT to "Light", AppTheme.DARK to "Dark"),
+            stringResource(R.string.car_settings_app_theme),
+            listOf(
+                AppTheme.PHONE to stringResource(R.string.car_settings_app_theme_phone),
+                AppTheme.LIGHT to stringResource(R.string.car_settings_app_theme_light),
+                AppTheme.DARK to stringResource(R.string.car_settings_app_theme_dark),
+            ),
             theme,
         ) { CarSettings.setAppTheme(it) }
 
         WallpaperPicker()
 
         ChoiceRow(
-            "Theme",
-            GsThemes.builtIn.map { it.id to it.name },
+            stringResource(R.string.car_settings_controls_theme),
+            GsThemes.builtIn.map { it.id to it.shownName },
             uiTheme,
         ) { CarSettings.setUiTheme(it) }
 
         ChoiceRow(
-            "Map day/night",
-            listOf(NightMode.AUTO to "Auto", NightMode.DAY to "Day", NightMode.NIGHT to "Night"),
+            stringResource(R.string.car_settings_map_day_night),
+            listOf(
+                NightMode.AUTO to stringResource(R.string.car_settings_map_auto),
+                NightMode.DAY to stringResource(R.string.car_settings_map_day),
+                NightMode.NIGHT to stringResource(R.string.car_settings_map_night),
+            ),
             night,
         ) { CarSettings.setNightMode(it) }
 
         ChoiceRow(
-            "Units",
-            listOf(Units.AUTO to "Auto", Units.IMPERIAL to "Imperial (mi, ft, °F)", Units.METRIC to "Metric (km, m, °C)"),
+            stringResource(R.string.car_settings_units),
+            listOf(
+                Units.AUTO to stringResource(R.string.car_settings_units_auto),
+                Units.IMPERIAL to stringResource(R.string.car_settings_units_imperial),
+                Units.METRIC to stringResource(R.string.car_settings_units_metric),
+            ),
             units,
         ) { CarSettings.setUnits(it) }
 
         ChoiceRow(
-            "Autoplay on connect",
-            listOf(false to "Off", true to "On"),
+            stringResource(R.string.car_settings_autoplay),
+            listOf(false to stringResource(R.string.common_off), true to stringResource(R.string.common_on)),
             autoplay,
         ) { CarSettings.setAutoplay(it) }
 
         ChoiceRow(
-            "Car audio",
-            listOf(AudioRoute.AUTO to "Automatic", AudioRoute.BLUETOOTH to "Bluetooth", AudioRoute.CAR_LINK to "Through myCar"),
+            stringResource(R.string.car_settings_car_audio),
+            listOf(
+                AudioRoute.AUTO to stringResource(R.string.car_settings_car_audio_auto),
+                AudioRoute.BLUETOOTH to stringResource(R.string.common_bluetooth),
+                AudioRoute.CAR_LINK to stringResource(R.string.car_settings_car_audio_through_mycar),
+            ),
             audioRoute,
         ) { CarSettings.setAudioRoute(it) }
         Text(
-            "Through myCar sends the phone's sound over myCar's own link, the cable or Wi-Fi, as " +
-                "Android Auto does. Android asks to share your screen each drive, and a few apps " +
-                "block it. Bluetooth plays as the phone normally would, and Android never asks, but " +
-                "some cars only take calls over it. Automatic uses Bluetooth when the car takes the " +
-                "phone's music that way, and myCar's link when it doesn't.",
+            stringResource(R.string.car_settings_car_audio_note),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         // Shown with USB audio too: calls reach the car only over Bluetooth either way.
         ChoiceRow(
-            "Warn when Bluetooth isn't connected",
-            listOf(false to "Off", true to "On"),
+            stringResource(R.string.car_settings_bluetooth_warning),
+            listOf(false to stringResource(R.string.common_off), true to stringResource(R.string.common_on)),
             bluetoothWarning,
         ) { CarSettings.setBluetoothWarning(it) }
         ChoiceRow(
-            "Warn when location is off",
-            listOf(false to "Off", true to "On"),
+            stringResource(R.string.car_settings_location_warning),
+            listOf(false to stringResource(R.string.common_off), true to stringResource(R.string.common_on)),
             locationWarning,
         ) { CarSettings.setLocationWarning(it) }
 
         ChoiceRow(
-            "Spoken directions",
-            listOf(false to "Off", true to "On"),
+            stringResource(R.string.car_settings_spoken_directions),
+            listOf(false to stringResource(R.string.common_off), true to stringResource(R.string.common_on)),
             speakDirections,
         ) { CarSettings.setSpeakDirections(it) }
         Text(
-            "myCar reads each turn aloud through the car's speakers, and the music dips while it " +
-                "speaks. Turn it off if your map app's own voice already plays in the car.",
+            stringResource(R.string.car_settings_spoken_directions_note),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -173,10 +192,8 @@ fun CarSettingsScreen() {
         AssistantPicker()
 
         ExperimentalFeatureRow(
-            title = "Use the phone's speech recognition",
-            description = "Listens through the phone's own speech service instead of myCar's. On " +
-                "most phones that's Google's, which may send your voice to Google. GrapheneOS has " +
-                "none, so myCar keeps using its own.",
+            title = stringResource(R.string.car_settings_system_speech),
+            description = stringResource(R.string.car_settings_system_speech_note),
             checked = systemSpeech,
         ) { CarSettings.setSystemSpeech(it) }
 
@@ -185,8 +202,8 @@ fun CarSettingsScreen() {
         ScreenFit(vehicle)
 
         ChoiceRow(
-            "Experimental features",
-            listOf(false to "Hide", true to "Show"),
+            stringResource(R.string.car_settings_experimental),
+            listOf(false to stringResource(R.string.car_settings_experimental_hide), true to stringResource(R.string.car_settings_experimental_show)),
             experimentalFeatures,
         ) { CarSettings.setExperimentalFeaturesEnabled(it) }
         if (experimentalFeatures) {
@@ -194,24 +211,27 @@ fun CarSettingsScreen() {
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Connection", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-            Info("Phone", "${Build.MANUFACTURER} ${Build.MODEL}")
-            Info("Vehicle", vehicle.ifEmpty { "-" })
-            Info("Video", display.ifEmpty { "-" })
-            Info("Certificate", cert?.headline ?: "Checking…")
+            Text(stringResource(R.string.car_settings_connection), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Info(stringResource(R.string.car_settings_info_phone), "${Build.MANUFACTURER} ${Build.MODEL}")
+            Info(
+                stringResource(R.string.car_settings_info_vehicle),
+                if (vehicle == UNKNOWN_VEHICLE) stringResource(R.string.car_settings_unknown_vehicle) else vehicle.ifEmpty { "-" },
+            )
+            Info(stringResource(R.string.car_settings_info_video), display.ifEmpty { "-" })
+            Info(stringResource(R.string.car_settings_info_certificate), cert?.headline ?: stringResource(R.string.car_settings_checking))
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("About", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-            Info("Version", io.github.sirionero.mycar.BuildConfig.VERSION_NAME)
-            Info("Build", io.github.sirionero.mycar.BuildConfig.VERSION_CODE.toString())
+            Text(stringResource(R.string.car_settings_about), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Info(stringResource(R.string.car_settings_version), io.github.sirionero.mycar.BuildConfig.VERSION_NAME)
+            Info(stringResource(R.string.car_settings_build), io.github.sirionero.mycar.BuildConfig.VERSION_CODE.toString())
             ExperimentalFeatureRow(
-                "What's new after updates",
-                "Show the list of changes once, the first time the car connects after an update.",
+                stringResource(R.string.car_settings_whats_new_after_updates),
+                stringResource(R.string.car_settings_whats_new_after_updates_note),
                 whatsNew,
             ) { CarSettings.setWhatsNewAfterUpdates(it) }
             GsButton(onClick = CarSettings::openWhatsNew, tone = GsTone.Tonal, modifier = Modifier.height(56.dp)) {
-                Text("What's new", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.car_settings_whats_new), style = MaterialTheme.typography.titleMedium)
             }
         }
     }
@@ -269,11 +289,8 @@ private fun ExperimentalFeaturesList(carSensors: Boolean) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         ExperimentalFeatureRow(
-            title = "Vehicle data",
-            description = "Adds a Vehicle data tile: a live, raw dump of the head unit's sensor " +
-                "channel. Field labels (speed, RPM, fuel...) are carried over from other " +
-                "reverse-engineering projects and unverified against this car - treat them as a " +
-                "guess, not a fact, until you've watched one change for yourself.",
+            title = stringResource(R.string.car_vehicle_title),
+            description = stringResource(R.string.car_settings_vehicle_data_note),
             checked = carSensors,
         ) { CarSettings.setCarSensorsEnabled(it) }
     }
@@ -321,7 +338,7 @@ private fun WebPageSetting() {
     var url by remember { mutableStateOf(AppSettings.startupUrl(context)) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Web page", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.car_settings_web_page), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Surface(
             onClick = { editing = !editing },
             shape = MaterialTheme.shapes.large,
@@ -329,7 +346,7 @@ private fun WebPageSetting() {
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
-                url.ifEmpty { "DuckDuckGo (default) - tap to set a different page" },
+                url.ifEmpty { stringResource(R.string.car_settings_web_page_default) },
                 style = MaterialTheme.typography.bodyLarge,
                 color = if (url.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -338,7 +355,7 @@ private fun WebPageSetting() {
             )
         }
         Text(
-            "Shown by the Browser app from the next time it opens, and by a browser on your pages from the next drive.",
+            stringResource(R.string.car_settings_web_page_note),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -364,6 +381,9 @@ private fun Info(label: String, value: String) {
     }
 }
 
+/** The vehicle's name when no profile matched (MyCarRunner): not a profile to save to. Shown in words. */
+private const val UNKNOWN_VEHICLE = "Unknown vehicle"
+
 /**
  * Nudges how much of the frame the UI keeps clear at the top and bottom, live, so a car's
  * display can be fitted from the driver's seat. Save writes it to this vehicle's profile.
@@ -374,7 +394,9 @@ private fun ScreenFit(vehicle: String) {
     val frame by CarEnvironment.frame.collectAsState()
     val context = LocalContext.current.applicationContext
     var saved by remember { mutableStateOf<String?>(null) }
-    val known = vehicle.isNotEmpty() && vehicle != "Unknown vehicle"
+    val known = vehicle.isNotEmpty() && vehicle != UNKNOWN_VEHICLE
+    val savedText = stringResource(R.string.car_settings_saved_to, vehicle)
+    val notSavedText = stringResource(R.string.car_settings_save_failed)
 
     fun change(new: io.github.sirionero.mycar.Insets) {
         saved = null
@@ -382,22 +404,22 @@ private fun ScreenFit(vehicle: String) {
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Screen fit", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        Stepper("Top", insets.top) { change(insets.copy(top = (insets.top + it).coerceAtLeast(0))) }
-        Stepper("Bottom", insets.bottom) { change(insets.copy(bottom = (insets.bottom + it).coerceAtLeast(0))) }
+        Text(stringResource(R.string.car_settings_screen_fit), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Stepper(stringResource(R.string.car_settings_fit_top), insets.top) { change(insets.copy(top = (insets.top + it).coerceAtLeast(0))) }
+        Stepper(stringResource(R.string.car_settings_fit_bottom), insets.bottom) { change(insets.copy(bottom = (insets.bottom + it).coerceAtLeast(0))) }
         Text(
-            "Usable height ${frame.height - insets.top - insets.bottom}px of ${frame.height}",
+            stringResource(R.string.car_settings_usable_height, frame.height - insets.top - insets.bottom, frame.height),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         GsButton(
             onClick = {
                 val ok = io.github.sirionero.mycar.VehicleProfiles.saveInsets(context, vehicle, insets)
-                saved = if (ok) "Saved to $vehicle" else "Could not save"
+                saved = if (ok) savedText else notSavedText
             },
             enabled = known,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-        ) { Text(if (known) "Save for this vehicle" else "No vehicle profile matched") }
+        ) { Text(stringResource(if (known) R.string.car_settings_save_for_vehicle else R.string.car_settings_no_vehicle_profile)) }
         saved?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
     }
 }
@@ -409,7 +431,7 @@ private fun Stepper(label: String, value: Int, onStep: (Int) -> Unit) {
         StepButton("−5", Modifier.weight(1f)) { onStep(-5) }
         StepButton("−1", Modifier.weight(1f)) { onStep(-1) }
         Text(
-            "${value}px",
+            stringResource(R.string.car_settings_pixels, value),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.weight(1.3f),
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,

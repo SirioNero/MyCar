@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import io.github.sirionero.mycar.R
 import androidx.compose.ui.platform.LocalContext
@@ -108,20 +109,22 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
                 if (small.isNotBlank()) {
                     Text(small, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
+                // A long answer (Home Assistant's model, AssistantBrain) smaller, on more lines.
+                val long = big.length > LONG_REPLY
                 Text(
                     big,
                     color = if (big == listeningLabel || big == waitLabel || big == "…") Color.White.copy(alpha = 0.7f) else Color.White,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = if (long) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
-                    maxLines = 2,
+                    maxLines = if (long) 4 else 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
             if (state.missingPermission) {
-                GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text("Grant") }
+                GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text(stringResource(R.string.assistant_grant)) }
             }
-            GsIconButton(Icons.Filled.Close, "Dismiss", CarAssistant::cancel)
+            GsIconButton(Icons.Filled.Close, stringResource(R.string.assistant_dismiss), CarAssistant::cancel)
         }
     }
 }
@@ -146,8 +149,11 @@ private fun PulsingMic(listening: Boolean, modifier: Modifier = Modifier) {
 /** The assistant's mic, from `R.drawable.mic_24`, tinted with the current content colour. */
 @Composable
 fun MicGlyph(modifier: Modifier = Modifier) {
-    Icon(ImageVector.vectorResource(R.drawable.mic_24), contentDescription = "Assistant", modifier = modifier)
+    Icon(ImageVector.vectorResource(R.drawable.mic_24), contentDescription = stringResource(R.string.assistant_mic), modifier = modifier)
 }
 
 private const val ERROR_MS = 6_000L
 private const val ERROR_WITH_ACTION_MS = 15_000L
+
+/** Characters past which an answer no longer fits two big lines. */
+private const val LONG_REPLY = 110

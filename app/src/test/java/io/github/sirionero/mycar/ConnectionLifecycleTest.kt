@@ -16,10 +16,16 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 
 class ConnectionLifecycleTest {
     private val version = message(1, byteArrayOf(0, 1, 0, 3))
+
+    /** The status texts on Home come from res/values. */
+    @Before fun words() {
+        TestWords.install()
+    }
 
     private fun message(id: Int, body: ByteArray = byteArrayOf()) = Frames.build(
         Frames.CHANNEL_CONTROL, false, byteArrayOf(0, id.toByte()) + body,
@@ -56,7 +62,7 @@ class ConnectionLifecycleTest {
                 SessionReport.category,
             )
             assertEquals(SessionStatus.Phase.FAILED, SessionStatus.state.value.phase)
-            assertEquals(SessionStatus.CERT_TURNED_DOWN, SessionStatus.state.value.headline)
+            assertEquals(Words.get(SessionStatus.CERT_TURNED_DOWN), SessionStatus.state.value.headline)
             assertTrue(SessionReport.stage < SessionReport.Stage.ACCEPTED)
         }
     }
@@ -65,7 +71,7 @@ class ConnectionLifecycleTest {
         val fatalAlert = message(3, byteArrayOf(21, 3, 3, 0, 2, 2, 42))
         runner(ByteArrayInputStream(version + hello() + fatalAlert + version + message(6))).run()
         assertEquals(SessionReport.Category.TLS, SessionReport.category)
-        assertEquals(SessionStatus.CERT_TURNED_DOWN, SessionStatus.state.value.headline)
+        assertEquals(Words.get(SessionStatus.CERT_TURNED_DOWN), SessionStatus.state.value.headline)
         assertTrue(SessionReport.stage < SessionReport.Stage.ACCEPTED)
     }
 

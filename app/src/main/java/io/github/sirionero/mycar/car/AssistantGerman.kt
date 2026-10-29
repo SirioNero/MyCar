@@ -195,6 +195,8 @@ internal object GermanPhrases : Phrasebook() {
         Said.CALLING to t("Ich rufe $1 an."),
         Said.NO_APP_CALLED to t("Ich finde keine App namens $1."),
         Said.SOMETHING_WRONG to t("Etwas ist schiefgelaufen. Versuch es noch einmal."),
+        Said.DONE to t("Erledigt."),
+        Said.HOME_ASSISTANT_SILENT to t("Home Assistant hat nicht geantwortet."),
         Said.NEEDS_MIC to t("Dafür braucht myCar die Mikrofon-Berechtigung."),
         Said.AFTER_CALL to t("Sprachbefehle gehen wieder, wenn der Anruf vorbei ist."),
         Said.DIDNT_CATCH to t("Das habe ich nicht verstanden."),
@@ -273,5 +275,7 @@ internal object GermanPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Möchtest du antworten? Sag ja oder nein.",
         "Get ready to say your reply." to "Mach dich bereit für deine Antwort.",
         "Say your reply" to "Sag deine Antwort",
+        "Anything else" to "Alles andere",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Home Assistant antwortet: dein Zuhause und die Fragen, die sein Sprachassistent kennt.",
     )
 }

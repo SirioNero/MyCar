@@ -66,10 +66,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
@@ -167,7 +169,8 @@ fun CarUi() {
             if (heard != null) {
                 // Whatever a command meets (a provider that fails, an app that throws), the drive
                 // goes on: an exception here used to end myCar.
-                val reply = try {
+                // Home Assistant asked something back: the answer is for it, not a command of myCar's.
+                val reply = if (AssistantBrain.asked) AssistantCommands.UNKNOWN else try {
                     AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
@@ -175,7 +178,9 @@ fun CarUi() {
                     MyCarLog.e("assistant: \"$heard\" failed", e)
                     "Something went wrong. Try again."
                 }
-                CarAssistant.reply(reply)
+                // None of myCar's commands: the driver's Home Assistant may know, or run it.
+                val answer = if (AssistantCommands.missed(reply)) AssistantBrain.ask(heard) else null
+                if (answer != null) CarAssistant.replyAsSaid(heard, answer.text, answer.goOn) else CarAssistant.reply(reply)
             }
         }
     }
@@ -185,8 +190,10 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         CarServices.media.search.collect { search ->
             if (search != null && search.ignored && navigator.current != CarScreen.Media) {
-                val app = CarServices.media.appLabel ?: "The music app"
-                CarToasts.show(CarServices, "$app didn't play anything for “${search.query}”", androidx.car.app.CarToast.LENGTH_LONG)
+                val app = CarServices.media.appLabel
+                val text = if (app != null) Words.get(R.string.car_ui_search_ignored, app, search.query)
+                else Words.get(R.string.car_ui_search_ignored_no_app, search.query)
+                CarToasts.show(CarServices, text, androidx.car.app.CarToast.LENGTH_LONG)
             }
         }
     }
@@ -375,22 +382,20 @@ private fun CarSafetyWizard(onDone: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Drive safely", style = ChromeType.headline, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.car_ui_safety_title), style = ChromeType.headline, fontWeight = FontWeight.Bold)
                     Text(
-                        "myCar is unofficial software: it is not made or reviewed by any " +
-                            "carmaker, and it can fail without warning.",
+                        stringResource(R.string.car_ui_safety_unofficial),
                         style = ChromeType.body,
                     )
                     Text(
-                        "Never interact with this screen while driving. Set the route or the " +
-                            "song before you go, then keep your attention on the road.",
+                        stringResource(R.string.car_ui_safety_attention),
                         style = ChromeType.body,
                     )
                 }
             }
             Spacer(Modifier.height(24.dp))
             GsButton(onClick = onDone, modifier = Modifier.fillMaxWidth().height(56.dp)) {
-                Text("I understand", style = ChromeType.body)
+                Text(stringResource(R.string.car_ui_safety_understood), style = ChromeType.body)
             }
         }
     }
@@ -421,7 +426,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
     }
     val failed = status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED
     if (failed || timedOut) {
-        AppWontStart(status.app ?: "This app", leave)
+        AppWontStart(status.app, leave)
         return
     }
     AppBackKey(CarServices.browse, active = true)
@@ -435,19 +440,23 @@ private const val SCREEN_ENTER_SCALE = 0.97f
 
 /** What a car app that won't run under myCar gets instead of a loading screen that never ends. */
 @Composable
-private fun AppWontStart(app: String, onBack: () -> Unit) {
+private fun AppWontStart(app: String?, onBack: () -> Unit) {
     Column(
         Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("$app doesn't work with myCar yet.", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         Text(
-            "It didn't start. Some apps only run on Google's Android Auto.",
+            if (app != null) stringResource(R.string.car_ui_app_wont_start, app) else stringResource(R.string.car_ui_app_wont_start_unknown),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            stringResource(R.string.car_ui_app_wont_start_detail),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        GsButton(onClick = onBack, tone = GsTone.Tonal) { Text("Back") }
+        GsButton(onClick = onBack, tone = GsTone.Tonal) { Text(stringResource(R.string.common_back)) }
     }
 }
 
@@ -486,7 +495,7 @@ private fun BreadcrumbBar(navigator: CarNavigator) {
         Modifier.fillMaxWidth().height(40.dp).padding(start = 2.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", navigator::back, size = 32.dp, iconSize = 20.dp)
+        GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back), navigator::back, size = 32.dp, iconSize = 20.dp)
         Spacer(Modifier.width(2.dp))
         trail.forEachIndexed { index, crumb ->
             val isLast = index == trail.lastIndex

@@ -30,10 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.PhoneTyping
 
 /**
@@ -60,7 +62,7 @@ fun PhoneTypingBar(modifier: Modifier = Modifier) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, modifier = modifier.fillMaxWidth().windowInsetsPadding(insets)) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = PhoneTyping::dismiss) {
-                Icon(Icons.Filled.Close, contentDescription = "Close the car keyboard")
+                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.settings_phone_typing_close))
             }
             OutlinedTextField(
                 value = value,
@@ -68,14 +70,14 @@ fun PhoneTypingBar(modifier: Modifier = Modifier) {
                     value = it
                     PhoneTyping.type(it.text)
                 },
-                label = { Text("Type for the car screen") },
+                label = { Text(stringResource(R.string.settings_phone_typing_label)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { PhoneTyping.submit() }),
                 modifier = Modifier.weight(1f).focusRequester(focus),
             )
             IconButton(onClick = PhoneTyping::submit) {
-                Icon(Icons.Filled.Search, contentDescription = "Search on the car screen")
+                Icon(Icons.Filled.Search, contentDescription = stringResource(R.string.settings_phone_typing_search))
             }
         }
     }

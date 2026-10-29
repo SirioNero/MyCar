@@ -17,9 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import java.net.URI
 
 /**
@@ -71,9 +74,9 @@ internal fun LocalNetworkRow(urls: List<String>, block: (Context, List<String>) 
     }
     if (!blocked) return
 
-    val host = urls.firstOrNull(LocalNetwork::isLocal)?.let { runCatching { URI(it).host }.getOrNull() } ?: "your home network"
+    val host = urls.firstOrNull(LocalNetwork::isLocal)?.let { runCatching { URI(it).host }.getOrNull() }
     SettingsRow(
-        "Allow the home network",
+        stringResource(R.string.network_home_allow),
         Modifier.clickable {
             if (!refused) {
                 launcher.launch(LocalNetwork.PERMISSION)
@@ -86,9 +89,9 @@ internal fun LocalNetworkRow(urls: List<String>, block: (Context, List<String>) 
             }
         },
         subtitle = if (!refused) {
-            "Android keeps myCar from reaching $host until you allow Nearby devices. Tap to allow."
+            if (host != null) stringResource(R.string.network_home_allow_host, host) else stringResource(R.string.network_home_allow_any)
         } else {
-            "Android said no. Tap, then Permissions, Nearby devices, Allow."
+            stringResource(R.string.network_home_said_no)
         },
         icon = Icons.Filled.Warning,
         tint = MaterialTheme.colorScheme.error,
@@ -97,4 +100,4 @@ internal fun LocalNetworkRow(urls: List<String>, block: (Context, List<String>) 
 }
 
 /** A test line's ending, when what failed is Android keeping myCar off the home network. */
-internal const val LOCAL_NETWORK_REFUSED = "Android keeps myCar off your home network: allow Nearby devices, above."
+internal val LOCAL_NETWORK_REFUSED: String get() = Words.get(R.string.network_home_refused)

@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import io.github.sirionero.mycar.R
 import android.telephony.PhoneNumberUtils
@@ -81,7 +82,7 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
             )
             Spacer(Modifier.height(16.dp))
             Text(
-                "Incoming call",
+                stringResource(R.string.call_incoming),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -95,7 +96,7 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
             if (rememberCallOnPhone(active = false)) {
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Your phone isn't connected to the car over Bluetooth: the call will play on the phone.",
+                    stringResource(R.string.call_no_bluetooth_ringing),
                     style = MaterialTheme.typography.titleSmall,
                     color = MyCarPalette.Warning,
                     textAlign = TextAlign.Center,
@@ -103,13 +104,13 @@ private fun IncomingCall(s: CallUiState.Ringing, onAnswer: () -> Unit, onDecline
             }
             Spacer(Modifier.height(56.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(48.dp)) {
-                CallButton(ImageVector.vectorResource(R.drawable.sym_call_end), "Decline", MyCarPalette.Negative, enabled = s.canDecline, onClick = onDecline)
-                CallButton(ImageVector.vectorResource(R.drawable.sym_call), "Answer", MyCarPalette.Positive, enabled = true, onClick = onAnswer)
+                CallButton(ImageVector.vectorResource(R.drawable.sym_call_end), stringResource(R.string.call_decline), MyCarPalette.Negative, enabled = s.canDecline, onClick = onDecline)
+                CallButton(ImageVector.vectorResource(R.drawable.sym_call), stringResource(R.string.call_answer), MyCarPalette.Positive, enabled = true, onClick = onAnswer)
             }
             if (!s.canDecline) {
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    "Already ringing out loud - answer here, or let it ring.",
+                    stringResource(R.string.call_ringing_aloud),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -158,7 +159,7 @@ private fun ActiveCallBanner(
             Spacer(Modifier.width(8.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    "On a call" + (s.caller?.let { " with ${it.shown()}" } ?: ""),
+                    s.caller?.let { stringResource(R.string.call_on_call_with, it.shown()) } ?: stringResource(R.string.call_on_call),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
@@ -167,7 +168,7 @@ private fun ActiveCallBanner(
                 // The voice never comes over USB: without Bluetooth it stays on the phone.
                 if (rememberCallOnPhone(active = true)) {
                     Text(
-                        "Playing on the phone: not connected to the car over Bluetooth",
+                        stringResource(R.string.call_on_phone),
                         style = MaterialTheme.typography.labelMedium,
                         color = MyCarPalette.Warning,
                         maxLines = 1,
@@ -178,7 +179,7 @@ private fun ActiveCallBanner(
             if (canHangUp) {
                 Spacer(Modifier.width(12.dp))
                 GsButton(onClick = onHangUp, tone = GsTone.Danger, modifier = Modifier.heightIn(min = 64.dp)) {
-                    Text("End call")
+                    Text(stringResource(R.string.call_end))
                 }
             }
         }

@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar
 
+import androidx.annotation.StringRes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -14,36 +15,47 @@ object SessionStatus {
 
     enum class Phase { IDLE, CONNECTING, PROJECTING, FAILED, DISCONNECTED }
 
-    data class Snapshot(val phase: Phase, val headline: String, val detail: String)
+    /**
+     * [headline] and [detail] are read in myCar's language each time, so a state already up (Not
+     * connected, from the start) follows a change of language.
+     */
+    class Snapshot(val phase: Phase, private val title: () -> String, private val text: () -> String) {
+        val headline: String get() = title()
+        val detail: String get() = text()
+    }
+
+    private fun words(@StringRes id: Int, vararg args: Any): () -> String = { Words.get(id, *args) }
 
     private val flow = MutableStateFlow(
-        Snapshot(
-            Phase.IDLE,
-            "Not connected",
-            "Plug into the car's USB port, or connect wirelessly. myCar opens by itself when the car answers.",
-        ),
+        Snapshot(Phase.IDLE, words(R.string.session_idle), words(R.string.session_idle_detail)),
     )
 
     val state: StateFlow<Snapshot> = flow
 
     /** The headline when the car turns the phone's certificate down. */
-    const val CERT_TURNED_DOWN = "The car turned down the certificate"
+    @StringRes val CERT_TURNED_DOWN = R.string.session_cert_turned_down
 
-    fun connecting(stage: String) {
-        flow.value = Snapshot(Phase.CONNECTING, "Connecting", stage)
+    fun connecting(@StringRes stage: Int, vararg args: Any) {
+        flow.value = Snapshot(Phase.CONNECTING, words(R.string.session_connecting), words(stage, *args))
     }
 
     fun projecting() {
-        flow.value = Snapshot(Phase.PROJECTING, "Connected", "myCar is on the car's screen.")
+        flow.value = Snapshot(Phase.PROJECTING, words(R.string.session_connected), words(R.string.session_connected_detail))
     }
 
+    /** Words already in hand; [detail] may be one that isn't translated, like an error's own. */
     fun failed(headline: String, detail: String) {
-        flow.value = Snapshot(Phase.FAILED, headline, detail)
+        flow.value = Snapshot(Phase.FAILED, { headline }, { detail })
+    }
+
+    /** [args] go into [detail]. */
+    fun failed(@StringRes headline: Int, @StringRes detail: Int, vararg args: Any) {
+        flow.value = Snapshot(Phase.FAILED, words(headline), words(detail, *args))
     }
 
     /** Keeps an earlier failure visible: a rejection is followed by a disconnect every time. */
     fun disconnected() {
         if (flow.value.phase == Phase.FAILED) return
-        flow.value = Snapshot(Phase.DISCONNECTED, "Disconnected", "The car is no longer connected.")
+        flow.value = Snapshot(Phase.DISCONNECTED, words(R.string.session_disconnected), words(R.string.session_disconnected_detail))
     }
 }

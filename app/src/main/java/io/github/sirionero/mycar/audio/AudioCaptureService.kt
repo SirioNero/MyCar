@@ -18,6 +18,8 @@ import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.os.Process
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.mirror.MirrorService
 import kotlin.math.abs
 
@@ -272,7 +274,7 @@ class AudioCaptureService : Service() {
     private fun notification(): Notification {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Car audio", NotificationManager.IMPORTANCE_LOW),
+            NotificationChannel(CHANNEL, Words.get(R.string.channel_audio), NotificationManager.IMPORTANCE_LOW),
         )
         val stop = PendingIntent.getService(
             this, 0,
@@ -280,11 +282,11 @@ class AudioCaptureService : Service() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         return Notification.Builder(this, CHANNEL)
-            .setContentTitle("Playing to the car")
-            .setContentText("myCar is sending the phone's audio to the car.")
+            .setContentTitle(Words.get(R.string.audio_notification_title))
+            .setContentText(Words.get(R.string.audio_notification_text))
             .setSmallIcon(android.R.drawable.ic_lock_silent_mode_off)
             .setOngoing(true)
-            .addAction(Notification.Action.Builder(null, "Stop", stop).build())
+            .addAction(Notification.Action.Builder(null, Words.get(R.string.service_notification_stop), stop).build())
             .build()
     }
 

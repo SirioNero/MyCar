@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarPalette
@@ -108,13 +109,13 @@ internal fun formatDuration(ms: Long): String {
 internal fun TransportRow(now: NowPlaying, media: CarMedia, skip: Dp, modifier: Modifier = Modifier) {
     val play = skip * 1.25f
     Row(modifier, horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-        PlainButton(media::previous, "Previous", skip, enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_PREVIOUS)) {
+        PlainButton(media::previous, stringResource(R.string.car_player_previous), skip, enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_PREVIOUS)) {
             Icon(painterResource(R.drawable.sym_fast_rewind), null, Modifier.size(skip * 0.7f))
         }
-        PlainButton(media::togglePlay, if (now.playing) "Pause" else "Play", play) {
+        PlainButton(media::togglePlay, stringResource(if (now.playing) R.string.car_player_pause else R.string.car_player_play), play) {
             Icon(painterResource(if (now.playing) R.drawable.sym_pause else R.drawable.sym_play_arrow), null, Modifier.size(play * 0.82f))
         }
-        PlainButton(media::next, "Next", skip, enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_NEXT)) {
+        PlainButton(media::next, stringResource(R.string.car_player_next), skip, enabled = now.canDo(PlaybackState.ACTION_SKIP_TO_NEXT)) {
             Icon(painterResource(R.drawable.sym_fast_forward), null, Modifier.size(skip * 0.7f))
         }
     }
@@ -149,7 +150,7 @@ internal fun PlayModeRow(
         if (likeAction != null) {
             CustomActionButton(likeAction, media, size, toggle = true)
         } else {
-            PlainButton(media::toggleLike, if (liked == true) "Unlike" else "Like", size, enabled = liked != null) {
+            PlainButton(media::toggleLike, stringResource(if (liked == true) R.string.car_player_unlike else R.string.car_player_like), size, enabled = liked != null) {
                 Icon(
                     painterResource(if (liked == true) R.drawable.sym_favorite_fill else R.drawable.sym_favorite),
                     null,
@@ -163,7 +164,7 @@ internal fun PlayModeRow(
             CustomActionButton(shuffleAction, media, size, toggle = true)
         } else {
             PlainButton(
-                media::toggleShuffle, if (shuffleOn) "Shuffle off" else "Shuffle on", size,
+                media::toggleShuffle, stringResource(if (shuffleOn) R.string.car_player_shuffle_off else R.string.car_player_shuffle_on), size,
                 enabled = shuffleKnown, lit = shuffleOn,
             ) {
                 Icon(painterResource(R.drawable.sym_shuffle), null, Modifier.size(icon))
@@ -173,7 +174,7 @@ internal fun PlayModeRow(
         if (repeatAction != null) {
             CustomActionButton(repeatAction, media, size, toggle = true)
         } else {
-            PlainButton(media::cycleRepeat, "Repeat", size, enabled = repeatKnown, lit = repeatOn) {
+            PlainButton(media::cycleRepeat, stringResource(R.string.car_player_repeat), size, enabled = repeatKnown, lit = repeatOn) {
                 Icon(
                     painterResource(if (modes.repeat == PlaybackStateCompat.REPEAT_MODE_ONE) R.drawable.sym_repeat_one else R.drawable.sym_repeat),
                     null,

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Words many screens share, on the phone and in the car. Keys from the other strings_*.xml files
+  say where they belong; these say what they are.
+-->
+<resources>
+    <!-- Buttons -->
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_close">Close</string>
+    <string name="common_done">Done</string>
+    <string name="common_back">Back</string>
+    <string name="common_save">Save</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_remove">Remove</string>
+    <string name="common_add">Add</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_retry">Try again</string>
+    <string name="common_allow">Allow</string>
+    <string name="common_skip">Skip</string>
+    <string name="common_next">Next</string>
+    <string name="common_copy">Copy</string>
+    <string name="common_open">Open</string>
+    <string name="common_open_settings">Open settings</string>
+    <string name="common_not_now">Not now</string>
+    <string name="common_more">More</string>
+    <!-- Answers to a question -->
+    <string name="common_yes">Yes</string>
+    <string name="common_no">No</string>
+    <!-- A switch's state, shown as a value -->
+    <string name="common_on">On</string>
+    <string name="common_off">Off</string>
+    <!-- While something is on its way -->
+    <string name="common_loading">Loading…</string>
+    <!-- Bluetooth, as Android's own settings write it (蓝牙 in Chinese) -->
+    <string name="common_bluetooth">Bluetooth</string>
+    <!-- Between the items of a list ("Contacts, Location, Phone"): a comma and a space in most languages, 、 in Chinese. Quoted so the space stays -->
+    <string name="common_list_separator">", "</string>
+    <!-- Screen titles -->
+    <string name="common_settings">Settings</string>
+</resources>

@@ -37,10 +37,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.cinema.Cinema
 import io.github.sirionero.mycar.cinema.PhoneVideos
 import io.github.sirionero.mycar.cinema.TvList
@@ -79,11 +82,11 @@ internal fun PhoneVideosRow() {
         onPauseOrDispose {}
     }
     SettingsRow(
-        "Videos on this phone",
+        stringResource(R.string.settings_cinema_videos),
         subtitle = when {
-            !allowed -> "Allow myCar to show them in the car, under \"On this phone\""
-            limited -> "Only the videos picked for myCar show in the car"
-            else -> "They show in the car, under \"On this phone\""
+            !allowed -> stringResource(R.string.settings_cinema_videos_ask)
+            limited -> stringResource(R.string.settings_cinema_videos_limited)
+            else -> stringResource(R.string.settings_cinema_videos_allowed)
         },
         icon = if (allowed) Icons.Filled.Check else Icons.Filled.PlayArrow,
         trailing = {
@@ -91,7 +94,7 @@ internal fun PhoneVideosRow() {
                 TextButton(onClick = {
                     askedAt = SystemClock.uptimeMillis()
                     launcher.launch(PhoneVideos.permissions)
-                }) { Text(if (limited) "Pick" else "Allow") }
+                }) { Text(stringResource(if (limited) R.string.settings_cinema_videos_pick else R.string.common_allow)) }
             }
         },
     )
@@ -105,7 +108,7 @@ internal fun MoreSitesRow() {
     val more = (Cinema.SUGGESTED + Cinema.MORE).filter { suggested -> sites.none { it.host == suggested.host } }
     if (more.isEmpty()) return
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("More sites", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.settings_cinema_more_sites), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             more.forEach { site ->
                 AssistChip(
@@ -132,19 +135,17 @@ internal fun CinemaTvSection() {
     val askLocalNetwork = rememberLocalNetworkAsk()
 
     SettingsSection(
-        "Cinema: TV",
-        footer = "IPTV lists in the M3U format, from your provider, a public list or a TV server at home: each " +
-            "one is a tile in Cinema with its channels. They play on the phone's own player; protected channels " +
-            "(DRM) and multicast ones are left out.",
+        stringResource(R.string.settings_cinema_tv_title),
+        footer = stringResource(R.string.settings_cinema_tv_footer),
     ) {
         LocalNetworkRow(lists.map { it.url })
         // A list's address is long and often holds the provider's user and password: asked first.
         var removeAsk by remember { mutableStateOf<TvList?>(null) }
         removeAsk?.let { list ->
             ConfirmDialog(
-                title = "Remove ${list.name}?",
-                text = "Its address and its channels leave myCar. To have it back, the address is typed in again.",
-                confirm = "Remove",
+                title = stringResource(R.string.settings_cinema_remove_title, list.name),
+                text = stringResource(R.string.settings_cinema_tv_remove_text),
+                confirm = stringResource(R.string.common_remove),
                 onConfirm = { TvLists.remove(list) },
                 onDismiss = { removeAsk = null },
             )
@@ -155,40 +156,42 @@ internal fun CinemaTvSection() {
                 list.name,
                 subtitle = list.host + when {
                     state == null -> ""
-                    state.loading -> " · loading…"
+                    state.loading -> " · " + stringResource(R.string.settings_cinema_tv_loading)
                     state.problem != null -> " · " + state.problem
-                    else -> " · ${state.channels.size} channels"
+                    else -> " · " + pluralStringResource(R.plurals.settings_cinema_tv_channels, state.channels.size, state.channels.size)
                 },
                 icon = if (state?.problem != null) Icons.Filled.Warning else Icons.Filled.PlayArrow,
                 tint = if (state?.problem != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 trailing = {
                     IconButton(onClick = { removeAsk = list }) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Remove ${list.name}")
+                        Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.settings_cinema_remove, list.name))
                     }
                 },
             )
             SettingsDivider()
         }
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // The name a list gets when none is typed, and the field's example.
+            val defaultName = stringResource(R.string.settings_cinema_tv_default_name)
             OutlinedTextField(
                 name,
                 { name = it },
-                label = { Text("Name") },
-                placeholder = { Text("TV") },
+                label = { Text(stringResource(R.string.settings_cinema_name)) },
+                placeholder = { Text(defaultName) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 address,
                 { address = it },
-                label = { Text("List address (M3U)") },
+                label = { Text(stringResource(R.string.settings_cinema_tv_address)) },
                 placeholder = { Text("https://example.com/playlist.m3u") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                 modifier = Modifier.fillMaxWidth(),
             )
             val url = Cinema.normalizeUrl(address)
-            val list = TvList(name.trim().ifEmpty { "TV" }, url)
+            val list = TvList(name.trim().ifEmpty { defaultName }, url)
             Button(
                 onClick = {
                     name = ""
@@ -197,7 +200,7 @@ internal fun CinemaTvSection() {
                     askLocalNetwork(listOf(url)) { TvLists.add(list) }
                 },
                 enabled = list.host.isNotEmpty(),
-            ) { Text("Add the list") }
+            ) { Text(stringResource(R.string.settings_cinema_tv_add)) }
         }
     }
     // Opening the settings is a good moment to see that the lists still load.

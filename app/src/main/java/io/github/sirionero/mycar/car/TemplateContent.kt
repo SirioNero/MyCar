@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,6 +60,7 @@ import androidx.car.app.media.model.MediaPlaybackTemplate
 import androidx.car.app.OnDoneCallback
 import androidx.car.app.serialization.Bundleable
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.host.isDrawable
 import io.github.sirionero.mycar.host.inputChanged
 import io.github.sirionero.mycar.host.inputSubmitted
@@ -298,6 +300,7 @@ internal fun SearchField(
     onClear: (() -> Unit)? = null,
 ) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    val searchHint = stringResource(R.string.car_template_search)
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         shape = androidx.compose.foundation.shape.CircleShape,
@@ -317,7 +320,7 @@ internal fun SearchField(
                 Spacer(Modifier.width(12.dp))
             }
             Text(
-                query.ifEmpty { hint.ifEmpty { "Search" } },
+                query.ifEmpty { hint.ifEmpty { searchHint } },
                 style = MaterialTheme.typography.titleMedium,
                 color = if (query.isEmpty()) muted else MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
@@ -327,7 +330,7 @@ internal fun SearchField(
             if (onClear != null && query.isNotEmpty()) {
                 GsIconButton(
                     androidx.compose.material.icons.Icons.Filled.Close,
-                    "Clear",
+                    stringResource(R.string.car_template_clear),
                     onClear,
                     colors = GsColors(androidx.compose.ui.graphics.Color.Transparent, muted),
                     size = 42.dp,
@@ -626,7 +629,7 @@ private fun MediaPlaybackContent(template: MediaPlaybackTemplate, modifier: Modi
         } else {
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
-                    "Nothing playing yet.",
+                    stringResource(R.string.car_template_nothing_playing),
                     style = ChromeType.body,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -650,6 +653,6 @@ private typealias ColumnScopeAlias = androidx.compose.foundation.layout.ColumnSc
 @Composable
 private fun Loading() {
     Box(Modifier.fillMaxWidth().height(80.dp), contentAlignment = Alignment.Center) {
-        Text("Loading…", style = ChromeType.title)
+        Text(stringResource(R.string.common_loading), style = ChromeType.title)
     }
 }

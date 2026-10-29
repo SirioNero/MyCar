@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_title">Configurer myCar</string>
+    <string name="setup_subtitle_first_run">Quelques appuis avant votre premier trajet.</string>
+    <string name="setup_subtitle_return">Ce qu’il reste à faire. Rien de ce que vous avez configuré ne change.</string>
+    <string name="setup_unofficial">myCar n’est pas officiel : configurez-le à l’arrêt, puis gardez les yeux sur la route.</string>
+    <string name="setup_section_connect">Pour se connecter</string>
+    <string name="setup_section_drive">Pour la route</string>
+    <string name="setup_status_done">Terminé</string>
+    <string name="setup_status_blocked">Bloqué</string>
+
+    <string name="setup_cert_title">Certificat pour la voiture</string>
+    <string name="setup_cert_body">Les voitures ne dialoguent qu’avec les téléphones munis d’un certificat de confiance. myCar n’en contient pas : il télécharge des certificats publics depuis des projets open source sur GitHub (environ 10 Ko chacun). Si votre voiture en refuse un, myCar essaie le suivant.</string>
+    <string name="setup_cert_get">Obtenir les certificats</string>
+    <string name="setup_cert_getting">Téléchargement des certificats…</string>
+    <string name="setup_cert_own_file">Utiliser mon propre fichier</string>
+    <string name="setup_cert_wrong_file">Un fichier téléchargé n’était pas le certificat attendu, donc myCar l’a écarté. Réessayez plus tard.</string>
+    <string name="setup_cert_no_download">Impossible de télécharger les certificats. Vérifiez votre connexion internet, puis réessayez.</string>
+    <string name="setup_cert_some_ready">%1$d sur %2$d obtenus. %3$s est prêt ; vous pourrez obtenir les autres plus tard dans les Paramètres.</string>
+    <string name="setup_cert_ready_own">Prêt : votre propre certificat.</string>
+    <plurals name="setup_cert_ready_spares">
+        <item quantity="one">Prêt : %1$s. De secours : %2$s.</item>
+        <item quantity="other">Prêt : %1$s. De secours : %2$s.</item>
+    </plurals>
+    <string name="setup_cert_ready_one">Prêt : %1$s.</string>
+    <string name="setup_cert_ready">Prêt.</string>
+    <string name="setup_cert_password_title">Mot de passe du certificat</string>
+    <string name="setup_cert_password_label">Mot de passe</string>
+    <string name="setup_cert_password_hint">Laissez vide si le fichier n’en a pas.</string>
+    <string name="setup_cert_password_use">Utiliser</string>
+    <string name="setup_cert_password_wrong">Mot de passe incorrect, ou ce n’est pas un fichier .p12 avec une clé privée.</string>
+
+    <string name="setup_mycar_on_title">Activez myCar pour la voiture</string>
+    <string name="setup_mycar_on_body">Il est désactivé dans les Paramètres, donc la voiture ne peut pas le joindre.</string>
+    <string name="setup_mycar_on_button">Activer</string>
+
+    <string name="setup_aa_title">Désactivez Android Auto</string>
+    <string name="setup_aa_off">Android Auto est désactivé.</string>
+    <string name="setup_aa_kept">Vous choisirez myCar en branchant le téléphone.</string>
+    <string name="setup_aa_body">Android Auto est activé, et il peut prendre la connexion de la voiture avant myCar. Sur l’écran qui s’ouvre, appuyez sur Désactiver, puis sur OK, puis revenez ici.</string>
+    <string name="setup_aa_open">Ouvrir Android Auto</string>
+    <string name="setup_aa_no_disable">Pas de bouton Désactiver ?</string>
+    <string name="setup_aa_keep_body">Alors gardez-le. Quand vous branchez le téléphone, Android demande quelle app ouvrir : choisissez myCar et appuyez sur Toujours. Si Android Auto s’ouvre tout seul, c’est qu’il est réglé pour toujours s’ouvrir : dans ses infos sur l’appli, appuyez sur Ouvrir par défaut, puis sur Effacer les préférences par défaut.</string>
+    <string name="setup_aa_keep">Garder Android Auto</string>
+
+    <string name="setup_drive_title">Appels, carte et musique</string>
+    <string name="setup_drive_allowed">Autorisé.</string>
+    <string name="setup_drive_blocked">Android ne demandera plus pour : %1$s. À activer dans les infos sur l’appli de myCar, sous Autorisations.</string>
+    <string name="setup_drive_skipped">Passé. Appuyez sur Autoriser quand vous voulez.</string>
+    <string name="setup_drive_still_off">Pas encore autorisé : %1$s.</string>
+    <string name="setup_drive_body">Votre voiture affiche qui appelle et vos appels récents, et peut appeler vos contacts. La carte sait où vous êtes, et la musique peut arriver dans la voiture sans Bluetooth. Android demande plusieurs fois : appuyez sur Autoriser à chaque fois. myCar ne fait que lire, et n’écoute que quand vous appuyez sur le micro.</string>
+    <string name="setup_group_phone">Téléphone</string>
+    <string name="setup_group_call_logs">Journaux d’appels</string>
+    <string name="setup_group_contacts">Contacts</string>
+    <string name="setup_group_location">Position</string>
+    <string name="setup_group_microphone">Micro</string>
+    <string name="setup_group_nearby_devices">Appareils à proximité</string>
+
+    <string name="setup_more_count">Plus (%1$d)</string>
+    <string name="setup_more_show_more">Afficher plus</string>
+    <string name="setup_more_show_less">Afficher moins</string>
+    <string name="setup_more_later">Tout ceci peut aussi se faire plus tard.</string>
+    <string name="setup_messages_title">Messages</string>
+    <string name="setup_messages_body">La voiture affiche vos messages, les lit à voix haute et vous permet de répondre. Activez myCar sur la page qui s’ouvre. Si Android parle d’un paramètre restreint : ouvrez les infos sur l’appli de myCar, appuyez sur ⋮, puis sur Autoriser les paramètres restreints, et réessayez.</string>
+    <string name="setup_messages_open">Ouvrir l’accès aux notifications</string>
+    <string name="setup_calendar_title">Agenda</string>
+    <string name="setup_calendar_body">L’écran de la voiture affiche votre prochain événement. myCar ne fait que lire votre agenda.</string>
+    <string name="setup_notifications_title">Notifications</string>
+    <string name="setup_notifications_body">Permet à myCar de montrer qu’il est connecté à la voiture, avec un bouton Arrêter pendant qu’il envoie le son du téléphone, et de vous prévenir quand une mise à jour sort.</string>
+    <string name="setup_screening_title">Filtrer les appels inconnus</string>
+    <string name="setup_screening_body">Quand la voiture est connectée, un appel d’un numéro hors de vos contacts attend quelques secondes avant de sonner, pour que vous puissiez le refuser depuis la voiture.</string>
+    <string name="setup_screening_button">Configurer</string>
+    <string name="setup_audio_title">Audio en voiture</string>
+    <string name="setup_audio_body">Comment la musique arrive dans la voiture. Les appels passent par le Bluetooth dans tous les cas.</string>
+    <string name="setup_usage_title">Aider les autres conducteurs</string>
+
+    <plurals name="setup_bar_steps_left">
+        <item quantity="one">Encore %1$d étape avant votre premier trajet.</item>
+        <item quantity="other">Encore %1$d étapes avant votre premier trajet.</item>
+    </plurals>
+    <string name="setup_bar_turn_on">Activer myCar</string>
+    <string name="setup_bar_ready_to_connect">Tout est prêt pour se connecter.</string>
+    <string name="setup_bar_allow_drive">Autoriser appels, carte et musique</string>
+    <string name="setup_bar_ready">Tout est prêt. Branchez le téléphone à la voiture ; si Android demande, choisissez myCar et appuyez sur Toujours.</string>
+    <string name="setup_bar_finish_later">Terminer plus tard</string>
+
+    <string name="setup_step_certificate">certificat pour la voiture</string>
+    <string name="setup_step_mycar_on">activation de myCar</string>
+    <plurals name="setup_card_steps_left">
+        <item quantity="one">Encore %1$d étape avant votre premier trajet : %2$s.</item>
+        <item quantity="other">Encore %1$d étapes avant votre premier trajet : %2$s.</item>
+    </plurals>
+    <plurals name="setup_card_extras_left">
+        <item quantity="one">Tout est prêt pour se connecter. Encore %1$d étape facultative.</item>
+        <item quantity="other">Tout est prêt pour se connecter. Encore %1$d étapes facultatives.</item>
+    </plurals>
+    <string name="setup_card_all_done">Tout est configuré.</string>
+    <string name="setup_card_title">Configuration initiale</string>
+    <string name="setup_card_footer">Rien n’est supprimé ni réinitialisé. Vous ne verrez que ce qui reste, avec ce qui est fait coché.</string>
+    <string name="setup_card_back">Revenir à la configuration initiale</string>
+    <string name="setup_left_title">Terminer la configuration</string>
+    <string name="setup_left_body">À faire avant votre premier trajet : %1$s.</string>
+    <string name="setup_left_continue">Continuer la configuration</string>
+
+    <string name="setup_guide_optional">FACULTATIF</string>
+    <string name="setup_guide_already_allowed">Déjà autorisé.</string>
+    <string name="setup_guide_skip_for_now">Passer pour l’instant</string>
+    <string name="setup_guide_usage_title">Aidez les autres conducteurs.</string>
+    <string name="setup_guide_safety_title">Conduisez prudemment.</string>
+    <string name="setup_guide_safety_body">myCar n’est pas officiel. Aucun constructeur ne l’a créé ni vérifié, et il peut cesser de fonctionner sans prévenir. Configurez-le avant de partir, puis gardez les yeux sur la route.</string>
+    <string name="setup_guide_mic_title">Micro.</string>
+    <string name="setup_guide_mic_body">myCar s’en sert pour envoyer votre musique à la voiture et pour vous entendre quand vous demandez quelque chose ou répondez à un message. Ce que vous dites reste sur le téléphone.</string>
+    <string name="setup_guide_location_title">Position.</string>
+    <string name="setup_guide_location_body">La carte de la voiture et les recherches à proximité en ont besoin. Sans elle, le tableau de bord n’affiche pas de carte.</string>
+    <string name="setup_guide_calendar_title">Agenda.</string>
+    <string name="setup_guide_calls_title">Appels et contacts.</string>
+    <string name="setup_guide_calls_body">La voiture affiche le nom de la personne qui appelle, et son app Téléphone peut composer un numéro ou appeler l’un de vos contacts. myCar ne fait que les lire.</string>
+    <string name="setup_guide_nearby_title">Appareils à proximité.</string>
+    <string name="setup_guide_nearby_body">La première fois que vous branchez le téléphone, myCar propose de l’associer à la voiture, pour que les appels passent par ses haut-parleurs.</string>
+    <string name="setup_guide_nearby_body_home">La première fois que vous branchez le téléphone, myCar propose de l’associer à la voiture, pour que les appels passent par ses haut-parleurs. La même autorisation permet à Plancia et Xonos d’atteindre Home Assistant et Music Assistant sur le réseau de la maison.</string>
+    <string name="setup_guide_notifications_title">Notifications.</string>
+    <string name="setup_guide_notifications_body">Quand myCar est connecté, il affiche une notification avec un bouton pour arrêter. Sans cette autorisation, Android la masque.</string>
+    <string name="setup_guide_messages_title">Messages.</string>
+    <string name="setup_guide_messages_body">La voiture affiche vos messages, les lit à voix haute et vous permet de répondre. Activez myCar dans la liste qui s’ouvre.</string>
+    <string name="setup_guide_aa_title">Désactivez Android Auto.</string>
+    <string name="setup_guide_aa_body">Android Auto est toujours installé, et il dispute à myCar la connexion USB de la voiture. Désactivez-le ou désinstallez-le sur l’écran qui s’ouvre.</string>
+    <string name="setup_guide_aa_open">Ouvrir les infos sur l’appli Android Auto</string>
+    <string name="setup_guide_choose_title">Choisissez myCar.</string>
+    <string name="setup_guide_choose_body">Si votre téléphone demande quelle app ouvrir quand vous le branchez à la voiture, choisissez myCar et appuyez sur Toujours.</string>
+    <string name="setup_guide_audio_title">Audio en voiture.</string>
+    <string name="setup_guide_audio_body">Choisissez comment la musique arrive dans la voiture. Les appels passent par le Bluetooth dans tous les cas.</string>
+    <string name="setup_guide_voice_title">Voix.</string>
+    <string name="setup_guide_voice_body">Demandez un itinéraire, de la musique ou un appel à la voix. Votre téléphone transforme lui-même la parole en texte, et rien de ce que vous dites n’en sort. Il faut %1$d Mo, téléchargés une seule fois. Utilisez le Wi-Fi si possible.</string>
+    <string name="setup_guide_voice_download">Télécharger la voix</string>
+    <string name="setup_guide_voice_progress">Téléchargement, %1$d %%. Vous pouvez continuer : il se poursuit.</string>
+    <string name="setup_guide_voice_ready">La voix est prête.</string>
+    <string name="setup_guide_voice_failed">Le téléchargement n’a pas abouti. Appuyez sur Télécharger la voix pour réessayer.</string>
+    <string name="setup_guide_project_media_title">Plus de demande pour l’audio.</string>
+    <string name="setup_guide_project_media_body">Lancez ceci depuis un ordinateur avec le débogage USB activé, et Android confie votre audio à myCar pour de bon. Sinon, vous appuyez une fois sur Commencer à chaque trajet.</string>
+    <string name="setup_guide_secure_settings_title">Notifications lisibles.</string>
+    <string name="setup_guide_secure_settings_body">Quand l’audio va à la voiture, Android masque le contenu des notifications, comme si vous partagiez votre écran. Ceci permet à myCar de les afficher pendant un trajet, puis de les masquer à nouveau.</string>
+    <string name="setup_guide_screening_title">Filtrez les appels inconnus.</string>
+    <string name="setup_guide_screening_body">Faites de myCar votre appli d’identification de l’appelant, et la voiture pourra refuser un appel hors de vos contacts avant qu’il sonne. Sans cela, la voiture affiche quand même chaque appel, et vous pouvez y répondre ou le refuser.</string>
+
+    <string name="setup_audio_automatic">Automatique</string>
+    <string name="setup_audio_recommended">Recommandé</string>
+    <string name="setup_audio_automatic_body">Par le Bluetooth si votre voiture reçoit ainsi la musique du téléphone, sinon via myCar.</string>
+    <string name="setup_audio_bluetooth_body">Pas de demande à chaque trajet, et la voix de votre app de navigation arrive dans la voiture. Certaines voitures n’acceptent que les appels par ce biais.</string>
+    <string name="setup_audio_through_mycar">Via myCar</string>
+    <string name="setup_audio_through_mycar_body">Par le câble ou le Wi-Fi, comme Android Auto. Android demande de partager l’audio une fois par trajet.</string>
+
+    <string name="intro_start">Commencer</string>
+    <string name="intro_welcome_to">Bienvenue dans</string>
+    <string name="intro_welcome_tag">alpha · la grande version</string>
+    <string name="intro_language_title">Votre langue.</string>
+    <string name="intro_language_body">myCar parle désormais français, anglais, italien, espagnol, allemand, portugais, grec, russe et chinois : sur le téléphone, sur l’écran de la voiture et dans l’assistant vocal. Il suit le téléphone ; choisissez-en une autre ici, ou plus tard dans Paramètres > Langue.</string>
+    <string name="intro_wireless_title">Sans fil.</string>
+    <string name="intro_wireless_body">Si votre voiture gère Android Auto sans fil, associez le téléphone une fois et laissez le câble à la maison.</string>
+    <string name="intro_knobs_title">Les molettes marchent.</string>
+    <string name="intro_knobs_body">Tournez, appuyez, c’est fait. Pas d’écran tactile ? myCar n’en a plus besoin.</string>
+    <string name="intro_graphene_title">Protections rétablies.</string>
+    <string name="intro_graphene_body">Sur GrapheneOS, myCar n’a plus besoin du réglage « Exploit protection compatibility mode ». Si vous l’aviez activé pour myCar, désactivez-le pour retrouver une protection complète.</string>
+    <string name="intro_graphene_open_settings">Ouvrir les paramètres de l’app</string>
+    <string name="intro_apps_title">En bonne compagnie.</string>
+    <string name="intro_apps_body">Des apps libres et open source qui fonctionnent bien en voiture. La première de chaque ligne fonctionne le mieux. Appuyez sur l’une d’elles pour la voir sur GitHub.</string>
+    <string name="intro_apps_maps">Cartes</string>
+    <string name="intro_apps_music">Musique</string>
+    <string name="intro_apps_podcasts">Podcasts</string>
+    <string name="intro_theme_title">Vos boutons.</string>
+    <string name="intro_theme_body">Choisissez l’apparence des boutons de la voiture. Vous pourrez la changer à tout moment dans les paramètres de la voiture.</string>
+    <string name="intro_theme_search">Rechercher</string>
+    <string name="intro_theme_play">Lecture</string>
+    <string name="intro_theme_navigate">Naviguer</string>
+    <string name="intro_voice_title">Dites-le.</string>
+    <string name="intro_voice_body">Appuyez sur le micro, ou sur le bouton de commande vocale du volant, et parlez. Votre téléphone transforme lui-même la parole en texte, et ce que vous dites y reste, sauf ce que vous demandez à votre propre Home Assistant. Dites « %1$s » dans la voiture pour la liste complète.</string>
+    <string name="intro_voice_body_language">Appuyez sur le micro, ou sur le bouton de commande vocale du volant, et parlez. Votre téléphone transforme lui-même la parole en texte, et ce que vous dites y reste, sauf ce que vous demandez à votre propre Home Assistant. L’assistant écoute et répond en %1$s, la langue de myCar. Dites « %2$s » dans la voiture pour la liste complète.</string>
+    <string name="intro_voice_downloading">Téléchargement, %1$d %%</string>
+    <string name="intro_voice_failed">Échec du téléchargement. Réessayez</string>
+    <string name="intro_voice_download">Télécharger la voix, %1$d Mo</string>
+    <string name="intro_voice_sample">« %1$s »</string>
+
+    <string name="activity_toast_no_call_screening">Ce téléphone ne permet pas aux apps de filtrer les appels.</string>
+    <string name="activity_toast_already_screening">myCar filtre déjà les appels inconnus.</string>
+    <string name="activity_toast_music_pauses_sharing">La musique du téléphone est en pause pendant le partage de son écran</string>
+    <string name="activity_toast_open_for_music">Ouvrez myCar sur le téléphone pour envoyer sa musique à la voiture</string>
+    <string name="activity_toast_open_for_sharing">Ouvrez myCar sur le téléphone pour partager son écran</string>
+    <string name="activity_status_no_car_title">La voiture est injoignable</string>
+    <string name="activity_status_no_car_detail">Android a vu le câble, mais pas la voiture au bout. Débranchez-le et rebranchez-le.</string>
+    <string name="activity_status_unplugged_title">La voiture n’est pas connectée</string>
+    <string name="activity_status_unplugged_detail">Le câble a été débranché avant que myCar puisse ouvrir la connexion. Rebranchez-le.</string>
+    <string name="activity_status_taken_title">Une autre app a pris la voiture</string>
+    <string name="activity_status_taken_detail">Une autre app a pris la connexion de la voiture avant myCar. Si Android demande quelle app ouvrir pour la voiture, choisissez myCar.</string>
+</resources>

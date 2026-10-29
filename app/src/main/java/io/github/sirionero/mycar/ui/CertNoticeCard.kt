@@ -1,6 +1,5 @@
 package io.github.sirionero.mycar.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -25,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,6 +33,7 @@ import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.CertRotation
 import io.github.sirionero.mycar.CertRotationPolicy.Notice
+import io.github.sirionero.mycar.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,12 +59,14 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
     var problem by remember { mutableStateOf<String?>(null) }
-    val label = notice.cert?.let { CertCatalog.entry(it)?.label } ?: "the next certificate"
+    val label = notice.cert?.let { CertCatalog.entry(it)?.label }
     // The one to get: the first of the catalog not on the phone yet.
     val spare = remember(notice) {
         val present = CertCatalog.present(context)
         CertCatalog.entries.firstOrNull { it.id !in present }?.label
     }
+
+    val downloadFailed = stringResource(R.string.cert_notice_download_failed)
 
     /** Runs [work] off the main thread, with the buttons held until it's done. */
     fun act(work: () -> Unit) {
@@ -72,29 +76,28 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
         scope.launch {
             val error = withContext(Dispatchers.IO) { runCatching(work).exceptionOrNull() }
             busy = false
-            problem = error?.let { "Couldn't download the certificates. Check your internet connection, then try again." }
+            problem = error?.let { downloadFailed }
         }
     }
 
     val (title, text) = when (notice.kind) {
-        Notice.SWITCHED -> "Your car turned down this certificate" to
-            "myCar uses $label from now on. Connect to the car again: plug the cable back in, or connect wirelessly."
-        Notice.NO_SPARE -> "Your car turned down this certificate" to
-            "Get ${spare ?: "the spare certificate"}, then connect to the car again."
-        Notice.EXHAUSTED -> "Your car turned down every certificate" to
-            "myCar tried ${CertCatalog.entries.size}. Some cars made from around 2020 check phones more strictly, " +
-            "and myCar can't connect to them yet."
-        Notice.NO_CERT -> "myCar has no car certificate yet" to
-            "Cars only talk to phones with a certificate they trust. Get one now, then connect to the car again."
-        Notice.OWN_REFUSED -> "Your car turned down your certificate" to
-            "To use the public ones instead, remove yours in Settings, under Certificate."
-        Notice.CLOCK -> "Check the car's date" to
-            "The car says the certificate isn't valid on its date. Set the car's clock, then connect again."
+        Notice.SWITCHED -> stringResource(R.string.cert_notice_turned_down_title) to
+            if (label != null) stringResource(R.string.cert_notice_switched_text, label) else stringResource(R.string.cert_notice_switched_next_text)
+        Notice.NO_SPARE -> stringResource(R.string.cert_notice_turned_down_title) to
+            if (spare != null) stringResource(R.string.cert_notice_no_spare_text, spare) else stringResource(R.string.cert_notice_no_spare_unnamed_text)
+        Notice.EXHAUSTED -> stringResource(R.string.cert_notice_exhausted_title) to
+            pluralStringResource(R.plurals.cert_notice_exhausted_text, CertCatalog.entries.size, CertCatalog.entries.size)
+        Notice.NO_CERT -> stringResource(R.string.cert_notice_no_cert_title) to
+            stringResource(R.string.cert_notice_no_cert_text)
+        Notice.OWN_REFUSED -> stringResource(R.string.cert_notice_own_refused_title) to
+            stringResource(R.string.cert_notice_own_refused_text)
+        Notice.CLOCK -> stringResource(R.string.cert_notice_clock_title) to
+            stringResource(R.string.cert_notice_clock_text)
         Notice.NONE -> return
     }
 
     // The same amber as the Bluetooth card: something to do, not something broken.
-    val dark = isSystemInDarkTheme()
+    val dark = phoneDark()
     val container = if (dark) Color(0xFF4A3B00) else Color(0xFFFFE08A)
     val content = if (dark) Color(0xFFFFE08A) else Color(0xFF3A2E00)
     val filled = ButtonDefaults.buttonColors(containerColor = content, contentColor = container)
@@ -112,24 +115,28 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
                             CertCatalog.downloadAll(context)
                             checkNotNull(CertRotation.useSpare(context)) { "no spare" }
                         }
-                    }, enabled = !busy, colors = filled) { Text(if (busy) "Getting it…" else "Get the spare") }
+                    }, enabled = !busy, colors = filled) {
+                        Text(stringResource(if (busy) R.string.cert_notice_getting_spare else R.string.cert_notice_get_spare))
+                    }
                     Notice.NO_CERT -> Button(onClick = {
                         act {
                             CertProvider.downloadAndImport(context)
                             CertRotation.dismiss(context)
                         }
-                    }, enabled = !busy, colors = filled) { Text(if (busy) "Getting certificates…" else "Get certificates") }
+                    }, enabled = !busy, colors = filled) {
+                        Text(stringResource(if (busy) R.string.cert_notice_getting_certificates else R.string.cert_notice_get_certificates))
+                    }
                     Notice.EXHAUSTED -> {
-                        Button(onClick = onOpenHelp, colors = filled) { Text("Which cars work") }
+                        Button(onClick = onOpenHelp, colors = filled) { Text(stringResource(R.string.help_which_cars)) }
                         TextButton(onClick = { act { CertRotation.startOver(context) } }, enabled = !busy) {
-                            Text("Try again from the first", color = content)
+                            Text(stringResource(R.string.cert_notice_start_over), color = content)
                         }
                     }
-                    Notice.OWN_REFUSED -> Button(onClick = onOpenSettings, colors = filled) { Text("Settings") }
+                    Notice.OWN_REFUSED -> Button(onClick = onOpenSettings, colors = filled) { Text(stringResource(R.string.common_settings)) }
                     else -> Unit
                 }
                 if (notice.kind != Notice.EXHAUSTED) {
-                    TextButton(onClick = { CertRotation.dismiss(context) }, enabled = !busy) { Text("OK", color = content) }
+                    TextButton(onClick = { CertRotation.dismiss(context) }, enabled = !busy) { Text(stringResource(R.string.common_ok), color = content) }
                 }
             }
         }

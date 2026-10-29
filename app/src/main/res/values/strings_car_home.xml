@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The car's screen: Home (the map, the pages beside it and their widgets), the dock down its left,
+  the app grid, the dashboard and the weather, wallpapers and button styles, and how myCar draws
+  the screens of car apps (Car App Library apps such as maps) and says why one won't start.
+-->
+<resources>
+    <!-- The car's screen as a whole (car/CarUi.kt) -->
+    <!-- Shown once, before anything else on the car's screen -->
+    <string name="car_ui_safety_title">Drive safely</string>
+    <string name="car_ui_safety_unofficial">myCar is unofficial software: it is not made or reviewed by any carmaker, and it can fail without warning.</string>
+    <string name="car_ui_safety_attention">Never interact with this screen while driving. Set the route or the song before you go, then keep your attention on the road.</string>
+    <!-- Button under the warning -->
+    <string name="car_ui_safety_understood">I understand</string>
+    <!-- A car app that won't run under myCar. %1$s: the app's name -->
+    <string name="car_ui_app_wont_start">%1$s doesn\'t work with myCar yet.</string>
+    <string name="car_ui_app_wont_start_unknown">This app doesn\'t work with myCar yet.</string>
+    <string name="car_ui_app_wont_start_detail">It didn\'t start. Some apps only run on Google\'s Android Auto.</string>
+    <!-- Message at the foot of the screen. %1$s: the music app's name; %2$s: what the driver asked it to play -->
+    <string name="car_ui_search_ignored">%1$s didn\'t play anything for “%2$s”</string>
+    <!-- The same, when the music app has no name. %1$s: what the driver asked it to play -->
+    <string name="car_ui_search_ignored_no_app">The music app didn\'t play anything for “%1$s”</string>
+    <!-- Message at the foot of the screen, after a tap on a link of a web page that is for an app -->
+    <string name="car_ui_link_opens_app">This link opens an app on the phone</string>
+
+    <!-- The dock down the left of the car's screen (car/CarDock.kt): what its buttons are, read aloud -->
+    <string name="car_dock_dashboard">Dashboard</string>
+    <string name="car_dock_map">Map</string>
+    <string name="car_dock_now_playing">Now playing</string>
+    <string name="car_dock_next_turn">Next turn</string>
+    <string name="car_dock_assistant">Voice assistant</string>
+    <string name="car_dock_all_apps">All apps</string>
+    <!-- From the app grid back to the map, with the music player beside it -->
+    <string name="car_dock_map_and_music">Map and music</string>
+    <!-- The phone's battery, under the clock: keep it short. %1$d: the percentage -->
+    <string name="car_dock_battery">%1$d%%</string>
+
+    <!-- myCar's own apps, by name, on the app grid and in the dock (car/NavApps.kt, car/CarApps.kt) -->
+    <string name="car_apps_browser">Browser</string>
+    <string name="car_apps_screen_sharing">Screen sharing</string>
+    <string name="car_apps_phone">Phone</string>
+    <string name="car_apps_vehicle_data">Vehicle data</string>
+    <!-- Leaves myCar for the car's own screens -->
+    <string name="car_apps_exit">Exit</string>
+    <!-- The app grid (car/CarLauncher.kt) -->
+    <!-- A music app with a car screen of its own too has two icons: this is the one for browsing that screen. %1$s: the app's name -->
+    <string name="car_apps_browse_label">%1$s · Browse</string>
+    <!-- The same, under the icon on the app grid, below the app's name: one short word -->
+    <string name="car_apps_browse">Browse</string>
+    <!-- Marks on an app's icon, read aloud -->
+    <string name="car_apps_partial">Works only in part with myCar</string>
+    <string name="car_apps_broken">Doesn\'t work with myCar</string>
+    <!-- The menu of an app, held down on the app grid or in the dock (car/NavApps.kt) -->
+    <string name="car_apps_pin">Pin to the dock</string>
+    <string name="car_apps_unpin">Unpin from the dock</string>
+    <!-- A greyed-out button. %1$d: how many apps the dock holds -->
+    <plurals name="car_apps_dock_full">
+        <item quantity="one">The dock is full (%1$d pinned)</item>
+        <item quantity="other">The dock is full (%1$d pinned)</item>
+    </plurals>
+    <string name="car_apps_close">Close app</string>
+    <!-- Moves the app one place on the app grid -->
+    <string name="car_apps_move_left">Move left</string>
+    <string name="car_apps_move_right">Move right</string>
+    <string name="car_apps_reset_order">Reset app order</string>
+
+    <!-- Home's map, while it starts or when there is none (car/CarHomeScreen.kt). %1$s: the map app's name -->
+    <string name="car_map_starting">Starting %1$s…</string>
+    <string name="car_map_starting_unknown">Starting the map…</string>
+    <string name="car_map_failed_unknown">The map app would not start.</string>
+    <string name="car_map_choose_another">Choose another app</string>
+    <string name="car_map_none_installed">No mapping apps found.</string>
+    <string name="car_map_none_installed_detail">Install a navigation app that supports Android Auto and it will start here on its own.</string>
+    <!-- The driver closed the map app -->
+    <string name="car_map_stopped">Map stopped.</string>
+    <string name="car_map_reopen">Reopen</string>
+    <!-- Button: opens the app grid -->
+    <string name="car_map_car_apps">Car apps</string>
+    <string name="car_map_choose">Choose a map app.</string>
+    <!-- Home: the song's words beside the map, and a car app beside the map or on a page -->
+    <string name="car_home_hide_lyrics">Hide lyrics</string>
+    <!-- %1$s: the app's name -->
+    <string name="car_home_app_failed">%1$s would not start.</string>
+    <!-- Button. %1$s: the app's name -->
+    <string name="car_home_open_app">Open %1$s</string>
+
+    <!-- What shares Home with the map (car/SidePane.kt) -->
+    <!-- Read aloud, on the player's X -->
+    <string name="car_side_close_player">Close the player</string>
+    <!-- The car's settings: a title, then a row of choices -->
+    <string name="car_side_title">Beside the map</string>
+    <!-- One of the choices: the music player -->
+    <string name="car_side_music">Music</string>
+    <string name="car_side_explained">Music puts the player beside the map while something plays. An app stays beside the map; close it for the drive, and the button at the foot of the dock brings it back from the app grid.</string>
+
+    <!-- The driver's pages on Home, beside the map's (car/HomePager.kt, car/PageLayouts.kt) -->
+    <!-- What a part of a page can show -->
+    <string name="car_pages_agenda">Agenda</string>
+    <string name="car_pages_nothing_yet">Nothing yet</string>
+    <string name="car_pages_nothing">Nothing</string>
+    <string name="car_pages_app_missing">App not on the phone</string>
+    <string name="car_pages_tap_to_choose">Tap to choose what goes here</string>
+    <string name="car_pages_app_gone">This app isn\'t on the phone any more. Tap to choose something else.</string>
+    <!-- Read aloud, on the arrow at the top left of the browser in a part of a page -->
+    <string name="car_pages_back_a_page">Back a page</string>
+    <!-- The dots at the foot of Home, one a page, read aloud. %1$d: the page's number -->
+    <string name="car_pages_dot_map">Map</string>
+    <string name="car_pages_dot_page">Page %1$d</string>
+    <!-- Read aloud, on the pencil beside the dots -->
+    <string name="car_pages_change">Change this page</string>
+    <!-- The bar across the top while a page is changed: buttons, read aloud -->
+    <string name="car_pages_move_left">Move left</string>
+    <string name="car_pages_move_right">Move right</string>
+    <string name="car_pages_add">Add a page</string>
+    <string name="car_pages_delete">Delete this page</string>
+    <!-- The second tap, which deletes the page -->
+    <string name="car_pages_delete_confirm">Delete page</string>
+    <!-- Title of the list of what can go in a part of a page -->
+    <string name="car_pages_show_here">Show here</string>
+    <!-- %1$s: what the page already runs, an app's name -->
+    <string name="car_pages_one_app">A page runs one car app at a time: %1$s is already on this one.</string>
+    <!-- How a page is cut up: a button, and the title of the list of layouts -->
+    <string name="car_pages_layout">Layout</string>
+    <!-- Read aloud, on that button. %1$s: the layout's name -->
+    <string name="car_pages_layout_now">Layout: %1$s</string>
+    <!-- The layouts' names, under a small picture of each: keep them short -->
+    <string name="car_pages_layout_full">Whole page</string>
+    <string name="car_pages_layout_halves">Two halves</string>
+    <string name="car_pages_layout_grid">Four parts</string>
+    <!-- A half on the left, two quarters on the right -->
+    <string name="car_pages_layout_half_left">Half left</string>
+    <string name="car_pages_layout_half_right">Half right</string>
+    <!-- A strip the page's whole width on top, two quarters under it -->
+    <string name="car_pages_layout_strip_top">Strip on top</string>
+    <string name="car_pages_layout_strip_below">Strip below</string>
+    <string name="car_pages_layout_map">Map</string>
+    <string name="car_pages_layout_keeps">What the page shows stays, in order, as far as the new layout has room.</string>
+    <!-- The car's settings -->
+    <string name="car_pages_settings_title">Pages beside the map</string>
+    <string name="car_pages_settings_explained">Swipe across Home, or tap the dots at its foot, for your pages: the weather, the agenda, the browser or a car app such as Plancia, as a whole page, halves, quarters or a mix. The pencil beside the dots changes the page in view.</string>
+    <!-- The second tap, which puts the ready-made pages in place of the driver's -->
+    <string name="car_pages_replace">Replace my pages</string>
+    <string name="car_pages_ready_made">Ready-made pages</string>
+
+    <!-- The weather on a page of Home (car/HomeWidgets.kt): today's highest and lowest temperature, keep them short. %1$d: degrees -->
+    <string name="car_widget_high">H %1$d°</string>
+    <string name="car_widget_low">L %1$d°</string>
+
+    <!-- The dashboard, opened from the dock's clock (car/CarDashboardScreen.kt), and the agenda on a page of Home -->
+    <string name="car_dashboard_title">Today</string>
+    <string name="car_dashboard_weather_loading">Getting weather…</string>
+    <!-- Title over the next events of the phone's calendar -->
+    <string name="car_dashboard_coming_up">Coming up</string>
+    <string name="car_dashboard_allow_calendar">Allow the calendar for myCar on the phone to see what\'s coming up.</string>
+    <string name="car_dashboard_calendar_loading">Loading calendar…</string>
+    <string name="car_dashboard_nothing_coming">Nothing in the next week.</string>
+    <!-- An event that lasts the whole day, where the others show their time -->
+    <string name="car_dashboard_all_day">All day</string>
+    <!-- An event with no title -->
+    <string name="car_dashboard_untitled">(untitled)</string>
+
+    <!-- The weather (car/WeatherScreen.kt, car/Weather.kt), also on the dashboard and on a page of Home -->
+    <string name="car_weather_title">Weather</string>
+    <string name="car_weather_loading">Getting the weather…</string>
+    <string name="car_weather_waiting_fix">Waiting for a location fix.</string>
+    <string name="car_weather_allow_location">Allow location for myCar on the phone to see the weather.</string>
+    <string name="car_weather_unreachable">Could not reach the weather service.</string>
+    <!-- %1$d: degrees; %2$s: °C or °F -->
+    <string name="car_weather_feels_like">Feels like %1$d%2$s</string>
+    <!-- %1$d: the percentage -->
+    <string name="car_weather_humidity">Humidity %1$d%%</string>
+    <!-- %1$d: the wind's speed -->
+    <string name="car_weather_wind_kmh">Wind %1$d km/h</string>
+    <string name="car_weather_wind_mph">Wind %1$d mph</string>
+    <!-- The chance of rain, under an hour or beside a day. %1$d: the percentage -->
+    <string name="car_weather_rain_chance">%1$d%%</string>
+    <string name="car_weather_next_hours">Next hours</string>
+    <string name="car_weather_this_week">This week</string>
+    <!-- The first day of the week's forecast -->
+    <string name="car_weather_today">Today</string>
+    <string name="car_weather_credit">Weather data by Open-Meteo.com (CC BY 4.0)</string>
+    <!-- The weather in a word or two -->
+    <string name="car_weather_clear">Clear</string>
+    <string name="car_weather_mostly_clear">Mostly clear</string>
+    <string name="car_weather_partly_cloudy">Partly cloudy</string>
+    <string name="car_weather_overcast">Overcast</string>
+    <string name="car_weather_fog">Fog</string>
+    <string name="car_weather_drizzle">Drizzle</string>
+    <string name="car_weather_rain">Rain</string>
+    <string name="car_weather_snow">Snow</string>
+    <string name="car_weather_rain_showers">Rain showers</string>
+    <string name="car_weather_snow_showers">Snow showers</string>
+    <string name="car_weather_thunderstorm">Thunderstorm</string>
+
+    <!-- Distances and times from the map app, short as on a road sign (host/CarModels.kt). %1$s: the number, already written as the language writes numbers -->
+    <string name="car_nav_meters">%1$s m</string>
+    <string name="car_nav_kilometers">%1$s km</string>
+    <string name="car_nav_miles">%1$s mi</string>
+    <string name="car_nav_feet">%1$s ft</string>
+    <string name="car_nav_yards">%1$s yd</string>
+    <!-- Time left. %1$d: minutes -->
+    <string name="car_nav_minutes">%1$d min</string>
+    <!-- Time left. %1$d: hours; %2$d: minutes -->
+    <string name="car_nav_hours_minutes">%1$d hr %2$d min</string>
+
+    <!-- How myCar draws a car app's screens (car/CarAppStage.kt, car/Template*.kt) -->
+    <!-- In the app's bar, when it has no name -->
+    <string name="car_template_car_app">Car app</string>
+    <!-- In the app's bar, after its name, until the app draws -->
+    <string name="car_template_waiting">waiting for the app</string>
+    <!-- Button at the right end of the app's bar: closes the app. Keep it short -->
+    <string name="car_template_stop">Stop</string>
+    <string name="car_template_finding_route">Finding a route…</string>
+    <string name="car_template_finding_routes">Finding routes…</string>
+    <!-- On the turn card, before the turn after the next one: one short word -->
+    <string name="car_template_then">then</string>
+    <!-- Read aloud, on the arrows of the lanes -->
+    <string name="car_template_lane">Lane</string>
+    <string name="car_template_lane_recommended">Recommended lane</string>
+    <!-- After a first tap on the X beside the time left: a second tap ends the route -->
+    <string name="car_template_end_route">End route</string>
+    <!-- Read aloud, on that X -->
+    <string name="car_template_stop_navigating">Stop navigating</string>
+    <!-- In an empty search field -->
+    <string name="car_template_search">Search</string>
+    <!-- Read aloud, on the X that empties the search field -->
+    <string name="car_template_clear">Clear</string>
+    <string name="car_template_nothing_playing">Nothing playing yet.</string>
+    <!-- A kind of screen myCar can't draw yet. %1$s: its technical name -->
+    <string name="car_template_unsupported">%1$s isn\'t drawn yet</string>
+    <!-- A button that presses itself after a few seconds, when the app gives it no name -->
+    <string name="car_template_start">Start</string>
+    <!-- Button beside a phone number on a place's card -->
+    <string name="car_template_call">Call</string>
+
+    <!-- Why a car app would not start, shown under "… would not start." (host/CarAppConnection.kt) -->
+    <string name="car_host_service_disconnected">the app\'s service disconnected</string>
+    <string name="car_host_refused_bind">the app refused to bind - host not accepted</string>
+    <string name="car_host_would_not_connect">the app would not let myCar connect</string>
+    <!-- %1$s: the name of an Android permission, technical -->
+    <string name="car_host_needs_permission">It only accepts Google\'s own Android Auto: its service requires the permission %1$s, which myCar can\'t hold.</string>
+    <string name="car_host_only_android_auto">It only accepts Google\'s own Android Auto host.</string>
+    <string name="car_host_not_allowed">It only trusts hosts on its own allow-list (Google\'s Android Auto and a few others), and myCar isn\'t on it.</string>
+    <string name="car_host_no_answer">It didn\'t answer myCar. Apps built for newer versions of Android Auto only run on Google\'s.</string>
+    <!-- %1$s: a step of the connection, a technical name; %2$s: what the app answered -->
+    <string name="car_host_step_failed">%1$s failed: %2$s</string>
+    <!-- %1$s: a step of the connection, a technical name -->
+    <string name="car_host_step_failed_no_reason">%1$s failed: no reason given</string>
+    <!-- %1$s: a step of the connection, a technical name; %2$s: the app's own message, usually in English -->
+    <string name="car_host_rejected_at">It rejected myCar as a host at %1$s: %2$s</string>
+    <string name="car_host_state_error_at">It reported a state error at %1$s: %2$s</string>
+    <string name="car_host_invalid_parameter_at">It reported an invalid parameter at %1$s: %2$s</string>
+    <string name="car_host_failed_at">It failed at %1$s: %2$s</string>
+    <!-- Technical. %1$s: the name of what the app answered -->
+    <string name="car_host_bad_app_info">app info was %1$s</string>
+    <!-- Technical. %1$d: the car API level the app needs; %2$d: the one myCar offers -->
+    <string name="car_host_api_too_old">app needs car api %1$d, host offers %2$d</string>
+    <!-- Technical. %1$s: the error's message -->
+    <string name="car_host_handshake_failed">could not bundle the handshake: %1$s</string>
+    <!-- Technical. %1$s: a step of the connection; %2$s: the error's name; %3$s: its message -->
+    <string name="car_host_threw">%1$s threw: %2$s %3$s</string>
+    <!-- The notification while a car map gets the phone's location (host/LocationKeepAlive.kt): the channel's name in Android's settings, and the notification's title -->
+    <string name="car_host_location_channel">Navigation location</string>
+    <string name="car_host_location_notification">myCar is sharing location with the car map</string>
+
+    <!-- The wallpaper choice in the car's settings (car/WallpaperPicker.kt, car/design/Wallpapers.kt) -->
+    <string name="car_wallpaper_title">Wallpaper</string>
+    <!-- Over the wallpapers that stay still -->
+    <string name="car_wallpaper_still">Still</string>
+    <!-- Over the wallpapers that move -->
+    <string name="car_wallpaper_moving">Moving</string>
+    <!-- No wallpaper: a plain background -->
+    <string name="car_wallpaper_none">None</string>
+    <!-- The wallpapers' names: glows of colour drawn by myCar, named after what they look like. Keep them short -->
+    <string name="car_wallpaper_aurora">Aurora</string>
+    <string name="car_wallpaper_sunset">Sunset</string>
+    <string name="car_wallpaper_ocean">Ocean</string>
+    <string name="car_wallpaper_nebula">Nebula</string>
+    <string name="car_wallpaper_ember">Ember</string>
+    <string name="car_wallpaper_forest">Forest</string>
+    <string name="car_wallpaper_graphite">Graphite</string>
+    <string name="car_wallpaper_lava">Lava</string>
+    <string name="car_wallpaper_polar">Polar</string>
+    <string name="car_wallpaper_waves">Waves</string>
+    <string name="car_wallpaper_fireflies">Fireflies</string>
+
+    <!-- How the buttons on the car's screen look, a choice in the car's settings (car/theme/GsTheme.kt) -->
+    <!-- Raised like a computer keyboard's keys -->
+    <string name="car_theme_keycap">Keycap</string>
+    <!-- With a light bevel and a soft shadow, pressed in when tapped -->
+    <string name="car_theme_tactile">Tactile</string>
+    <string name="car_theme_flat">Flat</string>
+</resources>

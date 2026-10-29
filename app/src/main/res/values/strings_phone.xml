@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  myCar on the phone: Home, the help screen ("How to connect"), the car certificates, updates, the
+  logs, the car preview and a few small dialogs.
+-->
+<resources>
+    <!-- Home -->
+    <!-- A row at the bottom of Home. %1$s: the release, e.g. 0.5 -->
+    <string name="home_whats_new_in">What\'s new in %1$s</string>
+    <string name="home_how_to_connect_subtitle">Which cars work, and what\'s left to set up</string>
+    <!-- Button, and the confirm button of the dialog below -->
+    <string name="home_disconnect">Disconnect</string>
+    <string name="home_disconnect_title">Disconnect from the car?</string>
+    <string name="home_disconnect_text">myCar leaves the car\'s screen now. With the cable, unplug it and plug it in again to come back.</string>
+    <!-- A card on Home while the car is connected but the phone's Bluetooth isn't -->
+    <string name="home_bluetooth_missing_title">Bluetooth isn\'t connected</string>
+    <!-- When music goes to the car through myCar, only calls use Bluetooth -->
+    <string name="home_bluetooth_missing_calls">Calls play over Bluetooth, but your phone isn\'t connected to the car. Connect it here or from the car\'s Bluetooth menu.</string>
+    <string name="home_bluetooth_missing_calls_music">Calls and music play over Bluetooth, but your phone isn\'t connected to the car. Connect it here or from the car\'s Bluetooth menu.</string>
+    <!-- Button: opens Android's Bluetooth settings -->
+    <string name="home_bluetooth_settings">Bluetooth settings</string>
+    <!-- The voice models on their way. %1$d: how far, in percent -->
+    <string name="home_voice_downloading">Downloading voice, %1$d%%</string>
+
+    <!-- Home: the wireless button in the status card, and the list of paired cars it opens -->
+    <string name="wireless_button_connect">Connect wirelessly</string>
+    <string name="wireless_button_denied">myCar needs Bluetooth and nearby Wi-Fi access for this.</string>
+    <!-- "Nearby devices" is the name Android gives this permission -->
+    <string name="wireless_button_enable_permission">Enable Nearby devices permission</string>
+    <!-- "Use myCar in the car" is the name of the switch in myCar's Settings -->
+    <string name="wireless_button_switched_off">myCar is switched off for the car (Settings, \"Use myCar in the car\").</string>
+    <string name="wireless_button_turn_on">Turn it on</string>
+    <!-- Title of the list of paired Bluetooth devices -->
+    <string name="wireless_button_which_car">Which car?</string>
+    <!-- "Connect wirelessly" is the button above (wireless_button_connect) -->
+    <string name="wireless_button_bluetooth_off">Bluetooth is off. Turn it on, then tap Connect wirelessly again.</string>
+    <string name="wireless_button_not_paired">Your phone isn\'t paired with anything yet. Pair it with the car first.</string>
+    <string name="wireless_button_not_listed">Car not listed? Pair it with your phone first.</string>
+
+    <!-- How to connect (the help screen; also its row on Home) -->
+    <string name="help_title">How to connect</string>
+    <!-- A section title, and a button on the certificate card that opens it -->
+    <string name="help_which_cars">Which cars work</string>
+    <string name="help_which_cars_text">Most cars work. Starting around 2020, some cars added newer security standards that reject myCar\'s certificate, and myCar can\'t run in those cars.</string>
+    <string name="help_see_full_list">See the full list</string>
+    <!-- Section titles: numbered steps follow -->
+    <string name="help_in_the_car">In the car</string>
+    <string name="help_sound_through_mycar">Sound through myCar</string>
+    <!-- Each step: a short line that says what to do, then how -->
+    <string name="help_step_connect">Plug in, or connect wirelessly.</string>
+    <!-- "Connect wirelessly" is the button on Home (wireless_button_connect) -->
+    <string name="help_step_connect_detail">myCar opens by itself when the car connects. For wireless, pair the phone with the car first, then tap Connect wirelessly on Home.</string>
+    <string name="help_step_pair">Pair over Bluetooth for calls.</string>
+    <string name="help_step_pair_detail">Calls play through the car once your phone and the car are paired. myCar offers to pair the first time you plug in.</string>
+    <string name="help_step_screening">Turn down unknown callers before they ring.</string>
+    <!-- "Caller ID and spam app" is how Android names this role in its settings -->
+    <string name="help_step_screening_detail">Set myCar as your caller ID and spam app. Without it, the car still shows every call, and you answer or decline it there.</string>
+    <!-- Button -->
+    <string name="help_set_up">Set up</string>
+    <!-- A command to run from a computer follows these two steps -->
+    <string name="help_step_audio_prompt">Stop the audio prompt each drive.</string>
+    <!-- "Start" is the button of Android's own question before audio is shared -->
+    <string name="help_step_audio_prompt_detail">Connect the phone to a computer with USB debugging on, and run this once. Skip it and you tap Start each time you set off.</string>
+    <string name="help_step_notifications">Keep notifications readable.</string>
+    <string name="help_step_notifications_detail">Android hides what notifications say while it shares audio. Run this too, and myCar lifts that only while music goes to the car.</string>
+    <!-- Under a command to copy, and the toast once it's copied -->
+    <string name="help_tap_to_copy">Tap to copy</string>
+    <string name="help_command_copied">Command copied</string>
+
+    <!-- The certificate card on Home, after the car turned down a certificate -->
+    <string name="cert_notice_turned_down_title">Your car turned down this certificate</string>
+    <!-- %1$s: the certificate's name (aasdk, Headunit Revived, CarService) -->
+    <string name="cert_notice_switched_text">myCar uses %1$s from now on. Connect to the car again: plug the cable back in, or connect wirelessly.</string>
+    <string name="cert_notice_switched_next_text">myCar uses the next certificate from now on. Connect to the car again: plug the cable back in, or connect wirelessly.</string>
+    <!-- %1$s: the certificate's name (Headunit Revived, CarService) -->
+    <string name="cert_notice_no_spare_text">Get %1$s, then connect to the car again.</string>
+    <string name="cert_notice_no_spare_unnamed_text">Get the spare certificate, then connect to the car again.</string>
+    <string name="cert_notice_exhausted_title">Your car turned down every certificate</string>
+    <!-- %1$d: how many certificates myCar tried -->
+    <plurals name="cert_notice_exhausted_text">
+        <item quantity="one">myCar tried %1$d. Some cars made from around 2020 check phones more strictly, and myCar can\'t connect to them yet.</item>
+        <item quantity="other">myCar tried %1$d. Some cars made from around 2020 check phones more strictly, and myCar can\'t connect to them yet.</item>
+    </plurals>
+    <string name="cert_notice_no_cert_title">myCar has no car certificate yet</string>
+    <string name="cert_notice_no_cert_text">Cars only talk to phones with a certificate they trust. Get one now, then connect to the car again.</string>
+    <string name="cert_notice_own_refused_title">Your car turned down your certificate</string>
+    <!-- "Certificate" is the section of myCar's Settings -->
+    <string name="cert_notice_own_refused_text">To use the public ones instead, remove yours in Settings, under Certificate.</string>
+    <string name="cert_notice_clock_title">Check the car\'s date</string>
+    <string name="cert_notice_clock_text">The car says the certificate isn\'t valid on its date. Set the car\'s clock, then connect again.</string>
+    <string name="cert_notice_download_failed">Couldn\'t download the certificates. Check your internet connection, then try again.</string>
+    <!-- Buttons, and what they say while they work -->
+    <string name="cert_notice_get_spare">Get the spare</string>
+    <string name="cert_notice_getting_spare">Getting it…</string>
+    <string name="cert_notice_get_certificates">Get certificates</string>
+    <string name="cert_notice_getting_certificates">Getting certificates…</string>
+    <!-- Button: every certificate may be tried again, from the first -->
+    <string name="cert_notice_start_over">Try again from the first</string>
+
+    <!-- The public certificates, in Settings: "aasdk · Recommended", and what each is for under it -->
+    <string name="cert_role_recommended">Recommended</string>
+    <string name="cert_role_spare">Spare</string>
+    <!-- For the newest cars, which check phones most strictly -->
+    <string name="cert_role_newest">Newest cars</string>
+    <string name="cert_about_aasdk">Works in most cars tried so far. From the aasdk project.</string>
+    <string name="cert_about_revived">Valid until 2044, for cars that turn down the first one. From the Headunit Revived project.</string>
+    <string name="cert_about_carservice">Android Auto\'s own, for cars that check phones most strictly, recent Volkswagens among them. Android Auto replaces it every few months: myCar gets the new one before it runs out.</string>
+
+    <!-- The certificate in use, in a line (Settings, and the car's settings) -->
+    <string name="cert_summary_none">No car certificate yet: tap one below to get it</string>
+    <!-- %1$s: the certificate's name -->
+    <string name="cert_summary_imported">Imported: %1$s</string>
+    <string name="cert_summary_downloaded">Downloaded: %1$s</string>
+    <!-- Put on the phone from a computer with adb -->
+    <string name="cert_summary_staged">Staged over adb: %1$s</string>
+    <string name="cert_summary_self_signed">Self-signed: %1$s</string>
+
+    <!-- Certificate setup (an older screen) -->
+    <string name="cert_setup_title">Certificate Setup</string>
+    <string name="cert_setup_intro">Cars accept only Google-issued certificates. myCar doesn\'t include one, so choose where yours comes from.</string>
+    <string name="cert_setup_intro_installed">Cars accept only Google-issued certificates, and you have one loaded.</string>
+    <string name="cert_setup_imported">Certificate imported.</string>
+    <string name="cert_setup_installed">Certificate installed.</string>
+    <string name="cert_setup_continue">Continue</string>
+    <string name="cert_setup_download">Download from aasdk</string>
+    <string name="cert_setup_download_about">The open-source aasdk project publishes this certificate at github.com/opencardev/aasdk. Most cars accept it; some from around 2020 on don\'t.</string>
+    <string name="cert_setup_downloading">Downloading…</string>
+    <string name="cert_setup_download_failed">Download failed</string>
+    <string name="cert_setup_unknown_error">Unknown error</string>
+    <string name="cert_setup_retry">Retry</string>
+    <string name="cert_setup_import">Import my own file</string>
+    <string name="cert_setup_import_about">A .p12 file with its private key, from wherever you choose.</string>
+    <string name="cert_setup_skip">Skip car connection setup</string>
+    <string name="cert_setup_password_title">Certificate password</string>
+    <string name="cert_setup_password">Password</string>
+    <string name="cert_setup_password_hint">Leave empty if the file has none.</string>
+    <string name="cert_setup_wrong_password">Wrong password or not a valid PKCS#12 file with a private key.</string>
+    <!-- Button: imports the file with the password typed -->
+    <string name="cert_setup_import_button">Import</string>
+
+    <!-- Updates: the card on Home, the row and dialog in Settings, the notifications -->
+    <!-- Title in Settings and of its dialog; also the name of the notification channel -->
+    <string name="update_title">Updates</string>
+    <!-- %1$s: the new version, e.g. 0.5.22-alpha -->
+    <string name="update_out">myCar %1$s is out</string>
+    <!-- %1$d: how far, in percent -->
+    <string name="update_downloading">Downloading… %1$d%%</string>
+    <string name="update_unplug_first">Unplug from the car to install. Installing closes myCar.</string>
+    <string name="update_downloaded">Downloaded. Android asks before it installs.</string>
+    <string name="update_download_now">Download it now. Android asks before it installs.</string>
+    <!-- Buttons -->
+    <string name="update_install">Install</string>
+    <string name="update_update">Update</string>
+    <string name="update_download">Download</string>
+    <string name="update_check_now">Check now</string>
+    <!-- What the update check found, in a line. "Check now" is the button (update_check_now) -->
+    <string name="update_status_debug">Debug builds check only when you tap Check now</string>
+    <string name="update_status_daily">myCar checks once a day</string>
+    <string name="update_status_checking">Checking…</string>
+    <string name="update_status_latest">You have the latest version</string>
+    <!-- %1$s: the new version -->
+    <string name="update_status_available">Version %1$s is out</string>
+    <string name="update_status_ready">Version %1$s is ready to install</string>
+    <!-- %1$s: this version; %2$s: what the update check found (one of the lines above) -->
+    <string name="update_version_status">Version %1$s. %2$s.</string>
+    <!-- A switch, and what it means under it -->
+    <string name="update_check_automatically">Check automatically</string>
+    <string name="update_once_a_day">Once a day</string>
+    <!-- The phone's notification, under "myCar 0.5.22 is out" -->
+    <string name="update_notification_text">Tap to update.</string>
+    <!-- The same news on the car's screen, under "myCar 0.5.22 is out" -->
+    <string name="update_car_notification_text">Update in the myCar app or from GitHub</string>
+    <!-- What stopped the update -->
+    <string name="update_error_no_github">Couldn\'t reach GitHub. Check the connection and try again.</string>
+    <string name="update_error_no_space">Not enough space on the phone for the update. Free some, then try again.</string>
+    <string name="update_error_stopped">The download stopped. Check the connection, then try again.</string>
+    <string name="update_error_installer">Couldn\'t open Android\'s installer. Try again.</string>
+    <!-- %1$d: the HTTP code GitHub answered with -->
+    <string name="update_error_not_sent">GitHub didn\'t send the update (code %1$d). Try again later.</string>
+    <string name="update_error_stopped_early">The download stopped early. Try again.</string>
+    <string name="update_error_damaged">The download came out damaged. Try again.</string>
+    <!-- The screen after an update: "Updated to" over the version number, big -->
+    <string name="update_splash_updated_to">Updated to</string>
+    <string name="update_splash_tap">Tap anywhere to go on</string>
+    <!-- Painted on the pirate flag, in capitals: big under the skull, keep it short -->
+    <string name="update_flag_local">100% LOCAL</string>
+    <!-- Painted along the flag's hem, in capitals: what 100% local means -->
+    <string name="update_flag_motto">WE DEFEND OUR DATA</string>
+    <!-- For screen readers: the flag, and the ship that flies it -->
+    <string name="update_flag_description">A pirate flag: 100% local. We defend our data.</string>
+    <string name="update_ship_description">A pirate ship flying the myCar flag: 100% local. We defend our data.</string>
+
+    <!-- What's new (every release's notes) -->
+    <!-- Screen title, and a button on the update card -->
+    <string name="whatsnew_title">What\'s new</string>
+    <!-- %1$s: a version, e.g. 0.5.22-alpha -->
+    <string name="whatsnew_this_version">%1$s (this version)</string>
+
+    <!-- Recommended apps -->
+    <string name="recommended_title">Recommended apps</string>
+    <string name="recommended_intro">These free apps run on myCar\'s car screen. Each button opens the app\'s page on GitHub.</string>
+    <!-- Section titles -->
+    <string name="recommended_section_maps">Maps</string>
+    <string name="recommended_section_music">Music</string>
+    <string name="recommended_section_podcasts">Podcasts</string>
+    <!-- What each app is, under its name -->
+    <string name="recommended_about_organic_maps">Offline maps and routing.</string>
+    <string name="recommended_about_vela">Turn-by-turn navigation without Google.</string>
+    <string name="recommended_about_youtube_music">A YouTube Music player.</string>
+    <string name="recommended_about_antennapod">Podcasts, chapters and all.</string>
+    <!-- The app is on the phone already -->
+    <string name="recommended_installed">Installed</string>
+
+    <!-- Live logs (Settings) -->
+    <string name="logs_title">Live logs</string>
+    <!-- Three buttons side by side: keep them short -->
+    <string name="logs_share">Share</string>
+    <string name="logs_earlier">Earlier</string>
+    <string name="logs_clear">Clear</string>
+    <string name="logs_jump_to_latest">Jump to latest</string>
+    <string name="logs_empty">Nothing logged yet. Lines appear here live while a session runs.</string>
+    <!-- The subject of the shared log (an email's, for example) -->
+    <string name="logs_share_subject">myCar log</string>
+    <!-- Title of Android's list of apps to share with -->
+    <string name="logs_share_chooser">Share log</string>
+    <string name="logs_earlier_title">Earlier logs</string>
+    <string name="logs_earlier_empty">No earlier logs yet. Each time myCar starts, it begins a new one.</string>
+    <!-- Next to an earlier log: myCar crashed during it -->
+    <string name="logs_crashed">Crashed</string>
+    <!-- A log's size. %1$d: kilobytes -->
+    <string name="logs_size_kb">%1$d KB</string>
+
+    <!-- Car preview: the car's screen drawn on the phone (Settings) -->
+    <string name="preview_title">Car preview</string>
+    <!-- %1$d x %2$d: the car screen's size in pixels; %3$d: its density -->
+    <string name="preview_size">%1$dx%2$d @ %3$ddpi - touches go to the car UI</string>
+    <!-- For screen readers: the picture of the car's screen -->
+    <string name="preview_car_screen">Car screen</string>
+    <string name="preview_waiting">Waiting for a frame…</string>
+    <!-- For screen readers: the close button over the full-screen preview -->
+    <string name="preview_leave">Leave the car preview</string>
+
+    <!-- The donation ask on Home, after a drive that worked -->
+    <string name="donate_title">Glad that drive worked</string>
+    <string name="donate_text">myCar is free, with no ads and no tracking. If it gets you on the road, your support keeps it going.</string>
+    <string name="donate_bitcoin">Support with Bitcoin</string>
+    <string name="donate_card">Give once by card</string>
+</resources>

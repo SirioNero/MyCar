@@ -24,7 +24,9 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.bridge.BridgeProxy
 import io.github.sirionero.mycar.bridge.Bridges
 import io.github.sirionero.mycar.home.HaConnection
@@ -391,7 +393,7 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
             }
             // Through the Plancia app, the app's reason (see bridge/BridgeProxy); the WebView's otherwise.
             val said = BridgeProxy.refusal(request.url.host)
-                ?: error.description?.toString()?.ifBlank { null } ?: "Error ${error.errorCode}"
+                ?: error.description?.toString()?.ifBlank { null } ?: Words.get(R.string.plancia_web_error, error.errorCode)
             val why = Tailnet.why(view.context, listOf(request.url.toString()), failure, said)
             MyCarLog.w("plancia: the dashboard didn't load: $why")
             _page.value = _page.value.copy(error = why)
@@ -399,7 +401,7 @@ internal class PlanciaWeb(context: Context, dark: Boolean) {
 
         override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, errorResponse: WebResourceResponse) {
             if (view !== web || !request.isForMainFrame || errorResponse.statusCode < 500) return
-            _page.value = _page.value.copy(error = "Home Assistant answered with error ${errorResponse.statusCode}")
+            _page.value = _page.value.copy(error = Words.get(R.string.plancia_web_http_error, errorResponse.statusCode))
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {

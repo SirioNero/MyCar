@@ -20,9 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.setup.SetupSignals
 import io.github.sirionero.mycar.setup.SetupSteps
 import io.github.sirionero.mycar.setup.SetupSteps.Id
@@ -39,9 +42,10 @@ private fun rememberSetupSteps(): List<SetupSteps.Step> {
     return steps
 }
 
+@Composable
 private fun stepName(id: Id) = when (id) {
-    Id.CERTIFICATE -> "car certificate"
-    Id.MYCAR_ON -> "turning myCar on"
+    Id.CERTIFICATE -> stringResource(R.string.setup_step_certificate)
+    Id.MYCAR_ON -> stringResource(R.string.setup_step_mycar_on)
     Id.ANDROID_AUTO -> "Android Auto"
     else -> id.name.lowercase()
 }
@@ -59,15 +63,16 @@ internal fun BackToSetupCard(onOpenSetup: () -> Unit) {
         it.group != SetupSteps.Group.CONNECT && it.status in setOf(SetupSteps.Status.TODO, SetupSteps.Status.SKIPPED, SetupSteps.Status.BLOCKED)
     }
     val line = when {
-        left.isNotEmpty() -> (if (left.size == 1) "1 step left" else "${left.size} steps left") +
-            " before your first drive: " + left.joinToString { stepName(it.id) } + "."
-        extras > 0 -> "Ready to connect. ${if (extras == 1) "1 extra" else "$extras extras"} left."
-        else -> "Everything's set up."
+        left.isNotEmpty() -> pluralStringResource(
+            R.plurals.setup_card_steps_left, left.size, left.size, left.map { stepName(it.id) }.joinToString(stringResource(R.string.common_list_separator)),
+        )
+        extras > 0 -> pluralStringResource(R.plurals.setup_card_extras_left, extras, extras)
+        else -> stringResource(R.string.setup_card_all_done)
     }
-    SettingsSection("Initial setup", footer = "Nothing is deleted or reset. You'll see only what's left, with what's done ticked.") {
+    SettingsSection(stringResource(R.string.setup_card_title), footer = stringResource(R.string.setup_card_footer)) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(line, style = MaterialTheme.typography.bodyLarge)
-            Button(onClick = onOpenSetup, modifier = Modifier.fillMaxWidth()) { Text("Take me back to the initial setup") }
+            Button(onClick = onOpenSetup, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.setup_card_back)) }
         }
     }
 }
@@ -91,15 +96,15 @@ internal fun SetupLeftCard(onOpenSetup: () -> Unit) {
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Finish setting up", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.setup_left_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
-                "Left before your first drive: " + left.joinToString { stepName(it.id) } + ".",
+                stringResource(R.string.setup_left_body, left.map { stepName(it.id) }.joinToString(stringResource(R.string.common_list_separator))),
                 style = MaterialTheme.typography.bodyMedium,
             )
             // Side by side where they fit, one under the other on a narrow phone or with large text.
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp)) {
-                Button(onClick = onOpenSetup) { Text("Continue setup") }
-                TextButton(onClick = { setupLeftHidden = true }) { Text("Not now") }
+                Button(onClick = onOpenSetup) { Text(stringResource(R.string.setup_left_continue)) }
+                TextButton(onClick = { setupLeftHidden = true }) { Text(stringResource(R.string.common_not_now)) }
             }
         }
     }

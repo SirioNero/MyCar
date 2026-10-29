@@ -177,24 +177,22 @@ object Tailnet {
         return when (reach(context)) {
             Reach.VPN_LEAVES_MYCAR_OUT -> when {
                 tailscale && inTailnet.isNotEmpty() ->
-                    "Tailscale leaves myCar out, so “$name” on your tailnet is out of its reach. " +
-                        "In Tailscale on the phone: Settings, App split tunneling, let myCar in - and connect the car " +
-                        "with the cable: inside a VPN, Android keeps myCar off the car's Wi-Fi."
+                    Words.get(R.string.tailscale_leaves_mycar_out, name)
                 !tailscale && (inTailnet.isNotEmpty() || urls.any(LocalNetwork::isLocal)) ->
-                    "The phone's VPN leaves myCar out, so “$name” is out of its reach. Let myCar into the VPN in its settings."
+                    Words.get(R.string.network_vpn_leaves_mycar_out, name)
                 else -> null
             }
             Reach.NO_VPN -> if (inTailnet.isNotEmpty() && failure != Failure.UNREACHABLE) {
-                "“$name” isn't found from here. If it's a Tailscale name, turn Tailscale on: myCar reaches it only through Tailscale."
+                Words.get(R.string.tailscale_name_not_found, name)
             } else {
                 null
             }
             Reach.IN_VPN -> if (tailscale && failure == Failure.NO_SUCH_HOST && '.' !in name) {
-                "Tailscale doesn't know “$name”: check the name, and that Use Tailscale DNS is on in Tailscale."
+                Words.get(R.string.tailscale_name_unknown, name)
             } else {
                 null
             }
-            Reach.NO_NETWORK -> "No network for myCar right now."
+            Reach.NO_NETWORK -> Words.get(R.string.network_none)
         }
     }
 
@@ -205,7 +203,7 @@ object Tailnet {
      */
     fun why(context: Context, urls: List<String>, failure: Failure, fallback: String, homeNetwork: String = LocalNetwork.HINT): String =
         // Through an app's bridge, that app said what went wrong (bridge/AppBridge): said as it is.
-        if (failure == Failure.OTHER || io.github.sirionero.mycar.bridge.AppBridge.THROUGH in fallback) {
+        if (failure == Failure.OTHER || io.github.sirionero.mycar.bridge.AppBridge.saidThrough(fallback)) {
             fallback
         } else {
             explain(context, urls, failure)

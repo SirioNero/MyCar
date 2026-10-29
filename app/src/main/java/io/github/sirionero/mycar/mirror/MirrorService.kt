@@ -14,6 +14,8 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * Holds the screen-capture session for [PhoneMirror].
@@ -75,7 +77,7 @@ class MirrorService : Service() {
     private fun notification(): Notification {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Phone mirroring", NotificationManager.IMPORTANCE_LOW)
+            NotificationChannel(CHANNEL, Words.get(R.string.channel_mirror), NotificationManager.IMPORTANCE_LOW)
         )
         val stop = PendingIntent.getService(
             this, 0,
@@ -83,11 +85,11 @@ class MirrorService : Service() {
             PendingIntent.FLAG_IMMUTABLE,
         )
         return Notification.Builder(this, CHANNEL)
-            .setContentTitle("Mirroring to the car")
-            .setContentText("The car screen is showing this phone.")
+            .setContentTitle(Words.get(R.string.mirror_notification_title))
+            .setContentText(Words.get(R.string.mirror_notification_text))
             .setSmallIcon(android.R.drawable.ic_menu_view)
             .setOngoing(true)
-            .addAction(Notification.Action.Builder(null, "Stop", stop).build())
+            .addAction(Notification.Action.Builder(null, Words.get(R.string.service_notification_stop), stop).build())
             .build()
     }
 

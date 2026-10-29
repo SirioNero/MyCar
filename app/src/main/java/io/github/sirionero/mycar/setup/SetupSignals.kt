@@ -11,27 +11,29 @@ import android.os.Build
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.host.AndroidAuto
 import io.github.sirionero.mycar.notify.MyCarNotificationListener
 
 /** What [SetupSteps] needs to know, read from the phone: permissions, roles, settings, files. */
 object SetupSignals {
 
-    /** The drive's permissions, by the name Android gives their group in its dialogs. */
-    fun driveGroups(): List<Pair<String, List<String>>> = listOf(
-        "Phone" to listOf(
+    /** The drive's permissions, by the name Android gives their group in its dialogs (a string resource). */
+    fun driveGroups(): List<Pair<Int, List<String>>> = listOf(
+        R.string.setup_group_phone to listOf(
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ANSWER_PHONE_CALLS,
             Manifest.permission.CALL_PHONE,
         ),
         // A group, and a question, of its own: the car's Recents.
-        "Call logs" to listOf(Manifest.permission.READ_CALL_LOG),
-        "Contacts" to listOf(Manifest.permission.READ_CONTACTS),
+        R.string.setup_group_call_logs to listOf(Manifest.permission.READ_CALL_LOG),
+        R.string.setup_group_contacts to listOf(Manifest.permission.READ_CONTACTS),
         // Both together: from Android 12 a request for the precise location alone is dropped.
-        "Location" to listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-        "Microphone" to listOf(Manifest.permission.RECORD_AUDIO),
+        R.string.setup_group_location to listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+        R.string.setup_group_microphone to listOf(Manifest.permission.RECORD_AUDIO),
         // From Android 17 the home network goes with Bluetooth (see LocalNetwork).
-        "Nearby devices" to listOfNotNull(
+        R.string.setup_group_nearby_devices to listOfNotNull(
             Manifest.permission.BLUETOOTH_CONNECT,
             LocalNetwork.PERMISSION.takeIf { LocalNetwork.asked },
         ),
@@ -50,8 +52,8 @@ object SetupSignals {
         context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
 
     /** A group is on with all of its permissions; the location already with the approximate one. */
-    private fun groupOn(context: Context, name: String, permissions: List<String>): Boolean =
-        if (name == "Location") permissions.any { granted(context, it) } else permissions.all { granted(context, it) }
+    private fun groupOn(context: Context, name: Int, permissions: List<String>): Boolean =
+        if (name == R.string.setup_group_location) permissions.any { granted(context, it) } else permissions.all { granted(context, it) }
 
     fun read(context: Context): SetupSteps.Signals {
         val missing = driveGroups().filterNot { (name, permissions) -> groupOn(context, name, permissions) }
@@ -73,8 +75,8 @@ object SetupSignals {
                 else -> SetupSteps.AndroidAuto.OFF
             },
             keepAndroidAuto = FirstSetup.keepAndroidAuto(context),
-            driveMissing = missing.map { it.first },
-            driveBlocked = blocked.map { it.first },
+            driveMissing = missing.map { Words.get(it.first) },
+            driveBlocked = blocked.map { Words.get(it.first) },
             messages = hasNotificationAccess(context),
             calendar = granted(context, Manifest.permission.READ_CALENDAR),
             // Android 12 has no such permission: its notifications need nothing.

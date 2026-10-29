@@ -212,6 +212,8 @@ internal object ItalianPhrases : Phrasebook() {
         Said.CALLING to t("Chiamo $1."),
         Said.NO_APP_CALLED to t("Non trovo un'app che si chiama $1."),
         Said.SOMETHING_WRONG to t("Qualcosa è andato storto. Riprova."),
+        Said.DONE to t("Fatto."),
+        Said.HOME_ASSISTANT_SILENT to t("Home Assistant non ha risposto."),
         Said.NEEDS_MIC to t("Serve il permesso del microfono."),
         Said.AFTER_CALL to t("I comandi vocali funzionano quando finisce la chiamata."),
         Said.DIDNT_CATCH to t("Non ho capito."),
@@ -291,5 +293,7 @@ internal object ItalianPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Vuoi rispondere? Di' sì o no.",
         "Get ready to say your reply." to "Preparati a dire la risposta.",
         "Say your reply" to "Di' la risposta",
+        "Anything else" to "Tutto il resto",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Risponde Home Assistant: la casa, e le domande che il suo assistente vocale conosce.",
     )
 }

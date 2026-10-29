@@ -86,7 +86,7 @@ class MyCarActivity : ComponentActivity(), Projection {
                 // than carrying on out of the phone's speaker for the whole sharing.
                 if (CarAudio.capture.value == CarAudio.Capture.ON) {
                     io.github.sirionero.mycar.car.CarServices.pausePhoneMedia("screen sharing", keep = packageName)
-                    io.github.sirionero.mycar.car.CarToasts.show(this, "The phone's music pauses while its screen is shared", androidx.car.app.CarToast.LENGTH_LONG)
+                    io.github.sirionero.mycar.car.CarToasts.show(this, Words.get(R.string.activity_toast_music_pauses_sharing), androidx.car.app.CarToast.LENGTH_LONG)
                 }
                 MirrorService.start(this, result.resultCode, data)
             } else {
@@ -174,6 +174,11 @@ class MyCarActivity : ComponentActivity(), Projection {
         if (android.os.SystemClock.uptimeMillis() - roleAskedAt < 400) {
             runCatching { startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) }
         }
+    }
+
+    // Android 12: the language chosen in Settings (Android 13 applies it itself).
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -366,11 +371,11 @@ class MyCarActivity : ComponentActivity(), Projection {
         val roleManager = getSystemService(android.app.role.RoleManager::class.java)
         if (roleManager == null || !roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
             MyCarLog.w("calls: call screening role unavailable on this phone")
-            android.widget.Toast.makeText(this, "This phone doesn't let apps screen calls.", android.widget.Toast.LENGTH_LONG).show()
+            android.widget.Toast.makeText(this, Words.get(R.string.activity_toast_no_call_screening), android.widget.Toast.LENGTH_LONG).show()
             return
         }
         if (roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
-            android.widget.Toast.makeText(this, "myCar already screens unknown callers.", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(this, Words.get(R.string.activity_toast_already_screening), android.widget.Toast.LENGTH_SHORT).show()
             return
         }
         roleAskedAt = android.os.SystemClock.uptimeMillis()
@@ -407,7 +412,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             if (!consentPending) {
                 consentPending = true
                 MyCarLog.i("audio: myCar isn't on the phone's screen - the capture question waits for it")
-                io.github.sirionero.mycar.car.CarToasts.show(this, "Open myCar on the phone to send its music to the car", androidx.car.app.CarToast.LENGTH_LONG)
+                io.github.sirionero.mycar.car.CarToasts.show(this, Words.get(R.string.activity_toast_open_for_music), androidx.car.app.CarToast.LENGTH_LONG)
             }
             return
         }
@@ -459,7 +464,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             if (!capturePending) {
                 capturePending = true
                 MyCarLog.i("mirror: myCar isn't on the phone's screen - the sharing question waits for it")
-                io.github.sirionero.mycar.car.CarToasts.show(this, "Open myCar on the phone to share its screen", androidx.car.app.CarToast.LENGTH_LONG)
+                io.github.sirionero.mycar.car.CarToasts.show(this, Words.get(R.string.activity_toast_open_for_sharing), androidx.car.app.CarToast.LENGTH_LONG)
             }
             return
         }
@@ -547,7 +552,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val accessory = IntentCompat.getParcelableExtra(intent, UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
         if (accessory == null) {
             MyCarLog.e("attach intent carried no accessory")
-            SessionStatus.failed("The car isn't reachable", "Android saw the cable but not the car on it. Unplug it and plug it in again.")
+            SessionStatus.failed(Words.get(R.string.activity_status_no_car_title), Words.get(R.string.activity_status_no_car_detail))
             return
         }
         MyCarLog.i("accessory attached by the system - permission is implicit on this path")
@@ -610,12 +615,12 @@ class MyCarActivity : ComponentActivity(), Projection {
             manager.openAccessory(accessory)
         } catch (e: RuntimeException) {
             MyCarLog.e("openAccessory refused: ${e.message}")
-            SessionStatus.failed("The car isn't connected", "The cable was unplugged before myCar could open the connection. Plug it in again.")
+            SessionStatus.failed(Words.get(R.string.activity_status_unplugged_title), Words.get(R.string.activity_status_unplugged_detail))
             return
         }
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
-            SessionStatus.failed("Another app has the car", "Another app took the car's connection before myCar could. If Android asks which app to open for the car, choose myCar.")
+            SessionStatus.failed(Words.get(R.string.activity_status_taken_title), Words.get(R.string.activity_status_taken_detail))
             return
         }
         descriptor = pfd

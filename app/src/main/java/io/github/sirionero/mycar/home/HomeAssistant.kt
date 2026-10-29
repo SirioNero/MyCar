@@ -6,7 +6,9 @@ import android.net.Network
 import android.net.Uri
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.bridge.BridgeDns
 import io.github.sirionero.mycar.bridge.BridgeSocketFactory
 import io.github.sirionero.mycar.bridge.Bridges
@@ -189,6 +191,9 @@ object HomeAssistant {
 
     fun newClient() = HaClient(http)
 
+    /** The drive's connection, while there is one: Assist asks over it too. */
+    internal val live: HaClient? get() = client
+
     /**
      * The car connected: stay connected, so the dashboard is ready before it's asked for. Not set
      * up yet, the Plancia app is asked again first: it may have been set up, or updated, since.
@@ -256,7 +261,7 @@ object HomeAssistant {
             var session: HaClient? = null
             var version = ""
             var usedUrl = ""
-            var lastError = "Home Assistant can't be reached"
+            var lastError = Words.get(R.string.network_ha_unreachable)
             var lastException: Exception? = null
             var tokenRefused = false
             for (url in config.urls) {
@@ -280,7 +285,7 @@ object HomeAssistant {
                     // again like any failure, not given up on for the whole drive.
                     if (reason == HaException.Reason.INVALID_TOKEN) tokenRefused = true
                     if (reason == HaException.Reason.ACCESS_DENIED) {
-                        lastError = "The server turned myCar away: a proxy in front of Home Assistant, or an address it has banned."
+                        lastError = Words.get(R.string.network_ha_turned_away)
                     }
                 }
             }
@@ -290,7 +295,7 @@ object HomeAssistant {
                 // which can ban the phone's address: wait for a new one instead.
                 MyCarLog.w("plancia: Home Assistant refused the token - waiting for a new one")
                 _connection.value = HaConnection.Failed(
-                    "Home Assistant refused the token: make a new one there, and set it in myCar on the phone.",
+                    Words.get(R.string.network_ha_token_refused),
                     tokenRefused = true,
                 )
                 configFlow.first { it != config }
@@ -325,11 +330,11 @@ object HomeAssistant {
                 _connection.value = HaConnection.Connected(usedUrl, version)
                 MyCarLog.i("plancia: connected to Home Assistant $version")
                 val reason = active.closed.await()
-                _connection.value = HaConnection.Failed("Connection lost ($reason), trying again")
+                _connection.value = HaConnection.Failed(Words.get(R.string.network_ha_connection_lost, reason))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _connection.value = HaConnection.Failed(e.message ?: "Connection error")
+                _connection.value = HaConnection.Failed(e.message ?: Words.get(R.string.network_ha_connection_error))
             } finally {
                 if (client === active) client = null
                 active.close()

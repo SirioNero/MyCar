@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -41,6 +42,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.text.style.TextOverflow
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.host.CarAppConnection
 
 /**
@@ -59,7 +61,7 @@ fun CarAppStage(
     /** Inside the home screen's map pane: no title bar, the template gets the whole area. */
     embedded: Boolean = false,
     /** The title bar's button, at its right end: Stop for an app on its own screen; none if null. */
-    endLabel: String? = "Stop",
+    endLabel: String? = stringResource(R.string.car_template_stop),
     onDisconnect: () -> Unit,
 ) {
     val template by connection.template.collectAsStateWithLifecycle()
@@ -209,7 +211,7 @@ private fun ChromeBar(
             // Everything but the end button, which keeps the right end.
             Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    status.app ?: "Car app",
+                    status.app ?: stringResource(R.string.car_template_car_app),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
@@ -219,7 +221,7 @@ private fun ChromeBar(
                 // Once the app draws, its own screen says the rest.
                 if (!status.surfaceAttached) {
                     Text(
-                        " · waiting for the app",
+                        " · " + stringResource(R.string.car_template_waiting),
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.onSurfaceVariant,
                         maxLines = 1,

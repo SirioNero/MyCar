@@ -29,16 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.min
+import io.github.sirionero.mycar.R
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlinx.coroutines.delay
@@ -80,7 +81,7 @@ internal fun UpdateSplashContent(
         Canvas(Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2, (flagTop + flagH * 0.55f).toPx())
             val r = size.width * (0.62f + 0.04f * sin(2 * PI.toFloat() * breath))
-            drawGlow(Brush.radialGradient(listOf(glow.copy(alpha = 0.85f), glow.copy(alpha = 0.25f), glow.copy(alpha = 0f)), center = center, radius = r), center, r)
+            drawGlow(center, r, 0f to glow.copy(alpha = 0.85f), 0.5f to glow.copy(alpha = 0.25f), 1f to glow.copy(alpha = 0f))
         }
         Sparkles(accent, Modifier.fillMaxSize(), flagTop, flagH)
 
@@ -91,7 +92,7 @@ internal fun UpdateSplashContent(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "Updated to", color = quiet, style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),
+                stringResource(R.string.update_splash_updated_to), color = quiet, style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.up(entrance("update", 900), cq(6f)),
             )
             Text(
@@ -109,7 +110,7 @@ internal fun UpdateSplashContent(
         }
         val hint = entrance("update", 2_200, 600)
         Text(
-            "Tap anywhere to go on", color = quiet.copy(alpha = 0.8f),
+            stringResource(R.string.update_splash_tap), color = quiet.copy(alpha = 0.8f),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = cq(8f))
                 .graphicsLayer { alpha = hint },

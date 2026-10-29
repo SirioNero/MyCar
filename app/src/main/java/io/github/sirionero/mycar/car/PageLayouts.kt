@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.car
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -30,11 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
 import io.github.sirionero.mycar.car.design.MyCarSpace
@@ -53,16 +56,17 @@ internal val DriverLayouts = listOf(
 )
 
 /** What a layout is called where the driver picks one: short, as the picture beside it says the rest. */
-internal val PageLayout.label: String
+@get:StringRes
+internal val PageLayout.label: Int
     get() = when (this) {
-        PageLayout.FULL -> "Whole page"
-        PageLayout.HALVES -> "Two halves"
-        PageLayout.GRID -> "Four parts"
-        PageLayout.HALF_QUARTERS -> "Half left"
-        PageLayout.QUARTERS_HALF -> "Half right"
-        PageLayout.STRIP_QUARTERS -> "Strip on top"
-        PageLayout.QUARTERS_STRIP -> "Strip below"
-        PageLayout.MAP -> "Map"
+        PageLayout.FULL -> R.string.car_pages_layout_full
+        PageLayout.HALVES -> R.string.car_pages_layout_halves
+        PageLayout.GRID -> R.string.car_pages_layout_grid
+        PageLayout.HALF_QUARTERS -> R.string.car_pages_layout_half_left
+        PageLayout.QUARTERS_HALF -> R.string.car_pages_layout_half_right
+        PageLayout.STRIP_QUARTERS -> R.string.car_pages_layout_strip_top
+        PageLayout.QUARTERS_STRIP -> R.string.car_pages_layout_strip_below
+        PageLayout.MAP -> R.string.car_pages_layout_map
     }
 
 /**
@@ -121,14 +125,15 @@ internal fun LayoutDiagram(layout: PageLayout, color: Color, modifier: Modifier,
 /** In the bar of a page being changed: its layout's picture, and tapped, the list of layouts. */
 @Composable
 internal fun LayoutButton(layout: PageLayout, onClick: () -> Unit) {
+    val description = stringResource(R.string.car_pages_layout_now, stringResource(layout.label))
     GsIconBox(
         onClick = onClick,
-        modifier = Modifier.height(MyCarSize.TouchTarget).semantics { contentDescription = "Layout: ${layout.label}" },
+        modifier = Modifier.height(MyCarSize.TouchTarget).semantics { contentDescription = description },
     ) {
         Row(Modifier.padding(horizontal = MyCarSpace.M), verticalAlignment = Alignment.CenterVertically) {
             LayoutDiagram(layout, LocalContentColor.current, Modifier.size(width = 40.dp, height = 26.dp))
             Spacer(Modifier.width(MyCarSpace.S))
-            Text("Layout", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.car_pages_layout), style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -161,12 +166,12 @@ internal fun LayoutChooser(current: PageLayout, onChoose: (PageLayout) -> Unit, 
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "Layout",
+                    stringResource(R.string.car_pages_layout),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                GsIconButton(Icons.Filled.Close, "Close", onClose, size = MyCarSize.TouchTarget)
+                GsIconButton(Icons.Filled.Close, stringResource(R.string.common_close), onClose, size = MyCarSize.TouchTarget)
             }
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(ChoiceWidth),
@@ -175,13 +180,13 @@ internal fun LayoutChooser(current: PageLayout, onChoose: (PageLayout) -> Unit, 
                 verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
             ) {
                 items(DriverLayouts) { layout ->
-                    Choice(layout.label, layout == current, onClick = { onChoose(layout) }) {
+                    Choice(stringResource(layout.label), layout == current, onClick = { onChoose(layout) }) {
                         LayoutDiagram(layout, LocalContentColor.current, Modifier.size(width = 72.dp, height = 44.dp), gap = 3.dp)
                     }
                 }
             }
             Text(
-                "What the page shows stays, in order, as far as the new layout has room.",
+                stringResource(R.string.car_pages_layout_keeps),
                 style = MaterialTheme.typography.bodyMedium,
                 color = scheme.onSurfaceVariant,
             )

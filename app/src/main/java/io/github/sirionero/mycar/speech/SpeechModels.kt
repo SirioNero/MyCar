@@ -7,10 +7,13 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import io.github.sirionero.mycar.MyCarActivity
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -34,8 +37,10 @@ object SpeechModels {
     enum class Model(
         val role: Role,
         val id: String,
+        /** Its name in the log; [title] is the one shown. */
         val label: String,
-        val detail: String,
+        @StringRes val title: Int,
+        @StringRes val detail: Int,
         val downloadMb: Int,
         private val archive: String,
         val encoder: String,
@@ -45,16 +50,18 @@ object SpeechModels {
         val modelType: String = "",
         /** Where the unpacked files are, when not under the archive's own name on Hugging Face. */
         private val filesAt: String? = null,
-        /** The languages it hears; the assistant listens in the phone's language only with a model that knows it. */
+        /** The languages it hears; the assistant listens in myCar's language only with a model that knows it. */
         val languages: Set<VoiceLanguage> = setOf(VoiceLanguage.EN),
+        /** Whisper's has the model's size in its name. */
+        val tokens: String = "tokens.txt",
     ) {
         KROKO(
-            Role.LIVE, "kroko-en", "Kroko", "Banafo's Kroko ASR, CC BY-SA 4.0", 68,
+            Role.LIVE, "kroko-en", "Kroko", R.string.voice_model_kroko, R.string.voice_model_kroko_detail, 68,
             "sherpa-onnx-streaming-zipformer-en-kroko-2025-08-06",
             "encoder.onnx", "decoder.onnx", "joiner.onnx", modelType = "zipformer2",
         ),
         PARAKEET_SMALL(
-            Role.FINAL, "parakeet-110m-en", "Parakeet small", "Lighter and quicker, misses more names. NVIDIA NeMo, CC BY 4.0", 131,
+            Role.FINAL, "parakeet-110m-en", "Parakeet small", R.string.voice_model_parakeet_small, R.string.voice_model_parakeet_small_detail, 131,
             "sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", modelType = "nemo_transducer",
             // The official unpacked copy is empty. This mirror's files are byte for byte the
@@ -62,36 +69,50 @@ object SpeechModels {
             filesAt = "punitd/sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8/resolve/66a4fa70643dc7ce25c9b38b2f87e1b35ddad33d",
         ),
         CANARY(
-            Role.FINAL, "canary-180m-en", "Canary", "Recommended. Quick, and hears names and places well. English, Spanish, German and French. NVIDIA NeMo, CC BY 4.0", 198,
+            Role.FINAL, "canary-180m-en", "Canary", R.string.voice_model_canary, R.string.voice_model_canary_detail, 198,
             "sherpa-onnx-nemo-canary-180m-flash-en-es-de-fr-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "", modelType = "canary",
             languages = setOf(VoiceLanguage.EN, VoiceLanguage.ES, VoiceLanguage.DE, VoiceLanguage.FR),
         ),
         PARAKEET_LARGE(
-            Role.FINAL, "parakeet-0.6b-en", "Parakeet large", "Hears names best, but slower and three times the size. NVIDIA NeMo, CC BY 4.0", 631,
+            Role.FINAL, "parakeet-0.6b-en", "Parakeet large", R.string.voice_model_parakeet_large, R.string.voice_model_parakeet_large_detail, 631,
             "sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", modelType = "nemo_transducer",
         ),
         PARAKEET_MULTI(
             Role.FINAL, "parakeet-0.6b-v3", "Parakeet multilingual",
-            "Italian, Portuguese, Spanish, French, German and English, and 19 more European languages. As big and slow as Parakeet large. NVIDIA NeMo, CC BY 4.0",
+            R.string.voice_model_parakeet_multi, R.string.voice_model_parakeet_multi_detail,
             640, "sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", modelType = "nemo_transducer",
-            languages = VoiceLanguage.entries.toSet(),
+            // The European ones: Chinese is Whisper's.
+            languages = VoiceLanguage.entries.toSet() - VoiceLanguage.ZH,
+        ),
+        WHISPER(
+            Role.FINAL, "whisper-small", "Whisper small", R.string.voice_model_whisper, R.string.voice_model_whisper_detail, 358,
+            "sherpa-onnx-whisper-small",
+            "small-encoder.int8.onnx", "small-decoder.int8.onnx", "", modelType = "whisper",
+            languages = setOf(VoiceLanguage.ZH), tokens = "small-tokens.txt",
         ),
         ;
 
         fun fileUrl(name: String) = "https://huggingface.co/${filesAt ?: "csukuangfj/$archive/resolve/main"}/$name"
-        val files get() = listOf(encoder, decoder, joiner, "tokens.txt").filter { it.isNotEmpty() }
+        val files get() = listOf(encoder, decoder, joiner, tokens).filter { it.isNotEmpty() }
     }
 
     /**
      * What setup offers in one tap for [language]: Kroko for the live words (and to hear when the
      * driver stops), Canary for the final ones; Parakeet multilingual where Canary doesn't know the
-     * language (Italian, Portuguese).
+     * language (Italian, Portuguese, Greek, Russian), Whisper for Chinese.
      */
     fun recommended(language: VoiceLanguage = VoiceLanguages.phone()): List<Model> =
-        listOf(Model.KROKO, if (language in Model.CANARY.languages) Model.CANARY else Model.PARAKEET_MULTI)
+        listOf(
+            Model.KROKO,
+            when (language) {
+                in Model.CANARY.languages -> Model.CANARY
+                in Model.WHISPER.languages -> Model.WHISPER
+                else -> Model.PARAKEET_MULTI
+            },
+        )
 
     /** Both recommended models, and the final one chosen: for a phone in Italian that's Parakeet multilingual. */
     fun downloadRecommended(context: Context) {
@@ -113,7 +134,7 @@ object SpeechModels {
             return listOf(Model.CANARY, Model.PARAKEET_LARGE, Model.PARAKEET_MULTI, Model.PARAKEET_SMALL)
                 .firstOrNull { isReady(context, it) } ?: chosen
         }
-        return listOfNotNull(chosen, Model.CANARY, Model.PARAKEET_MULTI)
+        return listOfNotNull(chosen, Model.CANARY, Model.PARAKEET_MULTI, Model.WHISPER)
             .firstOrNull { language in it.languages && isReady(context, it) }
     }
 
@@ -209,7 +230,7 @@ object SpeechModels {
         }
         if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(
-            NotificationChannel(CHANNEL, "Voice download", NotificationManager.IMPORTANCE_LOW),
+            NotificationChannel(CHANNEL, Words.get(R.string.speech_download_channel), NotificationManager.IMPORTANCE_LOW),
         )
         val open = PendingIntent.getActivity(
             context, NOTIFICATION_ID,
@@ -218,8 +239,8 @@ object SpeechModels {
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.stat_sys_download)
-            .setContentTitle("Downloading voice")
-            .setContentText("$percent%")
+            .setContentTitle(Words.get(R.string.speech_download_title))
+            .setContentText(Words.get(R.string.speech_download_percent, percent))
             .setProgress(100, percent, false)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -286,13 +307,13 @@ object SpeechModels {
                     CountingStream(conn.inputStream, ::progress).use { input ->
                         file.outputStream().use { input.copyTo(it, 256 * 1024) }
                     }
-                    check(length <= 0 || file.length() == length) { "$name arrived cut short" }
+                    check(length <= 0 || file.length() == length) { Words.get(R.string.speech_download_cut_short, name) }
                     done += file.length()
                 }
-                check(model.files.all { File(partial, it).isFile }) { "some files were missing" }
+                check(model.files.all { File(partial, it).isFile }) { Words.get(R.string.speech_download_missing_files) }
                 if (!latest()) throw InterruptedException("cancelled")
                 target.deleteRecursively()
-                check(partial.renameTo(target)) { "couldn't store the model" }
+                check(partial.renameTo(target)) { Words.get(R.string.speech_download_not_stored) }
                 MyCarLog.i("speech: downloaded ${model.label}")
                 state.value = State.Ready
                 updateProgress(app)
@@ -316,7 +337,7 @@ object SpeechModels {
             connectTimeout = 15_000
             readTimeout = 30_000
             instanceFollowRedirects = true
-        }.also { check(it.responseCode == 200) { "the server answered ${it.responseCode}" } }
+        }.also { check(it.responseCode == 200) { Words.get(R.string.speech_download_server, it.responseCode) } }
 
     /** Counts bytes as they pass, reporting about every megabyte. */
     private class CountingStream(

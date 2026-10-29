@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,6 +45,7 @@ import androidx.webkit.JavaScriptReplyProxy
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.MyCarSize
 import io.github.sirionero.mycar.car.design.MyCarSpace
@@ -174,7 +176,7 @@ internal fun WebSelectSheet() {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    a.title.ifBlank { "Choose" },
+                    a.title.ifBlank { stringResource(R.string.car_web_select_title) },
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -183,11 +185,11 @@ internal fun WebSelectSheet() {
                 )
                 if (a.multiple) {
                     GsButton(onClick = { WebSelect.answer(picked.sorted()) }, modifier = Modifier.heightIn(min = MyCarSize.TouchTarget)) {
-                        Text("Done", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.common_done), style = MaterialTheme.typography.titleMedium)
                     }
                     Spacer(Modifier.width(MyCarSpace.S))
                 }
-                GsIconButton(Icons.Filled.Close, "Close", { WebSelect.cancel() }, size = MyCarSize.TouchTarget)
+                GsIconButton(Icons.Filled.Close, stringResource(R.string.common_close), { WebSelect.cancel() }, size = MyCarSize.TouchTarget)
             }
             LazyColumn(Modifier.weight(1f), state = list) {
                 itemsIndexed(a.rows) { _, row ->
@@ -233,7 +235,7 @@ private fun OptionRow(option: SelectRow.Option, checked: Boolean, onClick: () ->
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        if (checked) Icon(Icons.Filled.Check, contentDescription = "Chosen", Modifier.size(28.dp), tint = scheme.primary)
+        if (checked) Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.car_web_select_chosen), Modifier.size(28.dp), tint = scheme.primary)
     }
 }
 

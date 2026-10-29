@@ -10,6 +10,7 @@ import android.os.Looper
 import android.provider.CallLog
 import android.provider.ContactsContract
 import android.telephony.PhoneNumberUtils
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,11 +40,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.PermissionActivity
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.car.design.MyCarPalette
 import io.github.sirionero.mycar.car.theme.GsButton
 import io.github.sirionero.mycar.car.theme.GsTone
@@ -63,11 +67,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** How a call in the phone's log went, as the car's Recents tells it. */
-internal enum class RecentKind(val label: String, val arrow: String) {
-    INCOMING("Incoming", "↙"),
-    OUTGOING("Outgoing", "↗"),
-    MISSED("Missed", "↙"),
-    DECLINED("Declined", "↙"),
+internal enum class RecentKind(@StringRes val label: Int, val arrow: String) {
+    INCOMING(R.string.recents_incoming, "↙"),
+    OUTGOING(R.string.recents_outgoing, "↗"),
+    MISSED(R.string.recents_missed, "↙"),
+    DECLINED(R.string.recents_declined, "↙"),
 }
 
 /**
@@ -174,8 +178,8 @@ internal fun RecentsList(context: Context) {
     }
     val calls = loaded
     when {
-        calls == null -> Note("Loading recent calls…")
-        calls.isEmpty() -> Note("No recent calls.")
+        calls == null -> Note(stringResource(R.string.recents_loading))
+        calls.isEmpty() -> Note(stringResource(R.string.recents_empty))
         else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(calls) { call ->
                 RecentRow(call, onClick = call.number.takeIf { it.isNotBlank() }?.let { number -> { CallPrompt.ask(call.name ?: shownNumber(number), number) } })
@@ -197,10 +201,10 @@ private fun CallLogMissing(context: Context, onGranted: () -> Unit) {
         onGranted()
     }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Note("Recent calls come from the phone's call log. Allow it on the phone when you're parked.")
+        Note(stringResource(R.string.recents_permission))
         GsButton(tone = GsTone.Tonal, onClick = {
             PermissionActivity.ask(context, arrayOf(Manifest.permission.READ_CALL_LOG))
-        }) { Text("Ask on the phone") }
+        }) { Text(stringResource(R.string.dialer_ask_on_phone)) }
     }
 }
 
@@ -208,11 +212,11 @@ private fun CallLogMissing(context: Context, onGranted: () -> Unit) {
 private fun RecentRow(call: RecentCall, onClick: (() -> Unit)?) {
     val scheme = MaterialTheme.colorScheme
     val missed = call.kind == RecentKind.MISSED
-    val title = (call.name ?: call.number.takeIf { it.isNotBlank() }?.let(::shownNumber) ?: "Private number") +
+    val title = (call.name ?: call.number.takeIf { it.isNotBlank() }?.let(::shownNumber) ?: stringResource(R.string.recents_private_number)) +
         if (call.count > 1) "  (${call.count})" else ""
     // The number too when there's a name: the same person can call from two.
     val detail = listOfNotNull(
-        "${call.kind.arrow} ${call.kind.label}",
+        "${call.kind.arrow} ${stringResource(call.kind.label)}",
         whenLabel(call.at),
         call.number.takeIf { call.name != null && it.isNotBlank() }?.let(::shownNumber),
     ).joinToString("  ·  ")
@@ -258,7 +262,7 @@ private fun RecentRow(call: RecentCall, onClick: (() -> Unit)?) {
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (onClick != null) Icon(Icons.Filled.Call, contentDescription = "Call", tint = scheme.primary)
+            if (onClick != null) Icon(Icons.Filled.Call, contentDescription = stringResource(R.string.dialer_call), tint = scheme.primary)
         }
     }
 }
@@ -271,7 +275,7 @@ private fun whenLabel(at: Long, now: Long = System.currentTimeMillis()): String 
         SimpleDateFormat(android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), skeleton), Locale.getDefault()).format(Date(at))
     return when {
         days <= 0L -> DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(at))
-        days == 1L -> "Yesterday"
+        days == 1L -> Words.get(R.string.recents_yesterday)
         days < 7L -> pattern("EEEE")
         else -> pattern("dMMM")
     }

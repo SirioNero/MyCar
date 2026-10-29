@@ -52,6 +52,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -126,7 +127,7 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                 }
                 // Dark glass, so it shows on a white cover as well as a black one.
                 GsIconButton(
-                    Icons.Filled.Close, "Close the player", navigator::closeSidePanel,
+                    Icons.Filled.Close, stringResource(R.string.car_player_close), navigator::closeSidePanel,
                     Modifier.align(Alignment.TopEnd).padding(10.dp),
                     colors = GsColors(Color.Black.copy(alpha = 0.4f), Color.White),
                     size = 52.dp, iconSize = 24.dp, shape = CircleShape,
@@ -173,7 +174,7 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                             TransportRow(now, media, skip = skip, modifier = Modifier.fillMaxWidth())
                             Spacer(Modifier.height(8.dp))
                             PlayModeRow(now, media, size = mode, modifier = Modifier.fillMaxWidth()) {
-                                PlainButton(navigator::showSideLyrics, "Lyrics", mode) {
+                                PlainButton(navigator::showSideLyrics, stringResource(R.string.car_player_lyrics), mode) {
                                     Icon(painterResource(R.drawable.sym_lyrics), null, Modifier.size(mode * 0.52f))
                                 }
                             }

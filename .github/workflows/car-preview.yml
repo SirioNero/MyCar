@@ -93,7 +93,7 @@ jobs:
       # Plancia's shots run against a Home Assistant of the run's own, in Docker beside the
       # emulator. If it won't start, the other shots still run, and Plancia's are left out.
       - name: Start Home Assistant for Plancia
-        if: inputs.shots == '' || contains(inputs.shots, 'plancia') || contains(inputs.shots, 'bridge')
+        if: inputs.shots == '' || contains(inputs.shots, 'plancia') || contains(inputs.shots, 'bridge') || contains(inputs.shots, 'brain')
         continue-on-error: true
         run: bash .github/home-assistant.sh
 

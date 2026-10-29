@@ -52,8 +52,16 @@ object AssistantCommands {
         callCommand(context, heard)?.let { return it }
         openAppCommand(context, navigator, frame, heard)?.let { return it }
 
-        return "I don't know how to do that yet."
+        return UNKNOWN
     }
+
+    const val UNKNOWN = "I don't know how to do that yet."
+
+    /**
+     * Whether [reply] means none of myCar's commands fitted: nothing at all, or no app by the name
+     * after "open" - "open the gate" is for the house, which Home Assistant may run (AssistantBrain).
+     */
+    fun missed(reply: String) = reply == UNKNOWN || Said.NO_APP_CALLED.regex.matches(reply)
 
     /**
      * What was said, minus the padding people wrap a command in: "hey", "can you", "I want to",
@@ -88,13 +96,23 @@ object AssistantCommands {
         val n = squash(name.removePrefix("the ").removePrefix("my ").removeSuffix(" app"))
         if (n.isEmpty()) return null
         items.firstOrNull { squash(label(it)) == n }?.let { return it }
-        // Loose matches need a real word: "pizza in a" mustn't pick "Organic Maps" for its "a".
-        if (n.length < 3) return null
+        // Loose matches need a real word: "pizza in a" mustn't pick "Organic Maps" for its "a". A
+        // Chinese character counts twice: two of them make a word ("高德" for 高德地图).
+        if (n.sumOf { if (Character.UnicodeScript.of(it.code) == Character.UnicodeScript.HAN) 2L else 1L } < 3) return null
         return items.firstOrNull { squash(label(it)).startsWith(n) }
             ?: items.firstOrNull { squash(label(it)).contains(n) }
     }
 
     private fun squash(s: String) = s.lowercase().filter { it.isLetterOrDigit() }
+
+    /**
+     * A person's name as names are compared: lower case, without accents, Greek's final ς as σ.
+     * "Γιώργος" said finds a contact saved as "ΓΙΩΡΓΟΣ", "jose" finds "José", "Семён" "Семен".
+     */
+    private fun bare(s: String): String =
+        java.text.Normalizer.normalize(s.lowercase().trim(), java.text.Normalizer.Form.NFD).replace(MARKS, "").replace('ς', 'σ')
+
+    private val MARKS = Regex("\\p{Mn}+")
 
     /**
      * "navigate to X [with|using|on|via Y]" - Y picks the nav app by (partial) label; without it,
@@ -249,12 +267,13 @@ object AssistantCommands {
             // The whole name, then a whole word of it, and only then a piece of one: "Anna" found
             // Giovanna, if she wrote last. The reply's question then says whose chat it is.
             val writers = chats.filter { it.reply != null }
+            val said = bare(to)
             fun tier(title: String): Int {
-                val full = title.lowercase().trim()
+                val full = bare(title)
                 return when {
-                    full == to -> 0
-                    " $full ".contains(" $to ") -> 1
-                    full.contains(to) -> 2
+                    full == said -> 0
+                    " $full ".contains(" $said ") -> 1
+                    full.contains(said) -> 2
                     else -> 3
                 }
             }
@@ -434,12 +453,13 @@ object AssistantCommands {
         // The whole name, then a whole word of it ("Luca" in "Luca Rossi"), and only then a piece
         // of one: "Luca" used to call "Gianluca", first in alphabetical order.
         val contacts = withContext(Dispatchers.IO) { loadContacts(context) }
+        val said = bare(name)
         fun tier(c: Contact): Int {
-            val full = c.name.lowercase().trim()
+            val full = bare(c.name)
             return when {
-                full == name -> 0
-                " $full ".contains(" $name ") -> 1
-                full.contains(name) -> 2
+                full == said -> 0
+                " $full ".contains(" $said ") -> 1
+                full.contains(said) -> 2
                 else -> 3
             }
         }

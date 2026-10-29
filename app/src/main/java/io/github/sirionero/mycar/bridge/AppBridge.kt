@@ -12,6 +12,8 @@ import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.os.SystemClock
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import java.io.IOException
 
 /**
@@ -70,7 +72,7 @@ class AppBridge(val packageName: String, private val label: String, private val 
 
     private fun transact(context: Context, host: String, port: Int, timeoutMs: Int): ParcelFileDescriptor {
         val remote = awaitBinder(context, if (timeoutMs > 0) timeoutMs.toLong() else BIND_WAIT_MS)
-            ?: throw BridgeException(said("it didn't answer. Open the $label app once, then try again."))
+            ?: throw BridgeException(said(Words.get(R.string.bridge_no_answer, label)))
         val data = Parcel.obtain()
         val reply = Parcel.obtain()
         try {
@@ -78,7 +80,7 @@ class AppBridge(val packageName: String, private val label: String, private val 
             data.writeString(host)
             data.writeInt(port)
             if (!remote.transact(OPEN, data, reply, 0)) {
-                throw BridgeException(said("it doesn't know this myCar's bridge. Update the $label app."))
+                throw BridgeException(said(Words.get(R.string.bridge_unknown, label)))
             }
             val code = reply.readInt()
             if (code == OK) {
@@ -94,23 +96,23 @@ class AppBridge(val packageName: String, private val label: String, private val 
             throw BridgeException(
                 said(
                     when (code) {
-                        NOT_MYCAR -> "it doesn't accept this myCar. Update the $label app."
-                        NOT_OURS -> "it's set up with another address. Use the same address in myCar and in the $label app."
+                        NOT_MYCAR -> Words.get(R.string.bridge_not_mycar, label)
+                        NOT_OURS -> Words.get(R.string.bridge_not_ours, label)
                         // On the phone itself the server is the app's own, which a woken app starts in a few seconds.
                         NO_ANSWER -> if (Bridges.onThePhone(host)) {
-                            "$server on this phone is still starting. myCar keeps trying."
+                            Words.get(R.string.bridge_server_starting, server)
                         } else {
-                            "$server doesn't answer it either. Check that Tailscale is on, and $server is running."
+                            Words.get(R.string.bridge_server_silent, server)
                         }
-                        else -> "no connection ($detail)."
+                        else -> Words.get(R.string.bridge_no_connection, detail)
                     },
                 ),
             )
         } catch (e: RemoteException) {
-            throw BridgeException(said("it closed. Try again."), e)
+            throw BridgeException(said(Words.get(R.string.bridge_closed)), e)
         } catch (e: RuntimeException) {
             // An answer that isn't the bridge's: never a crash in the middle of a connection.
-            throw BridgeException(said("its answer wasn't understood. Update the $label app."), e)
+            throw BridgeException(said(Words.get(R.string.bridge_not_understood, label)), e)
         } finally {
             data.recycle()
             reply.recycle()
@@ -137,7 +139,16 @@ class AppBridge(val packageName: String, private val label: String, private val 
     }
 
     /** What's said about the bridge, in the words the car and the phone show (see [BridgeException]). */
-    private fun said(what: String) = "$THROUGH$label app: $what"
+    private fun said(what: String) = Words.get(R.string.bridge_through, label, what)
+
+    /** Whether [text] holds something [said] made: the words around the reason are there, in that order. */
+    private fun saidIn(text: String): Boolean {
+        val frame = said(MARK)
+        val before = frame.substringBefore(MARK)
+        val after = frame.substringAfter(MARK, "")
+        val at = text.indexOf(before)
+        return at >= 0 && text.indexOf(after, at + before.length) >= 0
+    }
 
     private fun awaitBinder(context: Context, timeoutMs: Long): IBinder? {
         val until = SystemClock.elapsedRealtime() + timeoutMs
@@ -212,8 +223,14 @@ class AppBridge(val packageName: String, private val label: String, private val 
         private const val NOT_OURS = 3
         private const val NO_ANSWER = 4
 
-        /** How a bridge's message starts: Tailnet.why says it as it is, not "Tailscale leaves myCar out". */
-        const val THROUGH = "Through the "
+        /**
+         * Whether [text] holds a bridge's message ("Through the Plancia app: …", in myCar's language):
+         * Tailnet.why and Xonos's texts say it as it is, not "Tailscale leaves myCar out".
+         */
+        fun saidThrough(text: String): Boolean = Bridges.plancia.saidIn(text) || Bridges.xonos.saidIn(text)
+
+        /** Stands for the reason in [saidIn]: never in a message. */
+        private const val MARK = "\u0000"
 
         private const val BIND_WAIT_MS = 10_000L
         private const val IDLE_MS = 5 * 60_000L

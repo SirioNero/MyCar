@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The language setting (ui/LanguageSettings.kt). -->
+<resources>
+    <string name="language_title">语言</string>
+    <string name="language_phone">手机语言（%1$s）</string>
+    <string name="language_footer">手机上和车机屏幕上的 myCar，以及它的语音助手，都使用这种语言。</string>
+    <string name="language_close">关闭</string>
+</resources>

@@ -13,6 +13,8 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * Lets a hosted navigation app keep receiving the phone's location while myCar is not on screen.
@@ -30,11 +32,11 @@ class LocationKeepAlive : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Navigation location", NotificationManager.IMPORTANCE_LOW),
+            NotificationChannel(CHANNEL, Words.get(R.string.car_host_location_channel), NotificationManager.IMPORTANCE_LOW),
         )
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setContentTitle("myCar is sharing location with the car map")
+            .setContentTitle(Words.get(R.string.car_host_location_notification))
             .setOngoing(true)
             .build()
         // The system can refuse a location-type foreground service if myCar is no longer in

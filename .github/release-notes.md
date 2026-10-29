@@ -1,24 +1,33 @@
-myCar 0.5.21-alpha: the voice assistant in your phone's language, a third certificate for the newest cars (Android Auto's own), the music back by itself after a film, and a pirate flag flying after every update.
+myCar 0.6.0-alpha: myCar in your language - English, Italian, Spanish, German, French, Portuguese, Greek, Russian or Chinese - on the phone, on the car's screen and in the voice assistant.
 
-## The assistant in your language
-- With the phone in Italian, Spanish, French, German or Portuguese, the car's voice assistant now listens, answers and shows its words in that language: "portami a casa", "llama a mamá", "mets Stromae", "wie ist das Wetter?", "próxima música". Everything in "You can say" works, and its examples are in your language too. Before, it understood English only, and its English answers came out with your phone's voice for another language.
-- It says back where it's taking you as you said it ("Ti porto alla stazione"), and gives the time, the time left and the weather the way your language says them. Portuguese follows your phone: from Portugal or from Brazil.
-- Its answers use the phone's own text-to-speech voice for that language; "Say cancel or change it", "Listening…" and the other words the assistant shows in the car are in your language too. The rest of the car screen stays in English.
-- It needs a speech model that knows your language, kept on the phone like the others (nothing you say leaves it): Canary hears Spanish, French and German; for Italian and Portuguese there's the new Parakeet multilingual (640 MB, downloaded once). On the phone, Settings > Voice: Italian (or your language) says which one the assistant uses, with a button to download the one it needs. Until then it stays in English, as before. With the phone in English nothing changes.
-- With "Use the phone's speech recognition" on, the phone's service listens in your language too.
-
-## Certificates
-- A third certificate to pick: CarService, Android Auto's own, for the cars that check phones most strictly - recent Volkswagens among them. On the phone, Settings > Certificate > CarService · Newest cars downloads it and uses it from the next connection. Get certificates, in the setup, now brings it too, as a second spare.
-- Android Auto replaces it every few months (this one runs until 3 February 2027). A month before it runs out, myCar gets the new one by itself, and puts it in place if it was the one in use. Settings shows until when it's valid.
-- Each copy is checked before it's kept: signed by Google's root for Android Auto, the same that signs aasdk and Headunit Revived, with its key, its dates and a TLS handshake tried on the phone. It's downloaded only when you tap, from the android-auto-certificates archive, never shipped inside myCar.
-- If your car turns down aasdk and Headunit Revived, Home now offers CarService (Get CarService, then connect again) instead of saying the car turned down every certificate - also if it said so before this update.
-
-## Cinema
-- Leaving Cinema, the music that was playing when you opened it starts again by itself: a film takes the speakers, and the music stayed stopped until you pressed play.
+## myCar in your language
+- Everything on the phone and on the car's screen - setup, settings, help, the car's apps and screens, notices, what's new - in English, Italian, Spanish, German, French, Portuguese (Brazilian), Greek, Russian or Simplified Chinese: the languages of the Xonos app.
+- myCar follows the phone's language. To pick another: Settings > Language on the phone, or the Your language page shown once after this update. On Android 13 and later Android's own settings for the app (App languages) set it too.
+- A new language shows at once on the phone, and on the car's screen at the next drive at the latest. On Android 12 the phone's screen starts again with it, unless a drive is on.
+- Times of arrival, the time in quick replies and the dates in the logs are written the way your language writes them.
+- Xonos inside myCar speaks your language, and Music Assistant gets it too, for its own words (labels, errors, titles).
 
 ## On the phone
-- After every update, the first time you open myCar, the pirate flag runs up its pole and flies, with the version you've just got. A tap, Back, or a few seconds go on.
-- Big releases bring a pirate ship into their welcome: a galleon sails in on the waves and hoists the flag on its mainmast - sun and gulls by day, the moon and the stars with the dark theme. Settings > About > Replay the 0.5 intro shows it now.
+- Settings opens on a short list of groups - General, Connection, Voice, Plancia, Xonos, Cinema, Help and tools, About - each a page of its own; Back returns to the list.
+- Themes for the phone app: like the phone (Material You, the default), light, dark, black (AMOLED) or Monokai, in Settings > General. The car's screen keeps its own.
+
+## The voice assistant in nine languages
+- The voice assistant follows myCar's language, now in Greek, Russian and Chinese too: commands and answers written for each, Greek and Russian names and places understood in the forms they take in a sentence, Chinese with or without traditional characters.
+- Listening: Greek and Russian with the multilingual Parakeet model, as Italian and Portuguese; Chinese with Whisper small (358 MB), which is told the language rather than guessing it. Settings > Voice says which one to download.
+- Contacts and chats are found without minding accents: "Γιώργος" finds "ΓΙΩΡΓΟΣ", "Семён" finds "Семен".
+- Quick replies to messages go out in Greek, Russian and Chinese too.
+- Listening in Greek, Russian and Chinese hasn't been tried on a real phone yet.
+
+## Also in 0.5.22-alpha
+- With Home Assistant set up in myCar (Settings > Plancia on the phone), what the car's voice assistant doesn't know goes to the voice assistant you set up in Home Assistant: Claude, Gemini, ChatGPT, a model at home, or Home Assistant's own, which runs the house. It answers in your language, carries on a conversation ("and tomorrow?") and asks back when it needs to.
+- With the phone locked in your pocket and the phone's assistant chosen, myCar listens itself and Home Assistant answers: nothing to unlock.
+- Settings > Plancia > Ask Home Assistant in the car turns it off.
+
+## Also in 0.5.21-alpha
+- The voice assistant in your phone's language: Italian, Spanish, French, German or Portuguese, with the speech model that knows it (Settings > Voice).
+- A third certificate, CarService - Android Auto's own - for the cars that check phones most strictly; if your car turns down the other two, Home offers it.
+- Leaving Cinema, the music that was playing before the film starts again by itself.
+- After every update the pirate flag flies with the new version; big releases bring a pirate ship.
 
 ## Also in 0.5.20-alpha
 - Phone: a Recents tab with your latest calls (missed ones in red, a tap to call back), and Call back on a missed call's popup, on LineageOS and other ROMs too.

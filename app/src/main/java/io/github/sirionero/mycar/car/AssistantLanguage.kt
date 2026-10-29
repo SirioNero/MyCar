@@ -21,19 +21,26 @@ internal object AssistantLanguage {
         VoiceLanguage.FR -> FrenchPhrases
         VoiceLanguage.DE -> GermanPhrases
         VoiceLanguage.PT -> PortuguesePhrases
+        VoiceLanguage.EL -> GreekPhrases
+        VoiceLanguage.RU -> RussianPhrases
+        VoiceLanguage.ZH -> ChinesePhrases
     }
 
     /** What the driver said, as the English command it means. English, or anything unknown, passes as it was. */
-    fun toEnglish(heard: String, l: VoiceLanguage = language): String {
-        val b = book(l) ?: return heard
+    fun toEnglish(heard: String, l: VoiceLanguage = language): String = book(l)?.let { toEnglish(heard, it) } ?: heard
+
+    /** [heard] as the English command it means in [b]'s language. */
+    internal fun toEnglish(heard: String, b: Phrasebook): String {
         val t = b.trim(plain(heard))
         for (rule in b.commands) rule.apply(t)?.let { return it }
         return t
     }
 
     /** One of the assistant's answers in the driver's language; one with no translation stays as written. */
-    fun answer(english: String, l: VoiceLanguage = language): String {
-        val b = book(l) ?: return english
+    fun answer(english: String, l: VoiceLanguage = language): String = book(l)?.let { answer(english, it) } ?: english
+
+    /** [english] in [b]'s language. */
+    internal fun answer(english: String, b: Phrasebook): String {
         for (said in Said.entries) {
             val m = said.regex.matchEntire(english) ?: continue
             val to = b.answers[said] ?: return english
@@ -68,9 +75,14 @@ internal object AssistantLanguage {
     /** A word of the assistant's own on the car's screen ("Listening…", "You can say"). */
     fun label(english: String, l: VoiceLanguage = language): String = book(l)?.labels?.get(english) ?: english
 
-    /** Lower case, without punctuation, the way commands are matched. */
+    /**
+     * Lower case, without punctuation, the way commands are matched. Chinese, written without
+     * spaces, keeps none between its characters (the recognizer may put one where a comma was).
+     */
     internal fun plain(text: String): String =
-        text.lowercase().replace('’', '\'').replace(Regex("[.,!?¿¡;:\"«»„“”-]"), " ").replace(Regex("\\s+"), " ").trim()
+        text.lowercase().replace('’', '\'').replace(Regex("[.,!?¿¡;:\"«»„“”-]"), " ")
+            .replace(Regex("[，。！？；：、（）《》「」『』…·\u037E]"), " ").replace(Regex("\\s+"), " ").trim()
+            .replace(Regex("(?<=\\p{IsHan}) (?=\\p{IsHan})"), "")
 }
 
 /**
@@ -135,6 +147,9 @@ internal enum class Said(pattern: String) {
     CALLING("""Calling (.+)\."""),
     NO_APP_CALLED("""I couldn't find an app called (.+)\."""),
     SOMETHING_WRONG("""Something went wrong\. Try again\."""),
+    // Home Assistant's Assist, for what isn't one of myCar's commands (AssistantBrain).
+    DONE("""Done\."""),
+    HOME_ASSISTANT_SILENT("""Home Assistant didn't answer\."""),
     // The microphone and the speech engine.
     NEEDS_MIC("""Needs the microphone permission\."""),
     AFTER_CALL("""Voice commands work once the call ends\."""),
@@ -175,6 +190,9 @@ internal abstract class Phrasebook {
     /** Words in front of a command that don't change it ("per favore"), longest first where two overlap. */
     open val leadFillers: List<String> = emptyList()
     open val tailFillers: List<String> = emptyList()
+
+    /** What separates a filler from the rest: a space, or nothing in a language written without spaces (Chinese). */
+    protected open val wordGap: String = " "
     abstract val commands: List<Rule>
     abstract val answers: Map<Said, (List<String>) -> String>
     /** Words before an app's name at the end ("con", "su"): AssistantCommands splits there only for an app it knows. */
@@ -195,8 +213,14 @@ internal abstract class Phrasebook {
         var changed = true
         while (changed) {
             changed = false
-            for (lead in leadFillers) if (t.startsWith("$lead ")) { t = t.removePrefix("$lead ").trim(); changed = true }
-            for (tail in tailFillers) if (t.endsWith(" $tail")) { t = t.removeSuffix(" $tail").trim(); changed = true }
+            for (lead in leadFillers) {
+                val front = "$lead$wordGap"
+                if (t.startsWith(front) && t.length > front.length) { t = t.removePrefix(front).trim(); changed = true }
+            }
+            for (tail in tailFillers) {
+                val end = "$wordGap$tail"
+                if (t.endsWith(end) && t.length > end.length) { t = t.removeSuffix(end).trim(); changed = true }
+            }
         }
         return t
     }

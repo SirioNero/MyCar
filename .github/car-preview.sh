@@ -143,6 +143,13 @@ if [ -n "${HA_TOKEN:-}" ]; then
     EXTRA="$HA --es sidePane mycar:plancia" shoot plancia-side 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
     echo "--- Plancia inside myCar ---"
     grep -h "plancia:\|web:" previews/plancia-app/log.txt 2>/dev/null || echo "plancia-app: nothing in the log"
+    # What isn't one of myCar's commands goes to Home Assistant's Assist (car/AssistantBrain), as if
+    # said 8s in: the date; then in Italian, which the run's English pipeline doesn't speak, so its
+    # agent is asked in Italian.
+    EXTRA="$HA --es voiceHeard 'what is the date today'" shoot brain-ha 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
+    EXTRA="$HA --es voiceLang it --es voiceHeard 'che giorno è oggi'" shoot brain-ha-it 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
+    echo "--- Home Assistant's Assist, from myCar's assistant ---"
+    grep -h "assistant:\|preview: heard" previews/brain-ha/log.txt previews/brain-ha-it/log.txt 2>/dev/null || echo "brain: nothing in the log"
 else
     echo "--- no Home Assistant: Plancia's shots left out ---"
 fi
@@ -494,6 +501,22 @@ echo "--- the microphone with the phone locked ---"
 grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
     echo "assistant-locked: nothing in the log"
 
+# The same with Home Assistant set up in myCar (car/AssistantBrain): the phone stays locked, myCar
+# listens itself and says so on the car's screen, and nothing on the phone asks to be unlocked.
+if [ -n "${HA_TOKEN:-}" ]; then
+    EXTRA="$HA --es assistant phone" shoot brain-locked 1920 720 240 \
+        "$WAIT;$WAIT;$WAIT;$GRID_BUTTON;$MIC_BUTTON;$WAIT;$WAIT" \
+        "lock_phone; sleep 10; mkdir -p previews/brain-locked; \
+         adb exec-out screencap -p > previews/brain-locked/phone.png"
+    adb shell locksettings clear --old $PIN || true
+    adb shell input keyevent KEYCODE_WAKEUP
+    adb shell wm dismiss-keyguard || true
+    adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || true
+    echo "--- the microphone with the phone locked, Home Assistant set up ---"
+    grep -h "assistant:\|test assistant: shown\|plancia: connected" previews/brain-locked/log.txt 2>/dev/null ||
+        echo "brain-locked: nothing in the log"
+fi
+
 # The assistant in another language on the car's screen (--es voiceLang, as with its model on the
 # phone): its help in Italian, in German (the longest words), at 800x480, and an answer in German.
 EXTRA="--es voiceLang it --ez voiceHelp true" shoot voice-it 1920 720 240 "$WAIT"
@@ -615,6 +638,33 @@ setup_phone() {
     grep -hE "CERT|DOWNL" $d/log.txt | tail -20 || echo "setup-phone: nothing in the log"
 }
 setup_phone
+
+# myCar in its other languages (Settings > Language; from Android 13 the same as Android's own
+# language setting for the app, which `cmd locale` sets here): Home with music, the app grid and
+# the car's settings at 1920x720; Home, grid and dashboard at 800x480, where long words have the
+# least room. After the shots that tap English words, and English again at the end.
+# On the phone too: the setup list, Home, Settings, Connection help and the intro, each scrolled
+# twice (the debug build opens the screen named by --es screen).
+phone_lang() {
+    local d=previews/lang-$1/phone s
+    mkdir -p "$d"
+    for s in setup home settings help intro; do
+        adb shell am force-stop "$PKG"
+        adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity" --es screen "$s" >/dev/null
+        sleep 4; adb exec-out screencap -p > "$d/$s-1.png"
+        adb shell input swipe 160 520 160 180 400; sleep 1.5; adb exec-out screencap -p > "$d/$s-2.png"
+        adb shell input swipe 160 520 160 180 400; sleep 1.5; adb exec-out screencap -p > "$d/$s-3.png"
+    done
+}
+LANGS="it es de fr pt el ru zh-CN"
+for lang in $LANGS; do
+    BEFORE="adb shell cmd locale set-app-locales $PKG --locales $lang" EXTRA="--ez demoSong true" \
+        shoot "lang-$lang" 1920 720 240 "$WAIT;$GRID_BUTTON;$(at settings);$WAIT"
+    BEFORE="adb shell cmd locale set-app-locales $PKG --locales $lang" \
+        shoot "lang-$lang-800x480" 800 480 160 "48,436;48,44"
+    case " ${ONLY:-lang-$lang} " in *" lang-$lang "*) phone_lang "$lang" ;; esac
+done
+adb shell cmd locale set-app-locales "$PKG" --locales en-US
 
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews

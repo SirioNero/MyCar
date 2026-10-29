@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Setting up myCar on the phone: the setup list (ui/SetupScreen.kt), its cards on Home and in
+  "How to connect" (ui/SetupCards.kt), the older page-by-page guide (ui/SetupGuideScreen.kt), the
+  release intro (ui/IntroScreen.kt), and what myCar's main screen says by itself (MyCarActivity.kt).
+  Where a text names a button or a page of Android itself ("Disable", "Open by default", "Allow
+  restricted settings"...), use the words Android shows in your language.
+-->
+<resources>
+    <!-- Setup list (ui/SetupScreen.kt): the top of the page -->
+    <string name="setup_title">Set up myCar</string>
+    <!-- Under the title, the first time -->
+    <string name="setup_subtitle_first_run">A few taps before your first drive.</string>
+    <!-- Under the title, when the driver comes back to the list later -->
+    <string name="setup_subtitle_return">What\'s left to do. Nothing you\'ve set up changes.</string>
+    <string name="setup_unofficial">myCar is unofficial: set it up while parked, then keep your eyes on the road.</string>
+    <!-- Section labels of the list -->
+    <string name="setup_section_connect">To connect</string>
+    <string name="setup_section_drive">For your drive</string>
+    <!-- A step's mark, read aloud by screen readers -->
+    <string name="setup_status_done">Done</string>
+    <string name="setup_status_blocked">Blocked</string>
+
+    <!-- Setup list: the car certificate step -->
+    <string name="setup_cert_title">Car certificate</string>
+    <string name="setup_cert_body">Cars only talk to phones with a certificate they trust. myCar doesn\'t include one: it downloads public ones from open-source projects on GitHub (about 10 KB each). If your car turns one down, myCar tries the next.</string>
+    <string name="setup_cert_get">Get certificates</string>
+    <!-- On the button while the download runs -->
+    <string name="setup_cert_getting">Getting certificates…</string>
+    <string name="setup_cert_own_file">Use my own file</string>
+    <string name="setup_cert_wrong_file">A downloaded file wasn\'t the expected certificate, so myCar left it out. Try again later.</string>
+    <string name="setup_cert_no_download">Couldn\'t download the certificates. Check your internet connection, then try again.</string>
+    <!-- %1$d: how many were downloaded, %2$d: how many there are, %3$s: the name of the one ready (a project's name, e.g. aasdk). "Settings" is myCar's Settings screen. -->
+    <string name="setup_cert_some_ready">Got %1$d of %2$d. %3$s is ready; you can get the others later in Settings.</string>
+    <!-- The step done: what the phone holds -->
+    <string name="setup_cert_ready_own">Ready: your own certificate.</string>
+    <!-- %1$s: the certificate in use, %2$s: the spare ones, by name (aasdk, Headunit Revived, CarService) -->
+    <plurals name="setup_cert_ready_spares">
+        <item quantity="one">Ready: %1$s. Spare: %2$s.</item>
+        <item quantity="other">Ready: %1$s. Spares: %2$s.</item>
+    </plurals>
+    <!-- %1$s: the certificate's name -->
+    <string name="setup_cert_ready_one">Ready: %1$s.</string>
+    <string name="setup_cert_ready">Ready.</string>
+    <!-- The dialog after picking a certificate file of one's own -->
+    <string name="setup_cert_password_title">Certificate password</string>
+    <string name="setup_cert_password_label">Password</string>
+    <string name="setup_cert_password_hint">Leave empty if the file has none.</string>
+    <!-- Button: use the file with this password -->
+    <string name="setup_cert_password_use">Use it</string>
+    <string name="setup_cert_password_wrong">Wrong password, or not a .p12 file with a private key.</string>
+
+    <!-- Setup list: myCar switched off in its Settings -->
+    <string name="setup_mycar_on_title">Turn myCar on for the car</string>
+    <string name="setup_mycar_on_body">It\'s switched off in Settings, so the car can\'t reach it.</string>
+    <string name="setup_mycar_on_button">Turn on</string>
+
+    <!-- Setup list: Google's Android Auto, which can take the car before myCar -->
+    <string name="setup_aa_title">Turn off Android Auto</string>
+    <string name="setup_aa_off">Android Auto is off.</string>
+    <string name="setup_aa_kept">You\'ll choose myCar when you plug in.</string>
+    <!-- "Disable" and "OK": Android's buttons on Android Auto's app info -->
+    <string name="setup_aa_body">Android Auto is on, and it can take the car\'s connection before myCar does. On the screen this opens, tap Disable, then OK, then come back here.</string>
+    <string name="setup_aa_open">Open Android Auto</string>
+    <string name="setup_aa_no_disable">No Disable button?</string>
+    <!-- "Always", "Open by default", "Clear defaults": Android's own words -->
+    <string name="setup_aa_keep_body">Then keep it. When you plug in, Android asks which app to open: choose myCar and tap Always. If Android Auto opens by itself, it was set to always open: on its app info, tap Open by default, then Clear defaults.</string>
+    <string name="setup_aa_keep">Keep Android Auto</string>
+
+    <!-- Setup list: the permissions for the drive, all in one request -->
+    <string name="setup_drive_title">Calls, map and music</string>
+    <string name="setup_drive_allowed">Allowed.</string>
+    <!-- %1$s: the permission groups, e.g. "Location, Microphone". "Permissions" is the section of Android's app info. -->
+    <string name="setup_drive_blocked">Android won\'t ask again for %1$s. Turn it on in myCar\'s app info, under Permissions.</string>
+    <string name="setup_drive_skipped">Skipped. Tap Allow when you\'re ready.</string>
+    <!-- %1$s: the permission groups still off, e.g. "Contacts, Location" -->
+    <string name="setup_drive_still_off">Still off: %1$s.</string>
+    <string name="setup_drive_body">Your car shows who\'s calling and your recent calls, and can dial your contacts, the map knows where you are, and music can reach the car without Bluetooth. Android asks a few times: tap Allow each time. myCar only reads, and listens only when you tap the mic.</string>
+    <!-- The permission groups, named as Android names them in its permission dialogs and settings -->
+    <string name="setup_group_phone">Phone</string>
+    <string name="setup_group_call_logs">Call logs</string>
+    <string name="setup_group_contacts">Contacts</string>
+    <string name="setup_group_location">Location</string>
+    <string name="setup_group_microphone">Microphone</string>
+    <string name="setup_group_nearby_devices">Nearby devices</string>
+
+    <!-- Setup list: "More", the optional steps, folded away -->
+    <!-- %1$d: how many optional steps are left -->
+    <string name="setup_more_count">More (%1$d)</string>
+    <string name="setup_more_show_more">Show more</string>
+    <string name="setup_more_show_less">Show less</string>
+    <string name="setup_more_later">Everything here also works later.</string>
+    <string name="setup_messages_title">Messages</string>
+    <!-- "⋮" is the menu of Android's app info; "Allow restricted settings" is in that menu -->
+    <string name="setup_messages_body">The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the page this opens. If Android says it\'s a restricted setting: open myCar\'s app info, tap ⋮, then Allow restricted settings, and try again.</string>
+    <string name="setup_messages_open">Open notification access</string>
+    <string name="setup_calendar_title">Calendar</string>
+    <string name="setup_calendar_body">The car screen shows your next event. myCar only reads your calendar.</string>
+    <string name="setup_notifications_title">Notifications</string>
+    <!-- "Stop": the button on myCar's notification -->
+    <string name="setup_notifications_body">Lets myCar show that it\'s connected to the car, with Stop while it sends the phone\'s sound, and tell you when an update is out.</string>
+    <string name="setup_screening_title">Screen unknown callers</string>
+    <string name="setup_screening_body">With the car connected, a call from a number outside your contacts waits a few seconds before it rings, so you can turn it down from the car.</string>
+    <!-- Button -->
+    <string name="setup_screening_button">Set up</string>
+    <string name="setup_audio_title">Car audio</string>
+    <string name="setup_audio_body">How music reaches the car. Calls go over Bluetooth either way.</string>
+    <string name="setup_usage_title">Help other drivers</string>
+
+    <!-- Setup list: the bar at the bottom, with the big button that does the next step -->
+    <plurals name="setup_bar_steps_left">
+        <item quantity="one">%1$d step left before your first drive.</item>
+        <item quantity="other">%1$d steps left before your first drive.</item>
+    </plurals>
+    <!-- Big button -->
+    <string name="setup_bar_turn_on">Turn myCar on</string>
+    <string name="setup_bar_ready_to_connect">You\'re ready to connect.</string>
+    <!-- Big button -->
+    <string name="setup_bar_allow_drive">Allow calls, map and music</string>
+    <string name="setup_bar_ready">You\'re ready. Plug into the car; if Android asks, choose myCar and tap Always.</string>
+    <!-- Button: leave the setup for later, the first time -->
+    <string name="setup_bar_finish_later">Finish later</string>
+
+    <!-- The setup's cards (ui/SetupCards.kt): steps still needed, named in a list after a colon -->
+    <string name="setup_step_certificate">car certificate</string>
+    <string name="setup_step_mycar_on">turning myCar on</string>
+    <!-- At the top of "How to connect". %1$d: how many, %2$s: which, e.g. "car certificate, Android Auto" -->
+    <plurals name="setup_card_steps_left">
+        <item quantity="one">%1$d step left before your first drive: %2$s.</item>
+        <item quantity="other">%1$d steps left before your first drive: %2$s.</item>
+    </plurals>
+    <!-- %1$d: how many optional steps are left -->
+    <plurals name="setup_card_extras_left">
+        <item quantity="one">Ready to connect. %1$d extra left.</item>
+        <item quantity="other">Ready to connect. %1$d extras left.</item>
+    </plurals>
+    <string name="setup_card_all_done">Everything\'s set up.</string>
+    <string name="setup_card_title">Initial setup</string>
+    <string name="setup_card_footer">Nothing is deleted or reset. You\'ll see only what\'s left, with what\'s done ticked.</string>
+    <string name="setup_card_back">Take me back to the initial setup</string>
+    <!-- On Home while something needed to connect is missing -->
+    <string name="setup_left_title">Finish setting up</string>
+    <!-- %1$s: the steps, e.g. "car certificate, Android Auto" -->
+    <string name="setup_left_body">Left before your first drive: %1$s.</string>
+    <string name="setup_left_continue">Continue setup</string>
+
+    <!-- The older setup guide (ui/SetupGuideScreen.kt), one page at a time: page titles are short, in big type -->
+    <!-- Shown in capitals above the title of an optional page -->
+    <string name="setup_guide_optional">OPTIONAL</string>
+    <string name="setup_guide_already_allowed">Already allowed.</string>
+    <string name="setup_guide_skip_for_now">Skip for now</string>
+    <string name="setup_guide_usage_title">Help other drivers.</string>
+    <string name="setup_guide_safety_title">Drive safely.</string>
+    <string name="setup_guide_safety_body">myCar is unofficial. No carmaker made or checked it, and it can fail without warning. Set it up before you go, then keep your eyes on the road.</string>
+    <string name="setup_guide_mic_title">Microphone.</string>
+    <string name="setup_guide_mic_body">myCar uses it to send your music to the car and to hear you when you ask for something or reply to a message. What you say stays on the phone.</string>
+    <string name="setup_guide_location_title">Location.</string>
+    <string name="setup_guide_location_body">The car\'s map and nearby searches need it. Without it, the dashboard shows no map.</string>
+    <string name="setup_guide_calendar_title">Calendar.</string>
+    <string name="setup_guide_calls_title">Calls and contacts.</string>
+    <string name="setup_guide_calls_body">The car shows who\'s calling by name, and its Phone app can dial a number or call one of your contacts. myCar only reads them.</string>
+    <!-- The permission group Android calls "Nearby devices" -->
+    <string name="setup_guide_nearby_title">Nearby devices.</string>
+    <string name="setup_guide_nearby_body">The first time you plug in, myCar offers to pair your phone with the car, so calls play through its speakers.</string>
+    <!-- The same, from Android 17, where that permission also opens the home network -->
+    <string name="setup_guide_nearby_body_home">The first time you plug in, myCar offers to pair your phone with the car, so calls play through its speakers. The same permission lets Plancia and Xonos reach Home Assistant and Music Assistant on your home network.</string>
+    <string name="setup_guide_notifications_title">Notifications.</string>
+    <string name="setup_guide_notifications_body">While myCar is connected, it shows a notification with a button to stop. Without this, Android hides it.</string>
+    <string name="setup_guide_messages_title">Messages.</string>
+    <string name="setup_guide_messages_body">The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the list this opens.</string>
+    <string name="setup_guide_aa_title">Turn off Android Auto.</string>
+    <string name="setup_guide_aa_body">Android Auto is still installed, and it fights myCar for the car\'s USB connection. Disable or uninstall it on the screen this opens.</string>
+    <string name="setup_guide_aa_open">Open Android Auto\'s app info</string>
+    <string name="setup_guide_choose_title">Choose myCar.</string>
+    <!-- "Always": Android's button when it asks which app to open -->
+    <string name="setup_guide_choose_body">If your phone asks which app to open when you plug into the car, pick myCar and tap Always.</string>
+    <string name="setup_guide_audio_title">Car audio.</string>
+    <string name="setup_guide_audio_body">Pick how music reaches the car. Calls go over Bluetooth either way.</string>
+    <string name="setup_guide_voice_title">Voice.</string>
+    <!-- %1$d: the size of the download in megabytes -->
+    <string name="setup_guide_voice_body">Ask for directions, music, or a call by voice. Your phone turns speech into text by itself, and nothing you say leaves it. It needs %1$d MB, downloaded once. Use Wi-Fi if you can.</string>
+    <!-- Button; setup_guide_voice_failed names it -->
+    <string name="setup_guide_voice_download">Download voice</string>
+    <!-- %1$d: percent done -->
+    <string name="setup_guide_voice_progress">Downloading, %1$d%%. You can carry on; it keeps going.</string>
+    <string name="setup_guide_voice_ready">Voice is ready.</string>
+    <!-- "Download voice": the button above, setup_guide_voice_download -->
+    <string name="setup_guide_voice_failed">The download didn\'t finish. Tap Download voice to try again.</string>
+    <!-- An adb command shown under it lets myCar capture audio without asking; "Start" is Android's button in that question -->
+    <string name="setup_guide_project_media_title">No audio prompt.</string>
+    <string name="setup_guide_project_media_body">Run this from a computer with USB debugging on, and Android trusts myCar with your audio for good. Without it, you tap Start once each drive.</string>
+    <!-- An adb command shown under it lets myCar show notifications while it captures audio -->
+    <string name="setup_guide_secure_settings_title">Readable notifications.</string>
+    <string name="setup_guide_secure_settings_body">While audio goes to the car, Android hides what notifications say, as if you were sharing your screen. This lets myCar show them during a drive and hide them again after.</string>
+    <string name="setup_guide_screening_title">Screen unknown callers.</string>
+    <string name="setup_guide_screening_body">Make myCar your caller ID app, and the car can turn down a call from outside your contacts before it rings. Without it, the car still shows every call, and you answer or decline it there.</string>
+
+    <!-- Car audio choice, in the setup list and the guide: how music reaches the car -->
+    <string name="setup_audio_automatic">Automatic</string>
+    <!-- A tag under the choice's name -->
+    <string name="setup_audio_recommended">Recommended</string>
+    <string name="setup_audio_automatic_body">Over Bluetooth when your car takes the phone\'s music that way, otherwise through myCar.</string>
+    <string name="setup_audio_bluetooth_body">No prompt each drive, and your map app\'s voice reaches the car. Some cars take only calls over it.</string>
+    <string name="setup_audio_through_mycar">Through myCar</string>
+    <string name="setup_audio_through_mycar_body">Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive.</string>
+
+    <!-- Release intro (ui/IntroScreen.kt): a few big pages after updating to a new release -->
+    <!-- Button on the last page -->
+    <string name="intro_start">Start</string>
+    <!-- Small, above the release number in huge type (e.g. 0.6) -->
+    <string name="intro_welcome_to">Welcome to</string>
+    <!-- A small tag under the release number; "alpha" is the release's stage -->
+    <string name="intro_welcome_tag">alpha · the big one</string>
+    <!-- Intro of 0.6, the language page: a list of the languages to tap follows it. Page titles are short, in very big type -->
+    <string name="intro_language_title">Your language.</string>
+    <string name="intro_language_body">myCar now speaks English, Italian, Spanish, German, French, Portuguese, Greek, Russian and Chinese: on the phone, on the car\'s screen and in the voice assistant. It follows the phone; pick another one here, or later in Settings > Language.</string>
+    <!-- Page titles are short, in very big type -->
+    <string name="intro_wireless_title">Wireless.</string>
+    <string name="intro_wireless_body">If your car does wireless Android Auto, pair once and leave the cable at home.</string>
+    <!-- The car's rotary knob -->
+    <string name="intro_knobs_title">Knobs work.</string>
+    <string name="intro_knobs_body">Turn, push, done. No touchscreen? myCar doesn\'t need one anymore.</string>
+    <string name="intro_graphene_title">Protections back on.</string>
+    <!-- "exploit protection compatibility mode": the name of a GrapheneOS setting -->
+    <string name="intro_graphene_body">On GrapheneOS, myCar no longer needs exploit protection compatibility mode. If you turned it on for myCar, turn it off to get full protection back.</string>
+    <string name="intro_graphene_open_settings">Open app settings</string>
+    <!-- Title over recommended apps, in the intro and the guide -->
+    <string name="intro_apps_title">Good company.</string>
+    <string name="intro_apps_body">Free, open-source apps that work well in the car. The first in each row works best. Tap one to see it on GitHub.</string>
+    <!-- Kinds of app, shown in capitals over their row -->
+    <string name="intro_apps_maps">Maps</string>
+    <string name="intro_apps_music">Music</string>
+    <string name="intro_apps_podcasts">Podcasts</string>
+    <string name="intro_theme_title">Your buttons.</string>
+    <string name="intro_theme_body">Pick how the car\'s buttons look. Change it any time in the car\'s settings.</string>
+    <!-- A sample of the car's controls in the chosen style: two icon buttons (read aloud) and a wide button -->
+    <string name="intro_theme_search">Search</string>
+    <string name="intro_theme_play">Play</string>
+    <string name="intro_theme_navigate">Navigate</string>
+    <string name="intro_voice_title">Just say it.</string>
+    <!-- %1$s: the word that opens the assistant's help, in the assistant's language (e.g. help) -->
+    <string name="intro_voice_body">Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech into text by itself, and what you say stays on it, unless you ask your own Home Assistant. Say \"%1$s\" in the car for the full list.</string>
+    <!-- The same when the assistant speaks another language than English. %1$s: that language's name (e.g. Italian), %2$s: the word that opens the help, in that language -->
+    <string name="intro_voice_body_language">Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech into text by itself, and what you say stays on it, unless you ask your own Home Assistant. It listens and answers in %1$s, myCar\'s language. Say \"%2$s\" in the car for the full list.</string>
+    <!-- Button text while it downloads. %1$d: percent done -->
+    <string name="intro_voice_downloading">Downloading, %1$d%%</string>
+    <string name="intro_voice_failed">Download failed. Try again</string>
+    <!-- Button. %1$d: the size in megabytes -->
+    <string name="intro_voice_download">Download voice, %1$d MB</string>
+    <!-- A sample voice command, in quotes: use your language's quotation marks -->
+    <string name="intro_voice_sample">“%1$s”</string>
+
+    <!-- What myCar's main screen says by itself (MyCarActivity.kt) -->
+    <!-- Toasts on the phone -->
+    <string name="activity_toast_no_call_screening">This phone doesn\'t let apps screen calls.</string>
+    <string name="activity_toast_already_screening">myCar already screens unknown callers.</string>
+    <!-- Notices on the car's screen -->
+    <string name="activity_toast_music_pauses_sharing">The phone\'s music pauses while its screen is shared</string>
+    <string name="activity_toast_open_for_music">Open myCar on the phone to send its music to the car</string>
+    <string name="activity_toast_open_for_sharing">Open myCar on the phone to share its screen</string>
+    <!-- Why the car didn't connect, on the phone's Home: a headline and a line under it -->
+    <string name="activity_status_no_car_title">The car isn\'t reachable</string>
+    <string name="activity_status_no_car_detail">Android saw the cable but not the car on it. Unplug it and plug it in again.</string>
+    <string name="activity_status_unplugged_title">The car isn\'t connected</string>
+    <string name="activity_status_unplugged_detail">The cable was unplugged before myCar could open the connection. Plug it in again.</string>
+    <string name="activity_status_taken_title">Another app has the car</string>
+    <string name="activity_status_taken_detail">Another app took the car\'s connection before myCar could. If Android asks which app to open for the car, choose myCar.</string>
+</resources>

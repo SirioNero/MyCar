@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_title">设置 myCar</string>
+    <string name="setup_subtitle_first_run">首次行车前，只需点按几下。</string>
+    <string name="setup_subtitle_return">这里是还没完成的步骤。你已设置好的内容不会改变。</string>
+    <string name="setup_unofficial">myCar 是非官方应用：请在停车时完成设置，开车时请专注路况。</string>
+    <string name="setup_section_connect">连接所需</string>
+    <string name="setup_section_drive">行车所需</string>
+    <string name="setup_status_done">已完成</string>
+    <string name="setup_status_blocked">已被阻止</string>
+
+    <string name="setup_cert_title">车机证书</string>
+    <string name="setup_cert_body">汽车只和持有其信任证书的手机通信。myCar 不自带证书：它会从 GitHub 上的开源项目下载公开证书（每个约 10 KB）。如果你的汽车拒绝了其中一个，myCar 会尝试下一个。</string>
+    <string name="setup_cert_get">获取证书</string>
+    <string name="setup_cert_getting">正在获取证书…</string>
+    <string name="setup_cert_own_file">使用我自己的文件</string>
+    <string name="setup_cert_wrong_file">下载的某个文件不是预期的证书，所以 myCar 没有使用它。请稍后重试。</string>
+    <string name="setup_cert_no_download">无法下载证书。请检查网络连接，然后重试。</string>
+    <string name="setup_cert_some_ready">已获取 %1$d 个，共 %2$d 个。%3$s 已就绪；其他证书可以稍后在“设置”中获取。</string>
+    <string name="setup_cert_ready_own">已就绪：你自己的证书。</string>
+    <plurals name="setup_cert_ready_spares">
+        <item quantity="other">已就绪：%1$s。备用：%2$s。</item>
+    </plurals>
+    <string name="setup_cert_ready_one">已就绪：%1$s。</string>
+    <string name="setup_cert_ready">已就绪。</string>
+    <string name="setup_cert_password_title">证书密码</string>
+    <string name="setup_cert_password_label">密码</string>
+    <string name="setup_cert_password_hint">如果文件没有密码，请留空。</string>
+    <string name="setup_cert_password_use">使用</string>
+    <string name="setup_cert_password_wrong">密码错误，或者不是含私钥的 .p12 文件。</string>
+
+    <string name="setup_mycar_on_title">为汽车开启 myCar</string>
+    <string name="setup_mycar_on_body">它在“设置”中已关闭，所以汽车无法连接它。</string>
+    <string name="setup_mycar_on_button">开启</string>
+
+    <string name="setup_aa_title">关闭 Android Auto</string>
+    <string name="setup_aa_off">Android Auto 已关闭。</string>
+    <string name="setup_aa_kept">插上数据线时，你会选择 myCar。</string>
+    <string name="setup_aa_body">Android Auto 已开启，它可能会抢在 myCar 之前占用汽车的连接。在打开的页面上，依次点按“停用”和“确定”，然后返回这里。</string>
+    <string name="setup_aa_open">打开 Android Auto</string>
+    <string name="setup_aa_no_disable">没有“停用”按钮？</string>
+    <string name="setup_aa_keep_body">那就保留它。插上数据线时，Android 会询问要打开哪个应用：选择 myCar，然后点按“始终”。如果 Android Auto 自己打开了，说明它被设为始终打开：在它的应用信息中点按“默认打开”，然后点按“清除默认偏好设置”。</string>
+    <string name="setup_aa_keep">保留 Android Auto</string>
+
+    <string name="setup_drive_title">通话、地图和音乐</string>
+    <string name="setup_drive_allowed">已允许。</string>
+    <string name="setup_drive_blocked">Android 不会再询问以下权限：%1$s。请在 myCar 的应用信息中，于“权限”下开启。</string>
+    <string name="setup_drive_skipped">已跳过。准备好后点按“允许”。</string>
+    <string name="setup_drive_still_off">仍未开启：%1$s。</string>
+    <string name="setup_drive_body">汽车会显示来电者和最近通话，并能拨打你的联系人；地图能知道你在哪里；不用蓝牙也能把音乐传到车上。Android 会询问几次：每次都点按“允许”。myCar 只读取信息，并且只在你点按麦克风时才会听。</string>
+    <string name="setup_group_phone">电话</string>
+    <string name="setup_group_call_logs">通话记录</string>
+    <string name="setup_group_contacts">通讯录</string>
+    <string name="setup_group_location">位置信息</string>
+    <string name="setup_group_microphone">麦克风</string>
+    <string name="setup_group_nearby_devices">附近的设备</string>
+
+    <string name="setup_more_count">更多（%1$d）</string>
+    <string name="setup_more_show_more">显示更多</string>
+    <string name="setup_more_show_less">收起</string>
+    <string name="setup_more_later">这些都可以以后再设置。</string>
+    <string name="setup_messages_title">消息</string>
+    <string name="setup_messages_body">汽车会显示你的消息、朗读消息，并让你回复。在打开的页面中开启 myCar。如果 Android 提示这是受限制的设置：打开 myCar 的应用信息，点按 ⋮，然后点按“允许受限制的设置”，再试一次。</string>
+    <string name="setup_messages_open">打开通知使用权</string>
+    <string name="setup_calendar_title">日历</string>
+    <string name="setup_calendar_body">车机屏幕会显示你的下一个日程。myCar 只读取你的日历。</string>
+    <string name="setup_notifications_title">通知</string>
+    <string name="setup_notifications_body">让 myCar 显示它已连接到汽车，在发送手机声音时提供“停止”按钮，并在有更新时通知你。</string>
+    <string name="setup_screening_title">过滤陌生来电</string>
+    <string name="setup_screening_body">连接汽车时，通讯录以外的号码来电会先等几秒再响铃，让你能在车上拒接。</string>
+    <string name="setup_screening_button">设置</string>
+    <string name="setup_audio_title">车载音频</string>
+    <string name="setup_audio_body">音乐如何传到车上。无论哪种方式，通话都通过蓝牙。</string>
+    <string name="setup_usage_title">帮助其他司机</string>
+
+    <plurals name="setup_bar_steps_left">
+        <item quantity="other">首次行车前还剩 %1$d 步。</item>
+    </plurals>
+    <string name="setup_bar_turn_on">开启 myCar</string>
+    <string name="setup_bar_ready_to_connect">可以连接了。</string>
+    <string name="setup_bar_allow_drive">允许通话、地图和音乐</string>
+    <string name="setup_bar_ready">一切就绪。连接汽车；如果 Android 询问，请选择 myCar 并点按“始终”。</string>
+    <string name="setup_bar_finish_later">稍后完成</string>
+
+    <string name="setup_step_certificate">车机证书</string>
+    <string name="setup_step_mycar_on">开启 myCar</string>
+    <plurals name="setup_card_steps_left">
+        <item quantity="other">首次行车前还剩 %1$d 步：%2$s。</item>
+    </plurals>
+    <plurals name="setup_card_extras_left">
+        <item quantity="other">可以连接了。还剩 %1$d 项可选设置。</item>
+    </plurals>
+    <string name="setup_card_all_done">全部设置完成。</string>
+    <string name="setup_card_title">初始设置</string>
+    <string name="setup_card_footer">不会删除或重置任何内容。你只会看到还没完成的步骤，已完成的会打勾。</string>
+    <string name="setup_card_back">返回初始设置</string>
+    <string name="setup_left_title">完成设置</string>
+    <string name="setup_left_body">首次行车前还需：%1$s。</string>
+    <string name="setup_left_continue">继续设置</string>
+
+    <string name="setup_guide_optional">可选</string>
+    <string name="setup_guide_already_allowed">已允许。</string>
+    <string name="setup_guide_skip_for_now">暂时跳过</string>
+    <string name="setup_guide_usage_title">帮助其他司机。</string>
+    <string name="setup_guide_safety_title">安全驾驶。</string>
+    <string name="setup_guide_safety_body">myCar 是非官方应用。没有任何汽车制造商开发或检查过它，它可能会毫无预兆地出问题。请在出发前设置好，开车时专注路况。</string>
+    <string name="setup_guide_mic_title">麦克风。</string>
+    <string name="setup_guide_mic_body">myCar 用它把你的音乐发送到车上，并在你提出请求或回复消息时听你说话。你说的话只留在手机上。</string>
+    <string name="setup_guide_location_title">位置信息。</string>
+    <string name="setup_guide_location_body">车上的地图和附近搜索都需要它。没有它，仪表盘上不会显示地图。</string>
+    <string name="setup_guide_calendar_title">日历。</string>
+    <string name="setup_guide_calls_title">通话和联系人。</string>
+    <string name="setup_guide_calls_body">汽车会显示来电者的名字，车上的“电话”应用可以拨打号码或呼叫你的联系人。myCar 只读取这些信息。</string>
+    <string name="setup_guide_nearby_title">附近的设备。</string>
+    <string name="setup_guide_nearby_body">首次插上数据线时，myCar 会提议将手机与汽车配对，让通话通过车内扬声器播放。</string>
+    <string name="setup_guide_nearby_body_home">首次插上数据线时，myCar 会提议将手机与汽车配对，让通话通过车内扬声器播放。同一项权限还能让 Plancia 和 Xonos 访问你家庭网络中的 Home Assistant 和 Music Assistant。</string>
+    <string name="setup_guide_notifications_title">通知。</string>
+    <string name="setup_guide_notifications_body">myCar 连接时会显示一条带停止按钮的通知。如果不允许，Android 会隐藏它。</string>
+    <string name="setup_guide_messages_title">消息。</string>
+    <string name="setup_guide_messages_body">汽车会显示你的消息、朗读消息，并让你回复。在打开的列表中开启 myCar。</string>
+    <string name="setup_guide_aa_title">关闭 Android Auto。</string>
+    <string name="setup_guide_aa_body">Android Auto 仍然安装着，它会和 myCar 争夺汽车的 USB 连接。请在打开的页面中停用或卸载它。</string>
+    <string name="setup_guide_aa_open">打开 Android Auto 的应用信息</string>
+    <string name="setup_guide_choose_title">选择 myCar。</string>
+    <string name="setup_guide_choose_body">如果连接汽车时手机询问要打开哪个应用，请选择 myCar 并点按“始终”。</string>
+    <string name="setup_guide_audio_title">车载音频。</string>
+    <string name="setup_guide_audio_body">选择音乐如何传到车上。无论哪种方式，通话都通过蓝牙。</string>
+    <string name="setup_guide_voice_title">语音。</string>
+    <string name="setup_guide_voice_body">用语音查路线、放音乐或打电话。手机会自己把语音转成文字，你说的话不会离开手机。它需要 %1$d MB，只需下载一次。尽量使用 WLAN。</string>
+    <string name="setup_guide_voice_download">下载语音</string>
+    <string name="setup_guide_voice_progress">正在下载，%1$d%%。你可以继续操作，下载不会中断。</string>
+    <string name="setup_guide_voice_ready">语音已就绪。</string>
+    <string name="setup_guide_voice_failed">下载未完成。点按“下载语音”重试。</string>
+    <string name="setup_guide_project_media_title">不再询问音频。</string>
+    <string name="setup_guide_project_media_body">在手机开启 USB 调试的情况下，从电脑运行这条命令，Android 就会永久信任 myCar 处理你的音频。否则，每次行车你都要点按一次“开始”。</string>
+    <string name="setup_guide_secure_settings_title">可读的通知。</string>
+    <string name="setup_guide_secure_settings_body">音频传到车上时，Android 会隐藏通知的内容，就像你在共享屏幕一样。这项设置让 myCar 在行车时显示通知内容，结束后再隐藏。</string>
+    <string name="setup_guide_screening_title">过滤陌生来电。</string>
+    <string name="setup_guide_screening_body">把 myCar 设为你的来电显示应用，汽车就能在响铃前拒接通讯录以外的来电。如果不设置，汽车仍会显示每个来电，你可以在车上接听或拒接。</string>
+
+    <string name="setup_audio_automatic">自动</string>
+    <string name="setup_audio_recommended">推荐</string>
+    <string name="setup_audio_automatic_body">汽车能通过蓝牙播放手机音乐时用蓝牙，否则通过 myCar。</string>
+    <string name="setup_audio_bluetooth_body">每次行车无需确认，地图应用的语音也能传到车上。部分汽车通过蓝牙只接收通话。</string>
+    <string name="setup_audio_through_mycar">通过 myCar</string>
+    <string name="setup_audio_through_mycar_body">像 Android Auto 一样，通过数据线或 WLAN 传输。每次行车 Android 会请求一次共享音频。</string>
+
+    <string name="intro_start">开始</string>
+    <string name="intro_welcome_to">欢迎来到</string>
+    <string name="intro_welcome_tag">alpha · 重磅版本</string>
+    <string name="intro_language_title">你的语言。</string>
+    <string name="intro_language_body">myCar 现在支持中文、英语、意大利语、西班牙语、德语、法语、葡萄牙语、希腊语和俄语：手机上、车机屏幕上和语音助手都可以。默认跟随手机语言；可以在这里选择其他语言，也可以稍后在“设置 > 语言”中更改。</string>
+    <string name="intro_wireless_title">无线连接。</string>
+    <string name="intro_wireless_body">如果你的汽车支持无线 Android Auto，只需配对一次，数据线就可以留在家里。</string>
+    <string name="intro_knobs_title">支持旋钮。</string>
+    <string name="intro_knobs_body">转一转，按一下，就好了。没有触摸屏？myCar 现在也不需要了。</string>
+    <string name="intro_graphene_title">保护已恢复。</string>
+    <string name="intro_graphene_body">在 GrapheneOS 上，myCar 不再需要“漏洞利用防护兼容模式”（exploit protection compatibility mode）。如果你曾为 myCar 开启它，请关闭以恢复完整保护。</string>
+    <string name="intro_graphene_open_settings">打开应用设置</string>
+    <string name="intro_apps_title">好伙伴。</string>
+    <string name="intro_apps_body">在车上好用的免费开源应用。每行第一个效果最好。点按一个即可在 GitHub 上查看。</string>
+    <string name="intro_apps_maps">地图</string>
+    <string name="intro_apps_music">音乐</string>
+    <string name="intro_apps_podcasts">播客</string>
+    <string name="intro_theme_title">你的按钮。</string>
+    <string name="intro_theme_body">选择车机按钮的样式。随时可以在车机屏幕上的设置中更改。</string>
+    <string name="intro_theme_search">搜索</string>
+    <string name="intro_theme_play">播放</string>
+    <string name="intro_theme_navigate">导航</string>
+    <string name="intro_voice_title">说出来就行。</string>
+    <string name="intro_voice_body">点按麦克风，或按下方向盘上的语音键，然后说话。手机会自己把语音转成文字，你说的话会留在手机上，除非你是在问自己的 Home Assistant。在车上说“%1$s”可查看完整列表。</string>
+    <string name="intro_voice_body_language">点按麦克风，或按下方向盘上的语音键，然后说话。手机会自己把语音转成文字，你说的话会留在手机上，除非你是在问自己的 Home Assistant。它会用 myCar 的语言（%1$s）听你说话并回答。在车上说“%2$s”可查看完整列表。</string>
+    <string name="intro_voice_downloading">正在下载，%1$d%%</string>
+    <string name="intro_voice_failed">下载失败，点按重试</string>
+    <string name="intro_voice_download">下载语音，%1$d MB</string>
+    <string name="intro_voice_sample">“%1$s”</string>
+
+    <string name="activity_toast_no_call_screening">这部手机不允许应用过滤来电。</string>
+    <string name="activity_toast_already_screening">myCar 已在过滤陌生来电。</string>
+    <string name="activity_toast_music_pauses_sharing">共享手机屏幕时，手机音乐会暂停</string>
+    <string name="activity_toast_open_for_music">在手机上打开 myCar，即可把手机音乐发送到车上</string>
+    <string name="activity_toast_open_for_sharing">在手机上打开 myCar，即可共享手机屏幕</string>
+    <string name="activity_status_no_car_title">无法连接到汽车</string>
+    <string name="activity_status_no_car_detail">Android 检测到了数据线，但没有检测到汽车。请拔下数据线，然后重新插上。</string>
+    <string name="activity_status_unplugged_title">汽车未连接</string>
+    <string name="activity_status_unplugged_detail">在 myCar 建立连接之前，数据线被拔掉了。请重新插上。</string>
+    <string name="activity_status_taken_title">汽车被其他应用占用</string>
+    <string name="activity_status_taken_detail">另一个应用抢先占用了汽车的连接。如果 Android 询问要为汽车打开哪个应用，请选择 myCar。</string>
+</resources>

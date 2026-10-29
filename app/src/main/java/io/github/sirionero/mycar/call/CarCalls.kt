@@ -14,13 +14,15 @@ import android.telecom.TelecomManager
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /** A caller as the car shows it: whatever the contacts app knows, or just the number. */
 data class Caller(val number: String, val name: String?) {
-    val label: String get() = name ?: number.ifBlank { "Unknown number" }
+    val label: String get() = name ?: number.ifBlank { Words.get(R.string.call_unknown_number) }
 }
 
 sealed interface CallUiState {

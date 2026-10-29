@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -38,24 +39,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /** A free app that runs on myCar's car screen, and where to get it. */
-private class RecommendedApp(val name: String, val packageName: String, val url: String, val about: String)
+private class RecommendedApp(val name: String, val packageName: String, val url: String, @StringRes val about: Int)
 
 private val recommended = listOf(
-    "Maps" to listOf(
-        RecommendedApp("Organic Maps", "app.organicmaps", "https://github.com/organicmaps/organicmaps", "Offline maps and routing."),
-        RecommendedApp("Vela Maps", "app.vela", "https://github.com/PimpinPumpkin/Vela", "Turn-by-turn navigation without Google."),
+    R.string.recommended_section_maps to listOf(
+        RecommendedApp("Organic Maps", "app.organicmaps", "https://github.com/organicmaps/organicmaps", R.string.recommended_about_organic_maps),
+        RecommendedApp("Vela Maps", "app.vela", "https://github.com/PimpinPumpkin/Vela", R.string.recommended_about_vela),
     ),
-    "Music" to listOf(
-        RecommendedApp("ViVi Music", "com.vivi.vivimusic", "https://github.com/vivizzz007/vivi-music", "A YouTube Music player."),
-        RecommendedApp("Metrolist", "com.metrolist.music", "https://github.com/MetrolistGroup/Metrolist", "A YouTube Music player."),
+    R.string.recommended_section_music to listOf(
+        RecommendedApp("ViVi Music", "com.vivi.vivimusic", "https://github.com/vivizzz007/vivi-music", R.string.recommended_about_youtube_music),
+        RecommendedApp("Metrolist", "com.metrolist.music", "https://github.com/MetrolistGroup/Metrolist", R.string.recommended_about_youtube_music),
     ),
-    "Podcasts" to listOf(
-        RecommendedApp("AntennaPod", "de.danoeh.antennapod", "https://github.com/AntennaPod/AntennaPod", "Podcasts, chapters and all."),
+    R.string.recommended_section_podcasts to listOf(
+        RecommendedApp("AntennaPod", "de.danoeh.antennapod", "https://github.com/AntennaPod/AntennaPod", R.string.recommended_about_antennapod),
     ),
 )
 
@@ -67,10 +71,10 @@ fun RecommendedAppsScreen(onBack: () -> Unit) {
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Recommended apps") },
+                title = { Text(stringResource(R.string.recommended_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
             )
@@ -84,7 +88,7 @@ fun RecommendedAppsScreen(onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState()),
         ) {
             Text(
-                RECOMMENDED_INTRO,
+                stringResource(R.string.recommended_intro),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -98,8 +102,8 @@ fun RecommendedAppsScreen(onBack: () -> Unit) {
 /** Hidden for now: off, neither Settings nor the setup guide shows the list. The code stays. */
 internal const val SHOW_RECOMMENDED_APPS = false
 
-internal const val RECOMMENDED_INTRO =
-    "These free apps run on myCar's car screen. Each button opens the app's page on GitHub."
+/** The list's introduction, in myCar's language (the setup guide shows it too). */
+internal val RECOMMENDED_INTRO: String get() = Words.get(R.string.recommended_intro)
 
 /** The same green as the launcher's "works" check. */
 private val INSTALLED_GREEN = Color(0xFF43A047)
@@ -112,7 +116,7 @@ internal fun RecommendedAppsList(modifier: Modifier = Modifier) {
         for ((section, apps) in recommended) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    section,
+                    stringResource(section),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -140,12 +144,12 @@ private fun AppRow(app: RecommendedApp, onOpen: () -> Unit) {
         }
         Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
             Text(app.name, style = MaterialTheme.typography.titleMedium)
-            Text(app.about, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(app.about), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (icon != null) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
                     Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = INSTALLED_GREEN, modifier = Modifier.size(16.dp))
                     Text(
-                        "Installed",
+                        stringResource(R.string.recommended_installed),
                         style = MaterialTheme.typography.labelLarge,
                         color = INSTALLED_GREEN,
                         modifier = Modifier.padding(start = 6.dp),

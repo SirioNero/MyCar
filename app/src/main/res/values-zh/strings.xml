@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="touch_relay_description">让 myCar 在共享屏幕时，把车机屏幕上的点按转到手机上。myCar 不会读取屏幕内容。</string>
+</resources>

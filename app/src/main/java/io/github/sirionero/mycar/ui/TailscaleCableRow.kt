@@ -5,6 +5,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
 
 /**
@@ -21,19 +23,18 @@ internal fun TailscaleCableRow(urls: List<String>, server: String, app: String, 
     if (!remember(urls) { Tailnet.onTailnet(context, urls) }) return
     if (bridged) {
         SettingsRow(
-            "Through Tailscale: through the $app app too",
-            subtitle = "Wirelessly, with myCar left out of Tailscale (inside a VPN, Android keeps myCar off the car's Wi-Fi), " +
-                "myCar reaches your $server through the $app app, which is inside Tailscale. Keep the $app app set up " +
-                "with the same address.",
+            stringResource(R.string.tailscale_bridged_title, app),
+            subtitle = stringResource(R.string.tailscale_bridged_detail, server, app),
             icon = Icons.Filled.Info,
         )
     } else {
         SettingsRow(
-            "Through Tailscale: with the cable, for now",
-            subtitle = "Wirelessly, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car's " +
-                "Wi-Fi), and then it can't reach your $server by itself. " +
-                (if (appThere) "Update the $app app, and myCar reaches it through the app; until then the car uses the $app app instead, by itself."
-                else "With an up-to-date $app app on the phone, myCar reaches it through the app."),
+            stringResource(R.string.tailscale_cable_title),
+            subtitle = if (appThere) {
+                stringResource(R.string.tailscale_cable_update_app, server, app)
+            } else {
+                stringResource(R.string.tailscale_cable_get_app, server, app)
+            },
             icon = Icons.Filled.Info,
         )
     }

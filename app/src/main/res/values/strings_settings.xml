@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The phone's Settings (ui/SettingsScreen.kt and the sections it shows), the voice models, the
+  usage notes, and what keeps myCar from Home Assistant or Music Assistant (the home network,
+  Tailscale, another VPN), which the car's screen says too.
+-->
+<resources>
+    <!-- Settings (ui/SettingsScreen.kt): section titles -->
+    <string name="settings_support_title">Support myCar</string>
+    <string name="settings_support_footer">myCar is free, with no ads and no tracking. Your support keeps it going.</string>
+    <string name="settings_usage_notes_title">Usage notes</string>
+    <string name="settings_updates_title">Updates</string>
+
+    <!-- Settings > About -->
+    <string name="settings_about_title">About</string>
+    <string name="settings_about_whats_new">What\'s new</string>
+    <!-- %1$s: the version, like 0.5.20-alpha -->
+    <string name="settings_about_version">Version %1$s</string>
+    <!-- %1$s: the release, like 0.5 -->
+    <string name="settings_about_replay_intro">Replay the %1$s intro</string>
+    <string name="settings_about_replay_intro_detail">What\'s in this release, in a few taps</string>
+    <string name="settings_about_setup">Initial setup</string>
+    <string name="settings_about_setup_detail">What\'s done and what\'s left. Nothing is deleted.</string>
+
+    <!-- Settings > Connection -->
+    <string name="settings_connection_title">Connection</string>
+    <string name="settings_use_mycar">Use myCar in the car</string>
+    <string name="settings_use_mycar_on">myCar answers when you plug into a car</string>
+    <string name="settings_use_mycar_off">Off: Android Auto can take the connection instead</string>
+    <!-- A switch (ui/WirelessAutoRow.kt) -->
+    <string name="settings_wireless_auto">Connect wirelessly by itself</string>
+    <string name="settings_wireless_auto_on">A car you connected to without the cable connects again when it starts. Android asks once.</string>
+    <!-- "Connect wirelessly": the button on myCar's Home screen -->
+    <string name="settings_wireless_auto_off">Off: tap Connect wirelessly each time</string>
+
+    <!-- Settings > Help and tools -->
+    <string name="settings_help_title">Help and tools</string>
+    <string name="settings_help_connect">How to connect</string>
+    <string name="settings_help_connect_detail">Which cars work, and what\'s left to set up</string>
+    <string name="settings_help_preview">Car preview</string>
+    <string name="settings_help_preview_detail">See the car screen on your phone</string>
+    <string name="settings_help_logs">Live logs</string>
+    <string name="settings_help_logs_detail">What myCar and the car are saying to each other</string>
+
+    <!-- Settings > Car audio: how music reaches the car -->
+    <string name="settings_audio_title">Car audio</string>
+    <!-- "How to connect": the help screen (settings_help_connect) -->
+    <string name="settings_audio_footer_ask">Calls go over Bluetooth either way. Run the command in How to connect once, and myCar stops asking to share audio.</string>
+    <string name="settings_audio_footer">Calls go over Bluetooth either way.</string>
+    <string name="settings_audio_auto">Automatic (Recommended)</string>
+    <string name="settings_audio_auto_detail">Bluetooth when the car takes the phone\'s music that way, otherwise through myCar</string>
+    <!-- Under the choice named Bluetooth -->
+    <string name="settings_audio_bluetooth_detail">No prompt each drive, and your map app\'s voice reaches the car. Some cars take only calls over it</string>
+    <string name="settings_audio_mycar">Through myCar</string>
+    <string name="settings_audio_mycar_detail">Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive</string>
+
+    <!-- Settings > Apps -->
+    <string name="settings_apps_title">Apps</string>
+    <string name="settings_apps_recommended">Recommended apps</string>
+
+    <!-- Settings > Certificate -->
+    <string name="settings_cert_title">Certificate</string>
+    <string name="settings_cert_footer">Changes take effect on the next connection.</string>
+    <string name="settings_cert_checking">Checking…</string>
+    <!-- %1$s: a date -->
+    <string name="settings_cert_valid_until">Valid until %1$s</string>
+    <string name="settings_cert_show_details">Show details</string>
+    <string name="settings_cert_hide_details">Hide details</string>
+    <!-- Labels over a certificate's subject and issuer -->
+    <string name="settings_cert_subject">Subject</string>
+    <string name="settings_cert_issuer">Issuer</string>
+    <!-- %1$s: a certificate's name, like aasdk -->
+    <string name="settings_cert_ready_own_first">%1$s is ready, but your own certificate comes first: remove it to use %1$s.</string>
+    <!-- %1$s: a certificate's name -->
+    <string name="settings_cert_in_use_next">%1$s is in use from the next connection.</string>
+    <!-- %1$s: a certificate's name -->
+    <string name="settings_cert_download_failed">Couldn\'t get %1$s: check your internet connection, then try again.</string>
+    <!-- Sentences after a certificate's description. %1$s: a date -->
+    <string name="settings_cert_valid_until_sentence">This one is valid until %1$s.</string>
+    <string name="settings_cert_in_use">In use.</string>
+    <string name="settings_cert_downloaded">Downloaded.</string>
+    <string name="settings_cert_not_downloaded">Not downloaded yet: tap to get it.</string>
+    <string name="settings_cert_import">Import my own file</string>
+    <string name="settings_cert_import_detail">A .p12 file with its private key, from wherever you choose</string>
+    <string name="settings_cert_remove_imported">Remove imported certificate</string>
+    <string name="settings_cert_remove_downloaded">Remove downloaded certificates</string>
+    <string name="settings_cert_remove_imported_title">Remove the imported certificate?</string>
+    <string name="settings_cert_remove_downloaded_title">Remove the downloaded certificates?</string>
+    <string name="settings_cert_remove_imported_text">myCar goes back to the downloaded certificates, if it has them. Without one, it can\'t connect to a car.</string>
+    <string name="settings_cert_remove_downloaded_text">myCar can\'t connect to a car until it downloads them again, which needs the internet.</string>
+    <string name="settings_cert_removed_imported">Removed the imported certificate.</string>
+    <string name="settings_cert_removed_downloaded">Removed the downloaded certificates.</string>
+    <string name="settings_cert_imported">Certificate imported.</string>
+    <string name="settings_cert_import_failed">Could not import: wrong password, or not a PKCS#12 file with a private key.</string>
+    <string name="settings_cert_password_title">Certificate password</string>
+    <string name="settings_cert_password_hint">Leave empty if the file has none.</string>
+    <!-- Button: imports the certificate file -->
+    <string name="settings_cert_import_button">Import</string>
+    <!-- A password field's label (the certificate's, Music Assistant's) -->
+    <string name="settings_password">Password</string>
+
+    <!-- Settings > Plancia and Xonos: trying the addresses -->
+    <string name="settings_test_trying">Trying…</string>
+    <!-- Which address a test result is about: the one used at home, or the one away from home -->
+    <string name="settings_test_at_home">At home</string>
+    <string name="settings_test_away">Away</string>
+    <!-- A test result. %1$s: At home or Away, %2$s: what happened -->
+    <string name="settings_test_line">%1$s: %2$s</string>
+    <!-- A field's label: the server's address away from home -->
+    <string name="settings_address_away">Address away (optional)</string>
+    <string name="settings_save_and_test">Save and test</string>
+
+    <!-- Settings > Plancia: Home Assistant inside myCar (ui/PlanciaSettings.kt). "your profile, Security, Long-lived access tokens": where Home Assistant makes the token, in Home Assistant's own words -->
+    <string name="settings_plancia_footer">Your Home Assistant dashboards in the car, ready the moment you open them: from the app grid, on a page next to the map\'s, or in the panel beside the map. Make the token in Home Assistant: your profile, Security, Long-lived access tokens.</string>
+    <string name="settings_plancia_use_app">Use the Plancia app\'s account</string>
+    <string name="settings_plancia_use_app_detail">Its addresses and token, with nothing to type</string>
+    <string name="settings_plancia_asking">Asking Plancia…</string>
+    <string name="settings_plancia_app_no_account">Plancia has no account to share yet: set it up in Plancia first, or type it below.</string>
+    <string name="settings_plancia_address_home">Address at home</string>
+    <!-- Home Assistant's own name for it -->
+    <string name="settings_plancia_token">Long-lived access token</string>
+    <string name="settings_plancia_missing">Add an address and a token.</string>
+    <!-- "Remove": the button next to Save and test (common_remove) -->
+    <string name="settings_plancia_missing_remove">Add an address and a token. To take Plancia out of myCar, use Remove.</string>
+    <string name="settings_plancia_remove_title">Remove Plancia from myCar?</string>
+    <string name="settings_plancia_remove_text">myCar forgets its addresses and token. The Plancia app, if it\'s on the phone, is back in the car.</string>
+    <string name="settings_plancia_removed">Plancia is off: the Plancia app is back in the car, if it\'s on the phone.</string>
+    <!-- A test that worked. %1$s: Home Assistant's version, %2$d: how many entities it has -->
+    <plurals name="settings_plancia_test_ok">
+        <item quantity="one">Home Assistant %1$s, %2$d entity</item>
+        <item quantity="other">Home Assistant %1$s, %2$d entities</item>
+    </plurals>
+    <!-- What went wrong, after "At home: " or "Away: " -->
+    <string name="settings_plancia_error_token">the token isn\'t valid</string>
+    <string name="settings_plancia_error_denied">access denied</string>
+    <string name="settings_plancia_error_no_answer">no answer</string>
+    <string name="settings_plancia_error_address">not a valid address</string>
+    <string name="settings_plancia_error_other">it didn\'t work</string>
+    <!-- A switch (ui/AskHomeAssistant.kt) -->
+    <string name="settings_ask_ha">Ask Home Assistant in the car</string>
+    <!-- "Settings > Voice assistants": where that is in Home Assistant, in its own words -->
+    <string name="settings_ask_ha_detail">What myCar\'s voice assistant can\'t do itself goes to the voice assistant set up in Home Assistant (Settings &gt; Voice assistants there): Claude, Gemini, ChatGPT, a model at home, or Home Assistant\'s own, which also runs the house. With the phone locked, it answers in place of the phone\'s assistant. Only those words go to your Home Assistant, as text.</string>
+
+    <!-- Settings > Xonos: Music Assistant inside myCar (ui/XonosSettings.kt) -->
+    <string name="settings_xonos_footer">Your Music Assistant library among the car\'s music apps. With the car audio through myCar, its music goes straight to the car, and Android doesn\'t ask to share the audio while you listen to it.</string>
+    <string name="settings_xonos_use_app">Use the Xonos app\'s account</string>
+    <string name="settings_xonos_use_app_detail">Its addresses and sign-in, with nothing to type</string>
+    <string name="settings_xonos_asking">Asking Xonos…</string>
+    <string name="settings_xonos_app_no_account">Xonos has no account to share yet: sign in in Xonos first, or below.</string>
+    <string name="settings_xonos_signed_in">Signed in. Sign in again to change it.</string>
+    <!-- %1$s: the Music Assistant username -->
+    <string name="settings_xonos_signed_in_as">Signed in as %1$s. Sign in again to change it.</string>
+    <string name="settings_xonos_address">Music Assistant address</string>
+    <string name="settings_xonos_username">Username</string>
+    <string name="settings_xonos_missing">Add the address, your username and your password.</string>
+    <string name="settings_xonos_signing_in">Signing in…</string>
+    <string name="settings_xonos_sign_in">Sign in</string>
+    <string name="settings_xonos_remove_title">Remove Xonos from myCar?</string>
+    <string name="settings_xonos_remove_text">myCar forgets its address and sign-in, and signing in again takes the password. The Xonos app, if it\'s on the phone, is back in the car.</string>
+    <string name="settings_xonos_removed">Xonos is off in myCar: the Xonos app is back in the car, if it\'s on the phone.</string>
+    <!-- A test that worked. %1$s: Music Assistant's version, %2$s: the name myCar plays as in Music Assistant -->
+    <string name="settings_xonos_test_ok">Music Assistant %1$s, playing as %2$s</string>
+
+    <!-- Settings > Cinema: video sites in the car (ui/CinemaSettings.kt, ui/CinemaSources.kt) -->
+    <string name="settings_cinema_footer">Video sites as tiles in the car, each opened in a browser made for video. Protected video (Netflix, DAZN, Prime Video, Disney+ and the like) most likely stays black in the car: Android hides it from a screen made into a video stream, as the car\'s is.</string>
+    <string name="settings_cinema_parked_only">Video only when parked</string>
+    <string name="settings_cinema_parked_only_on">While the car moves the picture is covered, and the sound carries on</string>
+    <string name="settings_cinema_parked_only_off">Off: video shows while the car moves too</string>
+    <!-- A field's label: a site's or a TV list's name -->
+    <string name="settings_cinema_name">Name</string>
+    <!-- A field's label: a site's address -->
+    <string name="settings_cinema_address">Address</string>
+    <string name="settings_cinema_add_site">Add the site</string>
+    <string name="settings_cinema_reset">Reset the list</string>
+    <string name="settings_cinema_reset_title">Back to the suggested sites?</string>
+    <!-- %1$s: the suggested sites' names, like "YouTube, RaiPlay, Twitch" -->
+    <string name="settings_cinema_reset_text">Cinema goes back to %1$s.</string>
+    <!-- %1$s: the suggested sites' names, %2$s: the names of the driver's own sites -->
+    <string name="settings_cinema_reset_text_own">Cinema goes back to %1$s. Your own sites leave it: %2$s.</string>
+    <!-- Button: puts the suggested sites back -->
+    <string name="settings_cinema_reset_confirm">Reset</string>
+    <string name="settings_cinema_warning_title">Video while driving?</string>
+    <string name="settings_cinema_warning_text">myCar strongly advises against it. Watching video while driving is dangerous for you and for others on the road, and in many countries it\'s against the law.\n\nWith the protection off, video shows on the car\'s screen while the car moves too, and the responsibility is the driver\'s alone.</string>
+    <string name="settings_cinema_warning_off">Turn it off</string>
+    <string name="settings_cinema_warning_keep">Keep it on</string>
+    <!-- %1$s: a site's or a TV list's name -->
+    <string name="settings_cinema_remove_title">Remove %1$s?</string>
+    <string name="settings_cinema_remove_site_text">It leaves Cinema. To have it back, its address is typed in again.</string>
+    <!-- Accessibility label of a bin button. %1$s: a site's or a TV list's name -->
+    <string name="settings_cinema_remove">Remove %1$s</string>
+    <!-- After a site's address: how the site is shown in the car -->
+    <string name="settings_cinema_layout_computer">computer layout</string>
+    <string name="settings_cinema_layout_phone">phone layout</string>
+    <string name="settings_cinema_protected">protected video, likely black in the car</string>
+    <string name="settings_cinema_videos">Videos on this phone</string>
+    <!-- "On this phone": the tile's name in Cinema in the car -->
+    <string name="settings_cinema_videos_ask">Allow myCar to show them in the car, under \"On this phone\"</string>
+    <string name="settings_cinema_videos_limited">Only the videos picked for myCar show in the car</string>
+    <!-- "On this phone": the tile's name in Cinema in the car -->
+    <string name="settings_cinema_videos_allowed">They show in the car, under \"On this phone\"</string>
+    <!-- Button: choose which videos myCar may show -->
+    <string name="settings_cinema_videos_pick">Pick</string>
+    <string name="settings_cinema_more_sites">More sites</string>
+    <!-- Settings > Cinema: TV, the IPTV lists -->
+    <string name="settings_cinema_tv_title">Cinema: TV</string>
+    <string name="settings_cinema_tv_footer">IPTV lists in the M3U format, from your provider, a public list or a TV server at home: each one is a tile in Cinema with its channels. They play on the phone\'s own player; protected channels (DRM) and multicast ones are left out.</string>
+    <string name="settings_cinema_tv_remove_text">Its address and its channels leave myCar. To have it back, the address is typed in again.</string>
+    <!-- After a list's address, while its channels load -->
+    <string name="settings_cinema_tv_loading">loading…</string>
+    <!-- After a list's address -->
+    <plurals name="settings_cinema_tv_channels">
+        <item quantity="one">%1$d channel</item>
+        <item quantity="other">%1$d channels</item>
+    </plurals>
+    <!-- A TV list's name when none is typed, and the name field's example: the tile's name in the car -->
+    <string name="settings_cinema_tv_default_name">TV</string>
+    <string name="settings_cinema_tv_address">List address (M3U)</string>
+    <string name="settings_cinema_tv_add">Add the list</string>
+
+    <!-- The bar on the phone for typing into the car screen's keyboard (ui/PhoneTypingBar.kt) -->
+    <string name="settings_phone_typing_close">Close the car keyboard</string>
+    <string name="settings_phone_typing_label">Type for the car screen</string>
+    <string name="settings_phone_typing_search">Search on the car screen</string>
+
+    <!-- Asked once, after the driver turns down Android's question about sharing the screen for the car audio (ui/AudioChoiceDialog.kt) -->
+    <string name="settings_audio_choice_title">Play car audio over Bluetooth?</string>
+    <string name="settings_audio_choice_text">Android treats music sent through myCar like sharing your screen, so it asks every drive. Over Bluetooth it never asks, if your car plays the phone\'s music that way. You can change this later in Settings.</string>
+    <string name="settings_audio_choice_command">Or keep it and stop the question for good: plug the phone into a computer with USB debugging on, and run this once.</string>
+    <string name="settings_audio_choice_never_ask">Never ask, using a computer</string>
+    <string name="settings_audio_choice_bluetooth">Use Bluetooth</string>
+    <string name="settings_audio_choice_keep">Keep asking</string>
+    <string name="settings_mic_blocked_title">Car audio needs the microphone permission</string>
+    <!-- "Permissions, then Microphone": where it is in Android's settings for the app, in Android's own words -->
+    <string name="settings_mic_blocked_text">Android lets an app send other apps\' sound to the car only if it has the microphone permission. It\'s turned off for myCar, so music plays on the phone. Turn it on under Permissions, then Microphone.</string>
+    <string name="settings_mic_blocked_open">Open app settings</string>
+
+    <!-- Settings: supporting myCar, and About's links and credits (ui/AboutLinks.kt) -->
+    <string name="about_no_wallet">No Bitcoin wallet app found. Copy the address instead.</string>
+    <string name="about_bitcoin_address">Bitcoin address</string>
+    <string name="about_bitcoin_copied">Bitcoin address copied</string>
+    <!-- Under the row named Bitcoin -->
+    <string name="about_bitcoin_detail">Open your wallet or copy the address</string>
+    <string name="about_give_once">Give once</string>
+    <string name="about_give_once_detail">Any amount, by card</string>
+    <string name="about_bitcoin_title">Support with Bitcoin</string>
+    <string name="about_bitcoin_text">Send any amount to this address from your Bitcoin wallet.</string>
+    <string name="about_bitcoin_open">Open in wallet</string>
+    <string name="about_bitcoin_copy">Copy address</string>
+    <string name="about_matrix">Gearslip chat on Matrix</string>
+    <string name="about_matrix_detail">The community of Gearslip, the project myCar is based on</string>
+    <string name="about_source">Source code</string>
+    <string name="about_source_detail">Read or change myCar\'s code under the AGPL</string>
+    <string name="about_upstream">Based on Gearslip</string>
+    <!-- The license asks for this notice: keep the names and "© 2026 Twink Software LLC" as they are -->
+    <string name="about_upstream_detail">myCar is a modified version of Gearslip, © 2026 Twink Software LLC and contributors</string>
+    <string name="about_license">License</string>
+    <string name="about_license_detail">Free software under the GNU AGPL v3, with no warranty</string>
+    <string name="about_voice_credits">Voice credits</string>
+    <!-- Keep the names and the licenses as they are -->
+    <string name="about_voice_credits_detail">Speech recognition by sherpa-onnx (Apache 2.0), with Kroko ASR by Banafo (CC BY-SA 4.0), and Parakeet and Canary by NVIDIA (CC BY 4.0)</string>
+    <string name="about_cert_credits">Certificate credits</string>
+    <!-- Keep the names and the licenses as they are -->
+    <string name="about_cert_credits_detail">The car certificates come from aasdk (GPL-3.0), Headunit Revived (AGPL-3.0) and the android-auto-certificates archive (CarService, Android Auto\'s own), downloaded only when you ask</string>
+
+    <!-- Settings > Voice: the speech models the car's assistant listens with (ui/VoiceModelViews.kt) -->
+    <string name="voice_model_live_title">Voice: live words</string>
+    <!-- %1$d: megabytes -->
+    <string name="voice_model_live_about">The voice assistant turns speech into text on this phone, and nothing you say leaves it - except, with Home Assistant set up, what myCar can\'t do itself, sent to your Home Assistant as text. It needs two models, about %1$d MB together, downloaded once. This one writes your words as you speak, in English; in another language it only hears when you stop.</string>
+    <string name="voice_model_final_title">Voice: final words</string>
+    <string name="voice_model_final_about">When you stop talking, this model reads the whole phrase again. It catches names and places the live model misses.</string>
+    <!-- The choice of no final model -->
+    <string name="voice_model_none">None</string>
+    <string name="voice_model_none_detail">Keep the live words. Fastest, least accurate</string>
+    <!-- %1$s: a model's name -->
+    <string name="voice_model_delete_title">Delete %1$s?</string>
+    <!-- %1$d: megabytes -->
+    <string name="voice_model_delete_in_use">Its %1$d MB go from the phone. It\'s the one in use: the car\'s assistant can\'t listen until it\'s downloaded again.</string>
+    <!-- %1$d: megabytes -->
+    <string name="voice_model_delete_again">Its %1$d MB go from the phone. It can be downloaded again here.</string>
+    <!-- %1$s: a model's name, %2$d: its size in megabytes -->
+    <string name="voice_model_size">%1$s · %2$d MB</string>
+    <!-- %1$s: the model's description -->
+    <string name="voice_model_downloaded">Downloaded. %1$s</string>
+    <!-- %1$d: how far, in percent -->
+    <string name="voice_model_downloading">Downloading, %1$d%%</string>
+    <!-- %1$s: what went wrong -->
+    <string name="voice_model_failed">Download failed: %1$s</string>
+    <string name="voice_model_download">Download</string>
+    <!-- The models' names: Kroko, Parakeet and Canary are names -->
+    <string name="voice_model_kroko">Kroko</string>
+    <string name="voice_model_parakeet_small">Parakeet small</string>
+    <string name="voice_model_canary">Canary</string>
+    <string name="voice_model_parakeet_large">Parakeet large</string>
+    <string name="voice_model_parakeet_multi">Parakeet multilingual</string>
+    <!-- The models' descriptions: keep the names and the licenses as they are -->
+    <string name="voice_model_kroko_detail">Banafo\'s Kroko ASR, CC BY-SA 4.0</string>
+    <string name="voice_model_parakeet_small_detail">Lighter and quicker, misses more names. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_canary_detail">Recommended. Quick, and hears names and places well. English, Spanish, German and French. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_large_detail">Hears names best, but slower and three times the size. NVIDIA NeMo, CC BY 4.0</string>
+    <!-- "Parakeet large": the model's name (voice_model_parakeet_large) -->
+    <!-- Speech model names are names: keep them -->
+    <string name="voice_model_whisper">Whisper small</string>
+    <string name="voice_model_whisper_detail">For Chinese. OpenAI Whisper, MIT</string>
+    <string name="voice_model_parakeet_multi_detail">Italian, Portuguese, Spanish, French, German, Greek, Russian and English, and 17 more European languages. As big and slow as Parakeet large. NVIDIA NeMo, CC BY 4.0</string>
+
+    <!-- Settings > Voice, when myCar is in another language than English (ui/VoiceLanguageNote.kt). %1$s: myCar's language, named in this language (Italian) -->
+    <string name="voice_model_language_title">Voice: %1$s</string>
+    <!-- %1$s: myCar's language, %2$s: a model's name -->
+    <string name="voice_model_language_ready">myCar is in %1$s, so the car\'s assistant listens and answers in %1$s, with %2$s.</string>
+    <!-- %1$s: myCar's language, %2$s: a model's name, %3$s: something to say to the assistant, in that language -->
+    <string name="voice_model_language_ready_try">myCar is in %1$s, so the car\'s assistant listens and answers in %1$s, with %2$s. Try “%3$s”.</string>
+    <!-- %1$s: myCar's language, %2$s: a model's name, %3$d: its size in megabytes -->
+    <string name="voice_model_language_missing">myCar is in %1$s. With %2$s (%3$d MB) the car\'s assistant listens and answers in %1$s; until then it understands English only.</string>
+    <!-- %1$s: myCar's language -->
+    <string name="voice_model_language_tts">It answers with the phone\'s own text-to-speech voice for %1$s. If it sounds wrong, pick or download that voice in Android\'s text-to-speech settings.</string>
+    <!-- Button. %1$s: a model's name -->
+    <string name="voice_model_language_download">Download %1$s</string>
+
+    <!-- The notification while the voice models download (speech/SpeechModels.kt) -->
+    <string name="speech_download_channel">Voice download</string>
+    <string name="speech_download_title">Downloading voice</string>
+    <!-- %1$d: how far, in percent -->
+    <string name="speech_download_percent">%1$d%%</string>
+    <!-- Why a download failed, after "Download failed: ". %1$s: a file's name -->
+    <string name="speech_download_cut_short">%1$s arrived cut short</string>
+    <string name="speech_download_missing_files">some files were missing</string>
+    <string name="speech_download_not_stored">couldn\'t store the model</string>
+    <!-- %1$d: the server's HTTP status, like 404 -->
+    <string name="speech_download_server">the server answered %1$d</string>
+
+    <!-- Usage notes, the opt-in stats, in setup and Settings (ui/UsageStatsChoices.kt). %1$s: the privacy promise (stats_intro_privacy), shown in bold -->
+    <string name="stats_intro">Turn this on, and myCar sends a short note when you open it and after each drive. %1$s The notes show which cars work and where the others fail.</string>
+    <string name="stats_intro_privacy">The note holds no name, account, or location. A random number counts your phone once, and the server keeps no IP address.</string>
+    <string name="stats_send">Send usage notes</string>
+    <string name="stats_also_share">Also share</string>
+    <string name="stats_share_android">Android version and system</string>
+    <string name="stats_share_phone">Phone model</string>
+    <string name="stats_share_cars">Each car and whether it connected</string>
+    <string name="stats_share_drives">Each drive and how it ended</string>
+    <string name="stats_whats_sent">What gets sent</string>
+    <string name="stats_whats_sent_detail">Every field, exactly as it goes out</string>
+    <!-- Accessibility labels of the arrow that opens and closes the note -->
+    <string name="stats_show_note">Show the note</string>
+    <string name="stats_hide_note">Hide the note</string>
+    <!-- Over an example under the note; "sessions" is a field of the note, as it is sent: keep it -->
+    <string name="stats_example">Example, not sent: one drive adds this to \"sessions\"</string>
+    <!-- Values in that example, in place of what a car says about itself -->
+    <string name="stats_example_head_unit">Head unit name</string>
+    <string name="stats_example_car">Car model</string>
+    <string name="stats_no_server">This build has no stats server, so it sends nothing</string>
+    <!-- The one-time ask on Home after the first drive that worked. %1$s: the car's year, %2$s: its model, as the car says them ("your 2019 Clio") -->
+    <string name="stats_worked_title_year">myCar worked with your %1$s %2$s</string>
+    <!-- %1$s: the car's model or its head unit's name, as the car says it -->
+    <string name="stats_worked_title_named">myCar worked with your %1$s</string>
+    <string name="stats_worked_title_car">myCar worked with your car</string>
+    <string name="stats_worked_text">Share that so the next driver knows it works? No name, account, or location.</string>
+    <string name="stats_worked_share">Share</string>
+
+    <!-- The home network, which Android 17 keeps myCar off until it has the Nearby devices permission (LocalNetwork.kt, ui/LocalNetworkAccess.kt). "Nearby devices": the permission's name, in Android's own words. Said on the phone and in the car (Plancia, Xonos, Cinema) -->
+    <string name="network_home_hint">Android keeps myCar off your home network: on the phone, allow myCar\'s Nearby devices permission.</string>
+    <!-- After a failed test in Settings, under the row that asks for it (network_home_allow) -->
+    <string name="network_home_refused">Android keeps myCar off your home network: allow Nearby devices, above.</string>
+    <string name="network_home_allow">Allow the home network</string>
+    <!-- %1$s: an address at home, like 192.168.1.10 -->
+    <string name="network_home_allow_host">Android keeps myCar from reaching %1$s until you allow Nearby devices. Tap to allow.</string>
+    <string name="network_home_allow_any">Android keeps myCar from reaching your home network until you allow Nearby devices. Tap to allow.</string>
+    <!-- "Permissions, Nearby devices, Allow": Android's own words in its settings for the app -->
+    <string name="network_home_said_no">Android said no. Tap, then Permissions, Nearby devices, Allow.</string>
+    <!-- Why Home Assistant or Music Assistant can't be reached, on the phone and in the car (Tailnet.kt). %1$s: the server's name or address -->
+    <string name="network_vpn_leaves_mycar_out">The phone\'s VPN leaves myCar out, so “%1$s” is out of its reach. Let myCar into the VPN in its settings.</string>
+    <string name="network_none">No network for myCar right now.</string>
+    <!-- Home Assistant's connection, for Plancia in the car and in Settings (home/HomeAssistant.kt) -->
+    <string name="network_ha_unreachable">Home Assistant can\'t be reached</string>
+    <string name="network_ha_turned_away">The server turned myCar away: a proxy in front of Home Assistant, or an address it has banned.</string>
+    <string name="network_ha_token_refused">Home Assistant refused the token: make a new one there, and set it in myCar on the phone.</string>
+    <!-- %1$s: why, as the connection says it -->
+    <string name="network_ha_connection_lost">Connection lost (%1$s), trying again</string>
+    <string name="network_ha_connection_error">Connection error</string>
+
+    <!-- Tailscale, on the phone and in the car (Tailnet.kt). "Settings, App split tunneling" and "Use Tailscale DNS": the Tailscale app's own words. %1$s: the server's name, like umbrel -->
+    <string name="tailscale_leaves_mycar_out">Tailscale leaves myCar out, so “%1$s” on your tailnet is out of its reach. In Tailscale on the phone: Settings, App split tunneling, let myCar in - and connect the car with the cable: inside a VPN, Android keeps myCar off the car\'s Wi-Fi.</string>
+    <!-- %1$s: the server's name -->
+    <string name="tailscale_name_not_found">“%1$s” isn\'t found from here. If it\'s a Tailscale name, turn Tailscale on: myCar reaches it only through Tailscale.</string>
+    <!-- %1$s: the server's name -->
+    <string name="tailscale_name_unknown">Tailscale doesn\'t know “%1$s”: check the name, and that Use Tailscale DNS is on in Tailscale.</string>
+    <!-- Settings > Plancia and Xonos, with the server on a tailnet (ui/TailscaleCableRow.kt). %1$s: the app, Plancia or Xonos -->
+    <string name="tailscale_bridged_title">Through Tailscale: through the %1$s app too</string>
+    <!-- %1$s: the server, Home Assistant or Music Assistant; %2$s: the app, Plancia or Xonos -->
+    <string name="tailscale_bridged_detail">Wirelessly, with myCar left out of Tailscale (inside a VPN, Android keeps myCar off the car\'s Wi-Fi), myCar reaches your %1$s through the %2$s app, which is inside Tailscale. Keep the %2$s app set up with the same address.</string>
+    <string name="tailscale_cable_title">Through Tailscale: with the cable, for now</string>
+    <!-- %1$s: the server, Home Assistant or Music Assistant; %2$s: the app, Plancia or Xonos, which is on the phone -->
+    <string name="tailscale_cable_update_app">Wirelessly, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car\'s Wi-Fi), and then it can\'t reach your %1$s by itself. Update the %2$s app, and myCar reaches it through the app; until then the car uses the %2$s app instead, by itself.</string>
+    <!-- %1$s: the server, Home Assistant or Music Assistant; %2$s: the app, Plancia or Xonos, which isn't on the phone -->
+    <string name="tailscale_cable_get_app">Wirelessly, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car\'s Wi-Fi), and then it can\'t reach your %1$s by itself. With an up-to-date %2$s app on the phone, myCar reaches it through the app.</string>
+    <!-- Settings: the groups, each a page (ui/SettingsScreen.kt), and the phone app's theme (ui/PhoneTheme.kt) -->
+    <string name="settings_group_general">General</string>
+    <string name="settings_group_general_detail">Language, theme, updates</string>
+    <string name="settings_group_connection_detail">Wireless, car audio, certificate</string>
+    <string name="settings_group_voice">Voice</string>
+    <string name="settings_group_voice_detail">Speech models for the voice assistant</string>
+    <string name="settings_group_plancia_detail">Home Assistant in the car</string>
+    <string name="settings_group_xonos_detail">Music Assistant in the car</string>
+    <string name="settings_group_cinema_detail">Video sites and TV lists</string>
+    <string name="settings_group_help_detail">How to connect, logs, car preview</string>
+    <string name="settings_group_about_detail">Version, licenses, support myCar</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_footer">How myCar looks on the phone. The car\'s screen has its own, in the car\'s settings.</string>
+    <string name="theme_phone">Like the phone</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_black">Black (AMOLED)</string>
+</resources>

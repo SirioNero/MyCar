@@ -206,6 +206,15 @@ class CarPreviewActivity : ComponentActivity() {
             main.postDelayed({ io.github.sirionero.mycar.car.CarAssistant.syncLanguage(); io.github.sirionero.mycar.car.VoiceHelp.show() }, 1_000)
         }
         intent.getStringExtra("voiceReply")?.let { english -> main.postDelayed({ io.github.sirionero.mycar.car.CarAssistant.reply(english) }, 1_000) }
+        // --es voiceHeard "what's the date today": as if the driver had said it, once Home Assistant
+        // (--es haUrl) has had time to connect: what isn't a command goes to its Assist.
+        intent.getStringExtra("voiceHeard")?.let { said ->
+            main.postDelayed({
+                io.github.sirionero.mycar.car.CarAssistant.syncLanguage()
+                MyCarLog.i("preview: heard, with Home Assistant ${io.github.sirionero.mycar.home.HomeAssistant.connection.value}")
+                io.github.sirionero.mycar.car.CarAssistant.heard(said)
+            }, 8_000)
+        }
         MyCarLog.i("preview: displayId=${p.displayId}")
         if (intent.getBooleanExtra("hide", false)) p.setOverlayVisible(false)
 

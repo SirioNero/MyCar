@@ -243,6 +243,8 @@ internal object PortuguesePhrases : Phrasebook() {
         Said.CALLING to t("Vou ligar para $1."),
         Said.NO_APP_CALLED to { g -> pt("Não encontro uma app chamada ${g[1]}.", "Não encontro um app chamado ${g[1]}.") },
         Said.SOMETHING_WRONG to { _ -> pt("Algo correu mal. Tente de novo.", "Algo deu errado. Tente de novo.") },
+        Said.DONE to t("Feito."),
+        Said.HOME_ASSISTANT_SILENT to t("O Home Assistant não respondeu."),
         Said.NEEDS_MIC to t("É preciso a permissão do microfone."),
         Said.AFTER_CALL to t("Os comandos de voz funcionam quando a chamada terminar."),
         Said.DIDNT_CATCH to t("Não entendi."),
@@ -321,5 +323,7 @@ internal object PortuguesePhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Quer responder? Diga sim ou não.",
         "Get ready to say your reply." to "Prepare-se para dizer a resposta.",
         "Say your reply" to "Diga a resposta",
+        "Anything else" to pt("Tudo o resto", "Todo o resto"),
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Responde o Home Assistant: a casa e as perguntas que o seu assistente de voz conhece.",
     )
 }

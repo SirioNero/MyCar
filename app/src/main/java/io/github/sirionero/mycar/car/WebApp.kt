@@ -27,11 +27,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import org.json.JSONObject
 
 /**
@@ -80,9 +83,9 @@ internal fun WebApp(content: String, tile: WebTile?) {
     Column(Modifier.fillMaxSize()) {
         if (tile == null) {
             // Back steps through the page's history first (the interceptor above), then leaves.
-            ScreenHeader("Browser", Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            ScreenHeader(stringResource(R.string.car_web_title), Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
         } else {
-            TileBar("Browser", onBack = { web?.takeIf { it.canGoBack() }?.goBack() }, onHold = tile.onHold)
+            TileBar(stringResource(R.string.car_web_title), onBack = { web?.takeIf { it.canGoBack() }?.goBack() }, onHold = tile.onHold)
         }
         key(generation) {
             AndroidView(
@@ -209,7 +212,7 @@ private class LoggingClient(
 private fun homeNetworkPage(url: String) =
     "<html><head><meta name=\"viewport\" content=\"width=device-width\"></head>" +
         "<body style=\"font-family:sans-serif;padding:32px;text-align:center\">" +
-        "<h2>This page is on your home network</h2><p>${TextUtils.htmlEncode(LocalNetwork.HINT)}</p>" +
+        "<h2>${TextUtils.htmlEncode(Words.get(R.string.car_web_home_network))}</h2><p>${TextUtils.htmlEncode(LocalNetwork.HINT)}</p>" +
         "<p style=\"opacity:.6\">${TextUtils.htmlEncode(url)}</p></body></html>"
 
 /** Tells Kotlin when an editable element on the page gains or loses focus, so [CarKeyboard] can show. */

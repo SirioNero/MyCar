@@ -18,8 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.theme.GsIconButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +55,8 @@ object VoiceHelp {
     )
 }
 
+private val ASK_HOME_ASSISTANT = "Anything else" to "Home Assistant answers it: your home, and any question its voice assistant knows."
+
 /** The command list over the car screen: read it at a glance, tap the cross or wait to dismiss. */
 @Composable
 fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
@@ -79,14 +83,17 @@ fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f).padding(top = 6.dp),
                 )
-                GsIconButton(Icons.Filled.Close, "Close", VoiceHelp::hide)
+                GsIconButton(Icons.Filled.Close, stringResource(R.string.common_close), VoiceHelp::hide)
             }
             // Full width, so a drag anywhere on the card scrolls, not just one on the words.
             Column(
                 Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                (AssistantLanguage.help() ?: VoiceHelp.COMMANDS).forEach { (say, does) ->
+                // What isn't on the list goes to Home Assistant, when it's there to ask (AssistantBrain).
+                val (asked, answered) = ASK_HOME_ASSISTANT
+                val rest = if (AssistantBrain.ready) listOf(AssistantLanguage.label(asked) to AssistantLanguage.label(answered)) else emptyList()
+                ((AssistantLanguage.help() ?: VoiceHelp.COMMANDS) + rest).forEach { (say, does) ->
                     Column(Modifier.fillMaxWidth()) {
                         Text(say, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text(does, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

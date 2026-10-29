@@ -9,14 +9,21 @@ import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 /**
- * The ready-made replies to a message, in the phone's language: they go to people, who read them
- * the way the driver writes - not in the car screen's English. The buttons show exactly what's
- * sent. English for a language not here.
+ * The ready-made replies to a message, in myCar's language (the process's default locale: Android
+ * 13 sets it to the language chosen for myCar, MyCarApplication does on Android 12): they go to
+ * people, who read them the way the driver writes. The buttons show exactly what's sent. English
+ * for a language not here.
  */
 internal object QuickReplyTexts {
 
-    /** [around] and [inAbout] take the arrival time and the time left. */
-    data class Texts(val around: String, val inAbout: String, val later: String, val onMyWay: String)
+    /**
+     * [around] and [inAbout] take the arrival time and the time left; [hour] and [minute] write the
+     * time left, with [gap] between number and unit (none in Chinese).
+     */
+    data class Texts(
+        val around: String, val inAbout: String, val later: String, val onMyWay: String,
+        val hour: String = "h", val minute: String = "min", val gap: String = " ",
+    )
 
     private val ENGLISH = Texts(
         "Driving, I'll be there around %s.", "Driving, I'll be there in about %s.", "Driving, I'll reply soon.", "On my way.",
@@ -43,6 +50,22 @@ internal object QuickReplyTexts {
             "Estou ao volante, chego por volta das %s.", "Estou ao volante, chego em cerca de %s.",
             "Estou ao volante, respondo em breve.", "Estou a caminho.",
         ),
+        // The time left ends with the minutes' own full stop ("5 λεπ."): none after it.
+        "el" to Texts(
+            "Οδηγώ, θα είμαι εκεί γύρω στις %s.", "Οδηγώ, θα είμαι εκεί σε περίπου %s",
+            "Οδηγώ, θα σου απαντήσω σύντομα.", "Έρχομαι.",
+            hour = "ώρ.", minute = "λεπ.",
+        ),
+        "ru" to Texts(
+            "Я за рулём, буду около %s.", "Я за рулём, буду примерно через %s.",
+            "Я за рулём, отвечу чуть позже.", "Уже еду.",
+            hour = "ч", minute = "мин",
+        ),
+        "zh" to Texts(
+            "正在开车，大约%s到。", "正在开车，大约%s后到。",
+            "正在开车，稍后回复。", "我在路上了。",
+            hour = "小时", minute = "分钟", gap = "",
+        ),
     )
 
     fun forPhone(locale: Locale = Locale.getDefault()): Texts = BY_LANGUAGE[locale.language] ?: ENGLISH
@@ -62,10 +85,11 @@ internal object QuickReplyTexts {
 
     /** "25 min", "1 h 5 min": the time left, without the English "hr" in another language. */
     fun left(seconds: Long, locale: Locale = Locale.getDefault()): String {
-        if (locale.language !in BY_LANGUAGE) return remainingTime(seconds)
+        val texts = BY_LANGUAGE[locale.language] ?: return remainingTime(seconds)
         if (seconds <= 0) return ""
         val hours = TimeUnit.SECONDS.toHours(seconds)
         val minutes = TimeUnit.SECONDS.toMinutes(seconds) % 60
-        return if (hours > 0) "$hours h $minutes min" else "$minutes min"
+        val gap = texts.gap
+        return if (hours > 0) "$hours$gap${texts.hour}$gap$minutes$gap${texts.minute}" else "$minutes$gap${texts.minute}"
     }
 }

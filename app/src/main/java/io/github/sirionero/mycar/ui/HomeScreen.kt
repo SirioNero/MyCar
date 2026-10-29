@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import android.content.Context
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.isSystemInDarkTheme
 import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.car.BluetoothAudioCheck
 import android.provider.Settings
@@ -52,10 +51,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.notify.TestMessage
 import io.github.sirionero.mycar.stats.WorkedPrompt
@@ -106,7 +107,7 @@ fun HomeScreen(
                             onClick = onOpenSettings,
                             modifier = Modifier.size(56.dp),
                         ) {
-                            Icon(Icons.Filled.Settings, contentDescription = "Settings", modifier = Modifier.size(40.dp))
+                            Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.common_settings), modifier = Modifier.size(40.dp))
                         }
                     }
                     Text(
@@ -134,16 +135,16 @@ fun HomeScreen(
                 Column(Modifier.padding(vertical = 16.dp)) {
                     SettingsCard {
                         SettingsRow(
-                            "What's new in ${Intro.release}",
+                            stringResource(R.string.home_whats_new_in, Intro.release),
                             Modifier.clickable(onClick = onOpenWhatsNew),
                             icon = Icons.Filled.Star,
                             trailing = { Arrow() },
                         )
                         SettingsDivider()
                         SettingsRow(
-                            "How to connect",
+                            stringResource(R.string.help_title),
                             Modifier.clickable(onClick = onOpenHelp),
-                            subtitle = "Which cars work, and what's left to set up",
+                            subtitle = stringResource(R.string.home_how_to_connect_subtitle),
                             icon = Icons.Filled.Info,
                             trailing = { Arrow() },
                         )
@@ -158,13 +159,13 @@ fun HomeScreen(
                             onClick = { if (status.phase == SessionStatus.Phase.PROJECTING) askDisconnect = true else onDisconnect() },
                             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                         ) {
-                            Text("Disconnect")
+                            Text(stringResource(R.string.home_disconnect))
                         }
                         if (askDisconnect) {
                             ConfirmDialog(
-                                title = "Disconnect from the car?",
-                                text = "myCar leaves the car's screen now. With the cable, unplug it and plug it in again to come back.",
-                                confirm = "Disconnect",
+                                title = stringResource(R.string.home_disconnect_title),
+                                text = stringResource(R.string.home_disconnect_text),
+                                confirm = stringResource(R.string.home_disconnect),
                                 onConfirm = onDisconnect,
                                 onDismiss = { askDisconnect = false },
                             )
@@ -190,17 +191,15 @@ private fun BluetoothMissingCard() {
     val context = LocalContext.current
     // Yellow, not the theme's error red: music is missing, but nothing is broken. Material has no
     // warning colour, so these are fixed amber tones for light and dark.
-    val dark = isSystemInDarkTheme()
+    val dark = phoneDark()
     val container = if (dark) Color(0xFF4A3B00) else Color(0xFFFFE08A)
     val content = if (dark) Color(0xFFFFE08A) else Color(0xFF3A2E00)
     Spacer(Modifier.height(16.dp))
     Surface(color = container, contentColor = content, shape = MaterialTheme.shapes.extraLarge) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Bluetooth isn't connected", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.home_bluetooth_missing_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
-                (if (usb) "Calls play" else "Calls and music play") +
-                    " over Bluetooth, but your phone isn't connected to the car. Connect it " +
-                    "here or from the car's Bluetooth menu.",
+                stringResource(if (usb) R.string.home_bluetooth_missing_calls else R.string.home_bluetooth_missing_calls_music),
                 style = MaterialTheme.typography.bodyMedium,
             )
             Button(
@@ -211,7 +210,7 @@ private fun BluetoothMissingCard() {
                     }
                 },
                 modifier = Modifier.padding(top = 4.dp),
-            ) { Text("Bluetooth settings") }
+            ) { Text(stringResource(R.string.home_bluetooth_settings)) }
         }
     }
 }
@@ -224,7 +223,7 @@ private fun VoiceDownloadCard() {
     Spacer(Modifier.height(16.dp))
     SettingsCard {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Downloading voice, $percent%", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.home_voice_downloading, percent), style = MaterialTheme.typography.bodyLarge)
             LinearProgressIndicator(progress = { percent / 100f }, modifier = Modifier.fillMaxWidth())
         }
     }

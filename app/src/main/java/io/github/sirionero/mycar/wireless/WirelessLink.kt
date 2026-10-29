@@ -16,8 +16,10 @@ import android.net.wifi.WifiNetworkSpecifier
 import android.provider.Settings
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.Wire
+import io.github.sirionero.mycar.Words
 import java.io.DataInputStream
 import java.io.IOException
 import java.io.OutputStream
@@ -136,7 +138,7 @@ object WirelessLink {
                 run(app, device, mine)
             } catch (e: Exception) {
                 log.e("wireless start-up failed", e)
-                SessionStatus.failed("Wireless start-up failed", "${e.javaClass.simpleName}: ${e.message}")
+                SessionStatus.failed(Words.get(R.string.wireless_link_failed), "${e.javaClass.simpleName}: ${e.message}")
             }
         }, "mycar-wireless").apply { isDaemon = true; start() }
     }
@@ -240,7 +242,7 @@ object WirelessLink {
     private fun run(context: Context, device: BluetoothDevice, mine: Int) {
         val name = name(device)
         log.i("--- wireless start-up with $name (${device.address}) ---")
-        SessionStatus.connecting("Bluetooth: reaching $name")
+        SessionStatus.connecting(R.string.wireless_link_bt_reaching, name)
         val socket = try {
             // A running scan slows the connect, but stopping one needs BLUETOOTH_SCAN on Android
             // 12+, which myCar doesn't ask for. myCar never scans, so skipping it is fine.
@@ -249,9 +251,9 @@ object WirelessLink {
         } catch (e: SecurityException) {
             log.e("Bluetooth: permission refused while opening the channel on $name", e)
             SessionStatus.failed(
-                "Bluetooth permission missing",
-                "myCar needs the Nearby devices permission to reach $name. Allow it in the app's " +
-                    "settings, then try again.",
+                R.string.wireless_link_bt_permission,
+                R.string.wireless_link_bt_permission_detail,
+                name,
             )
             return
         } catch (e: IOException) {
@@ -269,7 +271,7 @@ object WirelessLink {
         }
         rfcomm = socket
         log.i("Bluetooth: channel open")
-        SessionStatus.connecting("Bluetooth: talking to $name")
+        SessionStatus.connecting(R.string.wireless_link_bt_talking, name)
 
         val input = DataInputStream(socket.inputStream)
         val output = socket.outputStream
@@ -371,7 +373,7 @@ object WirelessLink {
             adapter.listenUsingRfcommWithServiceRecord("Android Auto", AA_UUID)
         } catch (e: Exception) {
             log.e("Bluetooth: couldn't publish the Android Auto service", e)
-            SessionStatus.failed("Couldn't publish the Android Auto service", "${e.javaClass.simpleName}: ${e.message}")
+            SessionStatus.failed(Words.get(R.string.wireless_link_bt_publish_failed), "${e.javaClass.simpleName}: ${e.message}")
             return null
         }
         listener = server
@@ -381,7 +383,7 @@ object WirelessLink {
             if (listener === server) listener = null
             return null
         }
-        SessionStatus.connecting("Waiting for $name. If nothing happens, disconnect the phone in the car's Bluetooth menu and connect it again")
+        SessionStatus.connecting(R.string.wireless_link_bt_waiting, name)
         log.i("Bluetooth: Android Auto service published, waiting ${LISTEN_MS / 1000}s for $name")
         return try {
             server.accept(LISTEN_MS).also {
@@ -393,9 +395,9 @@ object WirelessLink {
             if (mine != startRun || listener !== server) return null
             log.w("Bluetooth: no car connected within ${LISTEN_MS / 1000}s (${e.message})")
             SessionStatus.failed(
-                "Car didn't connect over Bluetooth",
-                "$name didn't open Android Auto with the phone. Check that wireless Android Auto is " +
-                    "on in the car's settings, then reconnect the phone from the car's Bluetooth menu.",
+                R.string.wireless_link_bt_no_car,
+                R.string.wireless_link_bt_no_car_detail,
+                name,
             )
             null
         } finally {
@@ -421,7 +423,7 @@ object WirelessLink {
         context: Context, output: OutputStream, name: String,
         ssid: String, password: String, bssid: String, ip: String, port: Int,
     ) {
-        SessionStatus.connecting("Wi-Fi: joining $name's network")
+        SessionStatus.connecting(R.string.wireless_link_wifi_joining, name)
         val spec = WifiNetworkSpecifier.Builder().setSsid(ssid).apply {
             runCatching { MacAddress.fromString(bssid) }.getOrNull()
                 ?.takeIf { it != MacAddress.fromString("00:00:00:00:00:00") }
@@ -455,9 +457,9 @@ object WirelessLink {
                 log.w("Wi-Fi: couldn't join \"$ssid\" (declined, out of range, or wrong password)")
                 runCatching { send(output, MSG_CONNECTION_STATUS, Protobuf.varintField(1, -1)) }
                 SessionStatus.failed(
-                    "Couldn't join the car's Wi-Fi",
-                    "Android didn't connect to $name's network. If a \"Connect to device\" prompt " +
-                        "appeared, it has to be accepted.",
+                    R.string.wireless_link_wifi_failed,
+                    R.string.wireless_link_wifi_failed_detail,
+                    name,
                 )
             }
 
@@ -552,7 +554,7 @@ object WirelessLink {
     }
 
     private fun connectTcp(context: Context, output: OutputStream, name: String, net: Network, ip: String, port: Int, run: Int) {
-        SessionStatus.connecting("Wi-Fi: reaching $name")
+        SessionStatus.connecting(R.string.wireless_link_wifi_reaching, name)
         lostNetwork = null
         var last: Exception? = null
         // Set once Android refuses to bind to the car's network, which a VPN causes. Plain sockets
@@ -614,16 +616,16 @@ object WirelessLink {
         log.e("TCP: gave up on $ip:$port", last)
         if (vpnActive(context)) {
             SessionStatus.failed(
-                "A VPN is blocking the car",
-                "myCar joined $name's network, but a VPN on this phone (Tailscale, for one) won't let it reach the car. " +
-                    "Connect with the cable, turn the VPN off, or leave myCar out of it in its settings - then Plancia " +
-                    "and Xonos inside myCar can't use the VPN's addresses, like Tailscale names.",
+                R.string.wireless_link_vpn,
+                R.string.wireless_link_vpn_detail,
+                name,
             )
             return
         }
         SessionStatus.failed(
-            "Car's Wi-Fi joined, but no connection",
-            "myCar joined $name's network but couldn't reach Android Auto at $ip:$port.",
+            R.string.wireless_link_no_connection,
+            R.string.wireless_link_no_connection_detail,
+            name, "$ip:$port",
         )
     }
 }

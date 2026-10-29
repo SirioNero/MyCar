@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="touch_relay_description">Lässt myCar Berührungen auf dem Bildschirm des Autos auf dem Telefon wiedergeben, während der Bildschirm geteilt wird. myCar liest keine Bildschirminhalte.</string>
+</resources>

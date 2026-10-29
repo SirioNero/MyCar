@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Annulla</string>
+    <string name="common_close">Chiudi</string>
+    <string name="common_done">Fatto</string>
+    <string name="common_back">Indietro</string>
+    <string name="common_save">Salva</string>
+    <string name="common_delete">Elimina</string>
+    <string name="common_remove">Togli</string>
+    <string name="common_add">Aggiungi</string>
+    <string name="common_edit">Modifica</string>
+    <string name="common_retry">Riprova</string>
+    <string name="common_allow">Consenti</string>
+    <string name="common_skip">Salta</string>
+    <string name="common_next">Avanti</string>
+    <string name="common_copy">Copia</string>
+    <string name="common_open">Apri</string>
+    <string name="common_open_settings">Apri le impostazioni</string>
+    <string name="common_not_now">Non ora</string>
+    <string name="common_more">Altro</string>
+    <string name="common_yes">Sì</string>
+    <string name="common_no">No</string>
+    <string name="common_on">Sì</string>
+    <string name="common_off">No</string>
+    <string name="common_loading">Caricamento…</string>
+    <string name="common_settings">Impostazioni</string>
+    <string name="common_bluetooth">Bluetooth</string>
+    <string name="common_list_separator">", "</string>
+</resources>

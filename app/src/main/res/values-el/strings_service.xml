@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_idle">Χωρίς σύνδεση</string>
+    <string name="session_idle_detail">Συνδέστε το καλώδιο στη θύρα USB του αυτοκινήτου ή συνδεθείτε ασύρματα. Το myCar ανοίγει μόνο του όταν απαντήσει το αυτοκίνητο.</string>
+    <string name="session_connecting">Σύνδεση</string>
+    <string name="session_connected">Συνδέθηκε</string>
+    <string name="session_connected_detail">Το myCar είναι στην οθόνη του αυτοκινήτου.</string>
+    <string name="session_disconnected">Αποσυνδέθηκε</string>
+    <string name="session_disconnected_detail">Το αυτοκίνητο δεν είναι πλέον συνδεδεμένο.</string>
+    <string name="session_cert_turned_down">Το αυτοκίνητο απέρριψε το πιστοποιητικό</string>
+
+    <string name="connection_stage_talking">Επικοινωνία με το αυτοκίνητο</string>
+    <string name="connection_stage_securing">Ασφάλιση της σύνδεσης</string>
+    <string name="connection_stage_accepted">Το πιστοποιητικό έγινε δεκτό: προετοιμασία</string>
+    <string name="connection_stage_picture">Έναρξη της εικόνας</string>
+
+    <string name="connection_cert_tls_refused">Το αυτοκίνητο τερμάτισε την ασφαλή σύνδεση: δεν δέχεται το πιστοποιητικό του τηλεφώνου.</string>
+    <string name="connection_cert_error">Το αυτοκίνητο απέρριψε το πιστοποιητικό του τηλεφώνου (σφάλμα πιστοποιητικού).</string>
+    <string name="connection_cert_untrusted">Το αυτοκίνητο δεν εμπιστεύεται το πιστοποιητικό που χρησιμοποιείται.</string>
+    <string name="connection_car_date">Ελέγξτε την ημερομηνία του αυτοκινήτου</string>
+    <string name="connection_car_date_detail">Το αυτοκίνητο λέει ότι το πιστοποιητικό του τηλεφώνου δεν ισχύει στην ημερομηνία του. Ρυθμίστε το ρολόι του αυτοκινήτου και συνδέστε ξανά το καλώδιο.</string>
+    <string name="connection_unexpected">Απροσδόκητη απάντηση</string>
+    <string name="connection_unexpected_detail">Το αυτοκίνητο απάντησε στον έλεγχο του πιστοποιητικού με τον κωδικό %1$s.</string>
+    <string name="connection_picture_refused">Το αυτοκίνητο απέρριψε την εικόνα</string>
+    <string name="connection_picture_refused_detail">Το αυτοκίνητο δεν άνοιξε την οθόνη του στο myCar (κωδικός %1$s).</string>
+    <string name="connection_no_picture">Καμία εικόνα για το αυτοκίνητο</string>
+    <string name="connection_no_picture_detail">Ο κωδικοποιητής βίντεο του τηλεφώνου δεν ξεκίνησε (%1$s). Το myCar έκλεισε τη σύνδεση: συνδεθείτε ξανά.</string>
+    <string name="connection_picture_stopped">Η εικόνα του αυτοκινήτου σταμάτησε</string>
+    <string name="connection_picture_stopped_detail">Ο κωδικοποιητής βίντεο του τηλεφώνου αποτυγχάνει συνεχώς (%1$s). Το myCar έκλεισε τη σύνδεση: συνδεθείτε ξανά.</string>
+    <string name="connection_no_answer">Το αυτοκίνητο δεν απάντησε</string>
+    <string name="connection_no_answer_detail">Η σύνδεση άνοιξε, αλλά το αυτοκίνητο δεν έστειλε τίποτα. Αν το Android ρωτήσει ποια εφαρμογή να ανοίξει για το αυτοκίνητο, επιλέξτε το myCar.</string>
+    <string name="connection_hung_up_setup">Το αυτοκίνητο έκλεισε τη σύνδεση κατά τη ρύθμιση</string>
+    <string name="connection_hung_up_setup_detail">Το αυτοκίνητο τερμάτισε τη σύνδεση ενώ την ασφάλιζε. Συνήθως αυτό σημαίνει ότι απέρριψε το πιστοποιητικό.</string>
+    <string name="connection_hung_up_after_cert">Το αυτοκίνητο έκλεισε τη σύνδεση μετά το πιστοποιητικό</string>
+    <string name="connection_hung_up_after_cert_detail">Το αυτοκίνητο δέχτηκε το πιστοποιητικό, αλλά τερμάτισε τη σύνδεση πριν ολοκληρωθεί η ρύθμιση.</string>
+
+    <string name="wireless_link_bt_reaching">Bluetooth: σύνδεση με %1$s</string>
+    <string name="wireless_link_bt_talking">Bluetooth: επικοινωνία με %1$s</string>
+    <string name="wireless_link_bt_waiting">Αναμονή για %1$s. Αν δεν συμβεί τίποτα, αποσυνδέστε το τηλέφωνο από το μενού Bluetooth του αυτοκινήτου και συνδέστε το ξανά</string>
+    <string name="wireless_link_wifi_joining">Wi-Fi: σύνδεση στο δίκτυο του %1$s</string>
+    <string name="wireless_link_wifi_reaching">Wi-Fi: σύνδεση με %1$s</string>
+    <string name="wireless_link_failed">Η ασύρματη εκκίνηση απέτυχε</string>
+    <string name="wireless_link_bt_permission">Λείπει η άδεια Bluetooth</string>
+    <string name="wireless_link_bt_permission_detail">Το myCar χρειάζεται την άδεια «Συσκευές σε κοντινή απόσταση» για να φτάσει στο %1$s. Επιτρέψτε την στις ρυθμίσεις της εφαρμογής και δοκιμάστε ξανά.</string>
+    <string name="wireless_link_bt_publish_failed">Δεν ήταν δυνατή η δημοσίευση της υπηρεσίας Android Auto</string>
+    <string name="wireless_link_bt_no_car">Το αυτοκίνητο δεν συνδέθηκε μέσω Bluetooth</string>
+    <string name="wireless_link_bt_no_car_detail">Το %1$s δεν άνοιξε το Android Auto με το τηλέφωνο. Ελέγξτε ότι το ασύρματο Android Auto είναι ενεργό στις ρυθμίσεις του αυτοκινήτου και συνδέστε ξανά το τηλέφωνο από το μενού Bluetooth του αυτοκινήτου.</string>
+    <string name="wireless_link_wifi_failed">Δεν ήταν δυνατή η σύνδεση στο Wi-Fi του αυτοκινήτου</string>
+    <string name="wireless_link_wifi_failed_detail">Το Android δεν συνδέθηκε στο δίκτυο του %1$s. Αν εμφανίστηκε το μήνυμα «Σύνδεση σε συσκευή», πρέπει να το αποδεχτείτε.</string>
+    <string name="wireless_link_vpn">Ένα VPN εμποδίζει το αυτοκίνητο</string>
+    <string name="wireless_link_vpn_detail">Το myCar συνδέθηκε στο δίκτυο του %1$s, αλλά ένα VPN σε αυτό το τηλέφωνο (για παράδειγμα το Tailscale) δεν το αφήνει να φτάσει στο αυτοκίνητο. Συνδεθείτε με το καλώδιο, απενεργοποιήστε το VPN ή αφήστε το myCar έξω από αυτό στις ρυθμίσεις του – τότε το Plancia και το Xonos μέσα στο myCar δεν μπορούν να χρησιμοποιήσουν τις διευθύνσεις του VPN, όπως τα ονόματα του Tailscale.</string>
+    <string name="wireless_link_no_connection">Συνδέθηκε στο Wi-Fi του αυτοκινήτου, αλλά χωρίς σύνδεση</string>
+    <string name="wireless_link_no_connection_detail">Το myCar συνδέθηκε στο δίκτυο του %1$s, αλλά δεν μπόρεσε να φτάσει στο Android Auto στη διεύθυνση %2$s.</string>
+
+    <string name="bridge_through">Μέσω της εφαρμογής %1$s: %2$s</string>
+    <string name="bridge_no_answer">δεν απάντησε. Ανοίξτε μία φορά την εφαρμογή %1$s και δοκιμάστε ξανά.</string>
+    <string name="bridge_unknown">δεν γνωρίζει τη γέφυρα αυτού του myCar. Ενημερώστε την εφαρμογή %1$s.</string>
+    <string name="bridge_not_mycar">δεν δέχεται αυτό το myCar. Ενημερώστε την εφαρμογή %1$s.</string>
+    <string name="bridge_not_ours">είναι ρυθμισμένη με άλλη διεύθυνση. Χρησιμοποιήστε την ίδια διεύθυνση στο myCar και στην εφαρμογή %1$s.</string>
+    <string name="bridge_not_understood">η απάντησή της δεν έγινε κατανοητή. Ενημερώστε την εφαρμογή %1$s.</string>
+    <string name="bridge_closed">έκλεισε. Δοκιμάστε ξανά.</string>
+    <string name="bridge_server_starting">το %1$s σε αυτό το τηλέφωνο ακόμη ξεκινά. Το myCar συνεχίζει να προσπαθεί.</string>
+    <string name="bridge_server_silent">το %1$s δεν απαντά ούτε σε αυτήν. Ελέγξτε ότι το Tailscale είναι ενεργό και ότι το %1$s λειτουργεί.</string>
+    <string name="bridge_no_connection">καμία σύνδεση (%1$s).</string>
+
+    <string name="channel_session">Σύνδεση με το αυτοκίνητο</string>
+    <string name="channel_audio">Ήχος στο αυτοκίνητο</string>
+    <string name="channel_mirror">Κατοπτρισμός τηλεφώνου</string>
+    <string name="session_notification_title">Το myCar είναι συνδεδεμένο στο αυτοκίνητο</string>
+    <string name="audio_notification_title">Αναπαραγωγή στο αυτοκίνητο</string>
+    <string name="audio_notification_text">Το myCar στέλνει τον ήχο του τηλεφώνου στο αυτοκίνητο.</string>
+    <string name="mirror_notification_title">Κατοπτρισμός στο αυτοκίνητο</string>
+    <string name="mirror_notification_text">Η οθόνη του αυτοκινήτου δείχνει αυτό το τηλέφωνο.</string>
+    <string name="service_notification_stop">Διακοπή</string>
+
+    <string name="accessibility_touch_label">Αφή myCar</string>
+    <string name="listener_notifications_label">Ειδοποιήσεις myCar</string>
+    <string name="service_calls_label">Κλήσεις myCar</string>
+</resources>

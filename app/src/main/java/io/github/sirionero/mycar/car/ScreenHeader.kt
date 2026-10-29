@@ -11,9 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.theme.GsIconButton
 
 /**
@@ -30,7 +32,7 @@ fun ScreenHeader(title: String, modifier: Modifier = Modifier, trailing: @Compos
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Bigger than the theme's 48 dp: the way out of every screen, reached for while driving.
-        GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", navigator::back, size = 56.dp, iconSize = 28.dp)
+        GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back), navigator::back, size = 56.dp, iconSize = 28.dp)
         Text(
             title,
             style = MaterialTheme.typography.headlineSmall,

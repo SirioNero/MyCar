@@ -61,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -73,6 +74,7 @@ import androidx.car.app.model.ItemList
 import androidx.car.app.model.Pane
 import androidx.car.app.model.Row as CarRow
 import androidx.car.app.model.Template
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.host.click
 import io.github.sirionero.mycar.host.color
 import io.github.sirionero.mycar.host.image
@@ -146,7 +148,7 @@ internal fun UnsupportedChrome(template: Template, modifier: Modifier = Modifier
     androidx.compose.foundation.layout.Box(modifier, contentAlignment = Alignment.Center) {
         ChromeSurface {
             Text(
-                "${template.javaClass.simpleName} isn't drawn yet",
+                stringResource(R.string.car_template_unsupported, template.javaClass.simpleName),
                 Modifier.padding(16.dp),
                 style = ChromeType.title,
             )
@@ -409,8 +411,9 @@ internal fun AutoStartButton(action: Action, modifier: Modifier = Modifier) {
                 contentAlignment = Alignment.Center,
             ) {
                 if (hasGlyph) CarGlyph(action.icon, Modifier.size(24.dp).align(Alignment.CenterStart))
+                val start = stringResource(R.string.car_template_start)
                 Text(
-                    action.title.text().ifEmpty { "Start" },
+                    action.title.text().ifEmpty { start },
                     style = ChromeType.title,
                     maxLines = 1,
                 )
@@ -730,7 +733,7 @@ private fun DetailRow(row: CarRow, placeName: String) {
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                     androidx.compose.material3.Icon(Icons.Filled.Call, null, Modifier.size(20.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text("Call", style = ChromeType.body)
+                    Text(stringResource(R.string.car_template_call), style = ChromeType.body)
                 }
             }
         }
