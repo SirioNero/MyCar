@@ -58,6 +58,11 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
     var busy by remember { mutableStateOf(false) }
     var problem by remember { mutableStateOf<String?>(null) }
     val label = notice.cert?.let { CertCatalog.entry(it)?.label } ?: "the next certificate"
+    // The one to get: the first of the catalog not on the phone yet.
+    val spare = remember(notice) {
+        val present = CertCatalog.present(context)
+        CertCatalog.entries.firstOrNull { it.id !in present }?.label
+    }
 
     /** Runs [work] off the main thread, with the buttons held until it's done. */
     fun act(work: () -> Unit) {
@@ -75,7 +80,7 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
         Notice.SWITCHED -> "Your car turned down this certificate" to
             "myCar uses $label from now on. Connect to the car again: plug the cable back in, or connect wirelessly."
         Notice.NO_SPARE -> "Your car turned down this certificate" to
-            "Get the spare certificate, then connect to the car again."
+            "Get ${spare ?: "the spare certificate"}, then connect to the car again."
         Notice.EXHAUSTED -> "Your car turned down every certificate" to
             "myCar tried ${CertCatalog.entries.size}. Some cars made from around 2020 check phones more strictly, " +
             "and myCar can't connect to them yet."

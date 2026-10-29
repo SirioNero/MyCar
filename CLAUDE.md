@@ -826,7 +826,10 @@ Tutti i token in un solo posto, `car/design/`:
   (allarme TLS, AuthComplete −2/−3), riaggancio durante la verifica (debole), data dell'auto
   (−23/−24, "Check the car's date"). Rifiutato: si passa al successivo; tutti rifiutati: si torna al
   primo e ci si ferma fino a "Try again from the first"; un riaggancio non conta per un certificato
-  già accettato; quello del guidatore non si cambia mai. Avvisi su Home (`CertNoticeCard`), scelta a
+  già accettato; quello del guidatore non si cambia mai. Uno del catalogo non ancora scaricato (chi
+  aggiorna dalla 0.5.20 ha aasdk e Headunit Revived, non CarService) viene prima di "every
+  certificate": l'avviso dice "Get CarService" (`NO_SPARE`, `catalog` in `CertRotationPolicy.decide`),
+  anche al posto di un "every certificate" rimasto dalla 0.5.20 (`CertRotationPolicy.shown`). Avvisi su Home (`CertNoticeCard`), scelta a
   mano in Impostazioni (aasdk · Recommended, Headunit Revived · Spare, CarService · Newest cars, con la
   data di scadenza). jsDelivr come terza fonte non
   usato: non raggiungibile dalla sessione cloud per verificarlo. Senza fili non riprova da solo col

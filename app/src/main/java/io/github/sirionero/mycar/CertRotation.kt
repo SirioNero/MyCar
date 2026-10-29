@@ -22,6 +22,8 @@ object CertRotation {
     /** What to tell the driver, and about which certificate: the one turned down, or the next. */
     data class Notice(val kind: CertRotationPolicy.Notice, val cert: String? = null)
 
+    private val catalog = CertCatalog.entries.map { it.id }
+
     private val _notice = MutableStateFlow(Notice(CertRotationPolicy.Notice.NONE))
     val notice: StateFlow<Notice> = _notice.asStateFlow()
 
@@ -30,7 +32,7 @@ object CertRotation {
         val prefs = prefs(context)
         val kind = runCatching { CertRotationPolicy.Notice.valueOf(prefs.getString(KEY_NOTICE, null) ?: "NONE") }
             .getOrDefault(CertRotationPolicy.Notice.NONE)
-        _notice.value = Notice(kind, prefs.getString(KEY_NOTICE_CERT, null))
+        _notice.value = Notice(CertRotationPolicy.shown(kind, CertCatalog.present(context), catalog), prefs.getString(KEY_NOTICE_CERT, null))
     }
 
     /**
@@ -55,7 +57,7 @@ object CertRotation {
         // It counts as turned down, so the next one goes in use, and a new one is fetched.
         val expired = presented != null && identity.certificate.notAfter.time < System.currentTimeMillis()
         val seen = if (verdict == CertVerdict.Clock && expired) CertVerdict.Refused(hard = true, why = "expired") else verdict
-        val outcome = CertRotationPolicy.decide(read(context), seen, presented, own, CertCatalog.present(context))
+        val outcome = CertRotationPolicy.decide(read(context), seen, presented, own, CertCatalog.present(context), catalog)
         write(context, outcome.state)
         outcome.switchTo?.let { id ->
             runCatching { CertCatalog.activate(context, id) }.onFailure { log.e("couldn't put $id in use", it) }
@@ -93,6 +95,8 @@ object CertRotation {
         val state = read(context)
         val next = CertCatalog.present(context).firstOrNull { it !in state.refused } ?: return null
         CertCatalog.activate(context, next)
+        // One more to try: turned down too, the round ends on the first again, as usual.
+        write(context, state.copy(exhausted = false))
         setNotice(context, Notice(CertRotationPolicy.Notice.NONE))
         return next
     }

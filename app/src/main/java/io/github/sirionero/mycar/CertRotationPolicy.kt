@@ -44,13 +44,29 @@ object CertRotationPolicy {
      * [presented]: the catalog id of the certificate the car was shown; null for one from elsewhere,
      * [own] (imported, or pushed over adb) or not (none at all: a self-signed one).
      * [present]: the catalog certificates on the phone, in the order to try them.
+     * [catalog]: all of them, downloaded or not: one that isn't on the phone is a spare to get.
      */
-    fun decide(state: State, verdict: CertVerdict, presented: String?, own: Boolean, present: List<String>): Outcome =
+    fun decide(
+        state: State,
+        verdict: CertVerdict,
+        presented: String?,
+        own: Boolean,
+        present: List<String>,
+        catalog: List<String> = present,
+    ): Outcome =
         when (verdict) {
             CertVerdict.Accepted -> Outcome(State(accepted = presented ?: state.accepted), Notice.NONE)
             CertVerdict.Clock -> Outcome(state, Notice.CLOCK)
-            is CertVerdict.Refused -> refused(state, verdict, presented, own, present)
+            is CertVerdict.Refused -> refused(state, verdict, presented, own, present, catalog)
         }
+
+    /**
+     * What a stored [notice] says once [present] is known again: "every certificate" isn't true
+     * while one of the [catalog] was never downloaded (CarService, new in 0.5.21, after a car
+     * turned down the two before it).
+     */
+    fun shown(notice: Notice, present: List<String>, catalog: List<String>): Notice =
+        if (notice == Notice.EXHAUSTED && catalog.any { it !in present }) Notice.NO_SPARE else notice
 
     private fun refused(
         state: State,
@@ -58,16 +74,17 @@ object CertRotationPolicy {
         presented: String?,
         own: Boolean,
         present: List<String>,
+        catalog: List<String>,
     ): Outcome {
         if (presented == null) return Outcome(state, if (own) Notice.OWN_REFUSED else Notice.NO_CERT)
         // Taken by a car before: a hang-up is likelier the cable than a change of mind.
         if (!verdict.hard && presented == state.accepted) return Outcome(state, Notice.NONE)
-        if (state.exhausted) return Outcome(state, Notice.EXHAUSTED)
+        if (state.exhausted) return Outcome(state, shown(Notice.EXHAUSTED, present, catalog))
         val refused = state.refused + presented
         val next = present.firstOrNull { it !in refused }
         return when {
             next != null -> Outcome(state.copy(refused = refused), Notice.SWITCHED, next)
-            present.size < 2 -> Outcome(state.copy(refused = refused), Notice.NO_SPARE)
+            present.size < 2 || catalog.any { it !in present } -> Outcome(state.copy(refused = refused), Notice.NO_SPARE)
             else -> Outcome(
                 state.copy(refused = refused, exhausted = true),
                 Notice.EXHAUSTED,

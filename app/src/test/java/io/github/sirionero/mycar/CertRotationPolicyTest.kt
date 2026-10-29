@@ -68,6 +68,31 @@ class CertRotationPolicyTest {
     }
 
     @Test
+    fun `a catalog certificate not downloaded yet comes before starting over`() {
+        val catalog = both + "carservice"
+        val first = CertRotationPolicy.decide(State(), hard, "aasdk", own = false, present = both, catalog = catalog)
+        assertEquals("revived", first.switchTo)
+        val second = CertRotationPolicy.decide(first.state, hard, "revived", own = false, present = both, catalog = catalog)
+        assertEquals(Notice.NO_SPARE, second.notice)
+        assertNull(second.switchTo)
+        // Downloaded, it's the next; turned down too, every one has been.
+        val third = CertRotationPolicy.decide(second.state, hard, "carservice", own = false, present = catalog, catalog = catalog)
+        assertEquals(Notice.EXHAUSTED, third.notice)
+        assertEquals("aasdk", third.switchTo)
+    }
+
+    @Test
+    fun `turned down every one before a new one joined the catalog, it says to get it`() {
+        val catalog = both + "carservice"
+        val exhausted = State(refused = both.toSet(), exhausted = true)
+        assertEquals(Notice.NO_SPARE, CertRotationPolicy.shown(Notice.EXHAUSTED, both, catalog))
+        assertEquals(Notice.EXHAUSTED, CertRotationPolicy.shown(Notice.EXHAUSTED, catalog, catalog))
+        assertEquals(Notice.SWITCHED, CertRotationPolicy.shown(Notice.SWITCHED, both, catalog))
+        val out = CertRotationPolicy.decide(exhausted, hard, "aasdk", own = false, present = both, catalog = catalog)
+        assertEquals(Notice.NO_SPARE, out.notice)
+    }
+
+    @Test
     fun `the driver's own certificate is never swapped`() {
         val out = decide(State(), hard, null, own = true)
         assertEquals(Notice.OWN_REFUSED, out.notice)
