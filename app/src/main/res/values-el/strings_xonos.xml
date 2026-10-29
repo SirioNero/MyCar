@@ -21,6 +21,7 @@
     <string name="xonos_problem_no_answer">Το Music Assistant δεν απαντά</string>
     <string name="xonos_problem_not_ma">Σε αυτή τη διεύθυνση δεν απαντά το Music Assistant</string>
     <string name="xonos_problem_too_old">Το Music Assistant %s είναι πολύ παλιό: χρειάζεται η έκδοση 2.7 ή νεότερη</string>
+    <string name="xonos_problem_bad_token">Το διακριτικό δεν έγινε δεκτό: συνδεθείτε ξανά στο myCar στο τηλέφωνο</string>
     <string name="xonos_problem_denied">Δεν επιτρέπεται η πρόσβαση</string>
     <string name="xonos_problem_http">Σφάλμα HTTP %s</string>
     <string name="xonos_problem_network">Σφάλμα δικτύου: %s</string>
@@ -30,6 +31,7 @@
     <string name="xonos_problem_bad_login">Λάθος όνομα χρήστη ή κωδικός</string>
     <string name="xonos_problem_setup_required">Αυτό το Music Assistant δεν έχει ακόμη λογαριασμό: δημιουργήστε τον πρώτο</string>
     <string name="xonos_problem_refused">Music Assistant: %s</string>
+    <string name="xonos_problem_not_configured">Ρυθμίστε το Xonos στο myCar στο τηλέφωνο</string>
 
     <plurals name="xonos_results">
         <item quantity="one">%d αποτέλεσμα</item>
