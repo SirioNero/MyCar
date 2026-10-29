@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_idle">未连接</string>
+    <string name="session_idle_detail">插入汽车的 USB 接口，或进行无线连接。汽车响应后，myCar 会自动打开。</string>
+    <string name="session_connecting">正在连接</string>
+    <string name="session_connected">已连接</string>
+    <string name="session_connected_detail">myCar 正显示在车机屏幕上。</string>
+    <string name="session_disconnected">已断开连接</string>
+    <string name="session_disconnected_detail">汽车已不再连接。</string>
+    <string name="session_cert_turned_down">汽车拒绝了证书</string>
+
+    <string name="connection_stage_talking">正在与汽车通信</string>
+    <string name="connection_stage_securing">正在加密连接</string>
+    <string name="connection_stage_accepted">证书已接受：正在准备</string>
+    <string name="connection_stage_picture">正在启动画面</string>
+
+    <string name="connection_cert_tls_refused">汽车终止了安全连接：它不接受手机的证书。</string>
+    <string name="connection_cert_error">汽车拒绝了手机的证书（证书错误）。</string>
+    <string name="connection_cert_untrusted">汽车不信任正在使用的证书。</string>
+    <string name="connection_car_date">请检查汽车的日期</string>
+    <string name="connection_car_date_detail">汽车认为手机的证书在它的日期下无效。请设置汽车的时钟，然后重新插上数据线。</string>
+    <string name="connection_unexpected">意外的响应</string>
+    <string name="connection_unexpected_detail">汽车对证书检查返回了代码 %1$s。</string>
+    <string name="connection_picture_refused">汽车拒绝了画面</string>
+    <string name="connection_picture_refused_detail">汽车不肯向 myCar 开放它的屏幕（代码 %1$s）。</string>
+    <string name="connection_no_picture">无法向汽车发送画面</string>
+    <string name="connection_no_picture_detail">手机的视频编码器无法启动（%1$s）。myCar 已关闭连接：请重新连接。</string>
+    <string name="connection_picture_stopped">汽车的画面已停止</string>
+    <string name="connection_picture_stopped_detail">手机的视频编码器一直出错（%1$s）。myCar 已关闭连接：请重新连接。</string>
+    <string name="connection_no_answer">汽车没有响应</string>
+    <string name="connection_no_answer_detail">连接已打开，但汽车什么也没有发送。如果 Android 询问要为汽车打开哪个应用，请选择 myCar。</string>
+    <string name="connection_hung_up_setup">汽车在设置过程中断开了连接</string>
+    <string name="connection_hung_up_setup_detail">汽车在加密连接时断开了。这通常说明它拒绝了证书。</string>
+    <string name="connection_hung_up_after_cert">汽车在检查证书后断开了连接</string>
+    <string name="connection_hung_up_after_cert_detail">汽车接受了证书，但在设置完成前断开了连接。</string>
+
+    <string name="wireless_link_bt_reaching">蓝牙：正在连接 %1$s</string>
+    <string name="wireless_link_bt_talking">蓝牙：正在与 %1$s 通信</string>
+    <string name="wireless_link_bt_waiting">正在等待 %1$s。如果没有反应，请在汽车的蓝牙菜单中断开手机，然后重新连接</string>
+    <string name="wireless_link_wifi_joining">WLAN：正在加入 %1$s 的网络</string>
+    <string name="wireless_link_wifi_reaching">WLAN：正在连接 %1$s</string>
+    <string name="wireless_link_failed">无线启动失败</string>
+    <string name="wireless_link_bt_permission">缺少蓝牙权限</string>
+    <string name="wireless_link_bt_permission_detail">myCar 需要“附近的设备”权限才能连接 %1$s。请在应用设置中允许，然后重试。</string>
+    <string name="wireless_link_bt_publish_failed">无法发布 Android Auto 服务</string>
+    <string name="wireless_link_bt_no_car">汽车没有通过蓝牙连接</string>
+    <string name="wireless_link_bt_no_car_detail">%1$s 没有与手机打开 Android Auto。请确认汽车设置中已开启无线 Android Auto，然后从汽车的蓝牙菜单中重新连接手机。</string>
+    <string name="wireless_link_wifi_failed">无法加入汽车的 WLAN</string>
+    <string name="wireless_link_wifi_failed_detail">Android 没有连接到 %1$s 的网络。如果出现了“连接到设备”提示，需要接受它。</string>
+    <string name="wireless_link_vpn">VPN 阻止了与汽车的连接</string>
+    <string name="wireless_link_vpn_detail">myCar 已加入 %1$s 的网络，但这部手机上的 VPN（例如 Tailscale）不让它连接汽车。请使用数据线连接、关闭 VPN，或在 VPN 的设置中把 myCar 排除在外——这样 myCar 中的 Plancia 和 Xonos 就无法使用 VPN 的地址，比如 Tailscale 名称。</string>
+    <string name="wireless_link_no_connection">已加入汽车的 WLAN，但无法连接</string>
+    <string name="wireless_link_no_connection_detail">myCar 已加入 %1$s 的网络，但无法通过 %2$s 访问 Android Auto。</string>
+
+    <string name="bridge_through">通过 %1$s 应用：%2$s</string>
+    <string name="bridge_no_answer">它没有响应。请打开一次 %1$s 应用，然后重试。</string>
+    <string name="bridge_unknown">它不认识此 myCar 的桥接。请更新 %1$s 应用。</string>
+    <string name="bridge_not_mycar">它不接受此 myCar。请更新 %1$s 应用。</string>
+    <string name="bridge_not_ours">它设置的是另一个地址。请在 myCar 和 %1$s 应用中使用相同的地址。</string>
+    <string name="bridge_not_understood">无法理解它的回应。请更新 %1$s 应用。</string>
+    <string name="bridge_closed">它已关闭。请重试。</string>
+    <string name="bridge_server_starting">这部手机上的 %1$s 仍在启动。myCar 会继续尝试。</string>
+    <string name="bridge_server_silent">%1$s 也没有回应它。请检查 Tailscale 是否已开启，以及 %1$s 是否在运行。</string>
+    <string name="bridge_no_connection">没有连接（%1$s）。</string>
+
+    <string name="channel_session">已连接到汽车</string>
+    <string name="channel_audio">车载音频</string>
+    <string name="channel_mirror">手机镜像</string>
+    <string name="session_notification_title">myCar 已连接到汽车</string>
+    <string name="audio_notification_title">正在向汽车播放</string>
+    <string name="audio_notification_text">myCar 正在将手机的音频发送到汽车。</string>
+    <string name="mirror_notification_title">正在镜像到汽车</string>
+    <string name="mirror_notification_text">车机屏幕正在显示这部手机。</string>
+    <string name="service_notification_stop">停止</string>
+
+    <string name="accessibility_touch_label">myCar 触控</string>
+    <string name="listener_notifications_label">myCar 通知</string>
+    <string name="service_calls_label">myCar 来电</string>
+</resources>

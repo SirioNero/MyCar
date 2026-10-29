@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="changelog_34">
+        <item>语音助手会说你手机的语言：意大利语、西班牙语、法语、德语或葡萄牙语。它会用这种语言聆听、回答，并显示文字。</item>
+        <item>这需要该语言的语音模型：在手机上，“设置 &gt; 语音”会告诉你需要哪一个，并提供下载按钮。</item>
+        <item>为最新车型新增第三个证书：CarService，即 Android Auto 自己的证书。在手机上：“设置 &gt; 证书”。</item>
+        <item>离开 Cinema 后，看电影前正在播放的音乐会自动继续播放。</item>
+        <item>在手机上，每次更新后海盗旗都会带着新版本号飘扬。重大版本还会带来一艘船。</item>
+    </string-array>
+    <string-array name="changelog_33">
+        <item>电话：新增“最近通话”标签页，显示你最近的通话；未接来电的弹窗中可以“回电”。</item>
+        <item>语音：“读消息”、“回复…”、“回拨”、“重拨”，说“给妈妈的手机打电话”就会拨打那个号码。</item>
+        <item>说“播放”或按方向盘上的播放键时，如果没有打开音乐应用，会启动你上次使用的那个。</item>
+        <item>快速回复会用你手机的语言发出。来电响铃时，下一个转弯仍显示在停靠栏中。</item>
+        <item>网页上的下拉菜单会在车上以列表形式打开，方便点按；汽车的返回键可以在应用内返回。</item>
+        <item>“停止导航”需要点按两次；停在错误页面的界面现在都有继续的办法。</item>
+        <item>Cinema：“继续”会重新打开你上次在看的内容；网络中断后，电影会从停下的地方继续播放。</item>
+        <item>“特大”尺寸显示更合适：设置中的词语不再被拆开，页面栏中的“完成”始终可见，应用菜单可以滚动。</item>
+    </string-array>
+    <string-array name="changelog_32">
+        <item>新功能：Cinema。你的视频网站（YouTube、RaiPlay、Twitch，以及你在手机上添加的任何网站）、手机上的视频，以及 IPTV 列表中的电视频道。只有停车时才显示视频；声音会继续播放。</item>
+        <item>地图旁的页面支持新布局：整页、一半加两个四分之一、上方或下方的横条加两个四分之一。点按铅笔，然后点按“布局”。</item>
+        <item>Vela 的转弯箭头又会随着转弯变化了，在路线卡片和停靠栏中都是如此。</item>
+        <item>网页上的下拉菜单不会再导致 myCar 关闭。</item>
+        <item>从不确认音频的汽车，在音乐开头、通话之后以及语音导航播报中途，不会再丢失两秒声音。</item>
+        <item>无线：重新建立连接的汽车会自动回来，而且只有你允许过的汽车才能让 myCar 连接。</item>
+        <item>已在响铃的来电也能“拒接”；在 Android 的权限询问中按返回，不会再让设置无法再次询问。</item>
+    </string-array>
+    <string-array name="changelog_31">
+        <item>无线自动连接：第一次不用数据线行车后，Android 会询问一次，之后每次启动那辆车，myCar 都会自动连接。可在“设置 &gt; 连接”中关闭。</item>
+        <item>通过蓝牙播放的音乐会继续留在蓝牙上：myCar 连接时，汽车不会再立即切换到 Android Auto 音源。</item>
+        <item>车载音频更稳定：中断更少，只接受 AAC 的汽车也能收到它们预期的开头数据。</item>
+        <item>汽车自身的边距在各种大小下都保持正确，包括“小”和“大”。</item>
+        <item>在车上的“电话”界面中，“在手机上询问”会在手机上请求缺少的权限。</item>
+        <item>地图应用的路线选项会显示时间和距离；从不响应的车载应用会如实说明，而不是一直显示“正在启动…”。</item>
+    </string-array>
+    <string-array name="changelog_30">
+        <item>家里没有 Music Assistant？Xonos 应用现在可以在手机上运行一个：myCar 中的 Xonos 可以从它播放，无线连接时也可以。</item>
+        <item>行程开始时，myCar 会唤醒 Xonos 应用及其服务器。第一次启动需要几秒钟，汽车上会有提示。</item>
+    </string-array>
+    <string-array name="changelog_29">
+        <item>现在用 Tailscale 时，Plancia 和 Xonos 也能无线使用：myCar 被排除在 Tailscale 之外时，它们会通过手机上的 Plancia 和 Xonos 应用访问你的服务器，而这两个应用留在 Tailscale 内。</item>
+        <item>请更新 Plancia 和 Xonos 应用，并让它们设置为与 myCar 相同的地址。它们只为 myCar 建立连接，而且只连接到它们自己的服务器。</item>
+        <item>如果连这些应用也无法访问你的服务器，它们会像以前一样，在本次行程中代替 myCar 内的 Plancia 和 Xonos。</item>
+    </string-array>
+    <string-array name="changelog_28">
+        <item>通过 Tailscale 无线连接时，Plancia 和 Xonos 也能继续使用：myCar 内的 Plancia 和 Xonos 无法访问你的服务器时，手机上的 Plancia 和 Xonos 应用会在本次行程中自动接替它们。</item>
+        <item>myCar 中设置的地址或令牌有误时也是如此：由应用接替，而不是显示错误。</item>
+        <item>Xonos 会在行程开始时连接，打开时就已准备好。</item>
+    </string-array>
+    <string-array name="changelog_27">
+        <item>设置变成了手机上的一个列表，用一个按钮完成下一步。“如何连接”和“设置”都可以重新打开它，不会重置任何内容。</item>
+        <item>备用证书：如果你的汽车拒绝了第一个，myCar 会改用另一个，手机会提示你重新连接。</item>
+        <item>现在能识别时钟设置错误的汽车：手机会提示你检查汽车的日期。</item>
+    </string-array>
+    <string-array name="changelog_26">
+        <item>Plancia 和 Xonos 会说明无法连接的原因：Tailscale 把 myCar 排除在外、找不到 Tailscale 名称，或 Android 17 不让 myCar 访问你的家庭网络。</item>
+        <item>手机锁定时行程也能继续：myCar 保持在前台，让手机保持唤醒；无线连接时，还让 WLAN 保持全速。</item>
+        <item>汽车结束会话时，myCar 也会结束：手机的声音会恢复，Xonos 会停止，而不是继续对着空车播放。</item>
+        <item>关闭的音乐应用不会再让播放器卡住；手机上已在播放的歌曲就是汽车显示的歌曲。</item>
+        <item>语音：“打电话”会选对联系人，“结束导航”会结束路线，myCar 说完话后音乐不会再一直暂停。</item>
+        <item>屏幕共享结束后，汽车的音乐会恢复：Android 会再次询问车载音频，一次只问一个问题。</item>
+        <item>几十项小修复：通话、消息、屏幕共享、Plancia、浏览器和无线连接。</item>
+    </string-array>
+    <string-array name="changelog_25">
+        <item>Plancia 和 Xonos 又能在家中访问你的 Home Assistant 和 Music Assistant 了，包括普通的 http 地址。在 Android 17 上，myCar 需要“附近的设备”权限才能访问你的家庭网络，现在会主动请求。</item>
+        <item>如果缺少这项权限，汽车会如实说明，而不是说 Home Assistant 或 Music Assistant 没有响应。</item>
+    </string-array>
+    <string-array name="changelog_24">
+        <item>Xonos 现在成为 myCar 的一部分：你的 Music Assistant 音乐库出现在车上的音乐应用中。可以在手机上设置，也可以一键从 Xonos 应用导入账户。</item>
+        <item>车载音频设为“通过 myCar”时，Xonos 会直接播放到车上，收听时 Android 也不会请求共享音频。</item>
+    </string-array>
+    <string-array name="changelog_23">
+        <item>Plancia 现在成为 myCar 的一部分：你的 Home Assistant 仪表盘一打开就能用，可以从应用网格、你的某个页面或地图旁打开。</item>
+        <item>在手机上的 myCar 设置中设置 Plancia，或一键从 Plancia 应用导入账户。</item>
+        <item>Home Assistant 的菜单按钮会打开 Plancia 的菜单：你的仪表盘、首先打开的仪表盘、大小和“重新加载”。</item>
+    </string-array>
+    <string-array name="changelog_22">
+        <item>通话或手机助手结束后，音乐会恢复。以前汽车只要短暂占用扬声器，音乐就会一直停到下次行车。</item>
+        <item>全新播放器：简洁的控件、用来调整进度的细线，背后是封面的颜色。浏览时封面也保持可见。</item>
+        <item>手机锁定时，麦克风会点亮手机并请你解锁；手机一打开，你的助手就开始聆听。</item>
+        <item>Android 对车载音频的询问只需点按一下：不用选择应用，所有应用的声音都能传到车上。</item>
+    </string-array>
+    <string-array name="changelog_21">
+        <item>地图旁的页面：在主页上左右滑动，或点按底部的圆点。预设页面：地图左边是天气和你的日程，右边是 Plancia 的仪表盘和浏览器。</item>
+        <item>圆点旁的铅笔可以修改页面：两半或四格，每一格可以是天气、日程、浏览器或 Plancia 等车载应用。也可以在那里添加、移动和删除页面。</item>
+    </string-array>
+    <string-array name="changelog_20">
+        <item>如果 myCar 在行车途中向汽车发送声音时被关闭，手机的音乐不会再一直静音。</item>
+        <item>汽车断开后再对 Android 的音频或屏幕共享询问选择同意，不会再让手机静音或一直处于共享状态。</item>
+        <item>不使用语音命令的行程占用更少内存，旧日志也不会再在手机上越积越多。</item>
+    </string-array>
+    <string-array name="changelog_19">
+        <item>手机锁定时，myCar 不会再有在行程结束时关闭的风险。</item>
+        <item>天气能直接找到你的位置，不用再等十二秒。</item>
+        <item>播放大量音乐的长途行车占用的内存少得多：封面会按车机屏幕的尺寸缩放。</item>
+    </string-array>
+    <string-array name="changelog_18">
+        <item>车载音频：“自动”现在是默认设置，汽车能通过蓝牙播放手机音乐时用蓝牙，否则通过 myCar，经数据线或 WLAN 传输。</item>
+        <item>USB 音频现在叫“通过 myCar”：它也能通过 WLAN 工作。</item>
+    </string-array>
+    <string-array name="changelog_17">
+        <item>地图旁显示：像以前一样，播放时显示音乐播放器；或者显示你选择的应用，例如 Plancia 或 Xonos，一直留在那里。在车机屏幕上的设置中选择。</item>
+        <item>无论打开了多少应用，麦克风都固定在停靠栏底部，就在应用网格按钮上方。</item>
+        <item>手机助手现在的唤醒方式，和在手机上从底部角落向上滑动一样。在车机屏幕上的“设置 &gt; 语音助手”中选择它。</item>
+        <item>动态壁纸：熔岩、极地、波浪和萤火虫。在车机屏幕上的设置中打开“壁纸”，它们位于静态壁纸下方。</item>
+        <item>全新的 myCar 图标。</item>
+        <item>Vela Maps 不再带有黄色的“部分兼容”标记：它可以用 myCar 导航。</item>
+    </string-array>
+    <string-array name="changelog_16">
+        <item>Gemini 打开时也会处于聆听状态：myCar 会请求 Google 应用（它会为 Gemini 聆听），只有在没有应用愿意聆听时才打开文字聊天。</item>
+        <item>在应用网格中，停靠栏底部的按钮会带你回到地图，旁边是音乐。</item>
+        <item>动态壁纸：在车机屏幕上的设置中把“壁纸动效”设为“动态”，颜色就会缓缓流动。</item>
+    </string-array>
+    <string-array name="changelog_15">
+        <item>车机屏幕新增两个更小的尺寸：“小”（90%）和“特小”（83%），位于车机屏幕上的设置中。</item>
+        <item>手机助手会以聆听状态打开，就像从手机屏幕角落唤起一样，而不是打开文字聊天。</item>
+        <item>屏幕共享会把手机转为横向，让应用填满汽车的宽屏。停止共享后会转回来。</item>
+    </string-array>
+    <string-array name="changelog_14">
+        <item>音乐和地图再次共享屏幕：一开始播放，播放器就会出现在地图旁。</item>
+        <item>点按停靠栏中的歌曲，可以收起或调出播放器。长按可打开完整播放器。</item>
+    </string-array>
+    <string-array name="changelog_13">
+        <item>应用网格和仪表盘后面有了壁纸，停靠栏像玻璃一样覆盖在上面。在车机屏幕上的设置中选择一张，或不用壁纸。</item>
+        <item>玻璃质感的图标：边缘有光，带柔和的光泽。</item>
+        <item>地图旁的播放器用封面填满它那一侧，控件位于磨砂玻璃上。</item>
+        <item>选择语音助手：myCar 自带的、手机的，或其他助手应用。</item>
+        <item>与 myCar 只部分兼容的应用会带有黄色标记。</item>
+    </string-array>
+    <string-array name="changelog_12">
+        <item>全新外观：左侧是带时钟和应用的停靠栏，应用网格分页显示。</item>
+        <item>应用图标位于圆角方形框中，车机屏幕使用 Inter 字体。</item>
+        <item>默认使用深色。可在车机屏幕上的设置中选择浅色或跟随手机。</item>
+        <item>点按停靠栏中的歌曲，播放器就会出现在地图旁。长按可打开完整播放器。</item>
+        <item>无论是否使用 USB 音频，通话都只通过蓝牙传到车上。现在手机未连接、或通话在手机上进行时，myCar 会告诉你。</item>
+        <item>车载应用再次显示自己的图标，而不是其他应用的图标。</item>
+    </string-array>
+    <string-array name="changelog_11">
+        <item>Gearslip 现在叫 myCar，有了新名称和新图标。更新来自 github.com/sirionero/mycar。</item>
+        <item>来自联系人的来电会显示在车机屏幕上，你可以在那里接听或拒接。</item>
+        <item>拒接后或对方挂断时，来电卡片不会再留在屏幕上。</item>
+        <item>可以在车机屏幕或方向盘上结束通话。</item>
+    </string-array>
+    <string-array name="changelog_9">
+        <item>无线 Android Auto：手机与汽车配对一次，就可以把数据线留在家里。</item>
+        <item>内置语音控制。说“导航到加油站”、“播放”某首歌或某位艺人，或说出应用名称来打开它。</item>
+        <item>“导航到”会选择最近的地点，并停在地图应用的开始界面，你只需点按“开始”。</item>
+        <item>myCar 在手机上把语音转成文字，无需 Google 账户。在设置时下载一次语音模型即可。</item>
+        <item>汽车的旋钮可以在按钮之间移动，所以没有触摸屏的汽车也能使用。</item>
+        <item>选择音乐如何传到车上：蓝牙，或无延迟的 USB。myCar 会在第一次时提议与汽车配对。</item>
+        <item>汽车会播报地图应用的每个转弯，并在可以的时候把导航指示显示在它自己的显示屏上。</item>
+        <item>汽车会显示正在播放的内容，音乐应用也有了自己的喜欢、随机播放和重复按钮。</item>
+        <item>选择车机按钮的样式。随时可以在车机屏幕上的设置中更改。</item>
+        <item>途中设置新目的地会替换旧路线，切换地图应用会结束旧应用的路线。</item>
+        <item>手机的位置信息关闭时，汽车会提醒你。</item>
+        <item>myCar 会查找新版本并为你安装。</item>
+        <item>更多汽车可以通过 USB 播放音乐，画面更清晰，点按位置也更准确。</item>
+        <item>在 GrapheneOS 上，myCar 不再需要“漏洞利用防护兼容模式”。</item>
+        <item>应用大小只有原来的一半。</item>
+    </string-array>
+    <string-array name="changelog_8">
+        <item>“退出”会带你回到汽车自己的界面。点按汽车上的 Android Auto 即可返回。</item>
+        <item>汽车有麦克风时，myCar 会通过汽车的麦克风聆听，所以手机放在口袋里也能用语音。</item>
+        <item>语音回复会在进度条走完时发送，即使有路噪或收音机声音也一样。在此之前说“取消”或“修改”即可。</item>
+        <item>汽车切换到夜间模式时，地图也会变暗。</item>
+        <item>移动中的地图不会再让车机屏幕跟不上你的点按。</item>
+        <item>一连接，myCar 就会请求向汽车发送声音，所以网页浏览器中的视频也能在车上播放。</item>
+        <item>提供多种音乐音频的汽车（例如 2022 款 Dacia Jogger）又能播放声音了。</item>
+        <item>汽车显示键盘时，你可以改为在手机上输入。汽车的键盘也更高了。</item>
+        <item>每个车机界面都有返回按钮。</item>
+        <item>应用图标会显示应用能否在 myCar 中使用。Metrolist 可以使用，显示绿色对勾。</item>
+        <item>LIVI 又能连接了，带第二块屏幕的汽车也能使用触摸。</item>
+        <item>手机的设置界面采用了新布局，顶部是新功能和设置指南。</item>
+        <item>你可以选择发送简短的使用报告来帮助这个项目。报告不含姓名、账户或位置信息，除非你开启，否则不会发送。</item>
+        <item>在媒体应用内搜索的功能已移到“设置 &gt; 实验性功能”。</item>
+        <item>在“设置 &gt; 媒体音频”中，选项现在是“手机音频”和“车载音频”。</item>
+        <item>日志不再记录你的位置和汽车的序列号。</item>
+    </string-array>
+    <string-array name="changelog_7">
+        <item>启动器会对应用分组：电话、地图、音乐、消息、网页、屏幕共享和设置。</item>
+        <item>要移动应用，请在启动器上长按它，然后点按“左移”或“右移”。</item>
+        <item>MapQuest 和 Flitsmeister 可以在 myCar 中使用，并显示绿色对勾。</item>
+        <item>Spotify 只有一个图块。如果手机上没有打开 Spotify，点按“打开 Spotify”即可启动它。</item>
+        <item>轻扫地图后它会继续滑动，就像在 Android Auto 中一样。</item>
+        <item>从其他界面回来时，地图会停在你离开时的位置。</item>
+        <item>地图应用中的搜索框更大，也更易阅读。</item>
+        <item>地图应用更新后，按钮上的图标仍然正确。</item>
+        <item>当 myCar 询问“要回复吗？”时，会有一个进度条显示它会听多久。你说话时进度条会暂停。</item>
+        <item>myCar 会让画面适配宽屏车机屏幕，并避开汽车裁掉的边缘。</item>
+        <item>myCar 能正确回应汽车的连接检查。以前一些汽车（包括奥迪）会在一秒后断开连接。</item>
+        <item>Google 地图不再显示为消息应用。</item>
+    </string-array>
+    <string-array name="changelog_6">
+        <item>Signal 和 Molly 等消息应用会打开你最近的聊天。</item>
+        <item>myCar 会朗读消息，你可以用语音回复。在发送前说“取消”或“修改”，或者点按快速回复，例如你的到达时间。</item>
+        <item>语音可以在任何手机上使用，包括 GrapheneOS。myCar 自己把语音转成文字，所以无需 Google 账户。</item>
+        <item>新消息会以小卡片的形式显示在右上角，即使在行驶中也是如此。一个进度条会显示卡片关闭或回复发送前还剩多久。</item>
+        <item>只有消息、未接来电、闹钟和提醒会弹出。其他内容都会留在仪表盘上。</item>
+        <item>切换界面时地图会保持加载，不会再闪黑屏。</item>
+        <item>地图应用的绘制更可靠，手机锁定时也能保持连接。</item>
+        <item>主页按钮会显示你的地图应用，所以它不会再出现两次。</item>
+        <item>离开地图时，下一个转弯会显示在导航栏中。</item>
+        <item>方向盘按键、控制旋钮和方向键现在都能用了。如果你的不能用，请在 GitHub 上提交问题。</item>
+        <item>要在导航栏中看到完整的歌名和艺人，请选择“设置 &gt; 导航栏中的播放器 &gt; 歌曲标题”。</item>
+        <item>在“设置 &gt; 单位”中选择英里或公里。</item>
+        <item>在“设置 &gt; 实验性功能”中试用语音助手和车辆数据界面。</item>
+        <item>日志现在会说明汽车结束连接的原因。</item>
+        <item>Spotify、Waze 和 Google Messages 更新到了只接受 Android Auto 本身的 Google 车载库版本。它们自己的车机界面无法在 myCar 中打开。Spotify 仍可通过带绿色对勾的 myCar 播放器播放。</item>
+        <item>通话通过汽车的蓝牙进行，就像在 Android Auto 中一样。将手机与汽车配对，就能通过车内扬声器听到通话。</item>
+    </string-array>
+</resources>
