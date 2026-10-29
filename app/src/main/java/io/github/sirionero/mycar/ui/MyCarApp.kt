@@ -74,6 +74,9 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             else -> Screen.HOME
         }
     }
+    // The intro replayed from Settings goes back there from its first page (the intro's own handler
+    // takes the later pages); otherwise Back left myCar.
+    BackHandler(enabled = screen == Screen.INTRO && introReturn == Screen.SETTINGS) { screen = Screen.SETTINGS }
 
     // Home and the intro stay upright (the intro is drawn to the width of a phone held upright,
     // and it often shows on the first start after an update, opened by the car with the phone
