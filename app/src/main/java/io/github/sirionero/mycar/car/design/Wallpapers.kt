@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.car.design
 
 import android.content.Context
 import android.os.SystemClock
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalView
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -61,8 +63,8 @@ import kotlin.math.sin
 /** One soft disc of colour: its centre as a fraction of the screen, its radius of the longer side. */
 class Glow(val color: Color, val x: Float, val y: Float, val radius: Float, val strength: Float = 0.9f)
 
-/** A wallpaper: [glows] on a [ground], and how it moves, or null [motion] for a still one. */
-class Wallpaper(val id: String, val name: String, val ground: Color, val glows: List<Glow>, val motion: Motion? = null)
+/** A wallpaper: [glows] on a [ground], and how it moves, or null [motion] for a still one. [name] is in the resources. */
+class Wallpaper(val id: String, @StringRes val name: Int, val ground: Color, val glows: List<Glow>, val motion: Motion? = null)
 
 /** How a moving wallpaper moves. */
 sealed interface Motion {
@@ -103,7 +105,7 @@ object Wallpapers {
 
     val all: List<Wallpaper> = listOf(
         Wallpaper(
-            "aurora", "Aurora", Color(0xFF04070D),
+            "aurora", R.string.car_wallpaper_aurora, Color(0xFF04070D),
             listOf(
                 Glow(Color(0xFF00C2A8), 0.12f, 0.95f, 0.62f),
                 Glow(Color(0xFF2F6BFF), 0.78f, 0.12f, 0.58f),
@@ -111,7 +113,7 @@ object Wallpapers {
             ),
         ),
         Wallpaper(
-            "sunset", "Sunset", Color(0xFF110508),
+            "sunset", R.string.car_wallpaper_sunset, Color(0xFF110508),
             listOf(
                 Glow(Color(0xFFFF7A1A), 0.15f, 1.00f, 0.62f),
                 Glow(Color(0xFFFF2E7E), 0.65f, 0.65f, 0.52f, 0.8f),
@@ -119,7 +121,7 @@ object Wallpapers {
             ),
         ),
         Wallpaper(
-            "ocean", "Ocean", Color(0xFF020913),
+            "ocean", R.string.car_wallpaper_ocean, Color(0xFF020913),
             listOf(
                 Glow(Color(0xFF00A6FF), 0.85f, 0.95f, 0.66f),
                 Glow(Color(0xFF2633FF), 0.10f, 0.10f, 0.55f),
@@ -127,7 +129,7 @@ object Wallpapers {
             ),
         ),
         Wallpaper(
-            "nebula", "Nebula", Color(0xFF090312),
+            "nebula", R.string.car_wallpaper_nebula, Color(0xFF090312),
             listOf(
                 Glow(Color(0xFFD432FF), 0.22f, 0.30f, 0.55f),
                 Glow(Color(0xFF3A5BFF), 0.82f, 0.80f, 0.60f),
@@ -135,7 +137,7 @@ object Wallpapers {
             ),
         ),
         Wallpaper(
-            "ember", "Ember", Color(0xFF0D0503),
+            "ember", R.string.car_wallpaper_ember, Color(0xFF0D0503),
             listOf(
                 Glow(Color(0xFFFF3B2F), 0.08f, 0.15f, 0.55f),
                 Glow(Color(0xFFFFB020), 0.88f, 0.92f, 0.60f),
@@ -143,7 +145,7 @@ object Wallpapers {
             ),
         ),
         Wallpaper(
-            "forest", "Forest", Color(0xFF03100A),
+            "forest", R.string.car_wallpaper_forest, Color(0xFF03100A),
             listOf(
                 Glow(Color(0xFF22D47B), 0.18f, 0.80f, 0.60f),
                 Glow(Color(0xFFB6F23A), 0.88f, 0.10f, 0.42f, 0.7f),
@@ -151,7 +153,7 @@ object Wallpapers {
             ),
         ),
         Wallpaper(
-            "graphite", "Graphite", Color(0xFF09090B),
+            "graphite", R.string.car_wallpaper_graphite, Color(0xFF09090B),
             listOf(
                 Glow(Color(0xFF4A4A57), 0.25f, 0.25f, 0.60f),
                 Glow(Color(0xFF2E3442), 0.85f, 0.90f, 0.60f),
@@ -159,7 +161,7 @@ object Wallpapers {
         ),
         // The moving ones.
         Wallpaper(
-            "lava", "Lava", Color(0xFF120309),
+            "lava", R.string.car_wallpaper_lava, Color(0xFF120309),
             listOf(
                 Glow(Color(0xFFFF2E63), 0.25f, 0.70f, 0.50f),
                 Glow(Color(0xFFFF8A1F), 0.70f, 0.30f, 0.48f),
@@ -168,7 +170,7 @@ object Wallpapers {
             Motion.Drift(reach = 0.24f, loopSeconds = 28.0),
         ),
         Wallpaper(
-            "polar", "Polar", Color(0xFF020A0C),
+            "polar", R.string.car_wallpaper_polar, Color(0xFF020A0C),
             listOf(
                 Glow(Color(0xFF14E08A), 0.20f, 0.30f, 0.50f),
                 Glow(Color(0xFF00B3FF), 0.75f, 0.65f, 0.50f),
@@ -177,12 +179,12 @@ object Wallpapers {
             Motion.Drift(reach = 0.2f, loopSeconds = 34.0),
         ),
         Wallpaper(
-            "waves", "Waves", Color(0xFF010915),
+            "waves", R.string.car_wallpaper_waves, Color(0xFF010915),
             listOf(Glow(Color(0xFF1F6BFF), 0.80f, 0.05f, 0.55f, 0.7f)),
             Motion.Waves(listOf(Color(0xFF2E3DD1), Color(0xFF1A73E8), Color(0xFF00B8D9), Color(0xFF00E0B0))),
         ),
         Wallpaper(
-            "fireflies", "Fireflies", Color(0xFF03080A),
+            "fireflies", R.string.car_wallpaper_fireflies, Color(0xFF03080A),
             listOf(
                 Glow(Color(0xFF0F5C4A), 0.30f, 0.90f, 0.60f, 0.8f),
                 Glow(Color(0xFF1B2F6B), 0.85f, 0.15f, 0.50f, 0.8f),

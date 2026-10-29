@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.car
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.car.theme.GsButton
@@ -46,6 +49,7 @@ import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.CarFocus
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import androidx.compose.ui.graphics.SolidColor
@@ -70,27 +74,30 @@ private val CarGlyph: ImageVector = ImageVector.Builder("Car", 24.dp, 24.dp, 24f
 
 /**
  * One of myCar's own apps: a screen, with nothing running behind it once you leave. [screen] is
- * null for an action like Exit, which has no screen and so never shows as open.
+ * null for an action like Exit, which has no screen and so never shows as open. [label] is in
+ * English, as the voice assistant matches what the driver says against it; the car's screen shows
+ * [title], in myCar's language ([Entry.shownLabel]), or [label] for a name such as Plancia.
  */
 internal class BuiltInApp(
     val id: String,
     val label: String,
     val glyph: ImageVector,
     val screen: CarScreen?,
+    @StringRes val title: Int? = null,
     val open: (CarNavigator) -> Unit,
 )
 
 internal object BuiltInApps {
-    val Web = BuiltInApp("web", "Browser", Icons.Filled.Search, CarScreen.App("web")) { it.open("web") }
+    val Web = BuiltInApp("web", "Browser", Icons.Filled.Search, CarScreen.App("web"), R.string.car_apps_browser) { it.open("web") }
     /** Cinema, the video sites chosen on the phone, each in a browser made for video (see CinemaApp). */
     val Cinema = BuiltInApp("cinema", "Cinema", Icons.Filled.PlayArrow, CarScreen.App("cinema")) { it.open("cinema") }
-    val ScreenSharing = BuiltInApp("phone", "Screen sharing", Icons.Filled.Share, CarScreen.App("phone")) { it.open("phone") }
-    val Phone = BuiltInApp("dialer", "Phone", Icons.Filled.Call, CarScreen.App("dialer")) { it.open("dialer") }
-    val VehicleData = BuiltInApp("vehicle", "Vehicle data", Icons.Filled.Info, CarScreen.VehicleData) { it.vehicleData() }
-    val Settings = BuiltInApp("settings", "Settings", Icons.Filled.Settings, CarScreen.Settings) { it.settings() }
+    val ScreenSharing = BuiltInApp("phone", "Screen sharing", Icons.Filled.Share, CarScreen.App("phone"), R.string.car_apps_screen_sharing) { it.open("phone") }
+    val Phone = BuiltInApp("dialer", "Phone", Icons.Filled.Call, CarScreen.App("dialer"), R.string.car_apps_phone) { it.open("dialer") }
+    val VehicleData = BuiltInApp("vehicle", "Vehicle data", Icons.Filled.Info, CarScreen.VehicleData, R.string.car_apps_vehicle_data) { it.vehicleData() }
+    val Settings = BuiltInApp("settings", "Settings", Icons.Filled.Settings, CarScreen.Settings, R.string.common_settings) { it.settings() }
 
     /** Hands the screen back to the car's own interface, like Android Auto's Exit. */
-    val Exit = BuiltInApp("exit", "Exit", CarGlyph, screen = null) { CarFocus.exitToCar() }
+    val Exit = BuiltInApp("exit", "Exit", CarGlyph, screen = null, title = R.string.car_apps_exit) { CarFocus.exitToCar() }
 
     val all = listOf(Web, Cinema, ScreenSharing, Phone, VehicleData, Settings, Exit)
     val entries: List<Entry> = all.map { Entry(it.label, icon = null, builtIn = it) }
@@ -249,7 +256,7 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                     entry.icon?.let { Image(it, null, Modifier.size(44.dp).clip(RoundedCornerShape(10.dp))) }
                     entry.builtIn?.let { Icon(it.glyph, null, Modifier.size(36.dp)) }
                     Text(
-                        entry.label,
+                        entry.shownLabel,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(start = 14.dp),
@@ -279,9 +286,9 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                 ) {
                     Text(
                         when {
-                            isPinned -> "Unpin from the dock"
-                            barFull -> "The dock is full (${CarSettings.MAX_PINNED} pinned)"
-                            else -> "Pin to the dock"
+                            isPinned -> stringResource(R.string.car_apps_unpin)
+                            barFull -> pluralStringResource(R.plurals.car_apps_dock_full, CarSettings.MAX_PINNED, CarSettings.MAX_PINNED)
+                            else -> stringResource(R.string.car_apps_pin)
                         },
                         style = MaterialTheme.typography.titleMedium,
                     )
@@ -295,13 +302,13 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                         },
                         tone = GsTone.Danger,
                         modifier = Modifier.fillMaxWidth().height(56.dp),
-                    ) { Text("Close app", style = MaterialTheme.typography.titleMedium) }
+                    ) { Text(stringResource(R.string.car_apps_close), style = MaterialTheme.typography.titleMedium) }
                 }
                 GsButton(
                     onClick = navigator::dismissAppMenu,
                     tone = GsTone.Neutral,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
-                ) { Text("Cancel", style = MaterialTheme.typography.titleMedium) }
+                ) { Text(stringResource(R.string.common_cancel), style = MaterialTheme.typography.titleMedium) }
             }
         }
     }
@@ -328,19 +335,19 @@ private fun MoveButtons(id: String) {
             tone = GsTone.Tonal,
             enabled = index > 0,
             modifier = Modifier.weight(1f).height(56.dp),
-        ) { Text("Move left", style = MaterialTheme.typography.titleMedium) }
+        ) { Text(stringResource(R.string.car_apps_move_left), style = MaterialTheme.typography.titleMedium) }
         GsButton(
             onClick = { move(1) },
             tone = GsTone.Tonal,
             enabled = index < order.lastIndex,
             modifier = Modifier.weight(1f).height(56.dp),
-        ) { Text("Move right", style = MaterialTheme.typography.titleMedium) }
+        ) { Text(stringResource(R.string.car_apps_move_right), style = MaterialTheme.typography.titleMedium) }
     }
     if (custom.isNotEmpty()) {
         GsButton(
             onClick = { CarSettings.setAppOrder(emptyList()) },
             tone = GsTone.Neutral,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-        ) { Text("Reset app order", style = MaterialTheme.typography.titleMedium) }
+        ) { Text(stringResource(R.string.car_apps_reset_order), style = MaterialTheme.typography.titleMedium) }
     }
 }

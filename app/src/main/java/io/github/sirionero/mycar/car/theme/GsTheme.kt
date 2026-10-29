@@ -1,9 +1,13 @@
 package io.github.sirionero.mycar.car.theme
 
+import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 
 /**
  * How the car UI's controls look, separate from its colours: [MaterialTheme]'s colour scheme still
@@ -15,9 +19,16 @@ import androidx.compose.ui.unit.dp
 data class GsTheme(
     /** Stable key persisted in settings; never reuse one for a different look. */
     val id: String,
+    /** In English, or a name the same in every language (myCar): the car's screen shows [shownName]. */
     val name: String,
     val control: ControlLook,
-)
+    /** Its name in myCar's language; null for a [name] that is a name. */
+    @StringRes val title: Int? = null,
+) {
+    /** What the car's settings call it: in myCar's language, or [name] as it is. */
+    val shownName: String
+        @Composable get() = title?.let { stringResource(it) } ?: name
+}
 
 /** The finish on anything tappable that has a container: buttons, toggles, keypad keys. */
 @Immutable
@@ -72,12 +83,14 @@ object GsThemes {
     val Keycap = GsTheme(
         id = "keycap",
         name = "Keycap",
+        title = R.string.car_theme_keycap,
         control = ControlLook(lip = 4.dp, pressedScale = 1f, holdMarker = HoldMarkerStyle.PEEL),
     )
 
     val Tactile = GsTheme(
         id = "tactile",
         name = "Tactile",
+        title = R.string.car_theme_tactile,
         control = ControlLook(
             topLight = 0.05f,
             shadow = 3.dp,
@@ -109,6 +122,7 @@ object GsThemes {
     val Flat = GsTheme(
         id = "flat",
         name = "Flat",
+        title = R.string.car_theme_flat,
         control = ControlLook(holdMarker = HoldMarkerStyle.DOT),
     )
 

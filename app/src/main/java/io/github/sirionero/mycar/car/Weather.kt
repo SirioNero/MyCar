@@ -6,7 +6,9 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import androidx.annotation.StringRes
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -38,7 +40,8 @@ class WeatherData(
 
 sealed interface WeatherState {
     data object Loading : WeatherState
-    data class Unavailable(val reason: String) : WeatherState
+    /** [reason]: why, in words for the car's screen. */
+    data class Unavailable(@StringRes val reason: Int) : WeatherState
     data class Ready(val data: WeatherData) : WeatherState
 }
 
@@ -78,7 +81,7 @@ object Weather {
             if (flow.value !is WeatherState.Ready) {
                 val allowed = hasLocationPermission(context)
                 flow.value = WeatherState.Unavailable(
-                    if (allowed) "Waiting for a location fix." else "Allow location for myCar on the phone to see the weather.",
+                    if (allowed) R.string.car_weather_waiting_fix else R.string.car_weather_allow_location,
                 )
             }
             return
@@ -92,7 +95,7 @@ object Weather {
             // No place name: logs get shared in bug reports.
             MyCarLog.i("weather: loaded")
         }
-        else if (flow.value !is WeatherState.Ready) flow.value = WeatherState.Unavailable("Could not reach the weather service.")
+        else if (flow.value !is WeatherState.Ready) flow.value = WeatherState.Unavailable(R.string.car_weather_unreachable)
     }
 
     // --- location -------------------------------------------------------------------------
@@ -199,7 +202,10 @@ object Weather {
         )
     }
 
-    /** Open-Meteo's WMO weather codes, in words. */
+    /**
+     * Open-Meteo's WMO weather codes, in words: in English, as the voice assistant says them in its
+     * own language. The car's screen shows [shown].
+     */
     fun describe(code: Int): String = when (code) {
         0 -> "Clear"
         1 -> "Mostly clear"
@@ -213,5 +219,22 @@ object Weather {
         in 85..86 -> "Snow showers"
         in 95..99 -> "Thunderstorm"
         else -> "-"
+    }
+
+    /** [describe] for the car's screen, in myCar's language; null for a code with no words. */
+    @StringRes
+    fun shown(code: Int): Int? = when (code) {
+        0 -> R.string.car_weather_clear
+        1 -> R.string.car_weather_mostly_clear
+        2 -> R.string.car_weather_partly_cloudy
+        3 -> R.string.car_weather_overcast
+        45, 48 -> R.string.car_weather_fog
+        in 51..57 -> R.string.car_weather_drizzle
+        in 61..67 -> R.string.car_weather_rain
+        in 71..77 -> R.string.car_weather_snow
+        in 80..82 -> R.string.car_weather_rain_showers
+        in 85..86 -> R.string.car_weather_snow_showers
+        in 95..99 -> R.string.car_weather_thunderstorm
+        else -> null
     }
 }

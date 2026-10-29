@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.car.app.model.CarIcon
@@ -55,8 +56,9 @@ import io.github.sirionero.mycar.host.clockTime
 import io.github.sirionero.mycar.host.color
 import io.github.sirionero.mycar.host.image
 import io.github.sirionero.mycar.host.display
-import io.github.sirionero.mycar.host.remainingTime
+import io.github.sirionero.mycar.host.remainingTimeShown
 import io.github.sirionero.mycar.host.text
+import io.github.sirionero.mycar.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.runtime.LaunchedEffect
@@ -133,7 +135,7 @@ private fun NavigationChrome(template: NavigationTemplate, modifier: Modifier) {
 private fun RoutingCard(info: RoutingInfo, modifier: Modifier = Modifier) {
     if (info.isLoading) {
         ChromeSurface(modifier) {
-            Text("Finding a route…", Modifier.padding(16.dp), style = ChromeType.title)
+            Text(stringResource(R.string.car_template_finding_route), Modifier.padding(16.dp), style = ChromeType.title)
         }
         return
     }
@@ -172,7 +174,7 @@ private fun RoutingCard(info: RoutingInfo, modifier: Modifier = Modifier) {
             info.nextStep?.let { next ->
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("then", style = ChromeType.label, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.car_template_then), style = ChromeType.label, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(8.dp))
                     CarGlyph(next.maneuver?.icon, Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
@@ -236,7 +238,7 @@ private fun LaneTile(lane: Lane) {
     ) {
         Icon(
             Icons.Filled.KeyboardArrowUp,
-            contentDescription = if (recommended) "Recommended lane" else "Lane",
+            contentDescription = stringResource(if (recommended) R.string.car_template_lane_recommended else R.string.car_template_lane),
             tint = if (recommended) MaterialTheme.colorScheme.onPrimaryContainer
             else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(24.dp).rotate(shown.turnDegrees()),
@@ -269,7 +271,7 @@ private fun LaneDirection?.turnDegrees(): Float = when (this?.shape) {
 @Composable
 private fun TravelEstimateBar(estimate: TravelEstimate, modifier: Modifier = Modifier) {
     val connection = templateConnection()
-    val time = remainingTime(estimate.remainingTimeSeconds)
+    val time = remainingTimeShown(estimate.remainingTimeSeconds)
     val distance = estimate.remainingDistance.display()
     val arrival = estimate.arrivalTimeAtDestination.clockTime()
     val trip = estimate.tripText.text()
@@ -312,11 +314,11 @@ private fun TravelEstimateBar(estimate: TravelEstimate, modifier: Modifier = Mod
                     modifier = Modifier.height(48.dp),
                     tone = GsTone.Danger,
                     contentPadding = PaddingValues(horizontal = 16.dp),
-                ) { Text("End route", style = MaterialTheme.typography.titleMedium) }
+                ) { Text(stringResource(R.string.car_template_end_route), style = MaterialTheme.typography.titleMedium) }
             } else {
                 GsIconButton(
                     Icons.Filled.Close,
-                    "Stop navigating",
+                    stringResource(R.string.car_template_stop_navigating),
                     { ending = true },
                     colors = GsColors(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.colorScheme.onSurface),
                     size = 48.dp,
@@ -458,7 +460,7 @@ private fun RoutePreviewChrome(template: RoutePreviewNavigationTemplate, modifie
                 )
                 Box(Modifier.weight(1f, fill = false)) {
                     if (template.isLoading) {
-                        Text("Finding routes…", Modifier.padding(14.dp), style = ChromeType.title)
+                        Text(stringResource(R.string.car_template_finding_routes), Modifier.padding(14.dp), style = ChromeType.title)
                     } else {
                         ItemListColumn(template.itemList)
                     }
@@ -482,7 +484,7 @@ private fun ListPane(
     ChromeSurface(modifier, shape = androidx.compose.foundation.shape.RoundedCornerShape(0.dp)) {
         Column {
             HeaderBar(title, startAction)
-            if (loading) Text("Loading…", Modifier.padding(14.dp), style = ChromeType.title)
+            if (loading) Text(stringResource(R.string.common_loading), Modifier.padding(14.dp), style = ChromeType.title)
             else ItemListColumn(itemList)
         }
     }

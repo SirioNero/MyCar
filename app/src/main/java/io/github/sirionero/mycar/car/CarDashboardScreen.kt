@@ -29,10 +29,13 @@ import io.github.sirionero.mycar.car.theme.GsIconBox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DateFormat
@@ -63,7 +66,7 @@ fun CarDashboardScreen() {
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
-        ScreenHeader("Today")
+        ScreenHeader(stringResource(R.string.car_dashboard_title))
         WeatherCard(context)
         AgendaCard(context)
         NotificationsSection()
@@ -87,9 +90,9 @@ private fun WeatherCard(context: Context) {
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             when (val s = state) {
-                WeatherState.Loading -> Text("Getting weather…", style = MaterialTheme.typography.bodyLarge)
+                WeatherState.Loading -> Text(stringResource(R.string.car_dashboard_weather_loading), style = MaterialTheme.typography.bodyLarge)
                 is WeatherState.Unavailable -> Text(
-                    s.reason, style = MaterialTheme.typography.bodyLarge,
+                    stringResource(s.reason), style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 is WeatherState.Ready -> {
@@ -97,7 +100,7 @@ private fun WeatherCard(context: Context) {
                     WeatherIcon(w.code, w.isDay, size = 44.dp)
                     Column {
                         Text(
-                            "${w.temp}${w.tempUnit}  ·  ${Weather.describe(w.code)}",
+                            "${w.temp}${w.tempUnit}  ·  ${weatherWords(w.code)}",
                             style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold,
                         )
                         Text(w.place, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -115,19 +118,19 @@ private fun AgendaCard(context: Context) {
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Coming up", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.car_dashboard_coming_up), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         val list = events
         // Without the calendar the list is empty too: "nothing in the next week" said there were no plans.
         val allowed = context.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
         when {
             !allowed -> Text(
-                "Allow the calendar for myCar on the phone to see what's coming up.",
+                stringResource(R.string.car_dashboard_allow_calendar),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            list == null -> Text("Loading calendar…", style = MaterialTheme.typography.bodyMedium)
+            list == null -> Text(stringResource(R.string.car_dashboard_calendar_loading), style = MaterialTheme.typography.bodyMedium)
             list.isEmpty() -> Text(
-                "Nothing in the next week.",
+                stringResource(R.string.car_dashboard_nothing_coming),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -166,7 +169,7 @@ internal fun eventWhen(event: AgendaEvent): String {
     val today = Calendar.getInstance()
     val sameDay = start.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
         start.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)
-    val time = if (event.allDay) "All day" else DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(event.startMillis))
+    val time = if (event.allDay) Words.get(R.string.car_dashboard_all_day) else DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(event.startMillis))
     if (sameDay || (event.allDay && start.before(today))) return time
     return SimpleDateFormat("EEE", Locale.getDefault()).apply { timeZone = zone }.format(Date(event.startMillis)) + " " + time
 }
@@ -213,7 +216,7 @@ internal fun fetchAgenda(context: Context): List<AgendaEvent> {
                     val allDay = cursor.getInt(3) == 1
                     // All-day events are stored in UTC midnight, so "ended" means the day is over, not the instant.
                     if (!allDay && cursor.getLong(2) < now) continue
-                    events.add(AgendaEvent(cursor.getString(0) ?: "(untitled)", cursor.getLong(1), allDay))
+                    events.add(AgendaEvent(cursor.getString(0) ?: Words.get(R.string.car_dashboard_untitled), cursor.getLong(1), allDay))
                 }
             }
     }.onFailure { MyCarLog.w("calendar query failed: ${it.message}") }

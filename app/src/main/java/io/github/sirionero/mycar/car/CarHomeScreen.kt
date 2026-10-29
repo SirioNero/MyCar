@@ -44,10 +44,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.NowPlaying
@@ -111,7 +113,7 @@ fun CarHome() {
                 // or on another page, uses the same connection, and two stages on it would pull its
                 // surface back and forth.
                 sideTemplate != null ->
-                    if (inView) SideAppPane(sideTemplate, frame, side) else AppPlaceholder(sideApp?.label.orEmpty(), sideApp?.icon, side)
+                    if (inView) SideAppPane(sideTemplate, frame, side) else AppPlaceholder(sideApp?.shownLabel.orEmpty(), sideApp?.icon, side)
                 // Plancia inside myCar: its one page goes wherever it's on screen, so here too only in view.
                 sideApp?.builtIn == BuiltInApps.Plancia ->
                     if (inView) PlanciaPane(side) else AppPlaceholder("Plancia", null, side, builtInId = BuiltInApps.Plancia.id)
@@ -145,18 +147,24 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
         val scope = androidx.compose.runtime.rememberCoroutineScope()
         when (status.phase) {
             CarAppConnection.Phase.BINDING, CarAppConnection.Phase.HANDSHAKE ->
-                Text("Starting ${status.app ?: "the map"}…", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    status.app?.let { stringResource(R.string.car_map_starting, it) } ?: stringResource(R.string.car_map_starting_unknown),
+                    style = MaterialTheme.typography.titleMedium,
+                )
             CarAppConnection.Phase.REJECTED, CarAppConnection.Phase.FAILED -> {
-                Text("${status.app ?: "The map app"} would not start.", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    status.app?.let { stringResource(R.string.car_home_app_failed, it) } ?: stringResource(R.string.car_map_failed_unknown),
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 status.detail?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                GsButton(onClick = navigator::apps, tone = GsTone.Tonal) { Text("Choose another app") }
+                GsButton(onClick = navigator::apps, tone = GsTone.Tonal) { Text(stringResource(R.string.car_map_choose_another)) }
             }
             else -> if (!hasNavApps) {
                 // Nothing to auto-select and nothing to pick from Car apps either - this is the
                 // only case worth a distinct screen, since every other IDLE case resolves itself.
-                Text("No mapping apps found.", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.car_map_none_installed), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Install a navigation app that supports Android Auto and it will start here on its own.",
+                    stringResource(R.string.car_map_none_installed_detail),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -171,9 +179,9 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
                     value = true
                 }
                 if (stopped) {
-                    Text("Map stopped.", style = MaterialTheme.typography.titleMedium)
-                    GsButton(onClick = { scope.launch { CarServices.reconnectNav(frame) } }, tone = GsTone.Tonal) { Text("Reopen") }
-                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                    Text(stringResource(R.string.car_map_stopped), style = MaterialTheme.typography.titleMedium)
+                    GsButton(onClick = { scope.launch { CarServices.reconnectNav(frame) } }, tone = GsTone.Tonal) { Text(stringResource(R.string.car_map_reopen)) }
+                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text(stringResource(R.string.car_map_car_apps)) }
                 }
             } else {
                 // Autostart is still picking one - a navigation app is installed, so this resolves
@@ -184,8 +192,8 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
                     value = true
                 }
                 if (nothing) {
-                    Text("Choose a map app.", style = MaterialTheme.typography.titleMedium)
-                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text("Car apps") }
+                    Text(stringResource(R.string.car_map_choose), style = MaterialTheme.typography.titleMedium)
+                    GsButton(onClick = { navigator.apps() }, tone = GsTone.Tonal) { Text(stringResource(R.string.car_map_car_apps)) }
                 }
             }
         }
@@ -219,7 +227,7 @@ private fun SideLyrics(now: NowPlaying, modifier: Modifier) {
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                 }
-                GsIconButton(Icons.Filled.Close, "Hide lyrics", navigator::closeSidePanel, size = 48.dp, iconSize = 24.dp)
+                GsIconButton(Icons.Filled.Close, stringResource(R.string.car_home_hide_lyrics), navigator::closeSidePanel, size = 48.dp, iconSize = 24.dp)
             }
             Spacer(Modifier.height(12.dp))
             LyricsPanel(now, Modifier.weight(1f).fillMaxWidth(), lineStyle = MaterialTheme.typography.headlineSmall)

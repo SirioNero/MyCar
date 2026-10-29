@@ -21,8 +21,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.design.Wallpaper
 import io.github.sirionero.mycar.car.design.WallpaperBackground
@@ -38,14 +40,14 @@ import io.github.sirionero.mycar.car.design.Wallpapers
 internal fun WallpaperPicker() {
     val current by WallpaperSetting.current.collectAsState()
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Wallpaper", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-        SwatchStrip("Still") {
-            Swatch(Wallpapers.NONE, "None", current) {
+        Text(stringResource(R.string.car_wallpaper_title), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        SwatchStrip(stringResource(R.string.car_wallpaper_still)) {
+            Swatch(Wallpapers.NONE, stringResource(R.string.car_wallpaper_none), current) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
             }
             Wallpapers.all.filter { it.motion == null }.forEach { WallpaperSwatch(it, current) }
         }
-        SwatchStrip("Moving") {
+        SwatchStrip(stringResource(R.string.car_wallpaper_moving)) {
             Wallpapers.all.filter { it.motion != null }.forEach { WallpaperSwatch(it, current) }
         }
     }
@@ -62,7 +64,7 @@ private fun SwatchStrip(label: String, swatches: @Composable () -> Unit) {
 
 @Composable
 private fun WallpaperSwatch(wallpaper: Wallpaper, current: String) {
-    Swatch(wallpaper.id, wallpaper.name, current) {
+    Swatch(wallpaper.id, stringResource(wallpaper.name), current) {
         WallpaperBackground(wallpaper, Modifier.fillMaxSize(), wholeScreen = false)
     }
 }
