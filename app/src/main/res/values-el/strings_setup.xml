@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_title">Ρύθμιση του myCar</string>
+    <string name="setup_subtitle_first_run">Λίγα πατήματα πριν από την πρώτη σας διαδρομή.</string>
+    <string name="setup_subtitle_return">Τι μένει να γίνει. Ό,τι έχετε ήδη ρυθμίσει δεν αλλάζει.</string>
+    <string name="setup_unofficial">Το myCar είναι ανεπίσημο: ρυθμίστε το ενώ είστε σταθμευμένοι και μετά κρατήστε τα μάτια σας στον δρόμο.</string>
+    <string name="setup_section_connect">Για τη σύνδεση</string>
+    <string name="setup_section_drive">Για τη διαδρομή σας</string>
+    <string name="setup_status_done">Ολοκληρώθηκε</string>
+    <string name="setup_status_blocked">Αποκλεισμένο</string>
+
+    <string name="setup_cert_title">Πιστοποιητικό αυτοκινήτου</string>
+    <string name="setup_cert_body">Τα αυτοκίνητα επικοινωνούν μόνο με τηλέφωνα που έχουν ένα πιστοποιητικό που εμπιστεύονται. Το myCar δεν περιέχει κανένα: κατεβάζει δημόσια πιστοποιητικά από έργα ανοιχτού κώδικα στο GitHub (περίπου 10 KB το καθένα). Αν το αυτοκίνητό σας απορρίψει ένα, το myCar δοκιμάζει το επόμενο.</string>
+    <string name="setup_cert_get">Λήψη πιστοποιητικών</string>
+    <string name="setup_cert_getting">Λήψη πιστοποιητικών…</string>
+    <string name="setup_cert_own_file">Χρήση δικού μου αρχείου</string>
+    <string name="setup_cert_wrong_file">Ένα αρχείο που λήφθηκε δεν ήταν το αναμενόμενο πιστοποιητικό, οπότε το myCar το άφησε έξω. Δοκιμάστε ξανά αργότερα.</string>
+    <string name="setup_cert_no_download">Δεν ήταν δυνατή η λήψη των πιστοποιητικών. Ελέγξτε τη σύνδεση στο διαδίκτυο και δοκιμάστε ξανά.</string>
+    <string name="setup_cert_some_ready">Λήφθηκαν %1$d από %2$d. Το %3$s είναι έτοιμο· τα υπόλοιπα μπορείτε να τα κατεβάσετε αργότερα από τις Ρυθμίσεις.</string>
+    <string name="setup_cert_ready_own">Έτοιμο: το δικό σας πιστοποιητικό.</string>
+    <plurals name="setup_cert_ready_spares">
+        <item quantity="one">Έτοιμο: %1$s. Εφεδρικό: %2$s.</item>
+        <item quantity="other">Έτοιμο: %1$s. Εφεδρικά: %2$s.</item>
+    </plurals>
+    <string name="setup_cert_ready_one">Έτοιμο: %1$s.</string>
+    <string name="setup_cert_ready">Έτοιμο.</string>
+    <string name="setup_cert_password_title">Κωδικός πιστοποιητικού</string>
+    <string name="setup_cert_password_label">Κωδικός πρόσβασης</string>
+    <string name="setup_cert_password_hint">Αφήστε το κενό αν το αρχείο δεν έχει κωδικό.</string>
+    <string name="setup_cert_password_use">Χρήση</string>
+    <string name="setup_cert_password_wrong">Λάθος κωδικός ή δεν είναι αρχείο .p12 με ιδιωτικό κλειδί.</string>
+
+    <string name="setup_mycar_on_title">Ενεργοποιήστε το myCar για το αυτοκίνητο</string>
+    <string name="setup_mycar_on_body">Είναι απενεργοποιημένο στις Ρυθμίσεις, οπότε το αυτοκίνητο δεν μπορεί να το βρει.</string>
+    <string name="setup_mycar_on_button">Ενεργοποίηση</string>
+
+    <string name="setup_aa_title">Απενεργοποιήστε το Android Auto</string>
+    <string name="setup_aa_off">Το Android Auto είναι απενεργοποιημένο.</string>
+    <string name="setup_aa_kept">Θα επιλέγετε το myCar όταν συνδέετε το καλώδιο.</string>
+    <string name="setup_aa_body">Το Android Auto είναι ενεργό και μπορεί να πάρει τη σύνδεση του αυτοκινήτου πριν από το myCar. Στην οθόνη που ανοίγει, πατήστε «Απενεργοποίηση», μετά «OK» και επιστρέψτε εδώ.</string>
+    <string name="setup_aa_open">Άνοιγμα του Android Auto</string>
+    <string name="setup_aa_no_disable">Δεν υπάρχει κουμπί «Απενεργοποίηση»;</string>
+    <string name="setup_aa_keep_body">Τότε κρατήστε το. Όταν συνδέετε το καλώδιο, το Android ρωτά ποια εφαρμογή να ανοίξει: επιλέξτε το myCar και πατήστε «Πάντα». Αν το Android Auto ανοίγει μόνο του, είχε οριστεί να ανοίγει πάντα: στις πληροφορίες εφαρμογής του, πατήστε «Άνοιγμα από προεπιλογή» και μετά «Διαγραφή προεπιλογών».</string>
+    <string name="setup_aa_keep">Διατήρηση του Android Auto</string>
+
+    <string name="setup_drive_title">Κλήσεις, χάρτης και μουσική</string>
+    <string name="setup_drive_allowed">Επιτρέπονται.</string>
+    <string name="setup_drive_blocked">Το Android δεν θα ρωτήσει ξανά για: %1$s. Ενεργοποιήστε τα στις πληροφορίες εφαρμογής του myCar, στις Άδειες.</string>
+    <string name="setup_drive_skipped">Παραλείφθηκε. Πατήστε «Να επιτρέπεται» όταν είστε έτοιμοι.</string>
+    <string name="setup_drive_still_off">Ακόμη ανενεργά: %1$s.</string>
+    <string name="setup_drive_body">Το αυτοκίνητό σας δείχνει ποιος καλεί και τις πρόσφατες κλήσεις σας και μπορεί να καλεί τις επαφές σας, ο χάρτης ξέρει πού βρίσκεστε και η μουσική μπορεί να φτάσει στο αυτοκίνητο χωρίς Bluetooth. Το Android ρωτά μερικές φορές: πατάτε «Να επιτρέπεται» κάθε φορά. Το myCar μόνο διαβάζει, και ακούει μόνο όταν πατάτε το μικρόφωνο.</string>
+    <string name="setup_group_phone">Τηλέφωνο</string>
+    <string name="setup_group_call_logs">Αρχεία καταγραφής κλήσεων</string>
+    <string name="setup_group_contacts">Επαφές</string>
+    <string name="setup_group_location">Τοποθεσία</string>
+    <string name="setup_group_microphone">Μικρόφωνο</string>
+    <string name="setup_group_nearby_devices">Συσκευές σε κοντινή απόσταση</string>
+
+    <string name="setup_more_count">Περισσότερα (%1$d)</string>
+    <string name="setup_more_show_more">Εμφάνιση περισσότερων</string>
+    <string name="setup_more_show_less">Εμφάνιση λιγότερων</string>
+    <string name="setup_more_later">Όλα αυτά λειτουργούν και αργότερα.</string>
+    <string name="setup_messages_title">Μηνύματα</string>
+    <string name="setup_messages_body">Το αυτοκίνητο δείχνει τα μηνύματά σας, τα διαβάζει δυνατά και σας αφήνει να απαντάτε. Ενεργοποιήστε το myCar στη σελίδα που ανοίγει. Αν το Android πει ότι είναι περιορισμένη ρύθμιση: ανοίξτε τις πληροφορίες εφαρμογής του myCar, πατήστε ⋮, μετά «Να επιτρέπονται οι περιορισμένες ρυθμίσεις» και δοκιμάστε ξανά.</string>
+    <string name="setup_messages_open">Άνοιγμα πρόσβασης σε ειδοποιήσεις</string>
+    <string name="setup_calendar_title">Ημερολόγιο</string>
+    <string name="setup_calendar_body">Η οθόνη του αυτοκινήτου δείχνει το επόμενο συμβάν σας. Το myCar μόνο διαβάζει το ημερολόγιό σας.</string>
+    <string name="setup_notifications_title">Ειδοποιήσεις</string>
+    <string name="setup_notifications_body">Επιτρέπει στο myCar να δείχνει ότι είναι συνδεδεμένο στο αυτοκίνητο, με το «Διακοπή» όσο στέλνει τον ήχο του τηλεφώνου, και να σας λέει πότε βγαίνει μια ενημέρωση.</string>
+    <string name="setup_screening_title">Φιλτράρισμα άγνωστων κλήσεων</string>
+    <string name="setup_screening_body">Με το αυτοκίνητο συνδεδεμένο, μια κλήση από αριθμό εκτός των επαφών σας περιμένει λίγα δευτερόλεπτα πριν χτυπήσει, ώστε να μπορείτε να την απορρίψετε από το αυτοκίνητο.</string>
+    <string name="setup_screening_button">Ρύθμιση</string>
+    <string name="setup_audio_title">Ήχος στο αυτοκίνητο</string>
+    <string name="setup_audio_body">Πώς φτάνει η μουσική στο αυτοκίνητο. Οι κλήσεις περνούν πάντα από το Bluetooth.</string>
+    <string name="setup_usage_title">Βοηθήστε άλλους οδηγούς</string>
+
+    <plurals name="setup_bar_steps_left">
+        <item quantity="one">Απομένει %1$d βήμα πριν από την πρώτη σας διαδρομή.</item>
+        <item quantity="other">Απομένουν %1$d βήματα πριν από την πρώτη σας διαδρομή.</item>
+    </plurals>
+    <string name="setup_bar_turn_on">Ενεργοποίηση του myCar</string>
+    <string name="setup_bar_ready_to_connect">Είστε έτοιμοι για σύνδεση.</string>
+    <string name="setup_bar_allow_drive">Να επιτρέπονται κλήσεις, χάρτης και μουσική</string>
+    <string name="setup_bar_ready">Είστε έτοιμοι. Συνδέστε το καλώδιο στο αυτοκίνητο· αν το Android ρωτήσει, επιλέξτε το myCar και πατήστε «Πάντα».</string>
+    <string name="setup_bar_finish_later">Ολοκλήρωση αργότερα</string>
+
+    <string name="setup_step_certificate">πιστοποιητικό αυτοκινήτου</string>
+    <string name="setup_step_mycar_on">ενεργοποίηση του myCar</string>
+    <plurals name="setup_card_steps_left">
+        <item quantity="one">Απομένει %1$d βήμα πριν από την πρώτη σας διαδρομή: %2$s.</item>
+        <item quantity="other">Απομένουν %1$d βήματα πριν από την πρώτη σας διαδρομή: %2$s.</item>
+    </plurals>
+    <plurals name="setup_card_extras_left">
+        <item quantity="one">Έτοιμο για σύνδεση. Απομένει %1$d προαιρετικό.</item>
+        <item quantity="other">Έτοιμο για σύνδεση. Απομένουν %1$d προαιρετικά.</item>
+    </plurals>
+    <string name="setup_card_all_done">Όλα έχουν ρυθμιστεί.</string>
+    <string name="setup_card_title">Αρχική ρύθμιση</string>
+    <string name="setup_card_footer">Τίποτα δεν διαγράφεται ούτε μηδενίζεται. Θα δείτε μόνο ό,τι απομένει, με σημειωμένα όσα έχουν γίνει.</string>
+    <string name="setup_card_back">Επιστροφή στην αρχική ρύθμιση</string>
+    <string name="setup_left_title">Ολοκληρώστε τη ρύθμιση</string>
+    <string name="setup_left_body">Απομένουν πριν από την πρώτη σας διαδρομή: %1$s.</string>
+    <string name="setup_left_continue">Συνέχεια της ρύθμισης</string>
+
+    <string name="setup_guide_optional">ΠΡΟΑΙΡΕΤΙΚΟ</string>
+    <string name="setup_guide_already_allowed">Επιτρέπεται ήδη.</string>
+    <string name="setup_guide_skip_for_now">Παράλειψη προς το παρόν</string>
+    <string name="setup_guide_usage_title">Βοηθήστε άλλους οδηγούς.</string>
+    <string name="setup_guide_safety_title">Οδηγείτε με ασφάλεια.</string>
+    <string name="setup_guide_safety_body">Το myCar είναι ανεπίσημο. Δεν το έχει φτιάξει ούτε ελέγξει καμία αυτοκινητοβιομηχανία και μπορεί να αποτύχει χωρίς προειδοποίηση. Ρυθμίστε το πριν ξεκινήσετε και μετά κρατήστε τα μάτια σας στον δρόμο.</string>
+    <string name="setup_guide_mic_title">Μικρόφωνο.</string>
+    <string name="setup_guide_mic_body">Το myCar το χρησιμοποιεί για να στέλνει τη μουσική σας στο αυτοκίνητο και για να σας ακούει όταν ζητάτε κάτι ή απαντάτε σε ένα μήνυμα. Ό,τι λέτε μένει στο τηλέφωνο.</string>
+    <string name="setup_guide_location_title">Τοποθεσία.</string>
+    <string name="setup_guide_location_body">Τη χρειάζονται ο χάρτης του αυτοκινήτου και οι αναζητήσεις κοντινών μερών. Χωρίς αυτήν, ο πίνακας ελέγχου δεν δείχνει χάρτη.</string>
+    <string name="setup_guide_calendar_title">Ημερολόγιο.</string>
+    <string name="setup_guide_calls_title">Κλήσεις και επαφές.</string>
+    <string name="setup_guide_calls_body">Το αυτοκίνητο δείχνει με το όνομα ποιος καλεί, και η εφαρμογή Τηλέφωνο μπορεί να καλέσει έναν αριθμό ή μία από τις επαφές σας. Το myCar μόνο τις διαβάζει.</string>
+    <string name="setup_guide_nearby_title">Συσκευές σε κοντινή απόσταση.</string>
+    <string name="setup_guide_nearby_body">Την πρώτη φορά που θα συνδέσετε το καλώδιο, το myCar προτείνει σύζευξη του τηλεφώνου με το αυτοκίνητο, ώστε οι κλήσεις να ακούγονται από τα ηχεία του.</string>
+    <string name="setup_guide_nearby_body_home">Την πρώτη φορά που θα συνδέσετε το καλώδιο, το myCar προτείνει σύζευξη του τηλεφώνου με το αυτοκίνητο, ώστε οι κλήσεις να ακούγονται από τα ηχεία του. Η ίδια άδεια επιτρέπει στο Plancia και στο Xonos να φτάνουν στο Home Assistant και στο Music Assistant στο οικιακό σας δίκτυο.</string>
+    <string name="setup_guide_notifications_title">Ειδοποιήσεις.</string>
+    <string name="setup_guide_notifications_body">Όσο το myCar είναι συνδεδεμένο, δείχνει μια ειδοποίηση με ένα κουμπί διακοπής. Χωρίς αυτήν την άδεια, το Android την κρύβει.</string>
+    <string name="setup_guide_messages_title">Μηνύματα.</string>
+    <string name="setup_guide_messages_body">Το αυτοκίνητο δείχνει τα μηνύματά σας, τα διαβάζει δυνατά και σας αφήνει να απαντάτε. Ενεργοποιήστε το myCar στη λίστα που ανοίγει.</string>
+    <string name="setup_guide_aa_title">Απενεργοποιήστε το Android Auto.</string>
+    <string name="setup_guide_aa_body">Το Android Auto είναι ακόμη εγκατεστημένο και ανταγωνίζεται το myCar για τη σύνδεση USB του αυτοκινήτου. Απενεργοποιήστε το ή απεγκαταστήστε το στην οθόνη που ανοίγει.</string>
+    <string name="setup_guide_aa_open">Άνοιγμα των πληροφοριών εφαρμογής του Android Auto</string>
+    <string name="setup_guide_choose_title">Επιλέξτε το myCar.</string>
+    <string name="setup_guide_choose_body">Αν το τηλέφωνό σας ρωτήσει ποια εφαρμογή να ανοίξει όταν το συνδέετε στο αυτοκίνητο, επιλέξτε το myCar και πατήστε «Πάντα».</string>
+    <string name="setup_guide_audio_title">Ήχος στο αυτοκίνητο.</string>
+    <string name="setup_guide_audio_body">Επιλέξτε πώς φτάνει η μουσική στο αυτοκίνητο. Οι κλήσεις περνούν πάντα από το Bluetooth.</string>
+    <string name="setup_guide_voice_title">Φωνή.</string>
+    <string name="setup_guide_voice_body">Ζητήστε οδηγίες, μουσική ή μια κλήση με τη φωνή. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και τίποτα από όσα λέτε δεν φεύγει από αυτό. Χρειάζεται %1$d MB, που λαμβάνονται μία φορά. Χρησιμοποιήστε Wi-Fi αν μπορείτε.</string>
+    <string name="setup_guide_voice_download">Λήψη φωνής</string>
+    <string name="setup_guide_voice_progress">Λήψη, %1$d%%. Μπορείτε να συνεχίσετε· η λήψη συνεχίζεται.</string>
+    <string name="setup_guide_voice_ready">Η φωνή είναι έτοιμη.</string>
+    <string name="setup_guide_voice_failed">Η λήψη δεν ολοκληρώθηκε. Πατήστε «Λήψη φωνής» για να δοκιμάσετε ξανά.</string>
+    <string name="setup_guide_project_media_title">Χωρίς ερώτηση για τον ήχο.</string>
+    <string name="setup_guide_project_media_body">Εκτελέστε αυτό από έναν υπολογιστή με ενεργό τον εντοπισμό σφαλμάτων USB, και το Android εμπιστεύεται για πάντα στο myCar τον ήχο σας. Χωρίς αυτό, πατάτε «Έναρξη» μία φορά σε κάθε διαδρομή.</string>
+    <string name="setup_guide_secure_settings_title">Ευανάγνωστες ειδοποιήσεις.</string>
+    <string name="setup_guide_secure_settings_body">Όσο ο ήχος πηγαίνει στο αυτοκίνητο, το Android κρύβει το περιεχόμενο των ειδοποιήσεων, σαν να κάνατε κοινή χρήση της οθόνης σας. Αυτό επιτρέπει στο myCar να τις δείχνει κατά τη διαδρομή και να τις κρύβει ξανά μετά.</string>
+    <string name="setup_guide_screening_title">Φιλτράρισμα άγνωστων κλήσεων.</string>
+    <string name="setup_guide_screening_body">Κάντε το myCar εφαρμογή αναγνώρισης κλήσεων, και το αυτοκίνητο μπορεί να απορρίψει μια κλήση εκτός των επαφών σας πριν χτυπήσει. Χωρίς αυτό, το αυτοκίνητο δείχνει πάλι κάθε κλήση, και την απαντάτε ή την απορρίπτετε από εκεί.</string>
+
+    <string name="setup_audio_automatic">Αυτόματα</string>
+    <string name="setup_audio_recommended">Προτείνεται</string>
+    <string name="setup_audio_automatic_body">Μέσω Bluetooth όταν το αυτοκίνητό σας παίρνει έτσι τη μουσική του τηλεφώνου, αλλιώς μέσω του myCar.</string>
+    <string name="setup_audio_bluetooth_body">Χωρίς ερώτηση σε κάθε διαδρομή, και η φωνή της εφαρμογής χαρτών σας φτάνει στο αυτοκίνητο. Μερικά αυτοκίνητα δέχονται από εκεί μόνο κλήσεις.</string>
+    <string name="setup_audio_through_mycar">Μέσω του myCar</string>
+    <string name="setup_audio_through_mycar_body">Με το καλώδιο ή το Wi-Fi, όπως το Android Auto. Το Android ζητά κοινή χρήση του ήχου μία φορά σε κάθε διαδρομή.</string>
+
+    <string name="intro_start">Έναρξη</string>
+    <string name="intro_welcome_to">Καλώς ήρθατε στην έκδοση</string>
+    <string name="intro_welcome_tag">alpha · η μεγάλη</string>
+    <string name="intro_wireless_title">Ασύρματα.</string>
+    <string name="intro_wireless_body">Αν το αυτοκίνητό σας υποστηρίζει ασύρματο Android Auto, κάντε σύζευξη μία φορά και αφήστε το καλώδιο στο σπίτι.</string>
+    <string name="intro_knobs_title">Με περιστροφικό κουμπί.</string>
+    <string name="intro_knobs_body">Γυρίστε, πατήστε, έτοιμο. Χωρίς οθόνη αφής; Το myCar δεν τη χρειάζεται πια.</string>
+    <string name="intro_graphene_title">Ξανά με προστασία.</string>
+    <string name="intro_graphene_body">Στο GrapheneOS, το myCar δεν χρειάζεται πια το «exploit protection compatibility mode». Αν το είχατε ενεργοποιήσει για το myCar, απενεργοποιήστε το για να έχετε ξανά πλήρη προστασία.</string>
+    <string name="intro_graphene_open_settings">Άνοιγμα ρυθμίσεων εφαρμογής</string>
+    <string name="intro_apps_title">Καλή παρέα.</string>
+    <string name="intro_apps_body">Δωρεάν εφαρμογές ανοιχτού κώδικα που λειτουργούν καλά στο αυτοκίνητο. Η πρώτη σε κάθε σειρά λειτουργεί καλύτερα. Πατήστε μία για να τη δείτε στο GitHub.</string>
+    <string name="intro_apps_maps">Χάρτες</string>
+    <string name="intro_apps_music">Μουσική</string>
+    <string name="intro_apps_podcasts">Podcast</string>
+    <string name="intro_theme_title">Τα κουμπιά σας.</string>
+    <string name="intro_theme_body">Επιλέξτε πώς φαίνονται τα κουμπιά του αυτοκινήτου. Αλλάξτε το όποτε θέλετε στις ρυθμίσεις του αυτοκινήτου.</string>
+    <string name="intro_theme_search">Αναζήτηση</string>
+    <string name="intro_theme_play">Αναπαραγωγή</string>
+    <string name="intro_theme_navigate">Πλοήγηση</string>
+    <string name="intro_voice_title">Απλώς πείτε το.</string>
+    <string name="intro_voice_body">Πατήστε το μικρόφωνο ή το κουμπί ομιλίας στο τιμόνι σας και μιλήστε. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και τίποτα από όσα λέτε δεν φεύγει από αυτό. Πείτε «%1$s» στο αυτοκίνητο για την πλήρη λίστα.</string>
+    <string name="intro_voice_body_language">Πατήστε το μικρόφωνο ή το κουμπί ομιλίας στο τιμόνι σας και μιλήστε. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και τίποτα από όσα λέτε δεν φεύγει από αυτό. Ακούει και απαντά στα %1$s, όπως το τηλέφωνό σας. Πείτε «%2$s» στο αυτοκίνητο για την πλήρη λίστα.</string>
+    <string name="intro_voice_downloading">Λήψη, %1$d%%</string>
+    <string name="intro_voice_failed">Η λήψη απέτυχε. Δοκιμάστε ξανά</string>
+    <string name="intro_voice_download">Λήψη φωνής, %1$d MB</string>
+    <string name="intro_voice_sample">«%1$s»</string>
+
+    <string name="activity_toast_no_call_screening">Αυτό το τηλέφωνο δεν επιτρέπει στις εφαρμογές να φιλτράρουν κλήσεις.</string>
+    <string name="activity_toast_already_screening">Το myCar φιλτράρει ήδη τις άγνωστες κλήσεις.</string>
+    <string name="activity_toast_music_pauses_sharing">Η μουσική του τηλεφώνου κάνει παύση όσο γίνεται κατοπτρισμός της οθόνης του</string>
+    <string name="activity_toast_open_for_music">Ανοίξτε το myCar στο τηλέφωνο για να στείλετε τη μουσική του στο αυτοκίνητο</string>
+    <string name="activity_toast_open_for_sharing">Ανοίξτε το myCar στο τηλέφωνο για τον κατοπτρισμό της οθόνης του</string>
+    <string name="activity_status_no_car_title">Το αυτοκίνητο δεν είναι προσβάσιμο</string>
+    <string name="activity_status_no_car_detail">Το Android είδε το καλώδιο, αλλά όχι το αυτοκίνητο σε αυτό. Αποσυνδέστε το και συνδέστε το ξανά.</string>
+    <string name="activity_status_unplugged_title">Το αυτοκίνητο δεν είναι συνδεδεμένο</string>
+    <string name="activity_status_unplugged_detail">Το καλώδιο αποσυνδέθηκε πριν το myCar ανοίξει τη σύνδεση. Συνδέστε το ξανά.</string>
+    <string name="activity_status_taken_title">Το αυτοκίνητο το έχει άλλη εφαρμογή</string>
+    <string name="activity_status_taken_detail">Μια άλλη εφαρμογή πήρε τη σύνδεση του αυτοκινήτου πριν από το myCar. Αν το Android ρωτήσει ποια εφαρμογή να ανοίξει για το αυτοκίνητο, επιλέξτε το myCar.</string>
+</resources>

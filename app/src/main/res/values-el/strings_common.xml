@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_ok">OK</string>
+    <string name="common_cancel">Ακύρωση</string>
+    <string name="common_close">Κλείσιμο</string>
+    <string name="common_done">Τέλος</string>
+    <string name="common_back">Πίσω</string>
+    <string name="common_save">Αποθήκευση</string>
+    <string name="common_delete">Διαγραφή</string>
+    <string name="common_remove">Αφαίρεση</string>
+    <string name="common_add">Προσθήκη</string>
+    <string name="common_edit">Επεξεργασία</string>
+    <string name="common_retry">Δοκιμάστε ξανά</string>
+    <string name="common_allow">Να επιτρέπεται</string>
+    <string name="common_skip">Παράλειψη</string>
+    <string name="common_next">Επόμενο</string>
+    <string name="common_copy">Αντιγραφή</string>
+    <string name="common_open">Άνοιγμα</string>
+    <string name="common_open_settings">Άνοιγμα ρυθμίσεων</string>
+    <string name="common_not_now">Όχι τώρα</string>
+    <string name="common_more">Περισσότερα</string>
+    <string name="common_yes">Ναι</string>
+    <string name="common_no">Όχι</string>
+    <string name="common_on">Ενεργό</string>
+    <string name="common_off">Ανενεργό</string>
+    <string name="common_loading">Φόρτωση…</string>
+    <string name="common_settings">Ρυθμίσεις</string>
+</resources>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_whats_new_in">Τι νέο υπάρχει στην %1$s</string>
+    <string name="home_how_to_connect_subtitle">Ποια αυτοκίνητα λειτουργούν και τι μένει να ρυθμιστεί</string>
+    <string name="home_disconnect">Αποσύνδεση</string>
+    <string name="home_disconnect_title">Αποσύνδεση από το αυτοκίνητο;</string>
+    <string name="home_disconnect_text">Το myCar φεύγει τώρα από την οθόνη του αυτοκινήτου. Με το καλώδιο, αποσυνδέστε το και συνδέστε το ξανά για να επιστρέψει.</string>
+    <string name="home_bluetooth_missing_title">Το Bluetooth δεν είναι συνδεδεμένο</string>
+    <string name="home_bluetooth_missing_calls">Οι κλήσεις ακούγονται μέσω Bluetooth, αλλά το τηλέφωνό σας δεν είναι συνδεδεμένο με το αυτοκίνητο. Συνδέστε το εδώ ή από το μενού Bluetooth του αυτοκινήτου.</string>
+    <string name="home_bluetooth_missing_calls_music">Οι κλήσεις και η μουσική ακούγονται μέσω Bluetooth, αλλά το τηλέφωνό σας δεν είναι συνδεδεμένο με το αυτοκίνητο. Συνδέστε το εδώ ή από το μενού Bluetooth του αυτοκινήτου.</string>
+    <string name="home_bluetooth_settings">Ρυθμίσεις Bluetooth</string>
+    <string name="home_voice_downloading">Λήψη φωνής, %1$d%%</string>
+
+    <string name="wireless_button_connect">Ασύρματη σύνδεση</string>
+    <string name="wireless_button_denied">Για αυτό το myCar χρειάζεται πρόσβαση στο Bluetooth και στις κοντινές συσκευές Wi-Fi.</string>
+    <string name="wireless_button_enable_permission">Ενεργοποίηση της άδειας «Συσκευές σε κοντινή απόσταση»</string>
+    <string name="wireless_button_switched_off">Το myCar είναι απενεργοποιημένο για το αυτοκίνητο (Ρυθμίσεις, «Χρήση του myCar στο αυτοκίνητο»).</string>
+    <string name="wireless_button_turn_on">Ενεργοποίηση</string>
+    <string name="wireless_button_which_car">Ποιο αυτοκίνητο;</string>
+    <string name="wireless_button_bluetooth_off">Το Bluetooth είναι ανενεργό. Ενεργοποιήστε το και πατήστε ξανά «Ασύρματη σύνδεση».</string>
+    <string name="wireless_button_not_paired">Το τηλέφωνό σας δεν έχει ακόμη σύζευξη με καμία συσκευή. Κάντε πρώτα σύζευξη με το αυτοκίνητο.</string>
+    <string name="wireless_button_not_listed">Το αυτοκίνητο δεν είναι στη λίστα; Κάντε πρώτα σύζευξη με το τηλέφωνό σας.</string>
+
+    <string name="help_title">Πώς να συνδεθείτε</string>
+    <string name="help_which_cars">Ποια αυτοκίνητα λειτουργούν</string>
+    <string name="help_which_cars_text">Τα περισσότερα αυτοκίνητα λειτουργούν. Από το 2020 περίπου, μερικά αυτοκίνητα πρόσθεσαν νεότερα πρότυπα ασφαλείας που απορρίπτουν το πιστοποιητικό του myCar, και σε αυτά το myCar δεν μπορεί να λειτουργήσει.</string>
+    <string name="help_see_full_list">Δείτε την πλήρη λίστα</string>
+    <string name="help_in_the_car">Στο αυτοκίνητο</string>
+    <string name="help_sound_through_mycar">Ήχος μέσω του myCar</string>
+    <string name="help_step_connect">Συνδέστε το καλώδιο ή συνδεθείτε ασύρματα.</string>
+    <string name="help_step_connect_detail">Το myCar ανοίγει μόνο του όταν συνδεθεί το αυτοκίνητο. Για ασύρματη σύνδεση, κάντε πρώτα σύζευξη του τηλεφώνου με το αυτοκίνητο και μετά πατήστε «Ασύρματη σύνδεση» στην Αρχική.</string>
+    <string name="help_step_pair">Κάντε σύζευξη μέσω Bluetooth για τις κλήσεις.</string>
+    <string name="help_step_pair_detail">Οι κλήσεις ακούγονται από το αυτοκίνητο μόλις γίνει σύζευξη του τηλεφώνου με το αυτοκίνητο. Το myCar προτείνει τη σύζευξη την πρώτη φορά που θα συνδέσετε το καλώδιο.</string>
+    <string name="help_step_screening">Απορρίψτε τις άγνωστες κλήσεις πριν χτυπήσουν.</string>
+    <string name="help_step_screening_detail">Ορίστε το myCar ως εφαρμογή αναγνώρισης κλήσεων και ανεπιθύμητων κλήσεων. Χωρίς αυτό, το αυτοκίνητο δείχνει πάλι κάθε κλήση, και την απαντάτε ή την απορρίπτετε από εκεί.</string>
+    <string name="help_set_up">Ρύθμιση</string>
+    <string name="help_step_audio_prompt">Σταματήστε την ερώτηση για τον ήχο σε κάθε διαδρομή.</string>
+    <string name="help_step_audio_prompt_detail">Συνδέστε το τηλέφωνο σε έναν υπολογιστή με ενεργό τον εντοπισμό σφαλμάτων USB και εκτελέστε αυτό μία φορά. Αν το παραλείψετε, πατάτε «Έναρξη» κάθε φορά που ξεκινάτε.</string>
+    <string name="help_step_notifications">Κρατήστε τις ειδοποιήσεις ευανάγνωστες.</string>
+    <string name="help_step_notifications_detail">Το Android κρύβει το περιεχόμενο των ειδοποιήσεων όσο κάνει κοινή χρήση του ήχου. Εκτελέστε και αυτό, και το myCar το αίρει μόνο όσο η μουσική πηγαίνει στο αυτοκίνητο.</string>
+    <string name="help_tap_to_copy">Πατήστε για αντιγραφή</string>
+    <string name="help_command_copied">Η εντολή αντιγράφηκε</string>
+
+    <string name="cert_notice_turned_down_title">Το αυτοκίνητό σας απέρριψε αυτό το πιστοποιητικό</string>
+    <string name="cert_notice_switched_text">Από τώρα το myCar χρησιμοποιεί το %1$s. Συνδεθείτε ξανά στο αυτοκίνητο: συνδέστε πάλι το καλώδιο ή συνδεθείτε ασύρματα.</string>
+    <string name="cert_notice_switched_next_text">Από τώρα το myCar χρησιμοποιεί το επόμενο πιστοποιητικό. Συνδεθείτε ξανά στο αυτοκίνητο: συνδέστε πάλι το καλώδιο ή συνδεθείτε ασύρματα.</string>
+    <string name="cert_notice_no_spare_text">Κατεβάστε το %1$s και συνδεθείτε ξανά στο αυτοκίνητο.</string>
+    <string name="cert_notice_no_spare_unnamed_text">Κατεβάστε το εφεδρικό πιστοποιητικό και συνδεθείτε ξανά στο αυτοκίνητο.</string>
+    <string name="cert_notice_exhausted_title">Το αυτοκίνητό σας απέρριψε όλα τα πιστοποιητικά</string>
+    <plurals name="cert_notice_exhausted_text">
+        <item quantity="one">Το myCar δοκίμασε %1$d. Μερικά αυτοκίνητα από το 2020 περίπου ελέγχουν τα τηλέφωνα πιο αυστηρά, και το myCar δεν μπορεί ακόμη να συνδεθεί σε αυτά.</item>
+        <item quantity="other">Το myCar δοκίμασε %1$d. Μερικά αυτοκίνητα από το 2020 περίπου ελέγχουν τα τηλέφωνα πιο αυστηρά, και το myCar δεν μπορεί ακόμη να συνδεθεί σε αυτά.</item>
+    </plurals>
+    <string name="cert_notice_no_cert_title">Το myCar δεν έχει ακόμη πιστοποιητικό αυτοκινήτου</string>
+    <string name="cert_notice_no_cert_text">Τα αυτοκίνητα επικοινωνούν μόνο με τηλέφωνα που έχουν ένα πιστοποιητικό που εμπιστεύονται. Κατεβάστε ένα τώρα και συνδεθείτε ξανά στο αυτοκίνητο.</string>
+    <string name="cert_notice_own_refused_title">Το αυτοκίνητό σας απέρριψε το πιστοποιητικό σας</string>
+    <string name="cert_notice_own_refused_text">Για να χρησιμοποιήσετε στη θέση του τα δημόσια, αφαιρέστε το δικό σας στις Ρυθμίσεις, στο Πιστοποιητικό.</string>
+    <string name="cert_notice_clock_title">Ελέγξτε την ημερομηνία του αυτοκινήτου</string>
+    <string name="cert_notice_clock_text">Το αυτοκίνητο λέει ότι το πιστοποιητικό δεν ισχύει στην ημερομηνία του. Ρυθμίστε το ρολόι του αυτοκινήτου και συνδεθείτε ξανά.</string>
+    <string name="cert_notice_download_failed">Δεν ήταν δυνατή η λήψη των πιστοποιητικών. Ελέγξτε τη σύνδεση στο διαδίκτυο και δοκιμάστε ξανά.</string>
+    <string name="cert_notice_get_spare">Λήψη του εφεδρικού</string>
+    <string name="cert_notice_getting_spare">Λήψη…</string>
+    <string name="cert_notice_get_certificates">Λήψη πιστοποιητικών</string>
+    <string name="cert_notice_getting_certificates">Λήψη πιστοποιητικών…</string>
+    <string name="cert_notice_start_over">Νέα δοκιμή από το πρώτο</string>
+
+    <string name="cert_role_recommended">Προτείνεται</string>
+    <string name="cert_role_spare">Εφεδρικό</string>
+    <string name="cert_role_newest">Νεότερα αυτοκίνητα</string>
+    <string name="cert_about_aasdk">Λειτουργεί στα περισσότερα αυτοκίνητα που έχουν δοκιμαστεί μέχρι τώρα. Από το έργο aasdk.</string>
+    <string name="cert_about_revived">Ισχύει έως το 2044, για αυτοκίνητα που απορρίπτουν το πρώτο. Από το έργο Headunit Revived.</string>
+    <string name="cert_about_carservice">Του ίδιου του Android Auto, για αυτοκίνητα που ελέγχουν τα τηλέφωνα πιο αυστηρά, ανάμεσά τους πρόσφατα Volkswagen. Το Android Auto το αντικαθιστά κάθε λίγους μήνες: το myCar κατεβάζει το νέο πριν λήξει.</string>
+
+    <string name="cert_summary_none">Κανένα πιστοποιητικό αυτοκινήτου ακόμη: πατήστε ένα παρακάτω για λήψη</string>
+    <string name="cert_summary_imported">Εισαγόμενο: %1$s</string>
+    <string name="cert_summary_downloaded">Ληφθέν: %1$s</string>
+    <string name="cert_summary_staged">Τοποθετήθηκε μέσω adb: %1$s</string>
+    <string name="cert_summary_self_signed">Αυτοϋπογεγραμμένο: %1$s</string>
+
+    <string name="cert_setup_title">Ρύθμιση πιστοποιητικού</string>
+    <string name="cert_setup_intro">Τα αυτοκίνητα δέχονται μόνο πιστοποιητικά που έχει εκδώσει η Google. Το myCar δεν περιέχει κανένα, οπότε επιλέξτε από πού θα έρθει το δικό σας.</string>
+    <string name="cert_setup_intro_installed">Τα αυτοκίνητα δέχονται μόνο πιστοποιητικά που έχει εκδώσει η Google, και έχετε ήδη φορτώσει ένα.</string>
+    <string name="cert_setup_imported">Το πιστοποιητικό εισήχθη.</string>
+    <string name="cert_setup_installed">Το πιστοποιητικό εγκαταστάθηκε.</string>
+    <string name="cert_setup_continue">Συνέχεια</string>
+    <string name="cert_setup_download">Λήψη από το aasdk</string>
+    <string name="cert_setup_download_about">Το έργο ανοιχτού κώδικα aasdk δημοσιεύει αυτό το πιστοποιητικό στο github.com/opencardev/aasdk. Τα περισσότερα αυτοκίνητα το δέχονται· μερικά από το 2020 και μετά όχι.</string>
+    <string name="cert_setup_downloading">Λήψη…</string>
+    <string name="cert_setup_download_failed">Η λήψη απέτυχε</string>
+    <string name="cert_setup_unknown_error">Άγνωστο σφάλμα</string>
+    <string name="cert_setup_retry">Επανάληψη</string>
+    <string name="cert_setup_import">Εισαγωγή δικού μου αρχείου</string>
+    <string name="cert_setup_import_about">Ένα αρχείο .p12 με το ιδιωτικό του κλειδί, από όπου θέλετε.</string>
+    <string name="cert_setup_skip">Παράλειψη της ρύθμισης σύνδεσης με το αυτοκίνητο</string>
+    <string name="cert_setup_password_title">Κωδικός πιστοποιητικού</string>
+    <string name="cert_setup_password">Κωδικός πρόσβασης</string>
+    <string name="cert_setup_password_hint">Αφήστε το κενό αν το αρχείο δεν έχει κωδικό.</string>
+    <string name="cert_setup_wrong_password">Λάθος κωδικός ή μη έγκυρο αρχείο PKCS#12 με ιδιωτικό κλειδί.</string>
+    <string name="cert_setup_import_button">Εισαγωγή</string>
+
+    <string name="update_title">Ενημερώσεις</string>
+    <string name="update_out">Κυκλοφόρησε το myCar %1$s</string>
+    <string name="update_downloading">Λήψη… %1$d%%</string>
+    <string name="update_unplug_first">Αποσυνδεθείτε από το αυτοκίνητο για την εγκατάσταση. Η εγκατάσταση κλείνει το myCar.</string>
+    <string name="update_downloaded">Έχει ληφθεί. Το Android ρωτά πριν από την εγκατάσταση.</string>
+    <string name="update_download_now">Κατεβάστε το τώρα. Το Android ρωτά πριν από την εγκατάσταση.</string>
+    <string name="update_install">Εγκατάσταση</string>
+    <string name="update_update">Ενημέρωση</string>
+    <string name="update_download">Λήψη</string>
+    <string name="update_check_now">Έλεγχος τώρα</string>
+    <string name="update_status_debug">Οι εκδόσεις debug ελέγχουν μόνο όταν πατάτε «Έλεγχος τώρα»</string>
+    <string name="update_status_daily">Το myCar ελέγχει μία φορά την ημέρα</string>
+    <string name="update_status_checking">Έλεγχος…</string>
+    <string name="update_status_latest">Έχετε την πιο πρόσφατη έκδοση</string>
+    <string name="update_status_available">Κυκλοφόρησε η έκδοση %1$s</string>
+    <string name="update_status_ready">Η έκδοση %1$s είναι έτοιμη για εγκατάσταση</string>
+    <string name="update_version_status">Έκδοση %1$s. %2$s.</string>
+    <string name="update_check_automatically">Αυτόματος έλεγχος</string>
+    <string name="update_once_a_day">Μία φορά την ημέρα</string>
+    <string name="update_notification_text">Πατήστε για ενημέρωση.</string>
+    <string name="update_car_notification_text">Ενημερώστε από την εφαρμογή myCar ή από το GitHub</string>
+    <string name="update_error_no_github">Δεν ήταν δυνατή η πρόσβαση στο GitHub. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.</string>
+    <string name="update_error_no_space">Δεν υπάρχει αρκετός χώρος στο τηλέφωνο για την ενημέρωση. Ελευθερώστε λίγο χώρο και δοκιμάστε ξανά.</string>
+    <string name="update_error_stopped">Η λήψη σταμάτησε. Ελέγξτε τη σύνδεση και δοκιμάστε ξανά.</string>
+    <string name="update_error_installer">Δεν ήταν δυνατό το άνοιγμα του προγράμματος εγκατάστασης του Android. Δοκιμάστε ξανά.</string>
+    <string name="update_error_not_sent">Το GitHub δεν έστειλε την ενημέρωση (κωδικός %1$d). Δοκιμάστε ξανά αργότερα.</string>
+    <string name="update_error_stopped_early">Η λήψη σταμάτησε νωρίς. Δοκιμάστε ξανά.</string>
+    <string name="update_error_damaged">Η λήψη βγήκε κατεστραμμένη. Δοκιμάστε ξανά.</string>
+    <string name="update_splash_updated_to">Ενημερώθηκε στην έκδοση</string>
+    <string name="update_splash_tap">Πατήστε οπουδήποτε για να συνεχίσετε</string>
+    <string name="update_flag_local">100% ΤΟΠΙΚΟ</string>
+    <string name="update_flag_motto">ΦΥΛΑΜΕ ΤΑ ΔΕΔΟΜΕΝΑ</string>
+    <string name="update_flag_description">Μια πειρατική σημαία: 100% τοπικό. Φυλάμε τα δεδομένα μας.</string>
+    <string name="update_ship_description">Ένα πειρατικό πλοίο με τη σημαία του myCar: 100% τοπικό. Φυλάμε τα δεδομένα μας.</string>
+
+    <string name="whatsnew_title">Τι νέο υπάρχει</string>
+    <string name="whatsnew_this_version">%1$s (αυτή η έκδοση)</string>
+
+    <string name="recommended_title">Προτεινόμενες εφαρμογές</string>
+    <string name="recommended_intro">Αυτές οι δωρεάν εφαρμογές λειτουργούν στην οθόνη αυτοκινήτου του myCar. Κάθε κουμπί ανοίγει τη σελίδα της εφαρμογής στο GitHub.</string>
+    <string name="recommended_section_maps">Χάρτες</string>
+    <string name="recommended_section_music">Μουσική</string>
+    <string name="recommended_section_podcasts">Podcast</string>
+    <string name="recommended_about_organic_maps">Χάρτες και δρομολόγηση χωρίς σύνδεση.</string>
+    <string name="recommended_about_vela">Πλοήγηση στροφή προς στροφή χωρίς Google.</string>
+    <string name="recommended_about_youtube_music">Ένα πρόγραμμα αναπαραγωγής για το YouTube Music.</string>
+    <string name="recommended_about_antennapod">Podcast, με κεφάλαια και όλα τα σχετικά.</string>
+    <string name="recommended_installed">Εγκατεστημένη</string>
+
+    <string name="logs_title">Ζωντανά αρχεία καταγραφής</string>
+    <string name="logs_share">Κοινοποίηση</string>
+    <string name="logs_earlier">Παλαιότερα</string>
+    <string name="logs_clear">Διαγραφή</string>
+    <string name="logs_jump_to_latest">Μετάβαση στα πιο πρόσφατα</string>
+    <string name="logs_empty">Δεν έχει καταγραφεί τίποτα ακόμη. Οι γραμμές εμφανίζονται εδώ ζωντανά όσο διαρκεί μια σύνδεση.</string>
+    <string name="logs_share_subject">Αρχείο καταγραφής του myCar</string>
+    <string name="logs_share_chooser">Κοινοποίηση αρχείου καταγραφής</string>
+    <string name="logs_earlier_title">Παλαιότερα αρχεία καταγραφής</string>
+    <string name="logs_earlier_empty">Δεν υπάρχουν ακόμη παλαιότερα αρχεία καταγραφής. Κάθε φορά που ξεκινά το myCar, αρχίζει ένα νέο.</string>
+    <string name="logs_crashed">Κατέρρευσε</string>
+    <string name="logs_size_kb">%1$d KB</string>
+
+    <string name="preview_title">Προεπισκόπηση αυτοκινήτου</string>
+    <string name="preview_size">%1$dx%2$d @ %3$ddpi – τα αγγίγματα πηγαίνουν στο περιβάλλον του αυτοκινήτου</string>
+    <string name="preview_car_screen">Οθόνη αυτοκινήτου</string>
+    <string name="preview_waiting">Αναμονή για καρέ…</string>
+    <string name="preview_leave">Έξοδος από την προεπισκόπηση αυτοκινήτου</string>
+
+    <string name="donate_title">Χαιρόμαστε που η διαδρομή πήγε καλά</string>
+    <string name="donate_text">Το myCar είναι δωρεάν, χωρίς διαφημίσεις και χωρίς παρακολούθηση. Αν σας βγάζει στον δρόμο, η στήριξή σας το κρατά ζωντανό.</string>
+    <string name="donate_bitcoin">Στήριξη με Bitcoin</string>
+    <string name="donate_card">Εφάπαξ δωρεά με κάρτα</string>
+</resources>
