@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="touch_relay_description">Permette a myCar di ripetere sul telefono i tocchi fatti sullo schermo dell\'auto durante la condivisione dello schermo. myCar non legge il contenuto dello schermo.</string>
+</resources>

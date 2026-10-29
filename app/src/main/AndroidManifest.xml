@@ -161,6 +161,8 @@
       Plancia's page and connection go to the address the driver typed (the token to that one only).
     -->
     <application
+        android:name=".MyCarApplication"
+        android:localeConfig="@xml/locales_config"
         android:allowBackup="false"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"

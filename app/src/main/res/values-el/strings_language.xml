@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The language setting (ui/LanguageSettings.kt). -->
+<resources>
+    <string name="language_title">Γλώσσα</string>
+    <string name="language_phone">Γλώσσα του τηλεφώνου (%1$s)</string>
+    <string name="language_footer">Το myCar στο τηλέφωνο και στην οθόνη του αυτοκινήτου, και ο φωνητικός βοηθός του, σε αυτή τη γλώσσα.</string>
+    <string name="language_close">Κλείσιμο</string>
+</resources>

@@ -176,6 +176,11 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
+    // Android 12: the language chosen in Settings (Android 13 applies it itself).
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // A second myCar screen, opened over the first while something sat above it (Android's

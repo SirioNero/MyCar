@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The language setting (ui/LanguageSettings.kt). -->
+<resources>
+    <string name="language_title">Lingua</string>
+    <string name="language_phone">Lingua del telefono (%1$s)</string>
+    <string name="language_footer">myCar sul telefono e sullo schermo dell\'auto, e il suo assistente vocale, in questa lingua.</string>
+    <string name="language_close">Chiudi</string>
+</resources>

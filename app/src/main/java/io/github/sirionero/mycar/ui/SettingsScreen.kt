@@ -137,6 +137,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             Spacer(Modifier.height(0.dp))
+            LanguageSection()
             SettingsSection(
                 "Support myCar",
                 footer = "myCar is free, with no ads and no tracking. Your support keeps it going.",

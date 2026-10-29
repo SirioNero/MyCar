@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="touch_relay_description">Позволяет myCar повторять на телефоне касания экрана автомобиля во время трансляции экрана. myCar не читает содержимое экрана.</string>
+</resources>
