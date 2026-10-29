@@ -50,6 +50,8 @@ import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathParser
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /** What a built-in app's id carries in a pin, so it can't collide with an installed app's component. */
 internal const val BUILT_IN_PREFIX = "mycar:"
@@ -128,7 +130,10 @@ internal fun rememberRunningApps(): Map<String, RunningSlot> {
     val browseStatus by CarServices.browse.status.collectAsState()
     val mediaApp by CarServices.mediaApp.collectAsState()
     val mediaPhase by CarServices.media.phase.collectAsState()
-    val now by CarServices.media.now.collectAsState()
+    // Only whether something plays: every update of the song (its state, its cover) made the dock,
+    // and the whole grid with its icons, compose again.
+    val playing by remember { CarServices.media.now.map { it.isActive }.distinctUntilChanged() }
+        .collectAsState(CarServices.media.now.value.isActive)
     val current = LocalCarNavigator.current.current
 
     fun CarAppConnection.liveId(phase: CarAppConnection.Phase) =
@@ -143,7 +148,7 @@ internal fun rememberRunningApps(): Map<String, RunningSlot> {
         CarServices.browse.liveId(browseStatus.phase)?.let { put(it, RunningSlot.BROWSE) }
         val mediaLive = when (mediaPhase) {
             CarMedia.Phase.CONNECTING -> true
-            CarMedia.Phase.READY -> now.isActive || current == CarScreen.Media
+            CarMedia.Phase.READY -> playing || current == CarScreen.Media
             else -> false
         }
         mediaApp?.component?.flattenToString()?.takeIf { mediaLive }?.let { put(it, RunningSlot.MEDIA) }

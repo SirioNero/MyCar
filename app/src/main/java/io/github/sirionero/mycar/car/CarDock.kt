@@ -99,7 +99,9 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
     val frame by CarEnvironment.frame.collectAsState()
     // A ringing call's card covers the map: the next turn is here meanwhile.
     val ringing = CarCalls.state.collectAsState().value is CallUiState.Ringing
-    val turn = rememberNextTurn().takeIf { ringing || navigator.current != CarScreen.Home || !navigator.onMapPage }
+    // Read only when it shows: during a route the map app sends its screen about once a second, and
+    // reading it anyway made the whole dock compose again each time, with the map in view.
+    val turn = if (ringing || navigator.current != CarScreen.Home || !navigator.onMapPage) rememberNextTurn() else null
     val media = CarServices.media
     val mediaPhase by media.phase.collectAsState()
     val now by media.now.collectAsState()
