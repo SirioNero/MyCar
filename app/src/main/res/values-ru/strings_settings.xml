@@ -225,12 +225,14 @@
     <string name="voice_model_parakeet_small_detail">Легче и быстрее, но чаще пропускает имена. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_canary_detail">Рекомендуется. Быстрая и хорошо распознаёт имена и места. Английский, испанский, немецкий и французский. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">Лучше всех распознаёт имена, но медленнее и в три раза больше. NVIDIA NeMo, CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">Итальянский, португальский, испанский, французский, немецкий и английский, а также ещё 19 европейских языков. Такая же большая и медленная, как Parakeet (большая). NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Итальянский, португальский, испанский, французский, немецкий, греческий, русский и английский, а также ещё 17 европейских языков. Такая же большая и медленная, как Parakeet (большая). NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper (малая)</string>
+    <string name="voice_model_whisper_detail">Для китайского. OpenAI Whisper, MIT</string>
 
     <string name="voice_model_language_title">Голос: %1$s</string>
-    <string name="voice_model_language_ready">Телефон настроен на %1$s язык, поэтому и помощник в автомобиле переходит на %1$s язык: он слушает и отвечает с помощью %2$s.</string>
-    <string name="voice_model_language_ready_try">Телефон настроен на %1$s язык, поэтому и помощник в автомобиле переходит на %1$s язык: он слушает и отвечает с помощью %2$s. Попробуйте: «%3$s».</string>
-    <string name="voice_model_language_missing">Телефон настроен на %1$s язык. С моделью %2$s (%3$d МБ) помощник в автомобиле тоже перейдёт на %1$s язык, а пока он понимает только английский.</string>
+    <string name="voice_model_language_ready">myCar настроен на %1$s язык, поэтому и помощник в автомобиле переходит на %1$s язык: он слушает и отвечает с помощью %2$s.</string>
+    <string name="voice_model_language_ready_try">myCar настроен на %1$s язык, поэтому и помощник в автомобиле переходит на %1$s язык: он слушает и отвечает с помощью %2$s. Попробуйте: «%3$s».</string>
+    <string name="voice_model_language_missing">myCar настроен на %1$s язык. С моделью %2$s (%3$d МБ) помощник в автомобиле тоже перейдёт на %1$s язык, а пока он понимает только английский.</string>
     <string name="voice_model_language_tts">Отвечает он голосом синтеза речи телефона (%1$s язык). Если звучит неправильно, выберите или скачайте этот голос в настройках синтеза речи Android.</string>
     <string name="voice_model_language_download">Скачать %1$s</string>
 
