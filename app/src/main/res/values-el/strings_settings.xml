@@ -221,12 +221,14 @@
     <string name="voice_model_parakeet_small_detail">Πιο ελαφρύ και πιο γρήγορο, χάνει περισσότερα ονόματα. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_canary_detail">Προτείνεται. Γρήγορο, και ακούει καλά ονόματα και τοποθεσίες. Αγγλικά, ισπανικά, γερμανικά και γαλλικά. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">Ακούει καλύτερα τα ονόματα, αλλά είναι πιο αργό και τριπλάσιο σε μέγεθος. NVIDIA NeMo, CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">Ιταλικά, πορτογαλικά, ισπανικά, γαλλικά, γερμανικά και αγγλικά, και άλλες 19 ευρωπαϊκές γλώσσες. Μεγάλο και αργό όσο το Parakeet μεγάλο. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Ιταλικά, πορτογαλικά, ισπανικά, γαλλικά, γερμανικά, ελληνικά, ρωσικά και αγγλικά, και άλλες 17 ευρωπαϊκές γλώσσες. Μεγάλο και αργό όσο το Parakeet μεγάλο. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper μικρό</string>
+    <string name="voice_model_whisper_detail">Για τα κινεζικά. OpenAI Whisper, MIT</string>
 
     <string name="voice_model_language_title">Φωνή: %1$s</string>
-    <string name="voice_model_language_ready">Το τηλέφωνό σας είναι στα %1$s, οπότε ο βοηθός του αυτοκινήτου ακούει και απαντά στα %1$s, με το %2$s.</string>
-    <string name="voice_model_language_ready_try">Το τηλέφωνό σας είναι στα %1$s, οπότε ο βοηθός του αυτοκινήτου ακούει και απαντά στα %1$s, με το %2$s. Δοκιμάστε «%3$s».</string>
-    <string name="voice_model_language_missing">Το τηλέφωνό σας είναι στα %1$s. Με το %2$s (%3$d MB) ο βοηθός του αυτοκινήτου ακούει και απαντά στα %1$s· μέχρι τότε καταλαβαίνει μόνο αγγλικά.</string>
+    <string name="voice_model_language_ready">Το myCar είναι στα %1$s, οπότε ο βοηθός του αυτοκινήτου ακούει και απαντά στα %1$s, με το %2$s.</string>
+    <string name="voice_model_language_ready_try">Το myCar είναι στα %1$s, οπότε ο βοηθός του αυτοκινήτου ακούει και απαντά στα %1$s, με το %2$s. Δοκιμάστε «%3$s».</string>
+    <string name="voice_model_language_missing">Το myCar είναι στα %1$s. Με το %2$s (%3$d MB) ο βοηθός του αυτοκινήτου ακούει και απαντά στα %1$s· μέχρι τότε καταλαβαίνει μόνο αγγλικά.</string>
     <string name="voice_model_language_tts">Απαντά με τη φωνή μετατροπής κειμένου σε ομιλία του ίδιου του τηλεφώνου για τα %1$s. Αν δεν ακούγεται σωστά, επιλέξτε ή κατεβάστε αυτή τη φωνή στις ρυθμίσεις μετατροπής κειμένου σε ομιλία του Android.</string>
     <string name="voice_model_language_download">Λήψη του %1$s</string>
 

@@ -152,6 +152,8 @@
     <string name="intro_start">Έναρξη</string>
     <string name="intro_welcome_to">Καλώς ήρθατε στην έκδοση</string>
     <string name="intro_welcome_tag">alpha · η μεγάλη</string>
+    <string name="intro_language_title">Η γλώσσα σας.</string>
+    <string name="intro_language_body">Το myCar μιλά πλέον ελληνικά, αγγλικά, ιταλικά, ισπανικά, γερμανικά, γαλλικά, πορτογαλικά, ρωσικά και κινεζικά: στο τηλέφωνο, στην οθόνη του αυτοκινήτου και στον φωνητικό βοηθό. Ακολουθεί το τηλέφωνο· επιλέξτε άλλη εδώ ή αργότερα στις Ρυθμίσεις > Γλώσσα.</string>
     <string name="intro_wireless_title">Ασύρματα.</string>
     <string name="intro_wireless_body">Αν το αυτοκίνητό σας υποστηρίζει ασύρματο Android Auto, κάντε σύζευξη μία φορά και αφήστε το καλώδιο στο σπίτι.</string>
     <string name="intro_knobs_title">Με περιστροφικό κουμπί.</string>
@@ -170,8 +172,8 @@
     <string name="intro_theme_play">Αναπαραγωγή</string>
     <string name="intro_theme_navigate">Πλοήγηση</string>
     <string name="intro_voice_title">Απλώς πείτε το.</string>
-    <string name="intro_voice_body">Πατήστε το μικρόφωνο ή το κουμπί ομιλίας στο τιμόνι σας και μιλήστε. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και τίποτα από όσα λέτε δεν φεύγει από αυτό. Πείτε «%1$s» στο αυτοκίνητο για την πλήρη λίστα.</string>
-    <string name="intro_voice_body_language">Πατήστε το μικρόφωνο ή το κουμπί ομιλίας στο τιμόνι σας και μιλήστε. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και τίποτα από όσα λέτε δεν φεύγει από αυτό. Ακούει και απαντά στα %1$s, όπως το τηλέφωνό σας. Πείτε «%2$s» στο αυτοκίνητο για την πλήρη λίστα.</string>
+    <string name="intro_voice_body">Πατήστε το μικρόφωνο ή το κουμπί ομιλίας στο τιμόνι σας και μιλήστε. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και όσα λέτε μένουν σε αυτό, εκτός από όσα ρωτάτε το δικό σας Home Assistant. Πείτε «%1$s» στο αυτοκίνητο για την πλήρη λίστα.</string>
+    <string name="intro_voice_body_language">Πατήστε το μικρόφωνο ή το κουμπί ομιλίας στο τιμόνι σας και μιλήστε. Το τηλέφωνό σας μετατρέπει μόνο του την ομιλία σε κείμενο, και όσα λέτε μένουν σε αυτό, εκτός από όσα ρωτάτε το δικό σας Home Assistant. Ακούει και απαντά στα %1$s, τη γλώσσα του myCar. Πείτε «%2$s» στο αυτοκίνητο για την πλήρη λίστα.</string>
     <string name="intro_voice_downloading">Λήψη, %1$d%%</string>
     <string name="intro_voice_failed">Η λήψη απέτυχε. Δοκιμάστε ξανά</string>
     <string name="intro_voice_download">Λήψη φωνής, %1$d MB</string>

@@ -25,4 +25,6 @@
     <string name="common_off">Ανενεργό</string>
     <string name="common_loading">Φόρτωση…</string>
     <string name="common_settings">Ρυθμίσεις</string>
+    <string name="common_bluetooth">Bluetooth</string>
+    <string name="common_list_separator">", "</string>
 </resources>
