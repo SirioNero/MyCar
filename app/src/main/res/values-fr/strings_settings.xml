@@ -221,12 +221,14 @@
     <string name="voice_model_parakeet_small_detail">Plus léger et plus rapide, rate plus de noms. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_canary_detail">Recommandé. Rapide, et entend bien les noms et les lieux. Anglais, espagnol, allemand et français. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">Entend le mieux les noms, mais plus lent et trois fois plus gros. NVIDIA NeMo, CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">Italien, portugais, espagnol, français, allemand et anglais, plus 19 autres langues européennes. Aussi gros et lent que Parakeet grand. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Italien, portugais, espagnol, français, allemand, grec, russe et anglais, plus 17 autres langues européennes. Aussi gros et lent que Parakeet grand. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper petit</string>
+    <string name="voice_model_whisper_detail">Pour le chinois. OpenAI Whisper, MIT</string>
 
     <string name="voice_model_language_title">Voix : %1$s</string>
-    <string name="voice_model_language_ready">Votre téléphone est en %1$s, donc l’assistant de la voiture écoute et répond en %1$s, avec %2$s.</string>
-    <string name="voice_model_language_ready_try">Votre téléphone est en %1$s, donc l’assistant de la voiture écoute et répond en %1$s, avec %2$s. Essayez « %3$s ».</string>
-    <string name="voice_model_language_missing">Votre téléphone est en %1$s. Avec %2$s (%3$d Mo), l’assistant de la voiture écoute et répond en %1$s ; d’ici là, il ne comprend que l’anglais.</string>
+    <string name="voice_model_language_ready">myCar est en %1$s, donc l’assistant de la voiture écoute et répond en %1$s, avec %2$s.</string>
+    <string name="voice_model_language_ready_try">myCar est en %1$s, donc l’assistant de la voiture écoute et répond en %1$s, avec %2$s. Essayez « %3$s ».</string>
+    <string name="voice_model_language_missing">myCar est en %1$s. Avec %2$s (%3$d Mo), l’assistant de la voiture écoute et répond en %1$s ; d’ici là, il ne comprend que l’anglais.</string>
     <string name="voice_model_language_tts">Il répond avec la voix de synthèse du téléphone en %1$s. Si elle sonne faux, choisissez ou téléchargez cette voix dans les paramètres de synthèse vocale d’Android.</string>
     <string name="voice_model_language_download">Télécharger %1$s</string>
 

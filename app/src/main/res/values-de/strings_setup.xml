@@ -152,6 +152,8 @@
     <string name="intro_start">Loslegen</string>
     <string name="intro_welcome_to">Willkommen bei</string>
     <string name="intro_welcome_tag">alpha · das große Update</string>
+    <string name="intro_language_title">Deine Sprache.</string>
+    <string name="intro_language_body">myCar spricht jetzt Deutsch, Englisch, Italienisch, Spanisch, Französisch, Portugiesisch, Griechisch, Russisch und Chinesisch: auf dem Telefon, auf dem Bildschirm im Auto und im Sprachassistenten. Es folgt dem Telefon; wähle hier eine andere Sprache oder später unter Einstellungen > Sprache.</string>
     <string name="intro_wireless_title">Kabellos.</string>
     <string name="intro_wireless_body">Wenn dein Auto kabelloses Android Auto kann, kopple einmal und lass das Kabel zu Hause.</string>
     <string name="intro_knobs_title">Auch mit Drehknopf.</string>
@@ -170,8 +172,8 @@
     <string name="intro_theme_play">Abspielen</string>
     <string name="intro_theme_navigate">Navigieren</string>
     <string name="intro_voice_title">Sag es einfach.</string>
-    <string name="intro_voice_body">Tippe auf das Mikrofon oder drück die Sprechtaste am Lenkrad und sprich. Dein Telefon wandelt Sprache selbst in Text um, und nichts, was du sagst, verlässt es. Sag im Auto „%1$s“ für die ganze Liste.</string>
-    <string name="intro_voice_body_language">Tippe auf das Mikrofon oder drück die Sprechtaste am Lenkrad und sprich. Dein Telefon wandelt Sprache selbst in Text um, und nichts, was du sagst, verlässt es. Der Assistent versteht und spricht %1$s, wie dein Telefon. Sag im Auto „%2$s“ für die ganze Liste.</string>
+    <string name="intro_voice_body">Tippe auf das Mikrofon oder drück die Sprechtaste am Lenkrad und sprich. Dein Telefon wandelt Sprache selbst in Text um, und was du sagst, bleibt darauf, außer dem, was du dein eigenes Home Assistant fragst. Sag im Auto „%1$s“ für die ganze Liste.</string>
+    <string name="intro_voice_body_language">Tippe auf das Mikrofon oder drück die Sprechtaste am Lenkrad und sprich. Dein Telefon wandelt Sprache selbst in Text um, und was du sagst, bleibt darauf, außer dem, was du dein eigenes Home Assistant fragst. Der Assistent versteht und spricht %1$s, die Sprache von myCar. Sag im Auto „%2$s“ für die ganze Liste.</string>
     <string name="intro_voice_downloading">Wird heruntergeladen, %1$d %%</string>
     <string name="intro_voice_failed">Download fehlgeschlagen. Erneut versuchen</string>
     <string name="intro_voice_download">Sprachmodelle laden, %1$d MB</string>

@@ -221,12 +221,14 @@
     <string name="voice_model_parakeet_small_detail">Leichter und schneller, verpasst mehr Namen. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_canary_detail">Empfohlen. Schnell und erkennt Namen und Orte gut. Englisch, Spanisch, Deutsch und Französisch. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">Erkennt Namen am besten, ist aber langsamer und dreimal so groß. NVIDIA NeMo, CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">Italienisch, Portugiesisch, Spanisch, Französisch, Deutsch und Englisch sowie 19 weitere europäische Sprachen. So groß und langsam wie Parakeet groß. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Italienisch, Portugiesisch, Spanisch, Französisch, Deutsch, Griechisch, Russisch und Englisch sowie 17 weitere europäische Sprachen. So groß und langsam wie Parakeet groß. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper klein</string>
+    <string name="voice_model_whisper_detail">Für Chinesisch. OpenAI Whisper, MIT</string>
 
     <string name="voice_model_language_title">Sprachsteuerung: %1$s</string>
-    <string name="voice_model_language_ready">Dein Telefon ist auf %1$s eingestellt, also versteht und spricht der Assistent im Auto %1$s, mit %2$s.</string>
-    <string name="voice_model_language_ready_try">Dein Telefon ist auf %1$s eingestellt, also versteht und spricht der Assistent im Auto %1$s, mit %2$s. Probier „%3$s“.</string>
-    <string name="voice_model_language_missing">Dein Telefon ist auf %1$s eingestellt. Mit %2$s (%3$d MB) versteht und spricht der Assistent im Auto %1$s; bis dahin versteht er nur Englisch.</string>
+    <string name="voice_model_language_ready">myCar ist auf %1$s eingestellt, also versteht und spricht der Assistent im Auto %1$s, mit %2$s.</string>
+    <string name="voice_model_language_ready_try">myCar ist auf %1$s eingestellt, also versteht und spricht der Assistent im Auto %1$s, mit %2$s. Probier „%3$s“.</string>
+    <string name="voice_model_language_missing">myCar ist auf %1$s eingestellt. Mit %2$s (%3$d MB) versteht und spricht der Assistent im Auto %1$s; bis dahin versteht er nur Englisch.</string>
     <string name="voice_model_language_tts">Er antwortet mit der Stimme der Sprachausgabe des Telefons für %1$s. Klingt sie falsch, wähle oder lade diese Stimme in den Android-Einstellungen für die Sprachausgabe.</string>
     <string name="voice_model_language_download">%1$s herunterladen</string>
 

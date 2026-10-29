@@ -25,4 +25,6 @@
     <string name="common_off">Désactivé</string>
     <string name="common_loading">Chargement…</string>
     <string name="common_settings">Paramètres</string>
+    <string name="common_bluetooth">Bluetooth</string>
+    <string name="common_list_separator">", "</string>
 </resources>

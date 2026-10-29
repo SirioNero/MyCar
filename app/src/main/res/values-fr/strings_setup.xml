@@ -152,6 +152,8 @@
     <string name="intro_start">Commencer</string>
     <string name="intro_welcome_to">Bienvenue dans</string>
     <string name="intro_welcome_tag">alpha · la grande version</string>
+    <string name="intro_language_title">Votre langue.</string>
+    <string name="intro_language_body">myCar parle désormais français, anglais, italien, espagnol, allemand, portugais, grec, russe et chinois : sur le téléphone, sur l’écran de la voiture et dans l’assistant vocal. Il suit le téléphone ; choisissez-en une autre ici, ou plus tard dans Paramètres > Langue.</string>
     <string name="intro_wireless_title">Sans fil.</string>
     <string name="intro_wireless_body">Si votre voiture gère Android Auto sans fil, associez le téléphone une fois et laissez le câble à la maison.</string>
     <string name="intro_knobs_title">Les molettes marchent.</string>
@@ -170,8 +172,8 @@
     <string name="intro_theme_play">Lecture</string>
     <string name="intro_theme_navigate">Naviguer</string>
     <string name="intro_voice_title">Dites-le.</string>
-    <string name="intro_voice_body">Appuyez sur le micro, ou sur le bouton de commande vocale du volant, et parlez. Votre téléphone transforme lui-même la parole en texte, et rien de ce que vous dites n’en sort. Dites « %1$s » dans la voiture pour la liste complète.</string>
-    <string name="intro_voice_body_language">Appuyez sur le micro, ou sur le bouton de commande vocale du volant, et parlez. Votre téléphone transforme lui-même la parole en texte, et rien de ce que vous dites n’en sort. L’assistant écoute et répond en %1$s, comme votre téléphone. Dites « %2$s » dans la voiture pour la liste complète.</string>
+    <string name="intro_voice_body">Appuyez sur le micro, ou sur le bouton de commande vocale du volant, et parlez. Votre téléphone transforme lui-même la parole en texte, et ce que vous dites y reste, sauf ce que vous demandez à votre propre Home Assistant. Dites « %1$s » dans la voiture pour la liste complète.</string>
+    <string name="intro_voice_body_language">Appuyez sur le micro, ou sur le bouton de commande vocale du volant, et parlez. Votre téléphone transforme lui-même la parole en texte, et ce que vous dites y reste, sauf ce que vous demandez à votre propre Home Assistant. L’assistant écoute et répond en %1$s, la langue de myCar. Dites « %2$s » dans la voiture pour la liste complète.</string>
     <string name="intro_voice_downloading">Téléchargement, %1$d %%</string>
     <string name="intro_voice_failed">Échec du téléchargement. Réessayez</string>
     <string name="intro_voice_download">Télécharger la voix, %1$d Mo</string>
