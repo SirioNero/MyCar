@@ -243,6 +243,8 @@ internal object PortuguesePhrases : Phrasebook() {
         Said.CALLING to t("Vou ligar para $1."),
         Said.NO_APP_CALLED to { g -> pt("Não encontro uma app chamada ${g[1]}.", "Não encontro um app chamado ${g[1]}.") },
         Said.SOMETHING_WRONG to { _ -> pt("Algo correu mal. Tente de novo.", "Algo deu errado. Tente de novo.") },
+        Said.DONE to t("Feito."),
+        Said.HOME_ASSISTANT_SILENT to t("O Home Assistant não respondeu."),
         Said.NEEDS_MIC to t("É preciso a permissão do microfone."),
         Said.AFTER_CALL to t("Os comandos de voz funcionam quando a chamada terminar."),
         Said.DIDNT_CATCH to t("Não entendi."),

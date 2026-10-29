@@ -195,6 +195,8 @@ internal object GermanPhrases : Phrasebook() {
         Said.CALLING to t("Ich rufe $1 an."),
         Said.NO_APP_CALLED to t("Ich finde keine App namens $1."),
         Said.SOMETHING_WRONG to t("Etwas ist schiefgelaufen. Versuch es noch einmal."),
+        Said.DONE to t("Erledigt."),
+        Said.HOME_ASSISTANT_SILENT to t("Home Assistant hat nicht geantwortet."),
         Said.NEEDS_MIC to t("Dafür braucht myCar die Mikrofon-Berechtigung."),
         Said.AFTER_CALL to t("Sprachbefehle gehen wieder, wenn der Anruf vorbei ist."),
         Said.DIDNT_CATCH to t("Das habe ich nicht verstanden."),

@@ -319,6 +319,8 @@ class AssistantLanguageTest {
         Said.CALLING -> "Calling Anna."
         Said.NO_APP_CALLED -> "I couldn't find an app called foo."
         Said.SOMETHING_WRONG -> "Something went wrong. Try again."
+        Said.DONE -> "Done."
+        Said.HOME_ASSISTANT_SILENT -> "Home Assistant didn't answer."
         Said.NEEDS_MIC -> "Needs the microphone permission."
         Said.AFTER_CALL -> "Voice commands work once the call ends."
         Said.DIDNT_CATCH -> "Didn't catch that."

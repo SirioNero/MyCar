@@ -158,7 +158,28 @@ object CarAssistant {
         _pendingCommand.value = null
         syncLanguage()
         // AssistantCommands answers in English; the driver hears and reads it in their language.
-        val text = AssistantLanguage.answer(english)
+        speakReply(AssistantLanguage.answer(english))
+    }
+
+    /**
+     * Home Assistant's answer to [heard] (AssistantBrain), already in the driver's language. Dropped
+     * when the driver has moved on meanwhile - closed the assistant, or asked again - as it can take
+     * a few seconds. With [listenAgain] (it asked something back) the microphone opens once it's said.
+     */
+    fun replyAsSaid(heard: String, text: String, listenAgain: Boolean) {
+        if (_pendingCommand.value != heard || _state.value.phase != Phase.THINKING) return
+        _pendingCommand.value = null
+        speakReply(text) { if (listenAgain) start() }
+    }
+
+    /** As if the driver had said [text]: for the car preview, where no speech model runs. */
+    internal fun heard(text: String) {
+        _state.value = State(Phase.THINKING, heard = text)
+        _pendingCommand.value = text
+    }
+
+    /** Shows and says [text], then [then] once it has been said to the end. */
+    private fun speakReply(text: String, then: () -> Unit = {}) {
         _state.value = _state.value.copy(phase = Phase.SPEAKING, reply = text)
 
         val engine = tts
@@ -176,11 +197,14 @@ object CarAssistant {
             return
         }
         appContext?.let(VoiceFocus::acquire)
-        speak(engine, text) {
+        speak(engine, text) { stopped ->
             VoiceFocus.release()
             // Still this answer on screen: done speaking, or cut short by a message read aloud. Not
             // when the microphone or Cancel stopped it, which have moved the overlay on already.
-            if (mine == replies && _state.value.phase == Phase.SPEAKING) _state.value = _state.value.copy(phase = Phase.IDLE)
+            if (mine == replies && _state.value.phase == Phase.SPEAKING) {
+                _state.value = _state.value.copy(phase = Phase.IDLE)
+                if (!stopped) mainHandler.post(then)
+            }
         }
     }
 

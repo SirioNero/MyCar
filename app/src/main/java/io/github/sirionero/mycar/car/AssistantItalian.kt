@@ -212,6 +212,8 @@ internal object ItalianPhrases : Phrasebook() {
         Said.CALLING to t("Chiamo $1."),
         Said.NO_APP_CALLED to t("Non trovo un'app che si chiama $1."),
         Said.SOMETHING_WRONG to t("Qualcosa è andato storto. Riprova."),
+        Said.DONE to t("Fatto."),
+        Said.HOME_ASSISTANT_SILENT to t("Home Assistant non ha risposto."),
         Said.NEEDS_MIC to t("Serve il permesso del microfono."),
         Said.AFTER_CALL to t("I comandi vocali funzionano quando finisce la chiamata."),
         Said.DIDNT_CATCH to t("Non ho capito."),

@@ -186,8 +186,14 @@ object AssistantChoice {
         val choice = flow.value
         if (choice == PhoneAssistants.MYCAR) return false
         val name = PhoneAssistants.label(context, choice)
-        // Locked or asleep, the phone is opened first, and the assistant starts once it is.
+        // Locked or asleep, the phone is opened first, and the assistant starts once it is. Unless
+        // the driver's Home Assistant can answer: then myCar listens, and nothing opens on the phone.
         if (AssistantUnlock.needed(context)) {
+            if (AssistantBrain.ready) {
+                MyCarLog.i("assistant: the phone is locked, myCar listens and Home Assistant answers")
+                CarToasts.show(this, "The phone is locked: myCar is listening, and Home Assistant answers.", CarToast.LENGTH_LONG)
+                return false
+            }
             AssistantUnlock.start(context, name)
             return true
         }
@@ -237,8 +243,10 @@ internal fun AssistantPicker() {
         Text(
             "The phone's assistant wakes as with the swipe up from a bottom corner of the phone's screen. " +
                 "Another assistant listens and answers on the phone, and its voice reaches the car only " +
-                "over Bluetooth; with the phone locked, it starts once the phone is unlocked. myCar's own " +
-                "works offline, locked or not, and shows on the car screen.",
+                "over Bluetooth; with the phone locked, it starts once the phone is unlocked - or, with Home " +
+                "Assistant set up in myCar, myCar listens instead and Home Assistant answers. myCar's own " +
+                "works offline, locked or not, and shows on the car screen; with Home Assistant set up, what " +
+                "it can't do itself goes to Home Assistant's voice assistant.",
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,
         )
