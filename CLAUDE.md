@@ -42,7 +42,13 @@ Rispondi sempre in **italiano**.
   `https://maven-central.storage-download.googleapis.com/maven2/` va. Un progetto Gradle JVM nella
   scratchpad (Kotlin 2.4.0, JUnit 4, `srcDir` su `app/src` con `setIncludes` dei soli file) compila i
   file che non usano Android (es. `Framing.kt` + `FramingTest.kt`) e ne fa girare i test in pochi
-  secondi; il resto si prova con la CI.
+  secondi; il resto si prova con la CI. Con un sottoprogetto `stubs` (sostituti di
+  `android.content.Context`, `Uri`, `MyCarLog`, `SessionReport`) compila anche `CertCatalog` e
+  compagni (`CertFamilyTest`). Per guardare un disegno animato del telefono senza emulatore: un
+  progetto Compose Desktop nella scratchpad (Kotlin 2.2.0, CMP 1.9.3, le librerie androidx per il
+  desktop prese da `refs/xonos/screens` di Xonos, `libs/`, con una sostituzione verso i moduli
+  `-desktop`/`-jvm`) disegna in PNG, con `ImageComposeScene`, i composable che non usano Android
+  (`PirateFlag`, `PirateShip`, `UpdateFlagScene`) a momenti scelti.
 - Output: `build/myCar-debug.apk` (task `renameApk`), cartella build unica alla radice.
 - Firma release opzionale via `keystore.properties` (gitignored).
 - Chiave di firma di myCar: alias `mycar`, PKCS12, certificato SHA-256
@@ -91,6 +97,13 @@ Rispondi sempre in **italiano**.
   scritte nel registro dell'emulatore (come root, poi `adb unroot`: gli scatti dopo restano come prima);
   `assistant-locked/` blocca l'emulatore con un PIN, tocca il microfono, fotografa la richiesta di
   sblocco, digita il PIN e controlla nel log che l'assistente di prova si apra dopo lo sblocco.
+  L'assistente in un'altra lingua (`--es voiceLang it`, solo debug: `VoiceLanguages.override`, come
+  col modello di quella lingua sul telefono; `--ez voiceHelp true` apre l'aiuto, `--es voiceReply
+  "<risposta inglese>"` ne mostra una tradotta): scatti `voice-it/`, `voice-de/`, `voice-it-800x480/`,
+  `voice-reply/`. `voice-check/` (`VoiceCheckActivity`, solo debug) chiede la misura di ogni file dei
+  modelli vocali dove myCar li scarica (Hugging Face, che dalla sessione cloud non si raggiunge),
+  scrive una risposta per lingua e le voci della sintesi dell'emulatore: l'emulatore (x86_64) non fa
+  girare il riconoscimento, la libreria di sherpa-onnx è solo arm64.
   Lanciato a mano, il workflow accetta `shots` (nomi degli scatti separati da spazi, vuoto = tutti)
   per provare una cosa sola in pochi minuti; nello script `BEFORE` è un comando eseguito subito
   prima di aprire l'anteprima (es. accendere myCar in Accessibilità, che il force-stop spegne).
@@ -171,9 +184,9 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen` / `PhoneRecents` (Telefono: Recenti, contatti, tastierino), `QuickReplyTexts` (risposte rapide nella lingua del telefono), `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` / `CinemaContinue` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `WebSelect` (menu a tendina delle pagine), `AppLinks` (link alle app nelle pagine), `TemplateBack` / `BackCloses` (tasto Indietro dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `AssistantLanguage` + frasari (l'assistente nella lingua del telefono), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen` / `PhoneRecents` (Telefono: Recenti, contatti, tastierino), `QuickReplyTexts` (risposte rapide nella lingua del telefono), `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` / `CinemaContinue` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `WebSelect` (menu a tendina delle pagine), `AppLinks` (link alle app nelle pagine), `TemplateBack` / `BackCloses` (tasto Indietro dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen` col veliero `PirateShip`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `UpdateSplash` (la bandiera dopo ogni aggiornamento), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma", `MORE` suggeriti), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono), `PhoneVideos` (video del telefono), `TvLists` + `M3u` (liste IPTV), `ChannelLogos` |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli) |
@@ -480,6 +493,49 @@ Tutti i token in un solo posto, `car/design/`:
   si ripete una volta. Verificato (0.5.09, scatto `assistant-locked`): PIN sul telefono, avviso
   sull'auto, e dopo lo sblocco l'assistente di prova si apre con `invocation_type=1`,
   `triggered_by=83`.
+- **L'assistente nella lingua del telefono** (0.5.21, richiesta dell'utente: "il tts e stt devono
+  essere italiani, lo stesso per spagnolo etc"; myCar non ha una scelta della lingua, la UI resta
+  inglese e l'assistente segue il telefono): italiano, spagnolo, francese, tedesco, portoghese
+  (`speech/VoiceLanguage.kt`). La lingua vale solo con un modello finale che la sente
+  (`VoiceLanguages.effective`; o il riconoscitore del telefono, se scelto): senza, l'assistente resta
+  in inglese come prima. **Modelli**: Canary sente en/es/de/fr (ora gli si dice la lingua, srcLang =
+  tgtLang, non traduce); **Parakeet multilingue** (TDT 0.6B v3 int8, 640 MB, CC BY 4.0, 25 lingue
+  europee) anche it e pt; `SpeechModels.finalFor` sceglie per lingua (quello scelto se la sa, poi
+  Canary, poi Parakeet multilingue), `recommended()` per la lingua del telefono (Kroko + Canary, o
+  Kroko + Parakeet multilingue per it/pt, che dal setup diventa anche la scelta). Kroko (solo
+  inglese) in un'altra lingua sente solo quando si smette di parlare: le sue parole non si mostrano,
+  si aspetta il modello finale (anche se sta caricando) e lo si usa anche quando Kroko non ha scritto
+  niente. **Comandi e risposte** (`car/AssistantLanguage.kt` + `AssistantItalian/Spanish/French/
+  German/Portuguese.kt`): `AssistantCommands` resta inglese; `toEnglish` trasforma la frase nel
+  comando inglese che vuol dire (regole in ordine, come in `AssistantCommands`), `answer` traduce ogni
+  frase inglese (`Said`: tutte quelle di AssistantCommands, CarAssistant, SpeechEngine, VoiceReply),
+  ridicendo la destinazione come detta ("Ti porto alla stazione", `remember`/`asSaid`, anche quando
+  AssistantCommands toglie l'app in fondo), ore ("È l'1:05", "Es ist 14:05 Uhr"), tempo rimasto,
+  meteo; i messaggi letti non passano da `answer` (il loro testo potrebbe somigliare a una risposta).
+  Portoghese del Portogallo o del Brasile secondo il paese del telefono. "con/su/mit…" prima del nome
+  di un'app (`appWords`) come "with/on". Sintesi vocale nella lingua (`speakingLocale`: pt-PT/pt-BR
+  come il telefono); prima le risposte inglesi si sentivano con la voce della lingua del telefono.
+  Sullo schermo dell'auto nella lingua solo le parole dell'assistente (aiuto, "Ti ascolto…", "Di'
+  «annulla» o «cambia»"); sul telefono "Voice: Italian" nelle impostazioni (`ui/VoiceLanguageNote.kt`)
+  e gli esempi dell'intro. Verificato: `AssistantLanguageTest` sulle frasi come le scrive Parakeet v3
+  (trascritte nella sessione cloud con sherpa-onnx per Python da voci sintetiche pico2wave/MBROLA:
+  quasi perfette in it/es/fr/de, il portoghese di MBROLA è peggiore); in CI i file dei modelli (anche
+  Parakeet multilingue: 622 + 11 + 6 MB) e le voci della sintesi (it, es, fr, de, pt disponibili
+  nell'emulatore); aiuto e risposte in auto negli scatti `voice-*`. Non provato: il riconoscimento sul
+  telefono vero in un'altra lingua (la libreria è solo arm64).
+- **La bandiera e il veliero** (0.5.21, richiesta dell'utente: "la bandiera deve sventolare dopo ogni
+  aggiornamento", e con una build grossa "appare anche il veliero, con la bandiera attaccata", animazioni
+  "graficamente fighe e ben fatte"): dopo ogni aggiornamento (versionCode più alto di quello annotato,
+  `UpdateFlag`, chiave `version_code` in `update_flag`) una pagina sola, `UpdateSplash` /
+  `UpdateFlagScene`: la bandiera di `PirateFlag` issata e al vento, una luce che respira, stelline,
+  "Updated to 0.5.21"; tocco, Indietro o 7 s vanno avanti. Con una versione nuova di primo livello
+  (l'intro, una per `Intro.release`, es. 0.6) al suo posto c'è l'intro, la cui prima pagina ha il
+  **veliero** (`ui/PirateShip.kt`): galeone disegnato dal codice (scafo a venature con assi e oro,
+  sportelli, finestre accese e lanterna, tre alberi con coffa, vele quadre gonfie con cuciture e
+  teschio, fiocco, randa, sartiame) che arriva da sinistra, cavalca l'onda e issa il Jolly Roger (lo
+  stesso telo, `drawCloth`) sull'albero maestro; mare a tre strati, scia, spruzzi, ombra, gabbiani,
+  sole e luccichio; col tema scuro luna, stelle e mare cupo. Tutto nel solo disegno (orologio di 120 s
+  su cui tornano tutti i periodi). Una nuova installazione non vede né l'una né l'altro.
 - Condivisione schermo (`mirror/`): mentre il telefono è copiato in auto, `TouchRelayService`
   (accessibilità, già usato per i tocchi) aggiunge un pixel trasparente
   `TYPE_ACCESSIBILITY_OVERLAY` con `screenOrientation = LANDSCAPE` (fisso, non sensore) che gira il
@@ -743,7 +799,8 @@ Tutti i token in un solo posto, `car/design/`:
   Nelle schede i tasti stanno uno sotto l'altro: affiancati, su un telefono stretto il secondo
   diventava una colonna di lettere. Scatti in CI: `setup-phone` (installa senza permessi, scarica
   davvero i certificati, tocca i tasti per testo con uiautomator, scorre a piccoli passi; schermo
-  dell'emulatore 320×640). Verificato (0.5.14): lista dal titolo, certificati scaricati e
+  dell'emulatore 320×640; in fondo `09-intro-1…4`, il veliero dell'intro con le animazioni accese, e
+  `10-update-1…4`, la bandiera dopo un aggiornamento, con le preferenze scritte via `run-as`). Verificato (0.5.14): lista dal titolo, certificati scaricati e
   controllati, Android Auto tenuto, un "Allow" con sei domande di Android in fila, tutto spuntato,
   Home senza "Finish setting up", ritorno dalla Guida, e con i contatti tolti di nuovo "Allow".
 - **Certificati** (`CertCatalog`, `CertChecks`, `CertRotation`, `CertRotationPolicy`): tre

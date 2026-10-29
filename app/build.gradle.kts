@@ -38,9 +38,9 @@ android {
         applicationId = "io.github.sirionero.mycar"
         minSdk = 31
         targetSdk = 37
-        versionCode = 33
+        versionCode = 34
         // -PmyCarVersionName=0.1.99-test makes a build that thinks it's older, to try the updater.
-        versionName = project.findProperty("myCarVersionName")?.toString() ?: "0.5.20-alpha"
+        versionName = project.findProperty("myCarVersionName")?.toString() ?: "0.5.21-alpha"
         manifestPlaceholders["appLabel"] = "myCar"
         // Where opted-in phones send their daily usage note: the stats-worker/ Worker's address,
         // set as myCarStatsUrl in gradle.properties. Left empty, nothing is ever sent.
