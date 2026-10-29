@@ -1,0 +1,27 @@
+20:48:33.172 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261029-204833.log
+20:48:33.705 I APP   projecting 1920x720 @ 240dpi
+20:48:33.709 I APP   preview: displayId=2
+20:48:36.680 I APP   prefetch done in 2434ms
+20:48:39.241 I APP   preview: demo song playing
+20:48:40.138 E APP   preview: no frame yet for step 0
+20:48:44.134 I APP   host: binding to app.vela/.car.VelaCarAppService
+20:48:44.708 I APP   preview: wrote preview-0.png
+20:48:45.295 I APP   weather: loaded
+20:48:45.706 I APP   weather: loaded
+20:48:46.440 I APP   host: bound; requesting app info
+20:48:46.586 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+20:48:46.605 I APP   host: handshake accepted; creating the app
+20:48:47.000 I APP   preview: wrote preview-1.png
+20:48:47.004 I APP   host: created; starting
+20:48:47.044 I APP   host: app asked for a surface (callback=true)
+20:48:47.238 I APP   ============================================================
+20:48:47.238 I APP   VERDICT: app.vela accepted myCar as a template host
+20:48:47.245 I APP   Handshake completed at car API level 7.
+20:48:47.246 I APP   ============================================================
+20:48:47.515 I APP   stage: surface ready at 1195x720
+20:48:47.843 I APP   host: lent the app a 1195x720 @240dpi surface
+20:48:49.194 I APP   host: template = PlaceListNavigationTemplate
+20:48:49.847 I APP   preview: wrote preview-2.png
+20:48:52.468 I APP   preview: wrote preview-3.png
+20:48:55.382 I APP   preview: wrote preview-4.png
+20:48:59.023 I APP   preview: wrote preview-5.png

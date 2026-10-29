@@ -1,0 +1,6 @@
+--------- beginning of main
+10-29 20:49:08.463  5060  5060 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261029-204908.log
+10-29 20:49:08.683  5060  5060 I myCar   : projecting 1920x720 @ 240dpi
+10-29 20:49:08.684  5060  5060 I myCar   : preview: displayId=4
+10-29 20:49:11.864  5060  5060 E myCar   : preview: no frame yet for step 0
+10-29 20:49:15.961  5060  5060 I myCar   : preview: wrote preview-0.png

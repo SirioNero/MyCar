@@ -1,0 +1,28 @@
+--------- beginning of main
+10-29 20:48:33.167  3837  3837 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261029-204833.log
+10-29 20:48:33.705  3837  3837 I myCar   : projecting 1920x720 @ 240dpi
+10-29 20:48:33.709  3837  3837 I myCar   : preview: displayId=2
+10-29 20:48:36.679  3837  3980 I myCar   : prefetch done in 2434ms
+10-29 20:48:39.241  3837  3837 I myCar   : preview: demo song playing
+10-29 20:48:40.137  3837  3837 E myCar   : preview: no frame yet for step 0
+10-29 20:48:44.134  3837  3837 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+10-29 20:48:44.698  3837  3837 I myCar   : preview: wrote preview-0.png
+10-29 20:48:45.294  3837  4118 I myCar   : weather: loaded
+10-29 20:48:45.701  3837  4118 I myCar   : weather: loaded
+10-29 20:48:46.440  3837  3837 I myCar   : host: bound; requesting app info
+10-29 20:48:46.581  3837  3837 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+10-29 20:48:46.604  3837  3837 I myCar   : host: handshake accepted; creating the app
+10-29 20:48:47.000  3837  3837 I myCar   : preview: wrote preview-1.png
+10-29 20:48:47.004  3837  3837 I myCar   : host: created; starting
+10-29 20:48:47.044  3837  3943 I myCar   : host: app asked for a surface (callback=true)
+10-29 20:48:47.238  3837  3837 I myCar   : ============================================================
+10-29 20:48:47.238  3837  3837 I myCar   : VERDICT: app.vela accepted myCar as a template host
+10-29 20:48:47.245  3837  3837 I myCar   : Handshake completed at car API level 7.
+10-29 20:48:47.245  3837  3837 I myCar   : ============================================================
+10-29 20:48:47.494  3837  3837 I myCar   : stage: surface ready at 1195x720
+10-29 20:48:47.842  3837  3837 I myCar   : host: lent the app a 1195x720 @240dpi surface
+10-29 20:48:49.190  3837  3837 I myCar   : host: template = PlaceListNavigationTemplate
+10-29 20:48:49.846  3837  3837 I myCar   : preview: wrote preview-2.png
+10-29 20:48:52.468  3837  3837 I myCar   : preview: wrote preview-3.png
+10-29 20:48:55.382  3837  3837 I myCar   : preview: wrote preview-4.png
+10-29 20:48:59.022  3837  3837 I myCar   : preview: wrote preview-5.png
