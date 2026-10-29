@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_whats_new_in">Neu in %1$s</string>
+    <string name="home_how_to_connect_subtitle">Welche Autos funktionieren und was noch einzurichten ist</string>
+    <string name="home_disconnect">Trennen</string>
+    <string name="home_disconnect_title">Vom Auto trennen?</string>
+    <string name="home_disconnect_text">myCar verlässt jetzt den Bildschirm des Autos. Mit Kabel: Zieh es ab und steck es wieder ein, um zurückzukommen.</string>
+    <string name="home_bluetooth_missing_title">Bluetooth ist nicht verbunden</string>
+    <string name="home_bluetooth_missing_calls">Anrufe laufen über Bluetooth, aber dein Telefon ist nicht mit dem Auto verbunden. Verbinde es hier oder über das Bluetooth-Menü des Autos.</string>
+    <string name="home_bluetooth_missing_calls_music">Anrufe und Musik laufen über Bluetooth, aber dein Telefon ist nicht mit dem Auto verbunden. Verbinde es hier oder über das Bluetooth-Menü des Autos.</string>
+    <string name="home_bluetooth_settings">Bluetooth-Einstellungen</string>
+    <string name="home_voice_downloading">Sprachmodelle werden geladen, %1$d %%</string>
+
+    <string name="wireless_button_connect">Kabellos verbinden</string>
+    <string name="wireless_button_denied">myCar braucht dafür Zugriff auf Bluetooth und auf WLAN in der Nähe.</string>
+    <string name="wireless_button_enable_permission">Berechtigung „Geräte in der Nähe“ aktivieren</string>
+    <string name="wireless_button_switched_off">myCar ist fürs Auto ausgeschaltet (Einstellungen, „myCar im Auto verwenden“).</string>
+    <string name="wireless_button_turn_on">Einschalten</string>
+    <string name="wireless_button_which_car">Welches Auto?</string>
+    <string name="wireless_button_bluetooth_off">Bluetooth ist aus. Schalte es ein und tippe dann erneut auf „Kabellos verbinden“.</string>
+    <string name="wireless_button_not_paired">Dein Telefon ist noch mit nichts gekoppelt. Kopple es zuerst mit dem Auto.</string>
+    <string name="wireless_button_not_listed">Auto nicht in der Liste? Kopple es zuerst mit deinem Telefon.</string>
+
+    <string name="help_title">Verbindungshilfe</string>
+    <string name="help_which_cars">Welche Autos funktionieren</string>
+    <string name="help_which_cars_text">Die meisten Autos funktionieren. Ab etwa 2020 haben manche Autos neuere Sicherheitsstandards eingeführt, die das Zertifikat von myCar ablehnen, und in diesen Autos kann myCar nicht laufen.</string>
+    <string name="help_see_full_list">Ganze Liste ansehen</string>
+    <string name="help_in_the_car">Im Auto</string>
+    <string name="help_sound_through_mycar">Ton über myCar</string>
+    <string name="help_step_connect">Anschließen oder kabellos verbinden.</string>
+    <string name="help_step_connect_detail">myCar öffnet sich von selbst, wenn sich das Auto verbindet. Für eine kabellose Verbindung kopple zuerst das Telefon mit dem Auto und tippe dann auf der Startseite auf „Kabellos verbinden“.</string>
+    <string name="help_step_pair">Für Anrufe per Bluetooth koppeln.</string>
+    <string name="help_step_pair_detail">Anrufe laufen über das Auto, sobald dein Telefon und das Auto gekoppelt sind. myCar bietet das Koppeln an, wenn du das Telefon zum ersten Mal anschließt.</string>
+    <string name="help_step_screening">Unbekannte Anrufer ablehnen, bevor es klingelt.</string>
+    <string name="help_step_screening_detail">Lege myCar als deine Anrufer-ID- und Spam-App fest. Ohne das zeigt das Auto trotzdem jeden Anruf, und du nimmst ihn dort an oder lehnst ihn ab.</string>
+    <string name="help_set_up">Einrichten</string>
+    <string name="help_step_audio_prompt">Die Audiofrage bei jeder Fahrt abschalten.</string>
+    <string name="help_step_audio_prompt_detail">Verbinde das Telefon mit einem Computer mit aktiviertem USB-Debugging und führe das hier einmal aus. Ohne das tippst du bei jeder Abfahrt auf „Starten“.</string>
+    <string name="help_step_notifications">Benachrichtigungen lesbar halten.</string>
+    <string name="help_step_notifications_detail">Android blendet den Inhalt von Benachrichtigungen aus, während es Ton teilt. Führe auch das aus, dann hebt myCar das nur auf, solange Musik ins Auto geht.</string>
+    <string name="help_tap_to_copy">Zum Kopieren tippen</string>
+    <string name="help_command_copied">Befehl kopiert</string>
+
+    <string name="cert_notice_turned_down_title">Dein Auto hat dieses Zertifikat abgelehnt</string>
+    <string name="cert_notice_switched_text">myCar verwendet ab jetzt %1$s. Verbinde dich erneut mit dem Auto: Steck das Kabel wieder ein oder verbinde kabellos.</string>
+    <string name="cert_notice_switched_next_text">myCar verwendet ab jetzt das nächste Zertifikat. Verbinde dich erneut mit dem Auto: Steck das Kabel wieder ein oder verbinde kabellos.</string>
+    <string name="cert_notice_no_spare_text">Lade %1$s und verbinde dich dann erneut mit dem Auto.</string>
+    <string name="cert_notice_no_spare_unnamed_text">Lade das Reservezertifikat und verbinde dich dann erneut mit dem Auto.</string>
+    <string name="cert_notice_exhausted_title">Dein Auto hat jedes Zertifikat abgelehnt</string>
+    <plurals name="cert_notice_exhausted_text">
+        <item quantity="one">myCar hat %1$d ausprobiert. Manche Autos ab etwa Baujahr 2020 prüfen Telefone strenger, und mit ihnen kann sich myCar noch nicht verbinden.</item>
+        <item quantity="other">myCar hat %1$d ausprobiert. Manche Autos ab etwa Baujahr 2020 prüfen Telefone strenger, und mit ihnen kann sich myCar noch nicht verbinden.</item>
+    </plurals>
+    <string name="cert_notice_no_cert_title">myCar hat noch kein Autozertifikat</string>
+    <string name="cert_notice_no_cert_text">Autos sprechen nur mit Telefonen, die ein Zertifikat haben, dem sie vertrauen. Lade jetzt eins und verbinde dich dann erneut mit dem Auto.</string>
+    <string name="cert_notice_own_refused_title">Dein Auto hat dein Zertifikat abgelehnt</string>
+    <string name="cert_notice_own_refused_text">Um stattdessen die öffentlichen zu verwenden, entferne deins in den Einstellungen unter „Zertifikat“.</string>
+    <string name="cert_notice_clock_title">Prüfe das Datum des Autos</string>
+    <string name="cert_notice_clock_text">Nach dem Datum des Autos ist das Zertifikat nicht gültig. Stell die Uhr des Autos und verbinde dich dann erneut.</string>
+    <string name="cert_notice_download_failed">Die Zertifikate konnten nicht heruntergeladen werden. Prüfe deine Internetverbindung und versuche es dann erneut.</string>
+    <string name="cert_notice_get_spare">Reserve laden</string>
+    <string name="cert_notice_getting_spare">Wird geladen…</string>
+    <string name="cert_notice_get_certificates">Zertifikate laden</string>
+    <string name="cert_notice_getting_certificates">Zertifikate werden geladen…</string>
+    <string name="cert_notice_start_over">Wieder beim ersten beginnen</string>
+
+    <string name="cert_role_recommended">Empfohlen</string>
+    <string name="cert_role_spare">Reserve</string>
+    <string name="cert_role_newest">Neueste Autos</string>
+    <string name="cert_about_aasdk">Funktioniert in den meisten bisher getesteten Autos. Aus dem Projekt aasdk.</string>
+    <string name="cert_about_revived">Gültig bis 2044, für Autos, die das erste ablehnen. Aus dem Projekt Headunit Revived.</string>
+    <string name="cert_about_carservice">Das eigene Zertifikat von Android Auto, für Autos, die Telefone am strengsten prüfen, darunter neuere Volkswagen. Android Auto ersetzt es alle paar Monate: myCar holt sich das neue, bevor es abläuft.</string>
+
+    <string name="cert_summary_none">Noch kein Autozertifikat: Tippe unten auf eins, um es zu laden</string>
+    <string name="cert_summary_imported">Importiert: %1$s</string>
+    <string name="cert_summary_downloaded">Heruntergeladen: %1$s</string>
+    <string name="cert_summary_staged">Per adb bereitgestellt: %1$s</string>
+    <string name="cert_summary_self_signed">Selbst signiert: %1$s</string>
+
+    <string name="cert_setup_title">Zertifikat einrichten</string>
+    <string name="cert_setup_intro">Autos akzeptieren nur von Google ausgestellte Zertifikate. myCar enthält keins, also wähle, woher deins kommt.</string>
+    <string name="cert_setup_intro_installed">Autos akzeptieren nur von Google ausgestellte Zertifikate, und du hast eins geladen.</string>
+    <string name="cert_setup_imported">Zertifikat importiert.</string>
+    <string name="cert_setup_installed">Zertifikat installiert.</string>
+    <string name="cert_setup_continue">Weiter</string>
+    <string name="cert_setup_download">Von aasdk herunterladen</string>
+    <string name="cert_setup_download_about">Das Open-Source-Projekt aasdk veröffentlicht dieses Zertifikat unter github.com/opencardev/aasdk. Die meisten Autos akzeptieren es, manche ab etwa 2020 nicht.</string>
+    <string name="cert_setup_downloading">Wird heruntergeladen…</string>
+    <string name="cert_setup_download_failed">Download fehlgeschlagen</string>
+    <string name="cert_setup_unknown_error">Unbekannter Fehler</string>
+    <string name="cert_setup_retry">Erneut versuchen</string>
+    <string name="cert_setup_import">Eigene Datei importieren</string>
+    <string name="cert_setup_import_about">Eine .p12-Datei mit privatem Schlüssel, von einem Ort deiner Wahl.</string>
+    <string name="cert_setup_skip">Einrichtung der Autoverbindung überspringen</string>
+    <string name="cert_setup_password_title">Passwort des Zertifikats</string>
+    <string name="cert_setup_password">Passwort</string>
+    <string name="cert_setup_password_hint">Leer lassen, wenn die Datei keins hat.</string>
+    <string name="cert_setup_wrong_password">Falsches Passwort oder keine gültige PKCS#12-Datei mit privatem Schlüssel.</string>
+    <string name="cert_setup_import_button">Importieren</string>
+
+    <string name="update_title">Updates</string>
+    <string name="update_out">myCar %1$s ist da</string>
+    <string name="update_downloading">Wird heruntergeladen… %1$d %%</string>
+    <string name="update_unplug_first">Trenne das Telefon vom Auto, um zu installieren. Die Installation schließt myCar.</string>
+    <string name="update_downloaded">Heruntergeladen. Android fragt vor der Installation.</string>
+    <string name="update_download_now">Lade es jetzt herunter. Android fragt vor der Installation.</string>
+    <string name="update_install">Installieren</string>
+    <string name="update_update">Aktualisieren</string>
+    <string name="update_download">Herunterladen</string>
+    <string name="update_check_now">Jetzt prüfen</string>
+    <string name="update_status_debug">Debug-Builds prüfen nur, wenn du auf „Jetzt prüfen“ tippst</string>
+    <string name="update_status_daily">myCar prüft einmal am Tag</string>
+    <string name="update_status_checking">Wird geprüft…</string>
+    <string name="update_status_latest">Du hast die neueste Version</string>
+    <string name="update_status_available">Version %1$s ist da</string>
+    <string name="update_status_ready">Version %1$s ist bereit zur Installation</string>
+    <string name="update_version_status">Version %1$s. %2$s.</string>
+    <string name="update_check_automatically">Automatisch prüfen</string>
+    <string name="update_once_a_day">Einmal am Tag</string>
+    <string name="update_notification_text">Zum Aktualisieren tippen.</string>
+    <string name="update_car_notification_text">Aktualisiere in der myCar-App oder über GitHub</string>
+    <string name="update_error_no_github">GitHub ist nicht erreichbar. Prüfe die Verbindung und versuche es erneut.</string>
+    <string name="update_error_no_space">Nicht genug Platz auf dem Telefon für das Update. Gib etwas frei und versuche es dann erneut.</string>
+    <string name="update_error_stopped">Der Download wurde unterbrochen. Prüfe die Verbindung und versuche es dann erneut.</string>
+    <string name="update_error_installer">Das Installationsprogramm von Android ließ sich nicht öffnen. Versuche es erneut.</string>
+    <string name="update_error_not_sent">GitHub hat das Update nicht geschickt (Code %1$d). Versuche es später erneut.</string>
+    <string name="update_error_stopped_early">Der Download hat zu früh aufgehört. Versuche es erneut.</string>
+    <string name="update_error_damaged">Der Download ist beschädigt angekommen. Versuche es erneut.</string>
+    <string name="update_splash_updated_to">Aktualisiert auf</string>
+    <string name="update_splash_tap">Tippe irgendwo, um weiterzumachen</string>
+    <string name="update_flag_local">100 % LOKAL</string>
+    <string name="update_flag_motto">WIR SCHÜTZEN DATEN</string>
+    <string name="update_flag_description">Eine Piratenflagge: 100 % lokal. Wir schützen unsere Daten.</string>
+    <string name="update_ship_description">Ein Piratenschiff unter der Flagge von myCar: 100 % lokal. Wir schützen unsere Daten.</string>
+
+    <string name="whatsnew_title">Neuigkeiten</string>
+    <string name="whatsnew_this_version">%1$s (diese Version)</string>
+
+    <string name="recommended_title">Empfohlene Apps</string>
+    <string name="recommended_intro">Diese kostenlosen Apps laufen auf dem Autobildschirm von myCar. Jede Taste öffnet die Seite der App auf GitHub.</string>
+    <string name="recommended_section_maps">Karten</string>
+    <string name="recommended_section_music">Musik</string>
+    <string name="recommended_section_podcasts">Podcasts</string>
+    <string name="recommended_about_organic_maps">Offline-Karten und Routenplanung.</string>
+    <string name="recommended_about_vela">Navigation mit Abbiegehinweisen, ohne Google.</string>
+    <string name="recommended_about_youtube_music">Ein Player für YouTube Music.</string>
+    <string name="recommended_about_antennapod">Podcasts, mit Kapiteln und allem.</string>
+    <string name="recommended_installed">Installiert</string>
+
+    <string name="logs_title">Live-Protokoll</string>
+    <string name="logs_share">Teilen</string>
+    <string name="logs_earlier">Ältere</string>
+    <string name="logs_clear">Leeren</string>
+    <string name="logs_jump_to_latest">Zum Neuesten</string>
+    <string name="logs_empty">Noch nichts protokolliert. Zeilen erscheinen hier live, während eine Sitzung läuft.</string>
+    <string name="logs_share_subject">myCar-Protokoll</string>
+    <string name="logs_share_chooser">Protokoll teilen</string>
+    <string name="logs_earlier_title">Ältere Protokolle</string>
+    <string name="logs_earlier_empty">Noch keine älteren Protokolle. Bei jedem Start beginnt myCar ein neues.</string>
+    <string name="logs_crashed">Abgestürzt</string>
+    <string name="logs_size_kb">%1$d KB</string>
+
+    <string name="preview_title">Auto-Vorschau</string>
+    <string name="preview_size">%1$dx%2$d @ %3$ddpi – Berührungen gehen an die Oberfläche im Auto</string>
+    <string name="preview_car_screen">Bildschirm des Autos</string>
+    <string name="preview_waiting">Warte auf ein Bild…</string>
+    <string name="preview_leave">Auto-Vorschau verlassen</string>
+
+    <string name="donate_title">Schön, dass die Fahrt geklappt hat</string>
+    <string name="donate_text">myCar ist kostenlos, ohne Werbung und ohne Tracking. Wenn es dich auf die Straße bringt, hält deine Unterstützung es am Laufen.</string>
+    <string name="donate_bitcoin">Mit Bitcoin unterstützen</string>
+    <string name="donate_card">Einmal per Karte spenden</string>
+</resources>

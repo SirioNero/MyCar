@@ -3,6 +3,6 @@
 <resources>
     <string name="language_title">Sprache</string>
     <string name="language_phone">Sprache des Telefons (%1$s)</string>
-    <string name="language_footer">myCar auf dem Telefon und auf dem Bildschirm des Autos, und sein Sprachassistent, in dieser Sprache.</string>
+    <string name="language_footer">myCar auf dem Telefon und auf dem Bildschirm des Autos sowie sein Sprachassistent in dieser Sprache.</string>
     <string name="language_close">Schließen</string>
 </resources>
