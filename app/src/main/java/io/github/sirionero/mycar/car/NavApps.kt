@@ -210,11 +210,13 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
     }
     val pinned by CarSettings.pinnedApps.collectAsState()
     val entries = rememberAllEntries()
-    // The pin this app shows for in the dock: saved as it, or as its Plancia or Xonos twin.
-    val mine = pinned.firstOrNull { pinShown(it, entries) == id }
-    val isPinned = mine != null
-    // Only pins the dock can show count: one of an app since removed took a place no one could free.
-    val shown = pinned.filter { stored -> entries.any { it.componentId == pinShown(stored, entries) } }
+    // The pins this app shows for in the dock: saved as it, or as its Plancia or Xonos twin (both,
+    // when each was pinned in its time).
+    val mine = pinned.filter { pinShown(it, entries) == id }
+    val isPinned = mine.isNotEmpty()
+    // Only what the dock can show counts, once per icon: a pin of an app since removed, or the twin
+    // of one already there, took a place no one could see or free.
+    val shown = pinned.map { pinShown(it, entries) }.filter { s -> entries.any { it.componentId == s } }.toSet()
     val barFull = !isPinned && shown.size >= CarSettings.MAX_PINNED
     val slot = running[id]
 
@@ -255,12 +257,17 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                 }
                 GsButton(
                     onClick = {
-                        if (mine != null) {
-                            CarSettings.togglePin(mine)
+                        if (isPinned) {
+                            mine.forEach(CarSettings::togglePin)
                         } else {
-                            // Room the dock can't show freed first, once the phone's apps are known.
+                            // Room the dock can't show freed first, once the phone's apps are known:
+                            // pins of apps since removed, and the second of a pair shown as one icon.
                             if (pinned.size >= CarSettings.MAX_PINNED && LauncherCache.entries != null) {
-                                (pinned - shown.toSet()).forEach(CarSettings::togglePin)
+                                val kept = HashSet<String>()
+                                pinned.filterNot { stored ->
+                                    val s = pinShown(stored, entries)
+                                    entries.any { it.componentId == s } && kept.add(s)
+                                }.forEach(CarSettings::togglePin)
                             }
                             CarSettings.togglePin(id)
                         }
