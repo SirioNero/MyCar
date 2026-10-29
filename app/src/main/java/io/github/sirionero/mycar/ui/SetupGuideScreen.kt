@@ -331,13 +331,13 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     )
 
     // --- Voice: both recommended models in one tap, skipped once they're on the phone ---
-    if (!SpeechModels.RECOMMENDED.all { SpeechModels.isReady(context, it) }) {
+    if (!SpeechModels.recommended().all { SpeechModels.isReady(context, it) }) {
         add(
             GuidePage(
                 title = "Voice.",
                 explanation = "Ask for directions, music, or a call by voice. Your phone turns speech " +
                     "into text by itself, and nothing you say leaves it. It needs " +
-                    "${SpeechModels.RECOMMENDED.sumOf { it.downloadMb }} MB, downloaded once. Use Wi-Fi if you can.",
+                    "${SpeechModels.recommended().sumOf { it.downloadMb }} MB, downloaded once. Use Wi-Fi if you can.",
                 icon = { MicIcon(it) },
                 optional = true,
                 actionLabel = "Download voice",
@@ -416,7 +416,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
 private fun VoiceDownloadStatus() {
     val context = LocalContext.current
     val progress by SpeechModels.progress.collectAsState()
-    val states = SpeechModels.RECOMMENDED.map { SpeechModels.state(it).collectAsState().value }
+    val states = SpeechModels.recommended().map { SpeechModels.state(it).collectAsState().value }
     val line = when {
         progress != null -> "Downloading, $progress%. You can carry on; it keeps going."
         states.all { it == SpeechModels.State.Ready } -> "Voice is ready."

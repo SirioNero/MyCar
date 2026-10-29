@@ -494,6 +494,33 @@ echo "--- the microphone with the phone locked ---"
 grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
     echo "assistant-locked: nothing in the log"
 
+# The assistant in another language on the car's screen (--es voiceLang, as with its model on the
+# phone): its help in Italian, in German (the longest words), at 800x480, and an answer in German.
+EXTRA="--es voiceLang it --ez voiceHelp true" shoot voice-it 1920 720 240 "$WAIT"
+EXTRA="--es voiceLang de --ez voiceHelp true" shoot voice-de 1920 720 240 "$WAIT"
+EXTRA="--es voiceLang it --ez voiceHelp true" shoot voice-it-800x480 800 480 160 "$WAIT"
+EXTRA="--es voiceLang de --es voiceReply 'Around 14:30, in 1 hour 5 minutes.'" shoot voice-reply 1920 720 240 "$WAIT"
+
+# The speech models' files where myCar downloads them, by size (the emulator can't run the speech
+# library, which is arm64 only), an answer in each language and the phone's voices for them.
+voice_check() {
+    case " ${ONLY:-voice-check} " in *" voice-check "*) ;; *) return ;; esac
+    local d=previews/voice-check i
+    mkdir -p $d
+    adb shell am force-stop "$PKG"
+    adb logcat -c
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.VoiceCheckActivity"
+    for i in $(seq 1 30); do
+        sleep 4
+        adb logcat -d -s myCar | grep -q "voice check: done" && break
+    done
+    adb logcat -d -s myCar > $d/log.txt
+    adb logcat -d -b crash > $d/crash.txt 2>&1
+    echo "--- voice check ---"
+    grep -h "voice check" $d/log.txt || echo "voice-check: nothing in the log"
+}
+voice_check
+
 # The setup list on the phone, as a new user finds it: myCar's data cleared and no permissions
 # (the install above granted them all). Last, since it wipes myCar's data. 01 the list; 02 after
 # "Get certificates", a real download from GitHub checked against the fingerprints; 03-* Android's

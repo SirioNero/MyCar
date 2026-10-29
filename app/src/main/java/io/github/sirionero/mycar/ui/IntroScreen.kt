@@ -88,7 +88,10 @@ import io.github.sirionero.mycar.car.theme.GsIconButton
 import io.github.sirionero.mycar.car.theme.GsThemes
 import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.car.theme.LocalGsTheme
+import io.github.sirionero.mycar.car.AssistantLanguage
 import io.github.sirionero.mycar.speech.SpeechModels
+import io.github.sirionero.mycar.speech.VoiceLanguage
+import io.github.sirionero.mycar.speech.VoiceLanguages
 import io.github.sirionero.mycar.stats.UsageStats
 import kotlin.math.PI
 import kotlin.math.cos
@@ -97,6 +100,7 @@ import kotlin.math.sqrt
 import kotlin.math.sin
 import kotlin.random.Random
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 /**
  * The release intro: a few screens shown once after updating to a new release, before setup. New
@@ -403,7 +407,7 @@ private fun BadgeStep(
 private fun VoiceStep(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, key: IntroStep) {
     val context = LocalContext.current
     remember { SpeechModels.init(context) }
-    val needed = SpeechModels.RECOMMENDED
+    val needed = SpeechModels.recommended()
     val states = needed.map { SpeechModels.state(it).collectAsState().value }
     val ready = states.all { it == SpeechModels.State.Ready }
     val label = when {
@@ -412,10 +416,13 @@ private fun VoiceStep(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUn
         states.any { it is SpeechModels.State.Failed } -> "Download failed. Try again"
         else -> "Download voice, ${needed.sumOf { it.downloadMb }} MB"
     }
+    val phone = VoiceLanguages.phone()
+    val helpWord = AssistantLanguage.help(phone)?.last()?.first ?: "help"
+    val inLanguage = if (phone == VoiceLanguage.EN) "" else " It listens and answers in ${phone.locale.getDisplayLanguage(Locale.ENGLISH)}, like your phone."
     BadgeStep(
         c, cq, cqSp, c.primaryC, "Just say it.",
         "Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech " +
-            "into text by itself, and nothing you say leaves it. Say \"help\" in the car for the full list.",
+            "into text by itself, and nothing you say leaves it.$inLanguage Say \"$helpWord\" in the car for the full list.",
         key,
         action = if (ready) null else label to { SpeechModels.downloadRecommended(context) },
         outlined = true,
@@ -437,8 +444,10 @@ private val SAMPLE_COMMANDS = listOf(
 /** Example commands rising slowly through a window that fades at both edges. */
 @Composable
 private fun CommandDrift(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, key: Any) {
+    // In the phone's language, the one the assistant will listen in.
+    val samples = remember { AssistantLanguage.samples(VoiceLanguages.phone()) ?: SAMPLE_COMMANDS }
     val scroll by rememberInfiniteTransition(label = "drift").animateFloat(
-        0f, 1f, infiniteRepeatable(tween(SAMPLE_COMMANDS.size * 2_200, easing = LinearEasing)), label = "drift",
+        0f, 1f, infiniteRepeatable(tween(samples.size * 2_200, easing = LinearEasing)), label = "drift",
     )
     Box(
         Modifier
@@ -464,7 +473,7 @@ private fun CommandDrift(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> Tex
             verticalArrangement = Arrangement.spacedBy(cq(2.4f)),
         ) {
             repeat(2) {
-                SAMPLE_COMMANDS.forEach { say ->
+                samples.forEach { say ->
                     Text(
                         "\u201c$say\u201d", color = c.onSecondaryC,
                         style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),

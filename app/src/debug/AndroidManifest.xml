@@ -3,6 +3,8 @@
     <application>
         <!-- Debug builds only: renders the car UI to PNGs so it can be checked without a car. -->
         <activity android:name="io.github.sirionero.mycar.CarPreviewActivity" android:exported="true" />
+        <!-- Debug builds only: checks the speech models' files and the phone's voices (Car preview, "voice-check"). -->
+        <activity android:name="io.github.sirionero.mycar.VoiceCheckActivity" android:exported="true" />
 
         <!-- Debug builds only: a stand-in voice assistant, so the Car preview workflow can check that
              myCar's microphone starts the phone's assistant as the swipe from a bottom corner does. -->

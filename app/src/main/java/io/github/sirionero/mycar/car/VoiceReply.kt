@@ -92,7 +92,7 @@ object VoiceReply {
             lookups.launch {
                 val who = missedCaller(context, n.postedAt)
                 if (id != run) return@launch
-                CarAssistant.say(if (who != null) "Missed call from $who." else spoken(n)) { if (id == run) finish() }
+                CarAssistant.say(if (who != null) AssistantLanguage.answer("Missed call from $who.") else spoken(n)) { if (id == run) finish() }
             }
             return
         }
@@ -118,7 +118,7 @@ object VoiceReply {
      */
     private fun offer(id: Int) {
         _state.value = _state.value.copy(phase = Phase.OFFERING, heard = "", until = 0L, span = 0L, held = 0f)
-        CarAssistant.say("Do you want to reply?") {
+        CarAssistant.say(AssistantLanguage.answer("Do you want to reply?")) {
             if (id != run) return@say
             val until = SystemClock.uptimeMillis() + OFFER_MS
             _state.value = _state.value.copy(until = until, span = OFFER_MS)
@@ -136,7 +136,7 @@ object VoiceReply {
                     if (id != run) return@dictate
                     if (isYes(text)) {
                         _state.value = _state.value.copy(phase = Phase.ASKING, heard = "", until = 0L, span = 0L, held = 0f)
-                        CarAssistant.say("Go ahead.") { if (id == run) listen(id) }
+                        CarAssistant.say(AssistantLanguage.answer("Go ahead.")) { if (id == run) listen(id) }
                     } else {
                         close()
                     }
@@ -153,9 +153,14 @@ object VoiceReply {
     }
 
     private fun isYes(text: String): Boolean {
-        val words = words(text)
-        if (words.any { it in NO_WORDS }) return false
-        return words.any { it in YES_WORDS }
+        if (says(text, NO_WORDS + AssistantLanguage.no())) return false
+        return says(text, YES_WORDS + AssistantLanguage.yes())
+    }
+
+    /** Whether [text] has one of [phrases] in it, as whole words ("va bene", "laisse tomber"). */
+    private fun says(text: String, phrases: Set<String>): Boolean {
+        val said = " " + words(text).joinToString(" ") + " "
+        return phrases.any { said.contains(" $it ") }
     }
 
     /**
@@ -164,13 +169,13 @@ object VoiceReply {
      */
     fun reply(n: CarNotification, readFirst: Boolean = true) {
         if (n.reply == null) {
-            val id = begin(State(Phase.ERROR, n, error = "${n.appLabel} doesn't allow replies from the car."))
+            val id = begin(State(Phase.ERROR, n, error = AssistantLanguage.answer("${n.appLabel} doesn't allow replies from the car.")))
             lingerThenIdle(id)
             return
         }
         // Android hands every app but the dialer a silent microphone during a call.
         if (CarCalls.state.value is CallUiState.Active) {
-            val id = begin(State(Phase.ERROR, n, error = "Voice reply works once the call ends."))
+            val id = begin(State(Phase.ERROR, n, error = AssistantLanguage.answer("Voice reply works once the call ends.")))
             lingerThenIdle(id)
             return
         }
@@ -186,7 +191,7 @@ object VoiceReply {
     private fun ask(id: Int) {
         // Whose chat, out loud: a reply asked for by voice ("reply to Anna") can't be checked by eye.
         val who = _state.value.target?.title?.takeIf { it.isNotBlank() }
-        CarAssistant.say(if (who != null) "What's your reply to $who?" else "What's your reply?") {
+        CarAssistant.say(AssistantLanguage.answer(if (who != null) "What's your reply to $who?" else "What's your reply?")) {
             if (id == run) listen(id)
         }
     }
@@ -208,7 +213,7 @@ object VoiceReply {
         _state.value = _state.value.copy(phase = Phase.CONFIRMING, heard = text, until = 0L, span = 0L, held = 0f)
         // The countdown starts once the driver has heard the whole reply, not while it's read out.
         val who = _state.value.target?.title?.takeIf { it.isNotBlank() }
-        CarAssistant.say(if (who != null) "Sending to $who: $text" else "Sending: $text") {
+        CarAssistant.say(AssistantLanguage.answer(if (who != null) "Sending to $who: $text" else "Sending: $text")) {
             if (id != run) return@say
             startCountdown(id, SEND_DELAY_MS)
             // A moment for the read-back to finish playing in the car before the microphone opens.
@@ -237,7 +242,7 @@ object VoiceReply {
                 when (command(text)) {
                     Command.CANCEL -> {
                         close()
-                        CarAssistant.say("Not sent.") {}
+                        CarAssistant.say(AssistantLanguage.answer("Not sent.")) {}
                     }
                     Command.CHANGE -> {
                         main.removeCallbacksAndMessages(SEND_TOKEN)
@@ -261,17 +266,15 @@ object VoiceReply {
 
     private enum class Command { CANCEL, CHANGE, SEND }
 
-    private fun command(text: String): Command? {
-        val words = words(text)
-        return when {
-            words.any { it in CANCEL_WORDS } -> Command.CANCEL
-            words.any { it in CHANGE_WORDS } -> Command.CHANGE
-            words.any { it in SEND_WORDS } -> Command.SEND
-            else -> null
-        }
+    private fun command(text: String): Command? = when {
+        says(text, CANCEL_WORDS + AssistantLanguage.cancel()) -> Command.CANCEL
+        says(text, CHANGE_WORDS + AssistantLanguage.change()) -> Command.CHANGE
+        says(text, SEND_WORDS + AssistantLanguage.send()) -> Command.SEND
+        else -> null
     }
 
-    private fun words(text: String) = text.lowercase().split(Regex("[^a-z']+")).filter { it.isNotEmpty() }
+    /** Letters of any language: "sì", "ändern" and "réponds" are words too. */
+    private fun words(text: String) = text.lowercase().split(Regex("[^\\p{L}']+")).filter { it.isNotEmpty() }
 
     /**
      * Ready-made replies for a tap instead of a voice reply, in the phone's language (see
@@ -315,12 +318,12 @@ object VoiceReply {
         if (CarNotifications.reply(context, n, s.heard.trim())) {
             MyCarLog.i("voice reply: sent to ${n.appLabel}")
             CarNotifications.seen(n.key)
-            CarAssistant.say("Message sent.") {}
+            CarAssistant.say(AssistantLanguage.answer("Message sent.")) {}
             CarNotifications.dismissPopup(n.id)
             _state.value = s.copy(phase = Phase.SENT, until = SystemClock.uptimeMillis() + SENT_MS, span = SENT_MS, held = 0f)
             main.postDelayed({ if (id == run) finish() }, SENT_MS)
         } else {
-            _state.value = s.copy(phase = Phase.ERROR, error = "${n.appLabel} withdrew the reply. Open the app on the phone to answer.")
+            _state.value = s.copy(phase = Phase.ERROR, error = AssistantLanguage.answer("${n.appLabel} withdrew the reply. Open the app on the phone to answer."))
             lingerThenIdle(id)
         }
     }
@@ -363,6 +366,8 @@ object VoiceReply {
     }
 
     private fun begin(state: State): Int {
+        // The words below are said in the driver's language: known before the first of them.
+        CarAssistant.syncLanguage()
         CarAssistant.stopListening()
         CarAssistant.stopSpeaking()
         main.removeCallbacksAndMessages(null)
@@ -391,14 +396,14 @@ object VoiceReply {
             return if (who.isBlank() || "missed" in who.lowercase()) {
                 listOf(n.title, n.text).filter { it.isNotBlank() }.joinToString(". ") + "."
             } else {
-                "Missed call from $who."
+                AssistantLanguage.answer("Missed call from $who.")
             }
         }
         val lines = n.lines.filter { it.sender != null }.takeLast(n.burst.coerceIn(1, MAX_READ))
-        if (lines.isEmpty()) return "$from says: ${n.text}"
+        if (lines.isEmpty()) return AssistantLanguage.says(from, n.text)
         return lines.joinToString(". ") { line ->
-            val who = if (n.isGroup) "${line.sender} in $from" else from
-            "$who says: ${line.text}"
+            val who = if (n.isGroup) AssistantLanguage.inGroup(line.sender.orEmpty(), from) else from
+            AssistantLanguage.says(who, line.text)
         }
     }
 
