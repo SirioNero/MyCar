@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_whats_new_in">Novità della %1$s</string>
+    <string name="home_how_to_connect_subtitle">Quali auto funzionano e cosa resta da configurare</string>
+    <string name="home_disconnect">Scollega</string>
+    <string name="home_disconnect_title">Scollegarsi dall\'auto?</string>
+    <string name="home_disconnect_text">myCar lascia subito lo schermo dell\'auto. Col cavo, scollegalo e ricollegalo per tornare.</string>
+    <string name="home_bluetooth_missing_title">Bluetooth non collegato</string>
+    <string name="home_bluetooth_missing_calls">Le chiamate passano dal Bluetooth, ma il telefono non è collegato all\'auto. Collegalo da qui o dal menu Bluetooth dell\'auto.</string>
+    <string name="home_bluetooth_missing_calls_music">Chiamate e musica passano dal Bluetooth, ma il telefono non è collegato all\'auto. Collegalo da qui o dal menu Bluetooth dell\'auto.</string>
+    <string name="home_bluetooth_settings">Impostazioni Bluetooth</string>
+    <string name="home_voice_downloading">Download della voce, %1$d%%</string>
+
+    <string name="wireless_button_connect">Collega senza fili</string>
+    <string name="wireless_button_denied">Per questo myCar ha bisogno dell\'accesso a Bluetooth e Wi-Fi nelle vicinanze.</string>
+    <string name="wireless_button_enable_permission">Attiva il permesso Dispositivi nelle vicinanze</string>
+    <string name="wireless_button_switched_off">myCar è disattivata per l\'auto (Impostazioni, «Usa myCar in auto»).</string>
+    <string name="wireless_button_turn_on">Attivala</string>
+    <string name="wireless_button_which_car">Quale auto?</string>
+    <string name="wireless_button_bluetooth_off">Il Bluetooth è disattivato. Attivalo, poi tocca di nuovo «Collega senza fili».</string>
+    <string name="wireless_button_not_paired">Il telefono non è ancora accoppiato con niente. Prima accoppialo con l\'auto.</string>
+    <string name="wireless_button_not_listed">L\'auto non c\'è? Prima accoppiala con il telefono.</string>
+
+    <string name="help_title">Come collegarsi</string>
+    <string name="help_which_cars">Quali auto funzionano</string>
+    <string name="help_which_cars_text">La maggior parte delle auto funziona. Dal 2020 circa, alcune auto hanno aggiunto standard di sicurezza più recenti che rifiutano il certificato di myCar, e su quelle auto myCar non può funzionare.</string>
+    <string name="help_see_full_list">Vedi l\'elenco completo</string>
+    <string name="help_in_the_car">In auto</string>
+    <string name="help_sound_through_mycar">Audio tramite myCar</string>
+    <string name="help_step_connect">Collega il cavo, o collegati senza fili.</string>
+    <string name="help_step_connect_detail">myCar si apre da sola quando l\'auto si collega. Per il senza fili, prima accoppia il telefono con l\'auto, poi tocca «Collega senza fili» nella Home.</string>
+    <string name="help_step_pair">Accoppia via Bluetooth per le chiamate.</string>
+    <string name="help_step_pair_detail">Le chiamate passano dall\'auto una volta accoppiati telefono e auto. myCar propone l\'accoppiamento la prima volta che colleghi il telefono.</string>
+    <string name="help_step_screening">Rifiuta le chiamate sconosciute prima che squillino.</string>
+    <string name="help_step_screening_detail">Imposta myCar come app ID chiamante e spam. Senza, l\'auto mostra comunque ogni chiamata, e lì rispondi o rifiuti.</string>
+    <string name="help_set_up">Configura</string>
+    <string name="help_step_audio_prompt">Niente più domanda per l\'audio a ogni viaggio.</string>
+    <string name="help_step_audio_prompt_detail">Collega il telefono a un computer con il debug USB attivo ed esegui questo comando una volta. Se lo salti, tocchi Avvia ogni volta che parti.</string>
+    <string name="help_step_notifications">Notifiche sempre leggibili.</string>
+    <string name="help_step_notifications_detail">Android nasconde il testo delle notifiche mentre condivide l\'audio. Esegui anche questo comando, e myCar toglie quel limite solo mentre la musica va all\'auto.</string>
+    <string name="help_tap_to_copy">Tocca per copiare</string>
+    <string name="help_command_copied">Comando copiato</string>
+
+    <string name="cert_notice_turned_down_title">La tua auto ha rifiutato questo certificato</string>
+    <string name="cert_notice_switched_text">Da ora myCar usa %1$s. Ricollegati all\'auto: ricollega il cavo o collegati senza fili.</string>
+    <string name="cert_notice_switched_next_text">Da ora myCar usa il certificato successivo. Ricollegati all\'auto: ricollega il cavo o collegati senza fili.</string>
+    <string name="cert_notice_no_spare_text">Scarica %1$s, poi ricollegati all\'auto.</string>
+    <string name="cert_notice_no_spare_unnamed_text">Scarica il certificato di riserva, poi ricollegati all\'auto.</string>
+    <string name="cert_notice_exhausted_title">La tua auto ha rifiutato tutti i certificati</string>
+    <plurals name="cert_notice_exhausted_text">
+        <item quantity="one">myCar ne ha provato %1$d. Alcune auto costruite dal 2020 circa controllano i telefoni in modo più severo, e myCar non riesce ancora a collegarsi a queste auto.</item>
+        <item quantity="other">myCar ne ha provati %1$d. Alcune auto costruite dal 2020 circa controllano i telefoni in modo più severo, e myCar non riesce ancora a collegarsi a queste auto.</item>
+    </plurals>
+    <string name="cert_notice_no_cert_title">myCar non ha ancora un certificato per l\'auto</string>
+    <string name="cert_notice_no_cert_text">Le auto parlano solo con i telefoni che hanno un certificato di cui si fidano. Scaricane uno ora, poi ricollegati all\'auto.</string>
+    <string name="cert_notice_own_refused_title">La tua auto ha rifiutato il tuo certificato</string>
+    <string name="cert_notice_own_refused_text">Per usare invece quelli pubblici, togli il tuo in Impostazioni, in Certificato.</string>
+    <string name="cert_notice_clock_title">Controlla la data dell\'auto</string>
+    <string name="cert_notice_clock_text">L\'auto dice che il certificato non è valido alla sua data. Regola l\'orologio dell\'auto, poi ricollegati.</string>
+    <string name="cert_notice_download_failed">Impossibile scaricare i certificati. Controlla la connessione a internet e riprova.</string>
+    <string name="cert_notice_get_spare">Scarica quello di riserva</string>
+    <string name="cert_notice_getting_spare">Lo scarico…</string>
+    <string name="cert_notice_get_certificates">Scarica i certificati</string>
+    <string name="cert_notice_getting_certificates">Scarico i certificati…</string>
+    <string name="cert_notice_start_over">Riprova dal primo</string>
+
+    <string name="cert_role_recommended">Consigliato</string>
+    <string name="cert_role_spare">Riserva</string>
+    <string name="cert_role_newest">Auto più recenti</string>
+    <string name="cert_about_aasdk">Funziona nella maggior parte delle auto provate finora. Dal progetto aasdk.</string>
+    <string name="cert_about_revived">Valido fino al 2044, per le auto che rifiutano il primo. Dal progetto Headunit Revived.</string>
+    <string name="cert_about_carservice">Quello di Android Auto, per le auto che controllano i telefoni in modo più severo, tra cui le Volkswagen recenti. Android Auto lo cambia ogni pochi mesi: myCar scarica quello nuovo prima che scada.</string>
+
+    <string name="cert_summary_none">Ancora nessun certificato per l\'auto: toccane uno qui sotto per scaricarlo</string>
+    <string name="cert_summary_imported">Importato: %1$s</string>
+    <string name="cert_summary_downloaded">Scaricato: %1$s</string>
+    <string name="cert_summary_staged">Caricato con adb: %1$s</string>
+    <string name="cert_summary_self_signed">Autofirmato: %1$s</string>
+
+    <string name="cert_setup_title">Configurazione del certificato</string>
+    <string name="cert_setup_intro">Le auto accettano solo certificati emessi da Google. myCar non ne contiene uno, quindi scegli da dove prendere il tuo.</string>
+    <string name="cert_setup_intro_installed">Le auto accettano solo certificati emessi da Google, e ne hai uno caricato.</string>
+    <string name="cert_setup_imported">Certificato importato.</string>
+    <string name="cert_setup_installed">Certificato installato.</string>
+    <string name="cert_setup_continue">Continua</string>
+    <string name="cert_setup_download">Scarica da aasdk</string>
+    <string name="cert_setup_download_about">Il progetto open source aasdk pubblica questo certificato su github.com/opencardev/aasdk. La maggior parte delle auto lo accetta; alcune dal 2020 circa in poi no.</string>
+    <string name="cert_setup_downloading">Download in corso…</string>
+    <string name="cert_setup_download_failed">Download non riuscito</string>
+    <string name="cert_setup_unknown_error">Errore sconosciuto</string>
+    <string name="cert_setup_retry">Riprova</string>
+    <string name="cert_setup_import">Importa un mio file</string>
+    <string name="cert_setup_import_about">Un file .p12 con la sua chiave privata, da dove vuoi.</string>
+    <string name="cert_setup_skip">Salta la configurazione del collegamento all\'auto</string>
+    <string name="cert_setup_password_title">Password del certificato</string>
+    <string name="cert_setup_password">Password</string>
+    <string name="cert_setup_password_hint">Lascia vuoto se il file non ne ha.</string>
+    <string name="cert_setup_wrong_password">Password sbagliata, o non è un file PKCS#12 valido con una chiave privata.</string>
+    <string name="cert_setup_import_button">Importa</string>
+
+    <string name="update_title">Aggiornamenti</string>
+    <string name="update_out">È disponibile myCar %1$s</string>
+    <string name="update_downloading">Download in corso… %1$d%%</string>
+    <string name="update_unplug_first">Scollega il telefono dall\'auto per installare. L\'installazione chiude myCar.</string>
+    <string name="update_downloaded">Scaricato. Android chiede prima di installare.</string>
+    <string name="update_download_now">Scaricalo ora. Android chiede prima di installare.</string>
+    <string name="update_install">Installa</string>
+    <string name="update_update">Aggiorna</string>
+    <string name="update_download">Scarica</string>
+    <string name="update_check_now">Controlla ora</string>
+    <string name="update_status_debug">Le build di debug controllano solo quando tocchi «Controlla ora»</string>
+    <string name="update_status_daily">myCar controlla una volta al giorno</string>
+    <string name="update_status_checking">Controllo…</string>
+    <string name="update_status_latest">Hai l\'ultima versione</string>
+    <string name="update_status_available">È disponibile la versione %1$s</string>
+    <string name="update_status_ready">La versione %1$s è pronta da installare</string>
+    <string name="update_version_status">Versione %1$s. %2$s.</string>
+    <string name="update_check_automatically">Controllo automatico</string>
+    <string name="update_once_a_day">Una volta al giorno</string>
+    <string name="update_notification_text">Tocca per aggiornare.</string>
+    <string name="update_car_notification_text">Aggiorna dall\'app myCar o da GitHub</string>
+    <string name="update_error_no_github">Impossibile raggiungere GitHub. Controlla la connessione e riprova.</string>
+    <string name="update_error_no_space">Non c\'è abbastanza spazio sul telefono per l\'aggiornamento. Liberane un po\', poi riprova.</string>
+    <string name="update_error_stopped">Il download si è interrotto. Controlla la connessione, poi riprova.</string>
+    <string name="update_error_installer">Impossibile aprire il programma di installazione di Android. Riprova.</string>
+    <string name="update_error_not_sent">GitHub non ha inviato l\'aggiornamento (codice %1$d). Riprova più tardi.</string>
+    <string name="update_error_stopped_early">Il download si è interrotto prima della fine. Riprova.</string>
+    <string name="update_error_damaged">Il download è arrivato danneggiato. Riprova.</string>
+    <string name="update_splash_updated_to">Aggiornata alla</string>
+    <string name="update_splash_tap">Tocca ovunque per continuare</string>
+    <string name="update_flag_local">100% LOCALE</string>
+    <string name="update_flag_motto">DIFENDIAMO I NOSTRI DATI</string>
+    <string name="update_flag_description">Una bandiera pirata: 100% locale. Difendiamo i nostri dati.</string>
+    <string name="update_ship_description">Una nave pirata con la bandiera di myCar: 100% locale. Difendiamo i nostri dati.</string>
+
+    <string name="whatsnew_title">Novità</string>
+    <string name="whatsnew_this_version">%1$s (questa versione)</string>
+
+    <string name="recommended_title">App consigliate</string>
+    <string name="recommended_intro">Queste app gratuite funzionano sullo schermo dell\'auto di myCar. Ogni tasto apre la pagina dell\'app su GitHub.</string>
+    <string name="recommended_section_maps">Mappe</string>
+    <string name="recommended_section_music">Musica</string>
+    <string name="recommended_section_podcasts">Podcast</string>
+    <string name="recommended_about_organic_maps">Mappe e percorsi offline.</string>
+    <string name="recommended_about_vela">Navigazione svolta per svolta senza Google.</string>
+    <string name="recommended_about_youtube_music">Un lettore per YouTube Music.</string>
+    <string name="recommended_about_antennapod">Podcast, capitoli e tutto il resto.</string>
+    <string name="recommended_installed">Installata</string>
+
+    <string name="logs_title">Log in tempo reale</string>
+    <string name="logs_share">Condividi</string>
+    <string name="logs_earlier">Precedenti</string>
+    <string name="logs_clear">Cancella</string>
+    <string name="logs_jump_to_latest">Vai alle ultime righe</string>
+    <string name="logs_empty">Ancora nessun log. Le righe compaiono qui in tempo reale durante una sessione.</string>
+    <string name="logs_share_subject">Log di myCar</string>
+    <string name="logs_share_chooser">Condividi il log</string>
+    <string name="logs_earlier_title">Log precedenti</string>
+    <string name="logs_earlier_empty">Ancora nessun log precedente. Ogni volta che myCar si avvia, ne comincia uno nuovo.</string>
+    <string name="logs_crashed">Arresto anomalo</string>
+    <string name="logs_size_kb">%1$d KB</string>
+
+    <string name="preview_title">Anteprima dell\'auto</string>
+    <string name="preview_size">%1$dx%2$d @ %3$ddpi - i tocchi vanno all\'interfaccia dell\'auto</string>
+    <string name="preview_car_screen">Schermo dell\'auto</string>
+    <string name="preview_waiting">In attesa di un fotogramma…</string>
+    <string name="preview_leave">Esci dall\'anteprima dell\'auto</string>
+
+    <string name="donate_title">Felici che il viaggio sia andato bene</string>
+    <string name="donate_text">myCar è gratuita, senza pubblicità e senza tracciamento. Se ti accompagna in viaggio, il tuo sostegno la fa andare avanti.</string>
+    <string name="donate_bitcoin">Sostieni con Bitcoin</string>
+    <string name="donate_card">Dona una volta con la carta</string>
+</resources>
