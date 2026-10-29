@@ -170,8 +170,8 @@
     <string name="intro_theme_play">Riproduci</string>
     <string name="intro_theme_navigate">Naviga</string>
     <string name="intro_voice_title">Basta dirlo.</string>
-    <string name="intro_voice_body">Tocca il microfono, o premi il tasto per parlare sul volante, e parla. Il telefono trasforma da solo la voce in testo, e niente di quello che dici esce dal telefono. In auto di\' «%1$s» per l\'elenco completo.</string>
-    <string name="intro_voice_body_language">Tocca il microfono, o premi il tasto per parlare sul volante, e parla. Il telefono trasforma da solo la voce in testo, e niente di quello che dici esce dal telefono. Ascolta e risponde in %1$s, come il tuo telefono. In auto di\' «%2$s» per l\'elenco completo.</string>
+    <string name="intro_voice_body">Tocca il microfono, o premi il tasto per parlare sul volante, e parla. Il telefono trasforma da solo la voce in testo, e quello che dici resta sul telefono, tranne quello che chiedi al tuo Home Assistant. In auto di\' «%1$s» per l\'elenco completo.</string>
+    <string name="intro_voice_body_language">Tocca il microfono, o premi il tasto per parlare sul volante, e parla. Il telefono trasforma da solo la voce in testo, e quello che dici resta sul telefono, tranne quello che chiedi al tuo Home Assistant. Ascolta e risponde in %1$s, la lingua di myCar. In auto di\' «%2$s» per l\'elenco completo.</string>
     <string name="intro_voice_downloading">Download in corso, %1$d%%</string>
     <string name="intro_voice_failed">Download non riuscito. Riprova</string>
     <string name="intro_voice_download">Scarica la voce, %1$d MB</string>

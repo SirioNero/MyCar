@@ -221,12 +221,14 @@
     <string name="voice_model_parakeet_small_detail">Più leggero e veloce, perde più nomi. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_canary_detail">Consigliato. Veloce, e capisce bene nomi e luoghi. Inglese, spagnolo, tedesco e francese. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">Capisce meglio i nomi, ma è più lento e grande il triplo. NVIDIA NeMo, CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">Italiano, portoghese, spagnolo, francese, tedesco e inglese, e altre 19 lingue europee. Grande e lento come Parakeet grande. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Italiano, portoghese, spagnolo, francese, tedesco, greco, russo e inglese, e altre 17 lingue europee. Grande e lento come Parakeet grande. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper piccolo</string>
+    <string name="voice_model_whisper_detail">Per il cinese. OpenAI Whisper, MIT</string>
 
     <string name="voice_model_language_title">Voce: %1$s</string>
-    <string name="voice_model_language_ready">Il tuo telefono è in %1$s, quindi l\'assistente dell\'auto ascolta e risponde in %1$s, con %2$s.</string>
-    <string name="voice_model_language_ready_try">Il tuo telefono è in %1$s, quindi l\'assistente dell\'auto ascolta e risponde in %1$s, con %2$s. Prova a dire «%3$s».</string>
-    <string name="voice_model_language_missing">Il tuo telefono è in %1$s. Con %2$s (%3$d MB) l\'assistente dell\'auto ascolta e risponde in %1$s; fino ad allora capisce solo l\'inglese.</string>
+    <string name="voice_model_language_ready">myCar è in %1$s, quindi l\'assistente dell\'auto ascolta e risponde in %1$s, con %2$s.</string>
+    <string name="voice_model_language_ready_try">myCar è in %1$s, quindi l\'assistente dell\'auto ascolta e risponde in %1$s, con %2$s. Prova a dire «%3$s».</string>
+    <string name="voice_model_language_missing">myCar è in %1$s. Con %2$s (%3$d MB) l\'assistente dell\'auto ascolta e risponde in %1$s; fino ad allora capisce solo l\'inglese.</string>
     <string name="voice_model_language_tts">Risponde con la voce della sintesi vocale del telefono in %1$s. Se non suona bene, scegli o scarica quella voce nelle impostazioni di sintesi vocale di Android.</string>
     <string name="voice_model_language_download">Scarica %1$s</string>
 
