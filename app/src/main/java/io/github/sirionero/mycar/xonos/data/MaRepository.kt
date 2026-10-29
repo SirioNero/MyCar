@@ -46,7 +46,7 @@ class MaRepository(
     private var loop: Job? = null
     private var users = 0
 
-    fun newClient() = MaClient(http, LOCALE)
+    fun newClient() = MaClient(http, locale())
 
     /** Riceve tutti gli eventi del server (nome, object_id, dati), sul thread di OkHttp. */
     fun addEventListener(listener: (String, String?, Any?) -> Unit) {
@@ -122,7 +122,7 @@ class MaRepository(
             var lastError = MaException("Music Assistant non raggiungibile", problem = Problem.NETWORK)
             for (url in config.urls) {
                 _connection.value = Connection.Connecting(url)
-                val candidate = MaClient(http, LOCALE)
+                val candidate = MaClient(http, locale())
                 try {
                     server = candidate.connect(url, config.token)
                     session = candidate
@@ -173,8 +173,13 @@ class MaRepository(
     companion object {
         private const val TAG = "Xonos"
 
-        /** La lingua dei testi che Music Assistant traduce da sé: l'inglese di myCar. */
-        private const val LOCALE = "en"
+        /**
+         * La lingua dei testi che Music Assistant traduce da sé: quella di myCar (Locale.getDefault(),
+         * che Android 13 mette alla lingua scelta per myCar, e MyCarApplication su Android 12), col
+         * nome che le dà Music Assistant.
+         */
+        private fun locale(): String =
+            io.github.sirionero.mycar.AppLanguage.of(java.util.Locale.getDefault())?.maLocale ?: "en"
 
         /**
          * L'indirizzo di un'immagine: dal proxy di Music Assistant, che la rimpicciolisce, oppure

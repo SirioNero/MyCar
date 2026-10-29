@@ -17,16 +17,22 @@ import java.util.Locale
  * for myCar too) and every part of myCar gets it, with nothing restarted; on Android 12 myCar
  * applies it itself.
  */
-enum class AppLanguage(val tag: String, val label: String) {
-    ENGLISH("en", "English"),
-    ITALIAN("it", "Italiano"),
-    SPANISH("es", "Español"),
-    GERMAN("de", "Deutsch"),
-    FRENCH("fr", "Français"),
-    PORTUGUESE("pt", "Português"),
-    GREEK("el", "Ελληνικά"),
-    RUSSIAN("ru", "Русский"),
-    CHINESE("zh-CN", "简体中文"),
+enum class AppLanguage(
+    val tag: String,
+    val label: String,
+    /** As Music Assistant names it, for Xonos inside myCar: it translates its own words into the connection's language. */
+    val maLocale: String,
+) {
+    ENGLISH("en", "English", "en"),
+    ITALIAN("it", "Italiano", "it"),
+    SPANISH("es", "Español", "es"),
+    GERMAN("de", "Deutsch", "de"),
+    FRENCH("fr", "Français", "fr"),
+    // Music Assistant's pt_PT is much more complete than its pt_BR, as the Xonos app found.
+    PORTUGUESE("pt", "Português", "pt_PT"),
+    GREEK("el", "Ελληνικά", "el_GR"),
+    RUSSIAN("ru", "Русский", "ru_RU"),
+    CHINESE("zh-CN", "简体中文", "zh_CN"),
     ;
 
     val locale: Locale get() = Locale.forLanguageTag(tag)

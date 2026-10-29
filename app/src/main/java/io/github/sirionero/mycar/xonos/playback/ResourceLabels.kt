@@ -4,10 +4,13 @@ import android.content.Context
 import android.content.res.Resources
 import io.github.sirionero.mycar.R
 
-/** Le scritte del menu dalle risorse dell'app: in inglese, come tutto lo schermo di myCar in auto. */
+/** Le scritte del menu dalle risorse dell'app, nella lingua di myCar come tutto lo schermo in auto. */
 class ResourceLabels(context: Context) : MenuLabels {
 
-    private val resources: Resources = context.resources
+    private val app = context.applicationContext
+
+    /** Lette ogni volta: una lingua cambiata vale dal menu dopo (su Android 12 la dà AppLanguage). */
+    private val resources: Resources get() = io.github.sirionero.mycar.AppLanguage.resources(app)
 
     override fun category(id: String) = resources.getString(CATEGORIES.getValue(id))
 
