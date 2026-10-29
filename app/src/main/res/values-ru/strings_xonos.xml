@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Xonos inside myCar: from the Xonos app's own translations (values-ru/strings.xml there). -->
+<resources>
+    <string name="xonos_cat_recent">Недавно прослушанное</string>
+    <string name="xonos_cat_foryou">Для вас</string>
+    <string name="xonos_cat_playlists">Плейлисты</string>
+    <string name="xonos_cat_albums">Альбомы</string>
+    <string name="xonos_cat_artists">Исполнители</string>
+    <string name="xonos_cat_tracks">Треки</string>
+    <string name="xonos_cat_favorites">Избранные треки</string>
+    <string name="xonos_cat_genres">Жанры</string>
+    <string name="xonos_cat_radios">Радио</string>
+    <string name="xonos_cat_podcasts">Подкасты</string>
+    <string name="xonos_cat_audiobooks">Аудиокниги</string>
+    <string name="xonos_cat_browse">Обзор сервисов</string>
+    <string name="xonos_top_tracks">Популярные треки</string>
+    <string name="xonos_all_tracks">Все треки</string>
+    <string name="xonos_error_unknown">неизвестная ошибка</string>
+    <string name="xonos_problem_bad_address">Неверный адрес: %s</string>
+    <string name="xonos_problem_no_answer_from">Нет ответа от %s</string>
+    <string name="xonos_problem_no_answer">Music Assistant не отвечает</string>
+    <string name="xonos_problem_not_ma">По этому адресу не отвечает Music Assistant</string>
+    <string name="xonos_problem_too_old">Music Assistant %s слишком старый: нужна версия 2.7 или новее</string>
+    <string name="xonos_problem_denied">Доступ запрещён</string>
+    <string name="xonos_problem_http">Ошибка HTTP %s</string>
+    <string name="xonos_problem_network">Ошибка сети: %s</string>
+    <string name="xonos_problem_unreachable">Music Assistant недоступен</string>
+    <string name="xonos_problem_lost">Соединение потеряно, переподключение</string>
+    <string name="xonos_problem_not_connected">Нет подключения к Music Assistant</string>
+    <string name="xonos_problem_bad_login">Неверное имя пользователя или пароль</string>
+    <string name="xonos_problem_setup_required">В этом Music Assistant ещё нет учётных записей: создайте первую</string>
+    <string name="xonos_problem_refused">Music Assistant: %s</string>
+
+    <plurals name="xonos_results">
+        <item quantity="one">%d результат</item>
+        <item quantity="few">%d результата</item>
+        <item quantity="many">%d результатов</item>
+        <item quantity="other">%d результата</item>
+    </plurals>
+    <plurals name="xonos_count_tracks">
+        <item quantity="one">%d трек</item>
+        <item quantity="few">%d трека</item>
+        <item quantity="many">%d треков</item>
+        <item quantity="other">%d трека</item>
+    </plurals>
+    <plurals name="xonos_count_albums">
+        <item quantity="one">%d альбом</item>
+        <item quantity="few">%d альбома</item>
+        <item quantity="many">%d альбомов</item>
+        <item quantity="other">%d альбома</item>
+    </plurals>
+    <plurals name="xonos_count_artists">
+        <item quantity="one">%d исполнитель</item>
+        <item quantity="few">%d исполнителя</item>
+        <item quantity="many">%d исполнителей</item>
+        <item quantity="other">%d исполнителя</item>
+    </plurals>
+    <plurals name="xonos_count_playlists">
+        <item quantity="one">%d плейлист</item>
+        <item quantity="few">%d плейлиста</item>
+        <item quantity="many">%d плейлистов</item>
+        <item quantity="other">%d плейлиста</item>
+    </plurals>
+    <plurals name="xonos_count_radio">
+        <item quantity="one">%d радиостанция</item>
+        <item quantity="few">%d радиостанции</item>
+        <item quantity="many">%d радиостанций</item>
+        <item quantity="other">%d радиостанции</item>
+    </plurals>
+    <plurals name="xonos_count_podcasts">
+        <item quantity="one">%d подкаст</item>
+        <item quantity="few">%d подкаста</item>
+        <item quantity="many">%d подкастов</item>
+        <item quantity="other">%d подкаста</item>
+    </plurals>
+    <plurals name="xonos_count_audiobooks">
+        <item quantity="one">%d аудиокнига</item>
+        <item quantity="few">%d аудиокниги</item>
+        <item quantity="many">%d аудиокниг</item>
+        <item quantity="other">%d аудиокниги</item>
+    </plurals>
+    <plurals name="xonos_count_genres">
+        <item quantity="one">%d жанр</item>
+        <item quantity="few">%d жанра</item>
+        <item quantity="many">%d жанров</item>
+        <item quantity="other">%d жанра</item>
+    </plurals>
+</resources>

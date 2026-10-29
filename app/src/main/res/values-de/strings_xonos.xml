@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Xonos inside myCar: from the Xonos app's own translations (values-de/strings.xml there). -->
+<resources>
+    <string name="xonos_cat_recent">Zuletzt gehört</string>
+    <string name="xonos_cat_foryou">Für dich</string>
+    <string name="xonos_cat_playlists">Playlists</string>
+    <string name="xonos_cat_albums">Alben</string>
+    <string name="xonos_cat_artists">Künstler</string>
+    <string name="xonos_cat_tracks">Titel</string>
+    <string name="xonos_cat_favorites">Lieblingstitel</string>
+    <string name="xonos_cat_genres">Genres</string>
+    <string name="xonos_cat_radios">Radio</string>
+    <string name="xonos_cat_podcasts">Podcasts</string>
+    <string name="xonos_cat_audiobooks">Hörbücher</string>
+    <string name="xonos_cat_browse">Dienste durchsuchen</string>
+    <string name="xonos_top_tracks">Meistgehört</string>
+    <string name="xonos_all_tracks">Alle Titel</string>
+    <string name="xonos_error_unknown">unbekannter Fehler</string>
+    <string name="xonos_problem_bad_address">Ungültige Adresse: %s</string>
+    <string name="xonos_problem_no_answer_from">Keine Antwort von %s</string>
+    <string name="xonos_problem_no_answer">Music Assistant antwortet nicht</string>
+    <string name="xonos_problem_not_ma">Unter dieser Adresse antwortet kein Music Assistant</string>
+    <string name="xonos_problem_too_old">Music Assistant %s ist zu alt: Version 2.7 oder neuer ist nötig</string>
+    <string name="xonos_problem_denied">Zugriff verweigert</string>
+    <string name="xonos_problem_http">HTTP-Fehler %s</string>
+    <string name="xonos_problem_network">Netzwerkfehler: %s</string>
+    <string name="xonos_problem_unreachable">Music Assistant nicht erreichbar</string>
+    <string name="xonos_problem_lost">Verbindung verloren, verbinde neu</string>
+    <string name="xonos_problem_not_connected">Nicht mit Music Assistant verbunden</string>
+    <string name="xonos_problem_bad_login">Benutzername oder Passwort falsch</string>
+    <string name="xonos_problem_setup_required">Dieses Music Assistant hat noch kein Konto: Erstelle das erste</string>
+    <string name="xonos_problem_refused">Music Assistant: %s</string>
+
+    <plurals name="xonos_results">
+        <item quantity="one">%d Ergebnis</item>
+        <item quantity="other">%d Ergebnisse</item>
+    </plurals>
+    <plurals name="xonos_count_tracks">
+        <item quantity="one">%d Titel</item>
+        <item quantity="other">%d Titel</item>
+    </plurals>
+    <plurals name="xonos_count_albums">
+        <item quantity="one">%d Album</item>
+        <item quantity="other">%d Alben</item>
+    </plurals>
+    <plurals name="xonos_count_artists">
+        <item quantity="one">%d Künstler</item>
+        <item quantity="other">%d Künstler</item>
+    </plurals>
+    <plurals name="xonos_count_playlists">
+        <item quantity="one">%d Playlist</item>
+        <item quantity="other">%d Playlists</item>
+    </plurals>
+    <plurals name="xonos_count_radio">
+        <item quantity="one">%d Sender</item>
+        <item quantity="other">%d Sender</item>
+    </plurals>
+    <plurals name="xonos_count_podcasts">
+        <item quantity="one">%d Podcast</item>
+        <item quantity="other">%d Podcasts</item>
+    </plurals>
+    <plurals name="xonos_count_audiobooks">
+        <item quantity="one">%d Hörbuch</item>
+        <item quantity="other">%d Hörbücher</item>
+    </plurals>
+    <plurals name="xonos_count_genres">
+        <item quantity="one">%d Genre</item>
+        <item quantity="other">%d Genres</item>
+    </plurals>
+</resources>

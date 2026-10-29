@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Xonos inside myCar: from the Xonos app's own translations (values-el/strings.xml there). -->
+<resources>
+    <string name="xonos_cat_recent">Ακούσατε πρόσφατα</string>
+    <string name="xonos_cat_foryou">Για εσάς</string>
+    <string name="xonos_cat_playlists">Λίστες αναπαραγωγής</string>
+    <string name="xonos_cat_albums">Άλμπουμ</string>
+    <string name="xonos_cat_artists">Καλλιτέχνες</string>
+    <string name="xonos_cat_tracks">Τραγούδια</string>
+    <string name="xonos_cat_favorites">Αγαπημένα τραγούδια</string>
+    <string name="xonos_cat_genres">Είδη</string>
+    <string name="xonos_cat_radios">Ραδιόφωνο</string>
+    <string name="xonos_cat_podcasts">Podcast</string>
+    <string name="xonos_cat_audiobooks">Ηχητικά βιβλία</string>
+    <string name="xonos_cat_browse">Περιήγηση στις υπηρεσίες</string>
+    <string name="xonos_top_tracks">Τα πιο δημοφιλή</string>
+    <string name="xonos_all_tracks">Όλα τα τραγούδια</string>
+    <string name="xonos_error_unknown">άγνωστο σφάλμα</string>
+    <string name="xonos_problem_bad_address">Μη έγκυρη διεύθυνση: %s</string>
+    <string name="xonos_problem_no_answer_from">Καμία απάντηση από %s</string>
+    <string name="xonos_problem_no_answer">Το Music Assistant δεν απαντά</string>
+    <string name="xonos_problem_not_ma">Σε αυτή τη διεύθυνση δεν απαντά το Music Assistant</string>
+    <string name="xonos_problem_too_old">Το Music Assistant %s είναι πολύ παλιό: χρειάζεται η έκδοση 2.7 ή νεότερη</string>
+    <string name="xonos_problem_denied">Δεν επιτρέπεται η πρόσβαση</string>
+    <string name="xonos_problem_http">Σφάλμα HTTP %s</string>
+    <string name="xonos_problem_network">Σφάλμα δικτύου: %s</string>
+    <string name="xonos_problem_unreachable">Το Music Assistant δεν είναι προσβάσιμο</string>
+    <string name="xonos_problem_lost">Η σύνδεση χάθηκε, επανασύνδεση</string>
+    <string name="xonos_problem_not_connected">Δεν υπάρχει σύνδεση με το Music Assistant</string>
+    <string name="xonos_problem_bad_login">Λάθος όνομα χρήστη ή κωδικός</string>
+    <string name="xonos_problem_setup_required">Αυτό το Music Assistant δεν έχει ακόμη λογαριασμό: δημιουργήστε τον πρώτο</string>
+    <string name="xonos_problem_refused">Music Assistant: %s</string>
+
+    <plurals name="xonos_results">
+        <item quantity="one">%d αποτέλεσμα</item>
+        <item quantity="other">%d αποτελέσματα</item>
+    </plurals>
+    <plurals name="xonos_count_tracks">
+        <item quantity="one">%d τραγούδι</item>
+        <item quantity="other">%d τραγούδια</item>
+    </plurals>
+    <plurals name="xonos_count_albums">
+        <item quantity="one">%d άλμπουμ</item>
+        <item quantity="other">%d άλμπουμ</item>
+    </plurals>
+    <plurals name="xonos_count_artists">
+        <item quantity="one">%d καλλιτέχνης</item>
+        <item quantity="other">%d καλλιτέχνες</item>
+    </plurals>
+    <plurals name="xonos_count_playlists">
+        <item quantity="one">%d λίστα</item>
+        <item quantity="other">%d λίστες</item>
+    </plurals>
+    <plurals name="xonos_count_radio">
+        <item quantity="one">%d σταθμός</item>
+        <item quantity="other">%d σταθμοί</item>
+    </plurals>
+    <plurals name="xonos_count_podcasts">
+        <item quantity="one">%d podcast</item>
+        <item quantity="other">%d podcast</item>
+    </plurals>
+    <plurals name="xonos_count_audiobooks">
+        <item quantity="one">%d ηχητικό βιβλίο</item>
+        <item quantity="other">%d ηχητικά βιβλία</item>
+    </plurals>
+    <plurals name="xonos_count_genres">
+        <item quantity="one">%d είδος</item>
+        <item quantity="other">%d είδη</item>
+    </plurals>
+</resources>

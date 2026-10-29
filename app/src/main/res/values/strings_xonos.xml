@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Xonos inside myCar (the xonos package): the car menu's words and what can go wrong, from the
-  Xonos app (github.com/SirioNero/Music-Assistant-on-Gearslip, AGPL-3.0), in English like the rest
-  of myCar's car screen.
+  Xonos app (github.com/SirioNero/Music-Assistant-on-Gearslip, AGPL-3.0), translated like the rest
+  of myCar (values-xx/strings_xonos.xml, from the Xonos app's own translations).
 -->
 <resources>
     <color name="xonos_panel">#182131</color>

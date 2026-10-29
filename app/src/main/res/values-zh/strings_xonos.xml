@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Xonos inside myCar: from the Xonos app's own translations (values-zh/strings.xml there). -->
+<resources>
+    <string name="xonos_cat_recent">最近播放</string>
+    <string name="xonos_cat_foryou">为你推荐</string>
+    <string name="xonos_cat_playlists">播放列表</string>
+    <string name="xonos_cat_albums">专辑</string>
+    <string name="xonos_cat_artists">艺人</string>
+    <string name="xonos_cat_tracks">歌曲</string>
+    <string name="xonos_cat_favorites">收藏的歌曲</string>
+    <string name="xonos_cat_genres">流派</string>
+    <string name="xonos_cat_radios">电台</string>
+    <string name="xonos_cat_podcasts">播客</string>
+    <string name="xonos_cat_audiobooks">有声书</string>
+    <string name="xonos_cat_browse">浏览服务</string>
+    <string name="xonos_top_tracks">热门歌曲</string>
+    <string name="xonos_all_tracks">全部歌曲</string>
+    <string name="xonos_error_unknown">未知错误</string>
+    <string name="xonos_problem_bad_address">地址无效：%s</string>
+    <string name="xonos_problem_no_answer_from">%s 没有响应</string>
+    <string name="xonos_problem_no_answer">Music Assistant 没有响应</string>
+    <string name="xonos_problem_not_ma">此地址上没有 Music Assistant</string>
+    <string name="xonos_problem_too_old">Music Assistant %s 版本过旧：需要 2.7 或更高版本</string>
+    <string name="xonos_problem_denied">访问被拒绝</string>
+    <string name="xonos_problem_http">HTTP 错误 %s</string>
+    <string name="xonos_problem_network">网络错误：%s</string>
+    <string name="xonos_problem_unreachable">无法访问 Music Assistant</string>
+    <string name="xonos_problem_lost">连接已断开，正在重新连接</string>
+    <string name="xonos_problem_not_connected">未连接到 Music Assistant</string>
+    <string name="xonos_problem_bad_login">用户名或密码错误</string>
+    <string name="xonos_problem_setup_required">此 Music Assistant 还没有账户：请创建第一个</string>
+    <string name="xonos_problem_refused">Music Assistant：%s</string>
+
+    <plurals name="xonos_results">
+        <item quantity="other">%d 个结果</item>
+    </plurals>
+    <plurals name="xonos_count_tracks">
+        <item quantity="other">%d 首歌曲</item>
+    </plurals>
+    <plurals name="xonos_count_albums">
+        <item quantity="other">%d 张专辑</item>
+    </plurals>
+    <plurals name="xonos_count_artists">
+        <item quantity="other">%d 位艺人</item>
+    </plurals>
+    <plurals name="xonos_count_playlists">
+        <item quantity="other">%d 个播放列表</item>
+    </plurals>
+    <plurals name="xonos_count_radio">
+        <item quantity="other">%d 个电台</item>
+    </plurals>
+    <plurals name="xonos_count_podcasts">
+        <item quantity="other">%d 个播客</item>
+    </plurals>
+    <plurals name="xonos_count_audiobooks">
+        <item quantity="other">%d 本有声书</item>
+    </plurals>
+    <plurals name="xonos_count_genres">
+        <item quantity="other">%d 个流派</item>
+    </plurals>
+</resources>

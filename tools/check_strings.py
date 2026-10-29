@@ -10,20 +10,31 @@ FMT = re.compile(r"%(\d+\$)?[sd]")
 
 
 def load(folder):
-    strings, plurals, fixed = {}, {}, set()
+    strings, plurals, fixed, seen = {}, {}, set(), {}
     for path in sorted(glob.glob(os.path.join(folder, "strings*.xml"))):
         raw = open(path, encoding="utf-8").read()
+        root = ET.fromstring(raw.encode("utf-8"))
         for key, text in re.findall(r'<string name="([^"]+)"[^>]*>(.*?)</string>', raw, re.S):
             strings[key] = text
         for key in re.findall(r'<string name="([^"]+)"[^>]*translatable="false"', raw):
             fixed.add(key)
-        root = ET.fromstring(raw.encode("utf-8"))
         for e in root:
+            if e.tag in ("string", "plurals", "string-array"):
+                name = e.get("name")
+                if name in seen:
+                    print(os.path.basename(folder), name, "in both", seen[name], "and", os.path.basename(path))
+                    DUPLICATES.append(name)
+                seen[name] = os.path.basename(path)
             if e.tag == "plurals":
                 plurals[e.get("name")] = {i.get("quantity"): i.text or "" for i in e}
+            if e.tag == "string-array":
+                # Each item checked like a string of its own: name[0], name[1]...
+                for n, item in enumerate(re.findall(r"<item>(.*?)</item>", ET.tostring(e, encoding="unicode"), re.S)):
+                    strings[f"{e.get('name')}[{n}]"] = item
     return strings, plurals, fixed
 
 
+DUPLICATES = []
 base, base_plurals, fixed = load(os.path.join(RES, "values"))
 problems = 0
 for key, text in base.items():
@@ -45,5 +56,6 @@ for lang in LANGS:
         need = NEEDED.get(lang, {"one", "other"})
         if not need <= set(forms):
             print(lang, name, "forms", sorted(forms), "need", sorted(need)); problems += 1
+problems += len(DUPLICATES)
 print(f"{len(base)} strings, {len(base_plurals)} plurals, {len(LANGS)} languages: " + ("all good" if not problems else f"{problems} problems"))
 sys.exit(1 if problems else 0)

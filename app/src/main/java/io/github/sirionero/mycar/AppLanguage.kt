@@ -3,6 +3,7 @@ package io.github.sirionero.mycar
 import android.app.Activity
 import android.app.LocaleManager
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
@@ -83,8 +84,38 @@ enum class AppLanguage(val tag: String, val label: String) {
         fun wrap(base: Context): Context {
             if (Build.VERSION.SDK_INT >= 33) return base
             val language = chosen(base) ?: return base
-            val config = Configuration(base.resources.configuration).apply { setLocale(language.locale) }
-            return base.createConfigurationContext(config)
+            return inLanguage(base, language)
         }
+
+        private var appWords: Pair<String, Resources>? = null
+
+        /**
+         * The application's resources in myCar's language, for [Words]. Android 13 gives them so;
+         * on Android 12 they come from a context of their own, which a change of the phone's
+         * settings (a turn of the phone, dark mode) doesn't take back to the phone's language.
+         */
+        fun resources(app: Context): Resources {
+            if (Build.VERSION.SDK_INT >= 33) return app.resources
+            val language = chosen(app) ?: return app.resources
+            appWords?.let { (tag, words) -> if (tag == language.tag) return words }
+            return inLanguage(app, language).resources.also { appWords = language.tag to it }
+        }
+
+        /**
+         * Android 12: [context] with its words in myCar's language, for a screen Android doesn't
+         * give them to (the car's, on a display of its own). Display, density and theme stay
+         * [context]'s.
+         */
+        fun localized(context: Context): Context {
+            if (Build.VERSION.SDK_INT >= 33) return context
+            val language = chosen(context) ?: return context
+            val words = inLanguage(context, language).resources
+            return object : ContextWrapper(context) {
+                override fun getResources(): Resources = words
+            }
+        }
+
+        private fun inLanguage(context: Context, language: AppLanguage): Context =
+            context.createConfigurationContext(Configuration(context.resources.configuration).apply { setLocale(language.locale) })
     }
 }
