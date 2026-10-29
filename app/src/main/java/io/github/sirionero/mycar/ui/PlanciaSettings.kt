@@ -26,10 +26,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.car.InsideOrApp
 import io.github.sirionero.mycar.home.HaException
 import io.github.sirionero.mycar.home.HomeAssistant
@@ -64,23 +67,23 @@ internal fun PlanciaSection() {
 
     fun test(config: HomeAssistant.Config) {
         if (!config.isComplete) {
-            status = "Add an address and a token."
+            status = Words.get(R.string.settings_plancia_missing)
             return
         }
-        status = "Trying…"
+        status = Words.get(R.string.settings_test_trying)
         scope.launch {
             val lines = mutableListOf<String>()
-            for ((place, url) in listOf("At home" to config.homeUrl, "Away" to config.remoteUrl)) {
+            for ((place, url) in listOf(Words.get(R.string.settings_test_at_home) to config.homeUrl, Words.get(R.string.settings_test_away) to config.remoteUrl)) {
                 if (url.isBlank()) continue
                 val client = HomeAssistant.newClient()
                 lines += try {
                     val version = client.connect(url, config.token)
                     val count = (client.command("get_states") as? JSONArray)?.length() ?: 0
-                    "$place: Home Assistant $version, $count entities"
+                    Words.get(R.string.settings_test_line, place, Words.plural(R.plurals.settings_plancia_test_ok, count, version, count))
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    "$place: " + Tailnet.why(context, listOf(url), HaException.failureOf(e), describe(e), LOCAL_NETWORK_REFUSED)
+                    Words.get(R.string.settings_test_line, place, Tailnet.why(context, listOf(url), HaException.failureOf(e), describe(e), LOCAL_NETWORK_REFUSED))
                 } finally {
                     client.close()
                 }
@@ -91,28 +94,26 @@ internal fun PlanciaSection() {
 
     SettingsSection(
         "Plancia",
-        footer = "Your Home Assistant dashboards in the car, ready the moment you open them: from the app grid, " +
-            "on a page next to the map's, or in the panel beside the map. Make the token in Home Assistant: your profile, Security, " +
-            "Long-lived access tokens.",
+        footer = stringResource(R.string.settings_plancia_footer),
     ) {
         if (saved.isComplete) LocalNetworkRow(saved.urls)
         if (saved.isComplete) TailscaleCableRow(saved.urls, "Home Assistant", "Plancia", planciaThere, planciaBridge)
         if (planciaApp) {
             SettingsRow(
-                "Use the Plancia app's account",
+                stringResource(R.string.settings_plancia_use_app),
                 Modifier.clickable {
-                    status = "Asking Plancia…"
+                    status = Words.get(R.string.settings_plancia_asking)
                     scope.launch {
                         val imported = withContext(Dispatchers.IO) { HomeAssistant.fromPlanciaApp(context) }
                         if (imported == null) {
-                            status = "Plancia has no account to share yet: set it up in Plancia first, or type it below."
+                            status = Words.get(R.string.settings_plancia_app_no_account)
                         } else {
                             HomeAssistant.use(imported)
                             askLocalNetwork(imported.config.urls) { test(imported.config) }
                         }
                     }
                 },
-                subtitle = "Its addresses and token, with nothing to type",
+                subtitle = stringResource(R.string.settings_plancia_use_app_detail),
                 icon = Icons.Filled.Home,
             )
             SettingsDivider()
@@ -125,7 +126,7 @@ internal fun PlanciaSection() {
             OutlinedTextField(
                 home,
                 { home = it },
-                label = { Text("Address at home") },
+                label = { Text(stringResource(R.string.settings_plancia_address_home)) },
                 placeholder = { Text("http://homeassistant.local:8123") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -134,7 +135,7 @@ internal fun PlanciaSection() {
             OutlinedTextField(
                 remote,
                 { remote = it },
-                label = { Text("Address away (optional)") },
+                label = { Text(stringResource(R.string.settings_address_away)) },
                 placeholder = { Text("https://example.ui.nabu.casa") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -143,7 +144,7 @@ internal fun PlanciaSection() {
             OutlinedTextField(
                 token,
                 { token = it },
-                label = { Text("Long-lived access token") },
+                label = { Text(stringResource(R.string.settings_plancia_token)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -160,14 +161,14 @@ internal fun PlanciaSection() {
                     // Not saved half done: an emptied token field (a new one about to be pasted)
                     // overwrote the working account, without the question Remove asks.
                     if (!config.isComplete) {
-                        status = "Add an address and a token. To take Plancia out of myCar, use Remove."
+                        status = Words.get(R.string.settings_plancia_missing_remove)
                         return@Button
                     }
                     HomeAssistant.save(config)
                     askLocalNetwork(config.urls) { test(config) }
-                }) { Text("Save and test") }
+                }) { Text(stringResource(R.string.settings_save_and_test)) }
                 if (saved.isComplete) {
-                    TextButton(onClick = { removeAsk = true }) { Text("Remove") }
+                    TextButton(onClick = { removeAsk = true }) { Text(stringResource(R.string.common_remove)) }
                 }
             }
             status?.let {
@@ -178,12 +179,12 @@ internal fun PlanciaSection() {
 
     if (removeAsk) {
         ConfirmDialog(
-            title = "Remove Plancia from myCar?",
-            text = "myCar forgets its addresses and token. The Plancia app, if it's on the phone, is back in the car.",
-            confirm = "Remove",
+            title = stringResource(R.string.settings_plancia_remove_title),
+            text = stringResource(R.string.settings_plancia_remove_text),
+            confirm = stringResource(R.string.common_remove),
             onConfirm = {
                 HomeAssistant.remove()
-                status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
+                status = Words.get(R.string.settings_plancia_removed)
             },
             onDismiss = { removeAsk = false },
         )
@@ -192,9 +193,9 @@ internal fun PlanciaSection() {
 
 /** What went wrong, in a line. */
 private fun describe(e: Exception): String = when ((e as? HaException)?.reason) {
-    HaException.Reason.INVALID_TOKEN -> "the token isn't valid"
-    HaException.Reason.ACCESS_DENIED -> "access denied"
-    HaException.Reason.NO_RESPONSE -> "no answer"
-    HaException.Reason.BAD_ADDRESS -> "not a valid address"
-    else -> e.message ?: "it didn't work"
+    HaException.Reason.INVALID_TOKEN -> Words.get(R.string.settings_plancia_error_token)
+    HaException.Reason.ACCESS_DENIED -> Words.get(R.string.settings_plancia_error_denied)
+    HaException.Reason.NO_RESPONSE -> Words.get(R.string.settings_plancia_error_no_answer)
+    HaException.Reason.BAD_ADDRESS -> Words.get(R.string.settings_plancia_error_address)
+    else -> e.message ?: Words.get(R.string.settings_plancia_error_other)
 }

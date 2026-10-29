@@ -33,6 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /** Where myCar lives outside the app: support, the chat room, and the code. */
 internal object MyCarLinks {
@@ -58,14 +61,14 @@ internal object MyCarLinks {
         runCatching {
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("bitcoin:$BITCOIN")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }.onFailure {
-            Toast.makeText(context, "No Bitcoin wallet app found. Copy the address instead.", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, Words.get(R.string.about_no_wallet), Toast.LENGTH_LONG).show()
         }
     }
 
     fun copyBitcoin(context: Context) {
         context.getSystemService(ClipboardManager::class.java)
-            ?.setPrimaryClip(ClipData.newPlainText("Bitcoin address", BITCOIN))
-        Toast.makeText(context, "Bitcoin address copied", Toast.LENGTH_SHORT).show()
+            ?.setPrimaryClip(ClipData.newPlainText(Words.get(R.string.about_bitcoin_address), BITCOIN))
+        Toast.makeText(context, Words.get(R.string.about_bitcoin_copied), Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -84,7 +87,7 @@ internal fun DonateRows() {
     SettingsRow(
         "Bitcoin",
         Modifier.clickable { bitcoinOpen = true },
-        subtitle = "Open your wallet or copy the address",
+        subtitle = stringResource(R.string.about_bitcoin_detail),
         icon = Icons.Filled.Favorite,
         trailing = arrow,
     )
@@ -92,9 +95,9 @@ internal fun DonateRows() {
     if (MyCarLinks.PAYMENT_LINK.isNotEmpty()) {
         SettingsDivider()
         SettingsRow(
-            "Give once",
+            stringResource(R.string.about_give_once),
             Modifier.clickable { MyCarLinks.open(context, MyCarLinks.PAYMENT_LINK) },
-            subtitle = "Any amount, by card",
+            subtitle = stringResource(R.string.about_give_once_detail),
             icon = Icons.Filled.Favorite,
             trailing = arrow,
         )
@@ -108,10 +111,10 @@ internal fun BitcoinDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-        title = { Text("Support with Bitcoin") },
+        title = { Text(stringResource(R.string.about_bitcoin_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Send any amount to this address from your Bitcoin wallet.")
+                Text(stringResource(R.string.about_bitcoin_text))
                 SelectionContainer {
                     Text(
                         MyCarLinks.BITCOIN,
@@ -124,13 +127,13 @@ internal fun BitcoinDialog(onDismiss: () -> Unit) {
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { MyCarLinks.openBitcoinWallet(context) }, Modifier.fillMaxWidth()) {
-                    Text("Open in wallet")
+                    Text(stringResource(R.string.about_bitcoin_open))
                 }
                 OutlinedButton(onClick = { MyCarLinks.copyBitcoin(context) }, Modifier.fillMaxWidth()) {
-                    Text("Copy address")
+                    Text(stringResource(R.string.about_bitcoin_copy))
                 }
                 TextButton(onClick = onDismiss, Modifier.fillMaxWidth()) {
-                    Text("Close")
+                    Text(stringResource(R.string.common_close))
                 }
             }
         },
@@ -149,48 +152,46 @@ internal fun AboutLinkRows() {
         )
     }
     SettingsRow(
-        "Gearslip chat on Matrix",
+        stringResource(R.string.about_matrix),
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.MATRIX) },
-        subtitle = "The community of Gearslip, the project myCar is based on",
+        subtitle = stringResource(R.string.about_matrix_detail),
         icon = Icons.AutoMirrored.Filled.Send,
         trailing = arrow,
     )
     SettingsDivider()
     SettingsRow(
-        "Source code",
+        stringResource(R.string.about_source),
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.SOURCE) },
-        subtitle = "Read or change myCar's code under the AGPL",
+        subtitle = stringResource(R.string.about_source_detail),
         icon = Icons.Filled.Build,
         trailing = arrow,
     )
     SettingsDivider()
     SettingsRow(
-        "Based on Gearslip",
+        stringResource(R.string.about_upstream),
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.UPSTREAM) },
-        subtitle = "myCar is a modified version of Gearslip, © 2026 Twink Software LLC and contributors",
+        subtitle = stringResource(R.string.about_upstream_detail),
         icon = Icons.Filled.Info,
         trailing = arrow,
     )
     SettingsDivider()
     SettingsRow(
-        "License",
+        stringResource(R.string.about_license),
         Modifier.clickable { MyCarLinks.open(context, MyCarLinks.LICENSE) },
-        subtitle = "Free software under the GNU AGPL v3, with no warranty",
+        subtitle = stringResource(R.string.about_license_detail),
         icon = Icons.Filled.Info,
         trailing = arrow,
     )
     SettingsDivider()
     SettingsRow(
-        "Voice credits",
-        subtitle = "Speech recognition by sherpa-onnx (Apache 2.0), with Kroko ASR by Banafo " +
-            "(CC BY-SA 4.0), and Parakeet and Canary by NVIDIA (CC BY 4.0)",
+        stringResource(R.string.about_voice_credits),
+        subtitle = stringResource(R.string.about_voice_credits_detail),
         icon = Icons.Filled.Favorite,
     )
     SettingsDivider()
     SettingsRow(
-        "Certificate credits",
-        subtitle = "The car certificates come from aasdk (GPL-3.0), Headunit Revived (AGPL-3.0) and the " +
-            "android-auto-certificates archive (CarService, Android Auto's own), downloaded only when you ask",
+        stringResource(R.string.about_cert_credits),
+        subtitle = stringResource(R.string.about_cert_credits_detail),
         icon = Icons.Filled.Favorite,
     )
 }

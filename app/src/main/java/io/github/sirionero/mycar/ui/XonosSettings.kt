@@ -26,10 +26,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.car.InsideOrApp
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.xonos.XonosAccount
@@ -70,19 +73,19 @@ internal fun XonosSection() {
 
     /** Tries the account kept, at home and away, and says what answered. */
     fun test(config: Settings.Config) {
-        status = "Trying…"
+        status = Words.get(R.string.settings_test_trying)
         scope.launch {
             val lines = mutableListOf<String>()
-            for ((place, url) in listOf("At home" to config.homeUrl, "Away" to config.remoteUrl)) {
+            for ((place, url) in listOf(Words.get(R.string.settings_test_at_home) to config.homeUrl, Words.get(R.string.settings_test_away) to config.remoteUrl)) {
                 if (url.isBlank()) continue
                 val client = Xonos.repo.newClient()
                 lines += try {
                     val server = client.connect(url, config.token)
-                    "$place: Music Assistant ${server.version}, playing as ${Xonos.settings.playerName}"
+                    Words.get(R.string.settings_test_line, place, Words.get(R.string.settings_xonos_test_ok, server.version, Xonos.settings.playerName))
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    "$place: " + Tailnet.why(context, listOf(url), networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED)
+                    Words.get(R.string.settings_test_line, place, Tailnet.why(context, listOf(url), networkFailure(e), describe(context, e), LOCAL_NETWORK_REFUSED))
                 } finally {
                     client.close()
                 }
@@ -93,27 +96,26 @@ internal fun XonosSection() {
 
     SettingsSection(
         "Xonos",
-        footer = "Your Music Assistant library among the car's music apps. With the car audio through myCar, " +
-            "its music goes straight to the car, and Android doesn't ask to share the audio while you listen to it.",
+        footer = stringResource(R.string.settings_xonos_footer),
     ) {
         if (setUp) LocalNetworkRow(saved.urls)
         if (setUp) TailscaleCableRow(saved.urls, "Music Assistant", "Xonos", xonosThere, xonosBridge)
         if (xonosApp) {
             SettingsRow(
-                "Use the Xonos app's account",
+                stringResource(R.string.settings_xonos_use_app),
                 Modifier.clickable {
-                    status = "Asking Xonos…"
+                    status = Words.get(R.string.settings_xonos_asking)
                     scope.launch {
                         val imported = withContext(Dispatchers.IO) { XonosAccount.fromXonosApp(context) }
                         if (imported == null) {
-                            status = "Xonos has no account to share yet: sign in in Xonos first, or below."
+                            status = Words.get(R.string.settings_xonos_app_no_account)
                         } else {
                             Xonos.save(context, imported.config, imported.username)
                             askLocalNetwork(imported.config.urls) { test(imported.config) }
                         }
                     }
                 },
-                subtitle = "Its addresses and sign-in, with nothing to type",
+                subtitle = stringResource(R.string.settings_xonos_use_app_detail),
                 icon = Icons.Filled.PlayArrow,
             )
             SettingsDivider()
@@ -121,14 +123,15 @@ internal fun XonosSection() {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             if (setUp) {
                 Text(
-                    "Signed in" + (Xonos.settings.username?.let { " as $it" } ?: "") + ". Sign in again to change it.",
+                    Xonos.settings.username?.let { stringResource(R.string.settings_xonos_signed_in_as, it) }
+                        ?: stringResource(R.string.settings_xonos_signed_in),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             OutlinedTextField(
                 home,
                 { home = it },
-                label = { Text("Music Assistant address") },
+                label = { Text(stringResource(R.string.settings_xonos_address)) },
                 placeholder = { Text("http://homeassistant.local:8095") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -137,7 +140,7 @@ internal fun XonosSection() {
             OutlinedTextField(
                 remote,
                 { remote = it },
-                label = { Text("Address away (optional)") },
+                label = { Text(stringResource(R.string.settings_address_away)) },
                 placeholder = { Text("https://music.example.com") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -146,14 +149,14 @@ internal fun XonosSection() {
             OutlinedTextField(
                 username,
                 { username = it },
-                label = { Text("Username") },
+                label = { Text(stringResource(R.string.settings_xonos_username)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 password,
                 { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.settings_password)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -165,10 +168,10 @@ internal fun XonosSection() {
                     val remoteUrl = Settings.normalizeUrl(remote)
                     val url = homeUrl.ifBlank { remoteUrl }
                     if (url.isBlank() || username.isBlank() || password.isEmpty()) {
-                        status = "Add the address, your username and your password."
+                        status = Words.get(R.string.settings_xonos_missing)
                         return@Button
                     }
-                    status = "Signing in…"
+                    status = Words.get(R.string.settings_xonos_signing_in)
                     // Signing in already goes to the address: the home network first, if it's there.
                     askLocalNetwork(listOf(url)) {
                         scope.launch {
@@ -195,9 +198,9 @@ internal fun XonosSection() {
                             }
                         }
                     }
-                }) { Text("Sign in") }
+                }) { Text(stringResource(R.string.settings_xonos_sign_in)) }
                 if (setUp) {
-                    TextButton(onClick = { removeAsk = true }) { Text("Remove") }
+                    TextButton(onClick = { removeAsk = true }) { Text(stringResource(R.string.common_remove)) }
                 }
             }
             status?.let {
@@ -208,13 +211,12 @@ internal fun XonosSection() {
 
     if (removeAsk) {
         ConfirmDialog(
-            title = "Remove Xonos from myCar?",
-            text = "myCar forgets its address and sign-in, and signing in again takes the password. " +
-                "The Xonos app, if it's on the phone, is back in the car.",
-            confirm = "Remove",
+            title = stringResource(R.string.settings_xonos_remove_title),
+            text = stringResource(R.string.settings_xonos_remove_text),
+            confirm = stringResource(R.string.common_remove),
             onConfirm = {
                 Xonos.remove(context)
-                status = "Xonos is off in myCar: the Xonos app is back in the car, if it's on the phone."
+                status = Words.get(R.string.settings_xonos_removed)
             },
             onDismiss = { removeAsk = false },
         )

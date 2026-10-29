@@ -2,7 +2,9 @@ package io.github.sirionero.mycar.stats
 
 import android.content.Context
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.ServiceDiscovery
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.json.JSONObject
@@ -26,11 +28,11 @@ object WorkedPrompt {
     private var loaded = false
     private val flow = MutableStateFlow<String?>(null)
 
-    /** The car's name while the ask is waiting for an answer, otherwise null. */
+    /** The ask's title, with the car's name, while the ask is waiting for an answer, otherwise null. */
     fun pending(context: Context): StateFlow<String?> {
         if (!loaded) {
             loaded = true
-            flow.value = saved(context)?.takeUnless { !UsageStats.sends || UsageStats.asked(context) }?.let(::carName)
+            flow.value = saved(context)?.takeUnless { !UsageStats.sends || UsageStats.asked(context) }?.let(::title)
         }
         return flow
     }
@@ -51,7 +53,7 @@ object WorkedPrompt {
             .put("dpi", dpi)
         p.edit().putString(KEY_CAR, car.toString()).apply()
         loaded = true
-        flow.value = carName(car)
+        flow.value = title(car)
     }
 
     /** True once a driver turns sharing on from the ask, until Home has thrown its confetti. */
@@ -99,17 +101,16 @@ object WorkedPrompt {
     private fun saved(context: Context): JSONObject? =
         prefs(context).getString(KEY_CAR, null)?.let { runCatching { JSONObject(it) }.getOrNull() }
 
-    /** "your 2019 Clio", "your Renault Media Nav", or "your car" when it didn't say. */
-    private fun carName(car: JSONObject): String {
+    /** "myCar worked with your 2019 Clio", "... your Renault Media Nav", or "... your car" when it didn't say. */
+    private fun title(car: JSONObject): String {
         val model = car.optString("car").trim()
         val year = car.optString("year").trim().takeIf { it.isNotEmpty() && it != "0" }
         val unit = "${car.optString("make")} ${car.optString("model")}".trim()
         return when {
-            model.isNotEmpty() -> "your " + listOfNotNull(year, model).joinToString(" ")
-            unit.isNotEmpty() -> "your $unit"
-            else -> "your car"
+            model.isNotEmpty() && year != null -> Words.get(R.string.stats_worked_title_year, year, model)
+            model.isNotEmpty() -> Words.get(R.string.stats_worked_title_named, model)
+            unit.isNotEmpty() -> Words.get(R.string.stats_worked_title_named, unit)
+            else -> Words.get(R.string.stats_worked_title_car)
         }
     }
-
-    const val TITLE_START = "myCar worked with "
 }

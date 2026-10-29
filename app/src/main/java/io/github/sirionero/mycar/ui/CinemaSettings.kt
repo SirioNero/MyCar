@@ -31,9 +31,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.cinema.Cinema
 import io.github.sirionero.mycar.cinema.CinemaSite
 
@@ -55,22 +57,20 @@ internal fun CinemaSection() {
 
     SettingsSection(
         "Cinema",
-        footer = "Video sites as tiles in the car, each opened in a browser made for video. Protected video " +
-            "(Netflix, DAZN, Prime Video, Disney+ and the like) most likely stays black in the car: Android " +
-            "hides it from a screen made into a video stream, as the car's is.",
+        footer = stringResource(R.string.settings_cinema_footer),
     ) {
         // A site at home (Jellyfin, the router) needs the home network, which Android 17 keeps
         // myCar off until it's allowed.
         LocalNetworkRow(sites.map { it.url })
         SettingsRow(
-            "Video only when parked",
+            stringResource(R.string.settings_cinema_parked_only),
             Modifier.toggleable(parkedOnly, role = Role.Switch) { on ->
                 if (on) Cinema.setParkedOnly(true) else warning = true
             },
             subtitle = if (parkedOnly) {
-                "While the car moves the picture is covered, and the sound carries on"
+                stringResource(R.string.settings_cinema_parked_only_on)
             } else {
-                "Off: video shows while the car moves too"
+                stringResource(R.string.settings_cinema_parked_only_off)
             },
             icon = if (parkedOnly) Icons.Filled.PlayArrow else Icons.Filled.Warning,
             tint = if (parkedOnly) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
@@ -87,7 +87,7 @@ internal fun CinemaSection() {
             OutlinedTextField(
                 name,
                 { name = it },
-                label = { Text("Name") },
+                label = { Text(stringResource(R.string.settings_cinema_name)) },
                 placeholder = { Text("Jellyfin") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -95,7 +95,7 @@ internal fun CinemaSection() {
             OutlinedTextField(
                 address,
                 { address = it },
-                label = { Text("Address") },
+                label = { Text(stringResource(R.string.settings_cinema_address)) },
                 placeholder = { Text("https://example.com") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
@@ -113,11 +113,11 @@ internal fun CinemaSection() {
                     },
                     // Only an address with a host: "my site" made a tile with no name that opened nothing.
                     enabled = CinemaSite("", Cinema.normalizeUrl(address)).host.isNotEmpty(),
-                ) { Text("Add the site") }
+                ) { Text(stringResource(R.string.settings_cinema_add_site)) }
                 // The chips below add back a suggested site that's missing; this only ever takes
                 // the driver's own sites away, so it asks first.
                 if (sites != Cinema.SUGGESTED) {
-                    TextButton(onClick = { resetAsk = true }) { Text("Reset the list") }
+                    TextButton(onClick = { resetAsk = true }) { Text(stringResource(R.string.settings_cinema_reset)) }
                 }
             }
         }
@@ -128,21 +128,24 @@ internal fun CinemaSection() {
         val own = sites.filter { site -> Cinema.SUGGESTED.none { it.url == site.url } }
         AlertDialog(
             onDismissRequest = { resetAsk = false },
-            title = { Text("Back to the suggested sites?") },
+            title = { Text(stringResource(R.string.settings_cinema_reset_title)) },
             text = {
                 Text(
-                    "Cinema goes back to ${Cinema.SUGGESTED.joinToString { it.name }}." +
-                        if (own.isEmpty()) "" else " Your own sites leave it: ${own.joinToString { it.name }}.",
+                    if (own.isEmpty()) {
+                        stringResource(R.string.settings_cinema_reset_text, Cinema.SUGGESTED.joinToString { it.name })
+                    } else {
+                        stringResource(R.string.settings_cinema_reset_text_own, Cinema.SUGGESTED.joinToString { it.name }, own.joinToString { it.name })
+                    },
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     Cinema.backToSuggested()
                     resetAsk = false
-                }) { Text("Reset") }
+                }) { Text(stringResource(R.string.settings_cinema_reset_confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { resetAsk = false }) { Text("Cancel") }
+                TextButton(onClick = { resetAsk = false }) { Text(stringResource(R.string.common_cancel)) }
             },
         )
     }
@@ -151,23 +154,20 @@ internal fun CinemaSection() {
         AlertDialog(
             onDismissRequest = { warning = false },
             icon = { Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text("Video while driving?") },
+            title = { Text(stringResource(R.string.settings_cinema_warning_title)) },
             text = {
                 Text(
-                    "myCar strongly advises against it. Watching video while driving is dangerous for you " +
-                        "and for others on the road, and in many countries it's against the law.\n\n" +
-                        "With the protection off, video shows on the car's screen while the car moves too, " +
-                        "and the responsibility is the driver's alone.",
+                    stringResource(R.string.settings_cinema_warning_text),
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     Cinema.setParkedOnly(false)
                     warning = false
-                }) { Text("Turn it off", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.settings_cinema_warning_off), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                Button(onClick = { warning = false }) { Text("Keep it on") }
+                Button(onClick = { warning = false }) { Text(stringResource(R.string.settings_cinema_warning_keep)) }
             },
         )
     }
@@ -182,9 +182,9 @@ private fun SiteRow(site: CinemaSite) {
     val own = (Cinema.SUGGESTED + Cinema.MORE).none { it.url == site.url }
     if (removeAsk) {
         ConfirmDialog(
-            title = "Remove ${site.name}?",
-            text = "It leaves Cinema. To have it back, its address is typed in again.",
-            confirm = "Remove",
+            title = stringResource(R.string.settings_cinema_remove_title, site.name),
+            text = stringResource(R.string.settings_cinema_remove_site_text),
+            confirm = stringResource(R.string.common_remove),
             onConfirm = { Cinema.remove(site) },
             onDismiss = { removeAsk = false },
         )
@@ -192,13 +192,14 @@ private fun SiteRow(site: CinemaSite) {
     SettingsRow(
         site.name,
         Modifier.toggleable(site.desktop, role = Role.Switch) { Cinema.setDesktop(site, it) },
-        subtitle = site.host + (if (site.desktop) " · computer layout" else " · phone layout") +
-            (if (Cinema.isProtected(site)) " · protected video, likely black in the car" else ""),
+        subtitle = site.host + " · " +
+            stringResource(if (site.desktop) R.string.settings_cinema_layout_computer else R.string.settings_cinema_layout_phone) +
+            (if (Cinema.isProtected(site)) " · " + stringResource(R.string.settings_cinema_protected) else ""),
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(checked = site.desktop, onCheckedChange = null)
                 IconButton(onClick = { if (own) removeAsk = true else Cinema.remove(site) }) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Remove ${site.name}")
+                    Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.settings_cinema_remove, site.name))
                 }
             }
         },
