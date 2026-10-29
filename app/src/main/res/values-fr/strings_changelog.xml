@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="changelog_34">
+        <item>L’assistant vocal parle la langue de votre téléphone : italien, espagnol, français, allemand ou portugais. Il écoute, répond et affiche ses mots dans cette langue.</item>
+        <item>Il lui faut un modèle vocal pour cette langue : sur le téléphone, Paramètres &gt; Voix indique lequel, avec un bouton pour le télécharger.</item>
+        <item>Un troisième certificat pour les voitures les plus récentes : CarService, celui d’Android Auto. Sur le téléphone, Paramètres &gt; Certificat.</item>
+        <item>En quittant Cinema, la musique qui jouait avant le film reprend d’elle-même.</item>
+        <item>Sur le téléphone, après chaque mise à jour, le drapeau pirate flotte avec la nouvelle version. Les grandes versions amènent un navire.</item>
+    </string-array>
+    <string-array name="changelog_33">
+        <item>Téléphone : un onglet Récents avec vos derniers appels, et Rappeler dans la fiche d’un appel manqué.</item>
+        <item>Voix : « lis mes messages », « réponds à… », « rappelle », « recompose », et « appelle Maman sur son portable » appelle ce numéro.</item>
+        <item>La commande Lecture, à la voix ou au volant, lance la dernière app de musique utilisée quand aucune n’est ouverte.</item>
+        <item>Les réponses rapides partent dans la langue de votre téléphone. Pendant qu’un appel sonne, la prochaine manœuvre reste dans le dock.</item>
+        <item>Les listes déroulantes des pages web s’affichent dans la voiture comme une liste où choisir, et la touche Retour de la voiture revient en arrière dans les apps.</item>
+        <item>Arrêter le guidage demande deux appuis ; les écrans arrêtés sur une erreur offrent maintenant une issue.</item>
+        <item>Cinema : Reprendre rouvre ce que vous regardiez ; un film reprend là où il s’était arrêté après une coupure du réseau.</item>
+        <item>La taille Très grande s’affiche mieux : les paramètres gardent les mots entiers, la barre des pages garde Terminé visible, le menu d’une app défile.</item>
+    </string-array>
+    <string-array name="changelog_32">
+        <item>Nouveau : Cinema. Vos sites vidéo (YouTube, RaiPlay, Twitch et ceux que vous ajoutez sur le téléphone), les vidéos de votre téléphone, et des chaînes TV d’une liste IPTV. La vidéo ne s’affiche qu’à l’arrêt ; le son continue.</item>
+        <item>Les pages à côté de la carte ont de nouvelles dispositions : une page entière, une moitié à côté de deux quarts, une bande au-dessus ou en dessous de deux quarts. Crayon, puis Disposition.</item>
+        <item>La flèche de direction de Vela change à nouveau avec la manœuvre, sur le panneau de guidage et dans le dock.</item>
+        <item>Une liste déroulante dans une page web ne ferme plus myCar.</item>
+        <item>Les voitures qui ne confirment jamais l’audio ne perdent plus deux secondes au début de la musique, après un appel et au milieu des indications vocales.</item>
+        <item>Sans fil : une voiture qui recommence sa connexion revient d’elle-même, et seules les voitures que vous avez autorisées peuvent faire se connecter myCar.</item>
+        <item>Refuser fonctionne sur un appel qui sonne déjà, et Retour sur la question d’autorisation d’Android n’empêche plus la configuration de redemander.</item>
+    </string-array>
+    <string-array name="changelog_31">
+        <item>Le sans-fil se connecte tout seul : après votre premier trajet sans câble, Android demande une fois, puis myCar se connecte à cette voiture chaque fois que vous la démarrez. Paramètres &gt; Connexion le désactive.</item>
+        <item>La musique qui passe par le Bluetooth y reste : la voiture ne bascule plus sur la source Android Auto dès que myCar se connecte.</item>
+        <item>Un audio plus stable en voiture : moins de coupures, et les voitures qui n’acceptent que l’AAC reçoivent le début qu’elles attendent.</item>
+        <item>Les marges propres à la voiture restent justes à toutes les tailles, Petite et Grande comprises.</item>
+        <item>Sur l’écran Téléphone de la voiture, « Demander sur le téléphone » demande les autorisations manquantes sur le téléphone.</item>
+        <item>Les options d’itinéraire des apps de navigation affichent la durée et la distance, et une app pour voiture qui ne répond jamais le dit au lieu d’afficher « Démarrage… ».</item>
+    </string-array>
+    <string-array name="changelog_30">
+        <item>Pas de Music Assistant à la maison ? L’app Xonos peut maintenant en être un, sur le téléphone lui-même : Xonos dans myCar joue depuis celui-ci, sans fil aussi.</item>
+        <item>myCar réveille l’app Xonos et son serveur au début du trajet. Le premier démarrage prend quelques secondes, et la voiture le dit.</item>
+    </string-array>
+    <string-array name="changelog_29">
+        <item>Plancia et Xonos fonctionnent maintenant aussi sans fil avec Tailscale : avec myCar exclu de Tailscale, ils atteignent vos serveurs via les apps Plancia et Xonos du téléphone, qui restent dans Tailscale.</item>
+        <item>Mettez à jour les apps Plancia et Xonos, et gardez-les réglées sur les mêmes adresses que myCar. Elles n’ouvrent des connexions que pour myCar, et seulement vers leur propre serveur.</item>
+        <item>Si même les apps ne peuvent pas atteindre votre serveur, elles prennent la place de celles de myCar pour le trajet, comme avant.</item>
+    </string-array>
+    <string-array name="changelog_28">
+        <item>Plancia et Xonos continuent de fonctionner avec Tailscale en sans-fil : quand ceux de myCar ne peuvent pas atteindre votre serveur, les apps Plancia et Xonos du téléphone prennent leur place pour le trajet, d’elles-mêmes.</item>
+        <item>Pareil quand l’adresse ou le jeton saisi dans myCar est faux : les apps prennent le relais au lieu d’une erreur.</item>
+        <item>Xonos se connecte au début du trajet : il est prêt quand vous l’ouvrez.</item>
+    </string-array>
+    <string-array name="changelog_27">
+        <item>La configuration tient en une seule liste sur le téléphone, avec un bouton pour l’étape suivante. Comment se connecter et Paramètres la rouvrent, sans rien réinitialiser.</item>
+        <item>Un certificat de secours : si votre voiture refuse le premier, myCar utilise l’autre, et le téléphone dit de se reconnecter.</item>
+        <item>Une voiture dont l’horloge est mal réglée est maintenant reconnue : le téléphone dit de vérifier la date de la voiture.</item>
+    </string-array>
+    <string-array name="changelog_26">
+        <item>Plancia et Xonos disent pourquoi ils ne peuvent pas se connecter : Tailscale qui exclut myCar, un nom Tailscale introuvable, ou Android 17 qui tient myCar à l’écart du réseau de la maison.</item>
+        <item>Le trajet continue avec le téléphone verrouillé : myCar reste au premier plan, garde le téléphone éveillé et, en sans-fil, le Wi-Fi à pleine vitesse.</item>
+        <item>Quand la voiture termine la session, myCar la termine aussi : le son du téléphone revient et Xonos s’arrête, au lieu de jouer pour personne.</item>
+        <item>Une app de musique qui se ferme ne bloque plus le lecteur, et un titre déjà en lecture sur le téléphone est celui que la voiture affiche.</item>
+        <item>Voix : « appelle » choisit le bon contact, « arrête la navigation » termine l’itinéraire, et la musique ne reste plus en pause après que myCar a parlé.</item>
+        <item>Après un partage d’écran, la musique de la voiture revient : Android redemande pour l’audio en voiture, une question à la fois.</item>
+        <item>Des dizaines de petites corrections : appels, messages, partage d’écran, Plancia, navigateur et sans-fil.</item>
+    </string-array>
+    <string-array name="changelog_25">
+        <item>Plancia et Xonos atteignent à nouveau votre Home Assistant et votre Music Assistant à la maison, adresses http simples comprises. Sur Android 17, myCar a besoin de l’autorisation Appareils à proximité pour le réseau de la maison, et la demande maintenant.</item>
+        <item>Si cette autorisation manque, la voiture le dit, au lieu de dire que Home Assistant ou Music Assistant ne répond pas.</item>
+    </string-array>
+    <string-array name="changelog_24">
+        <item>Xonos fait maintenant partie de myCar : votre bibliothèque Music Assistant parmi les apps de musique de la voiture. Configurez-le sur le téléphone, ou reprenez votre compte de l’app Xonos d’un seul appui.</item>
+        <item>Quand l’audio en voiture passe par myCar, Xonos joue directement dans la voiture, et Android ne demande pas de partager l’audio pendant que vous l’écoutez.</item>
+    </string-array>
+    <string-array name="changelog_23">
+        <item>Plancia fait maintenant partie de myCar : vos tableaux de bord Home Assistant, prêts dès que vous les ouvrez, depuis la grille des apps, l’une de vos pages ou à côté de la carte.</item>
+        <item>Configurez Plancia dans les paramètres de myCar sur le téléphone, ou reprenez votre compte de l’app Plancia d’un seul appui.</item>
+        <item>Le bouton de menu de Home Assistant ouvre le menu de Plancia : vos tableaux de bord, celui qui s’ouvre en premier, la taille et Recharger.</item>
+    </string-array>
+    <string-array name="changelog_22">
+        <item>La musique revient après un appel ou l’assistant du téléphone. Avant, dès que la voiture prenait ses haut-parleurs un instant, la musique restait coupée jusqu’au trajet suivant.</item>
+        <item>Un nouveau lecteur : des commandes simples, une ligne fine pour se déplacer dans le titre, les couleurs de la pochette derrière. La pochette reste visible pendant que vous parcourez.</item>
+        <item>Téléphone verrouillé, le micro allume le téléphone et vous demande de le déverrouiller ; votre assistant se met à écouter dès qu’il est ouvert.</item>
+        <item>La question d’Android pour l’audio en voiture tient en un appui : aucune app à choisir, et le son de toutes les apps arrive dans la voiture.</item>
+    </string-array>
+    <string-array name="changelog_21">
+        <item>Des pages à côté de la carte : balayez l’Accueil, ou appuyez sur les points en bas. Toutes prêtes : la météo et votre agenda à gauche de la carte, et le tableau de bord de Plancia à côté du navigateur, à sa droite.</item>
+        <item>Le crayon à côté des points modifie une page : deux moitiés ou quatre parties, chacune avec la météo, l’agenda, le navigateur ou une app pour voiture comme Plancia. On y ajoute, déplace et supprime aussi les pages.</item>
+    </string-array>
+    <string-array name="changelog_20">
+        <item>La musique du téléphone ne reste plus muette si myCar a été fermé en plein trajet pendant qu’il envoyait le son à la voiture.</item>
+        <item>Dire oui à la question d’Android pour l’audio ou le partage d’écran après le départ de la voiture ne coupe plus le son du téléphone et ne le laisse plus en partage.</item>
+        <item>Moins de mémoire pendant les trajets sans commandes vocales, et les anciens journaux ne s’accumulent plus sur le téléphone.</item>
+    </string-array>
+    <string-array name="changelog_19">
+        <item>myCar ne risque plus de se fermer à la fin d’un trajet avec le téléphone verrouillé.</item>
+        <item>La météo trouve où vous êtes sans l’attente de douze secondes.</item>
+        <item>Les longs trajets avec beaucoup de musique consomment bien moins de mémoire : les pochettes sont dimensionnées pour l’écran de la voiture.</item>
+    </string-array>
+    <string-array name="changelog_18">
+        <item>Audio en voiture : Automatique, désormais par défaut, passe par le Bluetooth quand la voiture reçoit ainsi la musique du téléphone, et via myCar sinon, par le câble ou le Wi-Fi.</item>
+        <item>L’audio USB s’appelle maintenant Via myCar : il fonctionne aussi en Wi-Fi.</item>
+    </string-array>
+    <string-array name="changelog_17">
+        <item>À côté de la carte : le lecteur de musique quand quelque chose joue, comme avant, ou une app de votre choix, comme Plancia ou Xonos, toujours là. Choisissez-la dans les paramètres de la voiture.</item>
+        <item>Le micro reste en bas du dock, juste au-dessus du bouton de la grille des apps, quel que soit le nombre d’apps ouvertes.</item>
+        <item>L’assistant du téléphone se réveille maintenant comme avec le balayage vers le haut depuis un coin inférieur du téléphone. Choisissez-le dans Paramètres &gt; Assistant vocal, sur l’écran de la voiture.</item>
+        <item>Fonds d’écran animés : Lave, Polaire, Vagues et Lucioles, sous Fond d’écran dans les paramètres de la voiture, après les fixes.</item>
+        <item>Une nouvelle icône myCar.</item>
+        <item>Vela Maps ne porte plus la marque jaune « fonctionne en partie » : il navigue avec myCar.</item>
+    </string-array>
+    <string-array name="changelog_16">
+        <item>Gemini s’ouvre aussi en écoute : myCar le demande à l’app Google, qui écoute pour Gemini, et n’ouvre une discussion écrite que si aucune app ne veut écouter.</item>
+        <item>Sur la grille des apps, le bouton en bas du dock vous ramène à la carte avec la musique à côté.</item>
+        <item>Fonds d’écran animés : réglez Mouvement du fond d’écran sur Animé dans les paramètres de la voiture, et les couleurs dérivent lentement.</item>
+    </string-array>
+    <string-array name="changelog_15">
+        <item>Deux tailles plus petites pour l’écran de la voiture : Petite (90 %) et Très petite (83 %), dans les paramètres de la voiture.</item>
+        <item>L’assistant du téléphone s’ouvre en écoute, comme depuis le coin de l’écran du téléphone, et non dans sa discussion écrite.</item>
+        <item>Le partage d’écran met le téléphone à l’horizontale, pour que les apps remplissent l’écran large de la voiture. Il revient quand vous arrêtez.</item>
+    </string-array>
+    <string-array name="changelog_14">
+        <item>La musique et la carte partagent à nouveau l’écran : le lecteur se place à côté de la carte dès que quelque chose joue.</item>
+        <item>Appuyez sur le titre dans le dock pour ranger le lecteur ou le faire revenir. Maintenez-le appuyé pour le lecteur en plein écran.</item>
+    </string-array>
+    <string-array name="changelog_13">
+        <item>Des fonds d’écran derrière la grille des apps et le tableau de bord, avec le dock en verre par-dessus. Choisissez-en un, ou aucun, dans les paramètres de la voiture.</item>
+        <item>Des icônes en verre : de la lumière le long des bords et un léger reflet.</item>
+        <item>Le lecteur à côté de la carte remplit son côté avec la pochette, ses commandes sur du verre dépoli.</item>
+        <item>Choisissez l’assistant vocal : celui de myCar, celui du téléphone ou une autre app d’assistant.</item>
+        <item>Les apps qui ne fonctionnent qu’en partie avec myCar ont une marque jaune.</item>
+    </string-array>
+    <string-array name="changelog_12">
+        <item>Un nouveau look : un dock à gauche avec l’horloge et vos apps, et la grille des apps en pages.</item>
+        <item>Les icônes des apps sont dans un cadre carré arrondi, et l’écran de la voiture utilise la police Inter.</item>
+        <item>Sombre par défaut. Choisissez clair, ou comme le téléphone, dans les paramètres de la voiture.</item>
+        <item>Appuyez sur le titre dans le dock pour placer le lecteur à côté de la carte. Maintenez-le appuyé pour le lecteur en plein écran.</item>
+        <item>Les appels n’arrivent dans la voiture que par le Bluetooth, avec ou sans audio USB. myCar indique maintenant quand le téléphone n’est pas connecté, et quand un appel passe sur le téléphone.</item>
+        <item>Les apps pour voiture affichent à nouveau leurs propres icônes, au lieu de celles d’une autre app.</item>
+    </string-array>
+    <string-array name="changelog_11">
+        <item>Gearslip devient myCar, avec un nouveau nom et une nouvelle icône. Les mises à jour viennent de github.com/sirionero/mycar.</item>
+        <item>Les appels de vos contacts s’affichent sur l’écran de la voiture, et vous pouvez y répondre ou les refuser.</item>
+        <item>La fiche d’appel ne reste plus à l’écran après un refus, ni quand l’appelant raccroche.</item>
+        <item>Raccrochez depuis l’écran de la voiture ou le volant.</item>
+    </string-array>
+    <string-array name="changelog_9">
+        <item>Android Auto sans fil : associez le téléphone à la voiture une fois, et laissez le câble à la maison.</item>
+        <item>La commande vocale est intégrée. Dites « emmène-moi à une station-service », « mets » une chanson ou un artiste, ou ouvrez une app par son nom.</item>
+        <item>« Emmène-moi à » choisit le lieu le plus proche et s’arrête sur l’écran de départ de l’app de navigation : il ne reste qu’à appuyer sur Démarrer.</item>
+        <item>myCar transforme la parole en texte sur le téléphone, sans compte Google. Téléchargez une fois les modèles vocaux pendant la configuration.</item>
+        <item>La molette de la voiture passe d’un bouton à l’autre : les voitures sans écran tactile fonctionnent aussi.</item>
+        <item>Choisissez comment la musique arrive dans la voiture : Bluetooth, ou USB sans délai. myCar propose l’association avec la voiture la première fois.</item>
+        <item>La voiture annonce chaque changement de direction de votre app de navigation, et affiche les indications sur son propre écran quand elle le peut.</item>
+        <item>La voiture affiche ce qui joue, et les apps de musique ont leurs propres boutons J’aime, aléatoire et répétition.</item>
+        <item>Choisissez l’apparence des boutons de la voiture. Vous pourrez la changer à tout moment dans les paramètres de la voiture.</item>
+        <item>Une nouvelle destination en cours de route remplace l’ancien itinéraire, et changer d’app de navigation termine l’itinéraire de l’ancienne.</item>
+        <item>La voiture vous avertit quand la position du téléphone est désactivée.</item>
+        <item>myCar trouve les nouvelles versions et les installe pour vous.</item>
+        <item>Plus de voitures jouent la musique par USB, affichent une image plus nette et placent les appuis là où vous appuyez.</item>
+        <item>Sur GrapheneOS, myCar n’a plus besoin du réglage « Exploit protection compatibility mode ».</item>
+        <item>L’app est deux fois plus légère qu’avant.</item>
+    </string-array>
+    <string-array name="changelog_8">
+        <item>Quitter vous ramène à l’écran de la voiture elle-même. Appuyez sur Android Auto dans la voiture pour revenir.</item>
+        <item>myCar écoute par le micro de la voiture quand elle en a un, pour que la voix fonctionne avec le téléphone dans la poche.</item>
+        <item>Une réponse vocale part quand sa barre arrive au bout, même avec le bruit de la route ou la radio. Dites « annule » ou « change » avant.</item>
+        <item>Les cartes passent en sombre quand la voiture passe en mode nuit.</item>
+        <item>Une carte en mouvement ne fait plus prendre de retard à l’écran de la voiture sur vos appuis.</item>
+        <item>myCar demande à envoyer le son à la voiture dès la connexion, pour que les vidéos du navigateur web passent aussi dans la voiture.</item>
+        <item>Les voitures qui proposent plus d’un type d’audio pour la musique, comme la Dacia Jogger 2022, ont de nouveau du son.</item>
+        <item>Quand la voiture affiche un clavier, vous pouvez taper sur le téléphone à la place. Le clavier de la voiture est aussi plus grand.</item>
+        <item>Chaque écran de la voiture a un bouton Retour.</item>
+        <item>Les icônes des apps montrent si une app fonctionne dans myCar. Metrolist fonctionne et affiche la coche verte.</item>
+        <item>LIVI se connecte à nouveau, et le tactile fonctionne sur les voitures avec un second écran.</item>
+        <item>L’écran Paramètres du téléphone a une nouvelle disposition, avec Nouveautés et le guide de configuration en haut.</item>
+        <item>Vous pouvez choisir d’envoyer de courtes notes d’utilisation qui aident le projet. Elles ne contiennent ni nom, ni compte, ni position, et restent désactivées tant que vous ne les activez pas.</item>
+        <item>La recherche dans une app multimédia est passée dans Paramètres &gt; Fonctions expérimentales.</item>
+        <item>Dans Paramètres &gt; Audio multimédia, les choix sont maintenant Audio du téléphone et Audio de la voiture.</item>
+        <item>Les journaux n’incluent plus votre position ni le numéro de série de la voiture.</item>
+    </string-array>
+    <string-array name="changelog_7">
+        <item>Le lanceur regroupe vos apps : Téléphone, Cartes, Musique, Messagerie, Web, Partage d’écran et Paramètres.</item>
+        <item>Pour déplacer une app, maintenez-la appuyée dans le lanceur, puis appuyez sur Déplacer à gauche ou Déplacer à droite.</item>
+        <item>MapQuest et Flitsmeister fonctionnent dans myCar et affichent la coche verte.</item>
+        <item>Spotify n’a qu’une tuile. Si Spotify n’est pas ouvert sur le téléphone, appuyez sur Ouvrir Spotify pour le lancer.</item>
+        <item>Lancez une carte d’un geste et elle continue de glisser, comme dans Android Auto.</item>
+        <item>La carte reprend là où elle en était quand vous revenez d’un autre écran.</item>
+        <item>Les champs de recherche des apps de navigation sont plus grands et plus lisibles.</item>
+        <item>Les apps de navigation gardent les bonnes icônes sur leurs boutons après leurs mises à jour.</item>
+        <item>Quand myCar demande « Voulez-vous répondre ? », une barre montre combien de temps il écoutera. La barre s’arrête pendant que vous parlez.</item>
+        <item>myCar adapte son image aux écrans larges des voitures et l’éloigne des bords que la voiture rogne.</item>
+        <item>myCar répond correctement aux vérifications de connexion de la voiture. Sans cela, certaines voitures, dont des Audi, raccrochaient au bout d’une seconde.</item>
+        <item>Google Maps n’apparaît plus comme une app de messagerie.</item>
+    </string-array>
+    <string-array name="changelog_6">
+        <item>Les apps de messagerie comme Signal et Molly s’ouvrent sur vos conversations récentes.</item>
+        <item>myCar lit un message à voix haute, et vous répondez à la voix. Dites « annule » ou « change » avant l’envoi, ou appuyez sur une réponse rapide comme votre heure d’arrivée.</item>
+        <item>La voix fonctionne sur tous les téléphones, GrapheneOS compris. myCar transforme lui-même la parole en texte : il n’a besoin d’aucun compte Google.</item>
+        <item>Les nouveaux messages s’affichent dans une petite fiche en haut à droite, même pendant que vous conduisez. Une barre montre le temps avant que la fiche se ferme ou que la réponse parte.</item>
+        <item>Seuls les messages, les appels manqués, les alarmes et les rappels s’affichent par-dessus. Tout le reste attend dans le tableau de bord.</item>
+        <item>La carte reste chargée quand vous changez d’écran : elle ne clignote plus en noir.</item>
+        <item>Les apps de navigation s’affichent de façon plus fiable et gardent leur connexion quand le téléphone est verrouillé.</item>
+        <item>Le bouton Accueil affiche votre app de navigation, qui n’apparaît donc plus en double.</item>
+        <item>La prochaine manœuvre s’affiche dans la barre de navigation quand vous quittez la carte.</item>
+        <item>Les boutons au volant, les molettes de commande et les croix directionnelles fonctionnent maintenant. Si les vôtres ne fonctionnent pas, ouvrez un ticket sur GitHub.</item>
+        <item>Pour voir le titre et l’artiste en entier dans la barre de navigation, choisissez Paramètres &gt; Lecteur dans la barre de navigation &gt; Titre du morceau.</item>
+        <item>Choisissez miles ou kilomètres dans Paramètres &gt; Unités.</item>
+        <item>Essayez l’assistant vocal et l’écran Données du véhicule dans Paramètres &gt; Fonctions expérimentales.</item>
+        <item>Les journaux disent maintenant pourquoi une voiture a mis fin à la connexion.</item>
+        <item>Spotify, Waze et Google Messages sont passés à une version de la bibliothèque pour voiture de Google qui n’accepte qu’Android Auto lui-même. Leurs propres écrans pour voiture ne s’ouvriront pas dans myCar. Spotify joue toujours via le lecteur de myCar, qui a la coche verte.</item>
+        <item>Les appels passent par le Bluetooth de la voiture, comme avec Android Auto. Associez votre téléphone à la voiture pour entendre les appels sur ses haut-parleurs.</item>
+    </string-array>
+</resources>
