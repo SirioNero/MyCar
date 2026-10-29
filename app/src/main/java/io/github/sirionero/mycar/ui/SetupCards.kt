@@ -54,7 +54,10 @@ private fun stepName(id: Id) = when (id) {
 internal fun BackToSetupCard(onOpenSetup: () -> Unit) {
     val steps = rememberSetupSteps()
     val left = SetupSteps.leftToConnect(steps)
-    val extras = steps.count { it.group != SetupSteps.Group.CONNECT && it.status == SetupSteps.Status.TODO }
+    // Calls, map and music passed over or refused count too: they aren't set up.
+    val extras = steps.count {
+        it.group != SetupSteps.Group.CONNECT && it.status in setOf(SetupSteps.Status.TODO, SetupSteps.Status.SKIPPED, SetupSteps.Status.BLOCKED)
+    }
     val line = when {
         left.isNotEmpty() -> (if (left.size == 1) "1 step left" else "${left.size} steps left") +
             " before your first drive: " + left.joinToString { stepName(it.id) } + "."
