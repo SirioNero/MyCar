@@ -11,6 +11,7 @@
         <item>It follows the phone\'s language; to pick another, Settings &gt; Language on the phone.</item>
         <item>The voice assistant speaks all nine. Greek and Russian are heard by the multilingual Parakeet model, Chinese by Whisper: Settings &gt; Voice says which one to download.</item>
         <item>Xonos inside myCar speaks your language, and asks Music Assistant for its own words in it too.</item>
+        <item>On the phone, Settings is grouped into pages, and the app has themes: like the phone, light, dark, black (AMOLED) or Monokai (Settings &gt; General).</item>
     </string-array>
     <!-- 0.5.22-alpha -->
     <string-array name="changelog_35">

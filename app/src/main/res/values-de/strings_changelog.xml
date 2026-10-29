@@ -5,6 +5,7 @@
         <item>Es folgt der Sprache des Telefons; eine andere wählst du auf dem Telefon unter Einstellungen &gt; Sprache.</item>
         <item>Der Sprachassistent spricht alle neun. Griechisch und Russisch hört das mehrsprachige Parakeet-Modell, Chinesisch Whisper: Unter Einstellungen &gt; Sprachsteuerung steht, welches du herunterladen musst.</item>
         <item>Xonos in myCar spricht deine Sprache und holt auch die Texte von Music Assistant in dieser Sprache.</item>
+        <item>Auf dem Telefon sind die Einstellungen in Gruppen geordnet, und die App hat Designs: wie das Telefon, hell, dunkel, schwarz (AMOLED) oder Monokai (Einstellungen &gt; Allgemein).</item>
     </string-array>
     <string-array name="changelog_35">
         <item>Ist Home Assistant auf dem Telefon eingerichtet (Einstellungen &gt; Plancia), geht, was der Sprachassistent nicht selbst kann, an den Sprachassistenten, den du in Home Assistant gewählt hast: Claude, Gemini, ChatGPT, ein Modell bei dir zu Hause oder der von Home Assistant selbst, der das Haus steuert.</item>

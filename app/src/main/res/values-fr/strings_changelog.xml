@@ -5,6 +5,7 @@
         <item>Il suit la langue du téléphone ; pour en choisir une autre, Paramètres &gt; Langue sur le téléphone.</item>
         <item>L’assistant vocal parle les neuf. Le grec et le russe sont entendus par le modèle Parakeet multilingue, le chinois par Whisper : Paramètres &gt; Voix indique lequel télécharger.</item>
         <item>Xonos dans myCar parle votre langue, et demande aussi à Music Assistant ses textes dans cette langue.</item>
+        <item>Sur le téléphone, les Paramètres sont regroupés en pages, et l’app a des thèmes : comme le téléphone, clair, sombre, noir (AMOLED) ou Monokai (Paramètres &gt; Général).</item>
     </string-array>
     <string-array name="changelog_35">
         <item>Avec Home Assistant configuré sur le téléphone (Paramètres &gt; Plancia), ce que l’assistant vocal ne sait pas faire lui-même va à l’assistant vocal que vous avez choisi dans Home Assistant : Claude, Gemini, ChatGPT, un modèle à la maison, ou celui de Home Assistant, qui pilote la maison.</item>

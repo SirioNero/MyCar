@@ -5,6 +5,7 @@
         <item>默认跟随手机语言；要选择其他语言，请在手机上进入“设置 &gt; 语言”。</item>
         <item>语音助手九种语言都会说。希腊语和俄语由多语言 Parakeet 模型识别，中文由 Whisper 识别：“设置 &gt; 语音”会告诉你下载哪一个。</item>
         <item>myCar 内置的 Xonos 也使用你的语言，并向 Music Assistant 获取该语言的文字。</item>
+        <item>手机上的设置已分组，应用还有主题：跟随手机、浅色、深色、纯黑 (AMOLED) 或 Monokai（“设置 &gt; 常规”）。</item>
     </string-array>
     <string-array name="changelog_35">
         <item>在手机上设置好 Home Assistant（设置 &gt; Plancia）后，语音助手自己做不到的事会交给你在 Home Assistant 中选择的语音助手：Claude、Gemini、ChatGPT、家中运行的模型，或 Home Assistant 自带的助手，它能控制家里的设备。</item>

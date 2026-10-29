@@ -5,6 +5,7 @@
         <item>Sigue el idioma del teléfono; para elegir otro, Ajustes &gt; Idioma en el teléfono.</item>
         <item>El asistente de voz habla los nueve. El griego y el ruso los escucha el modelo Parakeet multilingüe, el chino Whisper: Ajustes &gt; Voz te dice cuál descargar.</item>
         <item>Xonos dentro de myCar habla tu idioma, y también pide a Music Assistant sus textos en ese idioma.</item>
+        <item>En el teléfono, los Ajustes están agrupados en páginas, y la app tiene temas: como el teléfono, claro, oscuro, negro (AMOLED) o Monokai (Ajustes &gt; General).</item>
     </string-array>
     <string-array name="changelog_35">
         <item>Con Home Assistant configurado en el teléfono (Ajustes &gt; Plancia), lo que el asistente de voz no sabe hacer por sí mismo va al asistente de voz que elegiste en Home Assistant: Claude, Gemini, ChatGPT, un modelo en casa o el propio de Home Assistant, que controla la casa.</item>

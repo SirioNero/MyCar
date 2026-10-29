@@ -7,6 +7,10 @@ myCar 0.6.0-alpha: myCar in your language - English, Italian, Spanish, German, F
 - Times of arrival, the time in quick replies and the dates in the logs are written the way your language writes them.
 - Xonos inside myCar speaks your language, and Music Assistant gets it too, for its own words (labels, errors, titles).
 
+## On the phone
+- Settings opens on a short list of groups - General, Connection, Voice, Plancia, Xonos, Cinema, Help and tools, About - each a page of its own; Back returns to the list.
+- Themes for the phone app: like the phone (Material You, the default), light, dark, black (AMOLED) or Monokai, in Settings > General. The car's screen keeps its own.
+
 ## The voice assistant in nine languages
 - The voice assistant follows myCar's language, now in Greek, Russian and Chinese too: commands and answers written for each, Greek and Russian names and places understood in the forms they take in a sentence, Chinese with or without traditional characters.
 - Listening: Greek and Russian with the multilingual Parakeet model, as Italian and Portuguese; Chinese with Whisper small (358 MB), which is told the language rather than guessing it. Settings > Voice says which one to download.
