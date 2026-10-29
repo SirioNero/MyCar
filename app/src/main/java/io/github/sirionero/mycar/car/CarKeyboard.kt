@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceIn
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
+import io.github.sirionero.mycar.R
 
 /**
  * Whether a [CarKeyboard] is on screen right now, so [CarUi] can give it the row of height the
@@ -123,7 +125,7 @@ fun CarKeyboard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     if (!symbols) {
-                        Key(if (shifted) "SHIFT" else "shift", Modifier.weight(1.6f)) { shifted = !shifted }
+                        Key(stringResource(if (shifted) R.string.car_keyboard_shift_on else R.string.car_keyboard_shift), Modifier.weight(1.6f)) { shifted = !shifted }
                     }
                     rows.last().forEach { key ->
                         val label = if (shifted && !symbols) key.uppercase() else key
@@ -145,7 +147,7 @@ fun CarKeyboard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Key(if (symbols) "abc" else "?123", Modifier.weight(1.4f)) { symbols = !symbols }
-                    Key("space", Modifier.weight(if (onDismiss != null) 3.2f else 4f)) { onTextChange("$text ") }
+                    Key(stringResource(R.string.car_keyboard_space), Modifier.weight(if (onDismiss != null) 3.2f else 4f)) { onTextChange("$text ") }
                     if (onDismiss != null) {
                         DismissKey(onDismiss, Modifier.weight(1.4f))
                     }
@@ -192,7 +194,7 @@ private fun DismissKey(onClick: () -> Unit, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Filled.Close, contentDescription = "Hide keyboard")
+            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.car_keyboard_hide))
         }
     }
 }
@@ -212,7 +214,7 @@ private fun SubmitKey(modifier: Modifier, search: Boolean, image: ImageVector?, 
         ) {
             Icon(
                 image ?: if (search) Icons.Filled.Search else Icons.Filled.ArrowBack,
-                contentDescription = "Submit",
+                contentDescription = stringResource(R.string.car_keyboard_submit),
             )
         }
     }

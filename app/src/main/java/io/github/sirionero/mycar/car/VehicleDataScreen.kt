@@ -15,8 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 
 /**
  * Everything the head unit's sensor channel is willing to send, live and unfiltered - see
@@ -28,10 +30,9 @@ fun VehicleDataScreen() {
     val readings by CarSensors.readings.collectAsState()
 
     Column(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp)) {
-        ScreenHeader("Vehicle data")
+        ScreenHeader(stringResource(R.string.car_vehicle_title))
         Text(
-            "Raw sensor channel from the connected head unit. Field meaning is a best guess - " +
-                "watch a row change while you do the thing (brake, drive, headlights) to confirm it.",
+            stringResource(R.string.car_vehicle_intro),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
@@ -39,7 +40,7 @@ fun VehicleDataScreen() {
 
         if (readings.isEmpty()) {
             Text(
-                "No sensor service advertised by this head unit, or not connected.",
+                stringResource(R.string.car_vehicle_none),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -57,10 +58,16 @@ private fun ReadingRow(reading: CarSensors.Reading) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, shape = MaterialTheme.shapes.large) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(reading.typeName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                val name = SensorType.name(reading.typeId)
+                Text(
+                    if (name != null) stringResource(R.string.car_sensor_named, stringResource(name), reading.typeId)
+                    else stringResource(R.string.car_sensor_numbered, reading.typeId),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
             Text(
-                reading.raw,
+                reading.raw ?: stringResource(R.string.car_sensor_waiting),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

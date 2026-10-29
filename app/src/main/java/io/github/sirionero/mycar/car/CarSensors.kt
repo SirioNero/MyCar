@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.Protobuf
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Wire
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
  */
 object CarSensors {
 
-    data class Reading(val typeId: Int, val typeName: String, val raw: String, val updatedAtMs: Long)
+    /** [raw] is null until the head unit sends data for the type. Its name: [SensorType.name]. */
+    data class Reading(val typeId: Int, val raw: String?, val updatedAtMs: Long)
 
     private val readingsFlow = MutableStateFlow<List<Reading>>(emptyList())
     val readings: StateFlow<List<Reading>> = readingsFlow
@@ -27,7 +29,7 @@ object CarSensors {
     fun onDiscovered(types: List<Int>) {
         // Once each: a type listed twice made the screen's list throw on its repeated key.
         readingsFlow.value = types.distinct().map { id ->
-            Reading(id, SensorType.name(id), "(waiting for data)", 0L)
+            Reading(id, null, 0L)
         }
     }
 
@@ -48,7 +50,6 @@ object CarSensors {
         val updated = byType.mapValues { (number, group) ->
             Reading(
                 number,
-                SensorType.name(number),
                 group.joinToString("; ") { field ->
                     field.bytes?.let { Protobuf.describe(it, indent = "").trim().replace("\n", ", ") }
                         ?: "varint=${field.varint}"
@@ -71,29 +72,30 @@ object CarSensors {
  */
 object SensorType {
     private val NAMES = mapOf(
-        1 to "Location (GPS)",
-        2 to "Compass",
-        3 to "Speed",
-        4 to "RPM",
-        5 to "Odometer",
-        6 to "Fuel",
-        7 to "Parking brake",
-        8 to "Gear",
-        9 to "Diagnostics",
-        10 to "Night mode",
-        11 to "Environment",
-        12 to "HVAC",
-        13 to "Driving status",
-        14 to "Dead reckoned location",
-        15 to "Passenger",
-        16 to "Door",
-        17 to "Light",
-        18 to "Tire pressure",
-        19 to "Accelerometer",
-        20 to "Gyroscope",
-        21 to "GPS satellites",
-        22 to "Toll card",
+        1 to R.string.car_sensor_location,
+        2 to R.string.car_sensor_compass,
+        3 to R.string.car_sensor_speed,
+        4 to R.string.car_sensor_rpm,
+        5 to R.string.car_sensor_odometer,
+        6 to R.string.car_sensor_fuel,
+        7 to R.string.car_sensor_parking_brake,
+        8 to R.string.car_sensor_gear,
+        9 to R.string.car_sensor_diagnostics,
+        10 to R.string.car_sensor_night_mode,
+        11 to R.string.car_sensor_environment,
+        12 to R.string.car_sensor_hvac,
+        13 to R.string.car_sensor_driving_status,
+        14 to R.string.car_sensor_dead_reckoning,
+        15 to R.string.car_sensor_passenger,
+        16 to R.string.car_sensor_door,
+        17 to R.string.car_sensor_light,
+        18 to R.string.car_sensor_tire_pressure,
+        19 to R.string.car_sensor_accelerometer,
+        20 to R.string.car_sensor_gyroscope,
+        21 to R.string.car_sensor_gps_satellites,
+        22 to R.string.car_sensor_toll_card,
     )
 
-    fun name(id: Int): String = NAMES[id]?.let { "$it (#$id)" } ?: "Sensor #$id"
+    /** The string resource naming [id]; null for a type with no known name. */
+    fun name(id: Int): Int? = NAMES[id]
 }
