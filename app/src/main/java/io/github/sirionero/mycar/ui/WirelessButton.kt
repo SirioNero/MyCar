@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.wireless.WirelessLink
 
 /**
@@ -66,6 +67,9 @@ internal fun WirelessButton() {
     val context = LocalContext.current
     var devices by remember { mutableStateOf<List<BluetoothDevice>?>(null) }
     var denied by remember { mutableStateOf(false) }
+    // "Use myCar in the car" off: the car's network was joined and then dropped without a word,
+    // and the card kept spinning on "reaching" the car.
+    var switchedOff by remember { mutableStateOf(false) }
     fun granted() = WIRELESS_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
@@ -75,6 +79,7 @@ internal fun WirelessButton() {
     // Allowed in Android's settings meanwhile: the note about the permission goes.
     LifecycleResumeEffect(Unit) {
         if (denied && granted()) denied = false
+        if (switchedOff && AppSettings.myCarEnabled(context)) switchedOff = false
         onPauseOrDispose { }
     }
 
@@ -95,9 +100,26 @@ internal fun WirelessButton() {
             modifier = Modifier.padding(bottom = 4.dp),
         ) { Text("Enable Nearby devices permission") }
     }
+    if (switchedOff) {
+        Text(
+            "myCar is switched off for the car (Settings, \"Use myCar in the car\").",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        TextButton(
+            onClick = {
+                AppSettings.setMyCarEnabled(context, true)
+                switchedOff = false
+            },
+            modifier = Modifier.padding(bottom = 4.dp),
+        ) { Text("Turn it on") }
+    }
     Button(
         onClick = {
             denied = false
+            if (!AppSettings.myCarEnabled(context)) {
+                switchedOff = true
+                return@Button
+            }
             if (granted()) devices = WirelessLink.pairedDevices(context) else ask.launch(WIRELESS_PERMISSIONS)
         },
         // At least 64 dp: larger text puts "wirelessly" on a second line, which a fixed height cut.
