@@ -8,6 +8,8 @@
     <!-- 0.6.3-alpha -->
     <string-array name="changelog_39">
         <item>After a wireless drive with a car that calls the phone, myCar keeps listening for it for ten minutes: after a short stop the car connects again by itself, even when its Bluetooth never dropped.</item>
+        <item>Connecting wirelessly with the phone in a pocket: myCar now puts itself in the foreground before joining the car\'s Wi-Fi, which Android refuses to an app in the background.</item>
+        <item>On Automatic, after a call the music waits for the car\'s Bluetooth to come back before moving to myCar.</item>
     </string-array>
     <!-- 0.6.2-alpha -->
     <string-array name="changelog_38">

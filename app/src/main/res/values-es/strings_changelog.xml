@@ -2,6 +2,8 @@
 <resources>
     <string-array name="changelog_39">
         <item>Tras un viaje inalámbrico con un coche que llama al teléfono, myCar sigue escuchando diez minutos: después de una parada corta el coche se vuelve a conectar solo, aunque su Bluetooth nunca se haya desconectado.</item>
+        <item>Conexión inalámbrica con el teléfono en el bolsillo: myCar ahora se pone en primer plano antes de unirse al Wi-Fi del coche, que Android niega a una app en segundo plano.</item>
+        <item>En Automático, tras una llamada la música espera a que vuelva el Bluetooth del coche antes de pasar a myCar.</item>
     </string-array>
     <string-array name="changelog_38">
         <item>A través de myCar, la música ya no se queda apagada cuando el coche toma los altavoces para su propia voz y olvida devolverlos: al rato myCar los pide de nuevo.</item>

@@ -2,6 +2,8 @@
 <resources>
     <string-array name="changelog_39">
         <item>Depois de uma viagem sem fio com um carro que chama o telefone, o myCar continua esperando por ele por dez minutos: depois de uma parada curta o carro se conecta de novo sozinho, mesmo que o Bluetooth nunca tenha caído.</item>
+        <item>Conexão sem fio com o telefone no bolso: o myCar agora se coloca em primeiro plano antes de entrar no Wi-Fi do carro, que o Android recusa a um app em segundo plano.</item>
+        <item>No Automático, depois de uma chamada a música espera o Bluetooth do carro voltar antes de passar para o myCar.</item>
     </string-array>
     <string-array name="changelog_38">
         <item>Pelo myCar, a música não fica mais desligada quando o carro pega os alto-falantes para a própria voz e esquece de devolvê-los: depois de um tempo, o myCar pede de novo.</item>

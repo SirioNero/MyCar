@@ -575,7 +575,10 @@ class MyCarActivity : ComponentActivity(), Projection {
             return
         }
         // Only a session still running counts: one the car ended is cleared by [runSession].
-        if (worker?.isAlive == true || io.github.sirionero.mycar.wireless.WirelessLink.busy) {
+        // Only listening for the car after its drive, though, gives way: this start-up waits longer, and says so.
+        if (worker?.isAlive == true ||
+            (io.github.sirionero.mycar.wireless.WirelessLink.busy && !io.github.sirionero.mycar.wireless.WirelessLink.listeningQuietly)
+        ) {
             MyCarLog.i("auto-connect: a session is already under way")
             return
         }

@@ -67,6 +67,7 @@ object CarAudioRoute {
 
     fun onCarDisconnected() = main.post {
         projecting = false
+        sawCall = false
         main.removeCallbacksAndMessages(settling)
         stopWatching()
         CarSettings.forgetCarLink()
@@ -124,6 +125,13 @@ object CarAudioRoute {
     private fun checkDropped() {
         if (!projecting || !onBluetooth || bluetoothMusic()) return
         if (inCall()) {
+            sawCall = true
+            main.postDelayed({ checkDropped() }, settling, DROP_MS)
+            return
+        }
+        // The call just ended: the car takes a few seconds to bring its Bluetooth music back.
+        if (sawCall) {
+            sawCall = false
             main.postDelayed({ checkDropped() }, settling, DROP_MS)
             return
         }
@@ -132,6 +140,9 @@ object CarAudioRoute {
         CarSettings.useCarLink(true)
         stopWatching()
     }
+
+    /** A call was on while the Bluetooth music connection was gone (see [checkDropped]). */
+    private var sawCall = false
 
     private fun inCall(): Boolean = when (audio?.mode) {
         AudioManager.MODE_IN_CALL, AudioManager.MODE_IN_COMMUNICATION, AudioManager.MODE_RINGTONE -> true

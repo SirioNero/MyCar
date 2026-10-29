@@ -94,6 +94,9 @@ object WirelessLink {
     /** A start-up, or a session's Bluetooth channel, is under way. */
     val busy: Boolean get() = worker?.isAlive == true
 
+    /** Only listening for a car after its drive (see [listenAgain]): a car coming back may start afresh. */
+    val listeningQuietly: Boolean get() = quiet && busy && rfcomm == null && tcp == null
+
     /** The car of the current start-up, for [reachedCar]. */
     @Volatile private var car: BluetoothDevice? = null
     /** Set when Android drops the car's network mid-try, so the rest don't bind to a dead one. */
@@ -118,6 +121,20 @@ object WirelessLink {
     @Volatile private var drove = false
     /** Listening for the car again after a drive: nothing on Home until the car calls. */
     @Volatile private var quiet = false
+    /** The drive's service was started here, for the car's Wi-Fi, and no drive has taken it over yet. */
+    @Volatile private var ownsService = false
+
+    private fun holdService(context: Context) {
+        ownsService = true
+        io.github.sirionero.mycar.SessionService.start(context, wireless = true)
+    }
+
+    /** A start-up that never got to a drive gives the drive's service back; a drive gives it back as it ends. */
+    private fun giveBackService(context: Context) {
+        if (!ownsService || drove) return
+        ownsService = false
+        io.github.sirionero.mycar.SessionService.stop(context)
+    }
 
     /** Guards [channelOver] and [releaseWithChannel], set from the session's end and the channel's. */
     private val ends = Any()
@@ -216,6 +233,7 @@ object WirelessLink {
             if (mine != startRun) return
             channelOver = true
             if (releaseWithChannel && tcp == null) releaseNetwork(context)
+            if (tcp == null) giveBackService(context)
             if (tcp == null) listenAgain(context)
         }
     }
@@ -255,6 +273,7 @@ object WirelessLink {
         tcpRun++
         startRun++
         againFor = null
+        giveBackService(context)
         val starting = worker != null && SessionStatus.state.value.phase == SessionStatus.Phase.CONNECTING
         worker?.interrupt()
         worker = null
@@ -300,9 +319,9 @@ object WirelessLink {
             log.i("Bluetooth: $name called the phone last time - waiting for it at once")
             val accepted = waitForCar(context, name, mine, listenMs)
             if (accepted == null) {
-                // It didn't, this time: next time the phone tries the car first again. Not after a
-                // drive, when the car may simply not have started again.
-                if (mine == startRun && !quiet) WirelessAuto.rememberCalls(context, device.address, false)
+                // It didn't, this time: next time the phone tries the car first again. Not when the
+                // car's Bluetooth woke it or after a drive, when the car may simply not have started.
+                if (mine == startRun && !quiet && !byItself) WirelessAuto.rememberCalls(context, device.address, false)
                 return
             }
             accepted
@@ -335,6 +354,10 @@ object WirelessLink {
         }
         rfcomm = socket
         if (inbound != callsUs) WirelessAuto.rememberCalls(context, device.address, inbound)
+        // The car's Wi-Fi is handed only to an app in front or with a foreground service. With the
+        // phone in a pocket - connecting by itself, or after a stop - the screen isn't in front, and
+        // the drive's service only came once the picture was up: the join was refused.
+        holdService(context)
         log.i("Bluetooth: channel open")
         SessionStatus.connecting(R.string.wireless_link_bt_talking, name)
 
@@ -520,6 +543,7 @@ object WirelessLink {
 
             override fun onUnavailable() {
                 if (activeSsid == ssid) activeSsid = null
+                if (network === this && tcp == null) giveBackService(context)
                 log.w("Wi-Fi: couldn't join \"$ssid\" (declined, out of range, or wrong password)")
                 runCatching { send(output, MSG_CONNECTION_STATUS, Protobuf.varintField(1, -1)) }
                 SessionStatus.failed(
@@ -549,6 +573,18 @@ object WirelessLink {
                     "Wi-Fi: lost \"$ssid\" - Android dropped the car's network. Picking it by hand " +
                         "in the Wi-Fi list does this; the remaining tries go over the phone's own Wi-Fi",
                 )
+            }
+        }
+        // In the foreground for the request (see [run]): the service started with the channel, given
+        // a moment to be up.
+        holdService(context)
+        val until = System.currentTimeMillis() + 3_000
+        while (!io.github.sirionero.mycar.SessionService.running && System.currentTimeMillis() < until) {
+            try {
+                Thread.sleep(100)
+            } catch (e: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return
             }
         }
         network?.let { runCatching { manager.unregisterNetworkCallback(it) } }
@@ -661,6 +697,8 @@ object WirelessLink {
                 synchronized(ends) {
                     tcp = socket
                     drove = true
+                    // The drive takes the service over: the screen stops it when the drive ends.
+                    ownsService = false
                 }
                 log.i("TCP: connected to $ip:$port (try ${attempt + 1})")
                 val start = onConnected
@@ -683,6 +721,7 @@ object WirelessLink {
             }
         }
         log.e("TCP: gave up on $ip:$port", last)
+        if (run == tcpRun) giveBackService(context)
         if (vpnActive(context)) {
             SessionStatus.failed(
                 R.string.wireless_link_vpn,
