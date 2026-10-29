@@ -21,6 +21,7 @@
     <string name="xonos_problem_no_answer">O Music Assistant não responde</string>
     <string name="xonos_problem_not_ma">O Music Assistant não responde neste endereço</string>
     <string name="xonos_problem_too_old">O Music Assistant %s é antigo demais: é preciso a versão 2.7 ou mais recente</string>
+    <string name="xonos_problem_bad_token">Token não aceito: entre de novo no myCar, no telefone</string>
     <string name="xonos_problem_denied">Acesso negado</string>
     <string name="xonos_problem_http">Erro HTTP %s</string>
     <string name="xonos_problem_network">Erro de rede: %s</string>
@@ -30,6 +31,7 @@
     <string name="xonos_problem_bad_login">Usuário ou senha incorretos</string>
     <string name="xonos_problem_setup_required">Este Music Assistant ainda não tem contas: crie a primeira</string>
     <string name="xonos_problem_refused">Music Assistant: %s</string>
+    <string name="xonos_problem_not_configured">Configure o Xonos no myCar, no telefone</string>
 
     <plurals name="xonos_results">
         <item quantity="one">%d resultado</item>
