@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_39">
+        <item>Dopo un viaggio senza fili con un\'auto che chiama il telefono, myCar resta in ascolto per dieci minuti: dopo una sosta breve l\'auto si ricollega da sola, anche se il suo Bluetooth non si è mai staccato.</item>
+    </string-array>
     <string-array name="changelog_38">
         <item>Tramite myCar, la musica non resta più spenta quando l\'auto prende le casse per la sua voce e si dimentica di ridarle: dopo un po\' myCar le richiede.</item>
         <item>In Automatico, il Bluetooth della musica che cade per una chiamata o per un attimo non sposta più l\'audio su myCar a metà viaggio: myCar aspetta che torni.</item>

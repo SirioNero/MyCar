@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_39">
+        <item>Après un trajet sans fil avec une voiture qui appelle le téléphone, myCar reste à l’écoute dix minutes : après un arrêt court, la voiture se reconnecte d’elle-même, même si son Bluetooth ne s’est jamais déconnecté.</item>
+    </string-array>
     <string-array name="changelog_38">
         <item>Via myCar, la musique ne reste plus coupée quand la voiture prend les haut-parleurs pour sa propre voix et oublie de les rendre : au bout d’un moment, myCar les redemande.</item>
         <item>En Automatique, une connexion Bluetooth de la musique qui tombe pour un appel ou un instant ne fait plus passer le son par myCar en plein trajet : myCar attend qu’elle revienne.</item>

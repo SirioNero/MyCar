@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_39">
+        <item>与会主动呼叫手机的车辆完成无线行程后，myCar 会继续等待它十分钟：短暂停车后，即使车辆的蓝牙从未断开，也会自动重新连接。</item>
+    </string-array>
     <string-array name="changelog_38">
         <item>通过 myCar 播放时，车辆为自己的语音占用扬声器后忘记归还，音乐不会再一直无声：过一会儿 myCar 会重新请求扬声器。</item>
         <item>在“自动”模式下，音乐的蓝牙连接因通话或短暂中断时，不会再在行程中途把声音切到 myCar：myCar 会等它恢复。</item>
