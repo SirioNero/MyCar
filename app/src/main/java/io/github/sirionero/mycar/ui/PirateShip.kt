@@ -195,12 +195,13 @@ private fun DrawScope.drawGlitter(t: Float, behind: Boolean, night: Boolean) {
 }
 
 /**
- * A round glow, drawn as the square around it: the gradient has faded out before the square's
- * edges, so there's no circle's edge at all. On the emulator's GPU the sun's rim, where the
- * gradient reached nothing, came out as bright orange specks.
+ * A round glow, drawn a little wider than its gradient: the circle's edge falls where the gradient
+ * has already faded to nothing, so there's no rim to smooth. On the emulator's GPU the sun's rim,
+ * where the gradient reached nothing, came out as bright orange specks. (Drawn as the square
+ * around it instead, the emulator went down as the ship sailed in.)
  */
 internal fun DrawScope.drawGlow(brush: Brush, center: Offset, radius: Float) =
-    drawRect(brush, topLeft = center - Offset(radius, radius), size = Size(radius * 2, radius * 2))
+    drawCircle(brush, radius = radius * 1.05f, center = center)
 
 /** The sun, or by night the moon with its halo. */
 private fun DrawScope.drawSun(t: Float, night: Boolean) {
