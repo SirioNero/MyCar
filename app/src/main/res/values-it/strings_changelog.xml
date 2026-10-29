@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_37">
+        <item>Sul telefono anche la striscia sotto la barra di stato prende il colore del tema, con Chiaro, Scuro, Nero e Monokai.</item>
+    </string-array>
     <string-array name="changelog_36">
         <item>myCar parla la tua lingua, sul telefono e sullo schermo dell\'auto: italiano, inglese, spagnolo, tedesco, francese, portoghese, greco, russo o cinese.</item>
         <item>Segue la lingua del telefono; per sceglierne un\'altra, Impostazioni &gt; Lingua sul telefono.</item>

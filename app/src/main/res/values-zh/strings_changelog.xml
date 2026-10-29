@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_37">
+        <item>在手机上，状态栏下方的那条区域也会使用主题的颜色，适用于浅色、深色、纯黑和 Monokai。</item>
+    </string-array>
     <string-array name="changelog_36">
         <item>myCar 会说你的语言，手机上和车机屏幕上都是：中文、英语、意大利语、西班牙语、德语、法语、葡萄牙语、希腊语或俄语。</item>
         <item>默认跟随手机语言；要选择其他语言，请在手机上进入“设置 &gt; 语言”。</item>

@@ -5,6 +5,10 @@
   "Settings >" are the app's own: translate them as the app's screens say them.
 -->
 <resources>
+    <!-- 0.6.1-alpha -->
+    <string-array name="changelog_37">
+        <item>On the phone, the band under the status bar takes the theme\'s colour too, with Light, Dark, Black and Monokai.</item>
+    </string-array>
     <!-- 0.6.0-alpha -->
     <string-array name="changelog_36">
         <item>myCar speaks your language, on the phone and on the car\'s screen: English, Italian, Spanish, German, French, Portuguese, Greek, Russian or Chinese.</item>
