@@ -13,8 +13,10 @@ Twink Software LLC. It keeps Gearslip's license (AGPL-3.0) and builds on its wor
 ## Which cars work
 
 Most cars work. Starting around 2020, some cars added newer security standards that reject
-the Android Auto certificate myCar uses, and myCar can't run in those cars. [CARS.md](CARS.md)
-lists the cars drivers have confirmed with Gearslip; myCar talks to cars with the same code.
+the older Android Auto certificates. For those myCar can use CarService, Android Auto's own
+current certificate, which works in a recent Volkswagen; a car that turns down that one too can't
+run myCar. [CARS.md](CARS.md) lists the cars drivers have confirmed with Gearslip; myCar talks to
+cars with the same code.
 
 ## What myCar is
 
@@ -80,7 +82,9 @@ behind it all — still or moving.
   the current and coming weather.
 - **Voice.** Tap the mic, or press the talk button on the wheel, and say "navigate to the
   nearest gas station", "play Daft Punk", "call Mom on mobile", "call back", "read my messages",
-  "reply to Anna" or "when do I arrive?". Say "help" for the full list.
+  "reply to Anna" or "when do I arrive?". Say "help" for the full list. With the phone in
+  Italian, Spanish, French, German or Portuguese, the assistant listens and answers in that
+  language, once the speech model that knows it is on the phone (Settings > Voice).
   Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
   assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
   the way the swipe up from a bottom corner of the phone does, rather than in a typed chat.
@@ -204,13 +208,17 @@ the protocol comes from Gearslip and from public open-source projects such as
 [aasdk](https://github.com/opencardev/aasdk) and open-android-auto, and it contains none
 of Google's Android Auto code.
 
-myCar ships without a certificate. On first launch, Get certificates downloads two public
-ones from open-source projects on GitHub: the one [aasdk](https://github.com/opencardev/aasdk)
-publishes, recommended, and the one in
-[Headunit Revived](https://github.com/andreknieriem/headunit-revived), as a spare. myCar checks
-each against its fingerprint before keeping it, and if your car turns down the first, it uses
-the other. You can also pick one in Settings, or import a file of your own. Certificates stay
-on your phone. myCar never uploads, backs up, or logs them.
+myCar ships without a certificate. On first launch, Get certificates downloads three public
+ones from GitHub: the one [aasdk](https://github.com/opencardev/aasdk) publishes, recommended,
+the one in [Headunit Revived](https://github.com/andreknieriem/headunit-revived), as a spare,
+and CarService, Android Auto's own, from the
+[android-auto-certificates](https://github.com/Iscle/android-auto-certificates) archive, for
+the cars that check phones most strictly. myCar checks each before keeping it - the first two
+against their fingerprints, CarService against the Google root that signs all three - and if
+your car turns down one, it uses the next. Android Auto replaces CarService every few months:
+myCar gets the new one before the old one runs out. You can also pick one in Settings, or
+import a file of your own. Certificates stay on your phone. myCar never uploads, backs up, or
+logs them.
 
 ## Based on Gearslip
 
