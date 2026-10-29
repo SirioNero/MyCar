@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.car
 
+import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
@@ -93,7 +94,9 @@ internal fun WebApp(content: String, tile: WebTile?) {
                         settings.domStorageEnabled = true
                         settings.loadWithOverviewMode = true
                         settings.useWideViewPort = true
-                        webViewClient = LoggingClient(ring) {
+                        // A new page (a search sent, a link): the field typed in went with the old one,
+                        // which the engine doesn't say, and the keyboard stayed over the results.
+                        webViewClient = LoggingClient(ring, onNewPage = { fieldText = null }) {
                             web = null
                             fieldText = null
                             generation++
@@ -152,7 +155,15 @@ internal fun WebApp(content: String, tile: WebTile?) {
     }
 }
 
-private class LoggingClient(private val ring: String, private val onGone: () -> Unit) : WebViewClient() {
+private class LoggingClient(
+    private val ring: String,
+    private val onNewPage: () -> Unit,
+    private val onGone: () -> Unit,
+) : WebViewClient() {
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+        onNewPage()
+    }
+
     // The web engine's page process is one for the whole app, Plancia's dashboard included: when
     // it dies, every web view on it must say it handled that, or Android ends myCar - and the drive.
     override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
