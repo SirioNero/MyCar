@@ -925,6 +925,19 @@ Tutti i token in un solo posto, `car/design/`:
 
 ## Backlog
 
+- **In sospeso dopo la 0.6.0** (richiesta dell'utente prima del limite settimanale, da riprendere da
+  soli): impostazioni del telefono raggruppate in sottomenu (Generali: lingua, tema, aggiornamenti;
+  Connessione: senza fili, audio in auto, certificato; Voce; Plancia; Xonos; Cinema + TV; Aiuto e
+  strumenti; Informazioni: sostieni myCar, note d'uso, versione), con `SettingsAt` che apre il
+  sottomenu giusto e Indietro che torna all'elenco (ramo `feature/phone-settings`, vuoto); temi del
+  telefono: come il telefono (Material You, default), chiaro, scuro, nero AMOLED, Monokai (stile
+  Proton), con le barre di sistema giuste (`enableEdgeToEdge` con stile esplicito) e
+  `isSystemInDarkTheme` tolto da `HomeScreen`/`CertNoticeCard`; giro di bug sulla connessione
+  automatica e sul ricollegamento pochi minuti dopo un viaggio ("esco al super, rientro e fatica a
+  ricollegarsi"; ramo `fix/reconnect`, vuoto); scatti `lang-*` per controllare le lingue. Poi 0.6.1.
+- I bagliori del veliero e della bandiera sono immagini dipinte una volta (`ui/Glow.kt`): come
+  sfumature della GPU l'emulatore lasciava puntini (cerchio) o cadeva (quadrato).
+
 - Voce offline nella build F-Droid: compilare sherpa-onnx (+ onnxruntime) da sorgente nella
   ricetta F-Droid invece del `.so` precompilato.
 - **Comandi rapidi di Home Assistant** come widget nelle pagine (cancello, garage), sul
