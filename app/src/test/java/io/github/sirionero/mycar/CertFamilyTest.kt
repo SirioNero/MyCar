@@ -82,7 +82,7 @@ class CertFamilyTest {
     fun `far from its end nothing is fetched`() {
         val base = folder.newFolder()
         CertCatalog.store(base, "family", PemKeyParser.build(member.certPem, member.keyPem))
-        assertFalse(CertCatalog.refreshIfDue(base, listOf(entry())) { throw AssertionError("fetched") })
+        assertFalse(CertCatalog.refreshIfDue(base, listOf(entry()), fetch = { throw AssertionError("fetched") }))
     }
 
     @Test
@@ -91,7 +91,7 @@ class CertFamilyTest {
         val old = root.sign("CarService", days = 10)
         CertCatalog.store(base, "family", PemKeyParser.build(old.certPem, old.keyPem))
         assertFalse(CertCatalog.refreshIfDue(base, listOf(entry()), served(old)))
-        assertFalse(CertCatalog.refreshIfDue(base, listOf(entry())) { throw RuntimeException("no network") })
+        assertFalse(CertCatalog.refreshIfDue(base, listOf(entry()), fetch = { throw RuntimeException("no network") }))
         assertEquals(CertChecks.sha256(old.certificate), CertChecks.sha256(CertCatalog.readCertificate(CertCatalog.file(base, "family"))))
     }
 
