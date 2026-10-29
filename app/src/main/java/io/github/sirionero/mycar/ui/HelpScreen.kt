@@ -1,8 +1,10 @@
 package io.github.sirionero.mycar.ui
 
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.audio.AudioRoute
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -41,44 +44,39 @@ import androidx.compose.ui.unit.dp
  * that can, in one tap, in which case it is shown as a button instead.
  */
 private class Step(
-    val action: String,
-    val detail: String? = null,
+    @StringRes val action: Int,
+    @StringRes val detail: Int? = null,
     val command: String? = null,
-    val buttonLabel: String? = null,
+    @StringRes val buttonLabel: Int? = null,
     val onClick: (() -> Unit)? = null,
 )
 
 private fun inTheCar(onRequestCallScreening: () -> Unit) = listOf(
     Step(
-        "Plug in, or connect wirelessly.",
-        "myCar opens by itself when the car connects. For wireless, pair the phone with the " +
-            "car first, then tap Connect wirelessly on Home.",
+        R.string.help_step_connect,
+        R.string.help_step_connect_detail,
     ),
     Step(
-        "Pair over Bluetooth for calls.",
-        "Calls play through the car once your phone and the car are paired. myCar offers to " +
-            "pair the first time you plug in.",
+        R.string.help_step_pair,
+        R.string.help_step_pair_detail,
     ),
     Step(
-        "Turn down unknown callers before they ring.",
-        "Set myCar as your caller ID and spam app. Without it, the car still shows every call, " +
-            "and you answer or decline it there.",
-        buttonLabel = "Set up",
+        R.string.help_step_screening,
+        R.string.help_step_screening_detail,
+        buttonLabel = R.string.help_set_up,
         onClick = onRequestCallScreening,
     ),
 )
 
 private val USB_AUDIO = listOf(
     Step(
-        "Stop the audio prompt each drive.",
-        "Connect the phone to a computer with USB debugging on, and run this once. Skip it and " +
-            "you tap Start each time you set off.",
+        R.string.help_step_audio_prompt,
+        R.string.help_step_audio_prompt_detail,
         command = "adb shell appops set ${BuildConfig.APPLICATION_ID} PROJECT_MEDIA allow",
     ),
     Step(
-        "Keep notifications readable.",
-        "Android hides what notifications say while it shares audio. Run this too, and myCar " +
-            "lifts that only while music goes to the car.",
+        R.string.help_step_notifications,
+        R.string.help_step_notifications_detail,
         command = "adb shell pm grant ${BuildConfig.APPLICATION_ID} android.permission.WRITE_SECURE_SETTINGS",
     ),
 )
@@ -95,10 +93,10 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit, onOpenSet
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("How to connect") },
+                title = { Text(stringResource(R.string.help_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
             )
@@ -115,20 +113,19 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit, onOpenSet
             Spacer(Modifier.height(0.dp))
             // What used to be the steps before the first drive: the setup list itself, as it stands.
             BackToSetupCard(onOpenSetup)
-            SettingsSection("Which cars work") {
+            SettingsSection(stringResource(R.string.help_which_cars)) {
                 Text(
-                    "Most cars work. Starting around 2020, some cars added newer security " +
-                        "standards that reject myCar's certificate, and myCar can't run in those cars.",
+                    stringResource(R.string.help_which_cars_text),
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
                 )
                 FilledTonalButton(
                     onClick = { MyCarLinks.open(context, MyCarLinks.CARS) },
                     modifier = Modifier.padding(16.dp),
-                ) { Text("See the full list") }
+                ) { Text(stringResource(R.string.help_see_full_list)) }
             }
-            Steps("In the car", car)
-            if (route != AudioRoute.BLUETOOTH) Steps("Sound through myCar", USB_AUDIO)
+            Steps(stringResource(R.string.help_in_the_car), car)
+            if (route != AudioRoute.BLUETOOTH) Steps(stringResource(R.string.help_sound_through_mycar), USB_AUDIO)
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -152,14 +149,14 @@ private fun Steps(title: String, steps: List<Step>) {
                     modifier = Modifier.width(16.dp),
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(step.action, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(step.action), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                     step.detail?.let {
-                        Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(it), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     step.command?.let { CopyableCommand(it) }
                     if (step.onClick != null) {
                         FilledTonalButton(onClick = step.onClick, modifier = Modifier.padding(top = 4.dp)) {
-                            Text(step.buttonLabel ?: "Open")
+                            Text(stringResource(step.buttonLabel ?: R.string.common_open))
                         }
                     }
                 }

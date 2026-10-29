@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextMeasurer
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.em
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.InterFamily
 import kotlin.math.PI
 import kotlin.math.abs
@@ -56,6 +58,9 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun PirateFlag(key: Any, modifier: Modifier) {
     val measurer = rememberTextMeasurer()
+    val description = stringResource(R.string.update_flag_description)
+    val local = stringResource(R.string.update_flag_local)
+    val motto = stringResource(R.string.update_flag_motto)
     // Read while drawing, like the wind: the screen isn't composed again for every frame, and the
     // cloth isn't painted again either.
     val hoist = remember(key) { Animatable(0f) }
@@ -68,7 +73,7 @@ internal fun PirateFlag(key: Any, modifier: Modifier) {
     val gust by wind.animateFloat(0f, TWO_PI, infiniteRepeatable(tween(7_100, easing = LinearEasing)), label = "gust")
     Spacer(
         modifier
-            .semantics { contentDescription = "A pirate flag: 100% local. We defend our data." }
+            .semantics { contentDescription = description }
             // The strips' light and shade fall on the cloth only (SrcAtop), not on what's behind;
             // and a flag on its way up shows only inside its own place.
             .graphicsLayer {
@@ -85,7 +90,7 @@ internal fun PirateFlag(key: Any, modifier: Modifier) {
                 val flagHeight = minOf(flagWidth / 1.5f, size.height - flagTop - amp * 1.6f)
                 val face = ImageBitmap(flagWidth.toInt().coerceAtLeast(2), flagHeight.toInt().coerceAtLeast(2))
                 CanvasDrawScope().draw(this, layoutDirection, Canvas(face), Size(face.width.toFloat(), face.height.toFloat())) {
-                    drawCloth(measurer)
+                    drawCloth(measurer, local, motto)
                 }
                 val strips = (face.width / 4).coerceIn(24, 140)
                 val poleBrush = Brush.horizontalGradient(listOf(Color(0xFF6E6E73), Color(0xFFD6D6DB), Color(0xFF5A5A5F)), 0f, pole)
@@ -128,8 +133,11 @@ internal fun PirateFlag(key: Any, modifier: Modifier) {
     )
 }
 
-/** The cloth, flat: black with a torn fly, the skull and crossbones, and the words. The ship flies it too (PirateShip). */
-internal fun DrawScope.drawCloth(measurer: TextMeasurer) {
+/**
+ * The cloth, flat: black with a torn fly, the skull and crossbones, and the words ([local] under
+ * the bones, [motto] along the hem). The ship flies it too (PirateShip).
+ */
+internal fun DrawScope.drawCloth(measurer: TextMeasurer, local: String, motto: String) {
     val w = size.width
     val h = size.height
     val cloth = Path().apply {
@@ -185,16 +193,16 @@ internal fun DrawScope.drawCloth(measurer: TextMeasurer) {
     }
 
     // The words: big and bold under the bones, then what they mean along the hem.
-    val local = measurer.measure(
-        "100% LOCAL",
+    val big = measurer.measure(
+        local,
         TextStyle(color = bone, fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = (h * 0.15f).toSp(), letterSpacing = 0.06.em),
     )
-    drawText(local, topLeft = Offset(cx - local.size.width / 2f, h * 0.62f))
-    val motto = measurer.measure(
-        "WE DEFEND OUR DATA",
+    drawText(big, topLeft = Offset(cx - big.size.width / 2f, h * 0.62f))
+    val hem = measurer.measure(
+        motto,
         TextStyle(color = bone.copy(alpha = 0.85f), fontFamily = InterFamily, fontWeight = FontWeight.Bold, fontSize = (h * 0.078f).toSp(), letterSpacing = 0.2.em),
     )
-    drawText(motto, topLeft = Offset(cx - motto.size.width / 2f, h * 0.81f))
+    drawText(hem, topLeft = Offset(cx - hem.size.width / 2f, h * 0.81f))
 }
 
 /** The torn fly, from the top down: (how far down, how far out) as parts of the cloth. */

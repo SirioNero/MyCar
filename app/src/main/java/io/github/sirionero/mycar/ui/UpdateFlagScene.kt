@@ -34,11 +34,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.min
+import io.github.sirionero.mycar.R
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlinx.coroutines.delay
@@ -91,7 +93,7 @@ internal fun UpdateSplashContent(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "Updated to", color = quiet, style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),
+                stringResource(R.string.update_splash_updated_to), color = quiet, style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.up(entrance("update", 900), cq(6f)),
             )
             Text(
@@ -109,7 +111,7 @@ internal fun UpdateSplashContent(
         }
         val hint = entrance("update", 2_200, 600)
         Text(
-            "Tap anywhere to go on", color = quiet.copy(alpha = 0.8f),
+            stringResource(R.string.update_splash_tap), color = quiet.copy(alpha = 0.8f),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = cq(8f))
                 .graphicsLayer { alpha = hint },

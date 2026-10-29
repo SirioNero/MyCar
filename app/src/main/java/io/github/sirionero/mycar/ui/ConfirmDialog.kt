@@ -5,6 +5,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.sirionero.mycar.R
 
 /**
  * Asks before something that's hard to undo from the phone (certificates that need the internet to
@@ -30,7 +32,7 @@ internal fun ConfirmDialog(
             }) { Text(confirm, color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
         },
     )
 }
