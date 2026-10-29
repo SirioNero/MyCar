@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_35">
+        <item>Avec Home Assistant configuré sur le téléphone (Paramètres &gt; Plancia), ce que l’assistant vocal ne sait pas faire lui-même va à l’assistant vocal que vous avez choisi dans Home Assistant : Claude, Gemini, ChatGPT, un modèle à la maison, ou celui de Home Assistant, qui pilote la maison.</item>
+        <item>« Ouvre le portail », « quelle est la date ? », « et demain ? » : il répond dans votre langue, et vous pose une question quand il en a besoin.</item>
+        <item>Téléphone verrouillé avec l’assistant du téléphone choisi : myCar écoute lui-même et Home Assistant répond, sans rien à déverrouiller.</item>
+    </string-array>
     <string-array name="changelog_34">
         <item>L’assistant vocal parle la langue de votre téléphone : italien, espagnol, français, allemand ou portugais. Il écoute, répond et affiche ses mots dans cette langue.</item>
         <item>Il lui faut un modèle vocal pour cette langue : sur le téléphone, Paramètres &gt; Voix indique lequel, avec un bouton pour le télécharger.</item>

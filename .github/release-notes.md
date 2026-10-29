@@ -1,24 +1,18 @@
-myCar 0.5.21-alpha: the voice assistant in your phone's language, a third certificate for the newest cars (Android Auto's own), the music back by itself after a film, and a pirate flag flying after every update.
+myCar 0.5.22-alpha: Home Assistant answers what myCar's voice assistant can't do itself - your home, and any question - in your language, and with the phone locked in your pocket.
 
-## The assistant in your language
-- With the phone in Italian, Spanish, French, German or Portuguese, the car's voice assistant now listens, answers and shows its words in that language: "portami a casa", "llama a mamá", "mets Stromae", "wie ist das Wetter?", "próxima música". Everything in "You can say" works, and its examples are in your language too. Before, it understood English only, and its English answers came out with your phone's voice for another language.
-- It says back where it's taking you as you said it ("Ti porto alla stazione"), and gives the time, the time left and the weather the way your language says them. Portuguese follows your phone: from Portugal or from Brazil.
-- Its answers use the phone's own text-to-speech voice for that language; "Say cancel or change it", "Listening…" and the other words the assistant shows in the car are in your language too. The rest of the car screen stays in English.
-- It needs a speech model that knows your language, kept on the phone like the others (nothing you say leaves it): Canary hears Spanish, French and German; for Italian and Portuguese there's the new Parakeet multilingual (640 MB, downloaded once). On the phone, Settings > Voice: Italian (or your language) says which one the assistant uses, with a button to download the one it needs. Until then it stays in English, as before. With the phone in English nothing changes.
-- With "Use the phone's speech recognition" on, the phone's service listens in your language too.
+## Home Assistant in the voice assistant
+- With Home Assistant set up in myCar (Settings > Plancia on the phone), what the car's voice assistant doesn't know goes to the voice assistant you set up in Home Assistant (Settings > Voice assistants there): Claude with the Anthropic integration, Gemini, ChatGPT, a model at home such as Ollama, or Home Assistant's own, which runs the house. "Open the gate" and "turn on the heating" reach your home; "what's the date?" or any other question gets its answer, spoken in the car and written on its screen. myCar's own commands (navigate, call, music, messages) work as before.
+- In your language: myCar picks the Home Assistant voice assistant that speaks it, or asks the one you prefer in your language. Home Assistant's own agent understood no Italian through an English voice assistant; asked in Italian, it answers in Italian.
+- A conversation: a question within five minutes of the last carries on with it ("and tomorrow?"), and when Home Assistant asks something back, the microphone opens again for your answer.
+- The phone locked in your pocket: with the phone's assistant (Gemini, Claude...) chosen in the car's settings, myCar used to ask you to unlock the phone first, since no app can open an assistant over the lock screen. With Home Assistant connected, myCar now listens itself and Home Assistant answers - nothing to unlock. The car says so.
+- It goes through the same connection as Plancia, through the Plancia app when Tailscale leaves myCar out. No key or password in myCar: the agent and its key live in your Home Assistant.
+- "You can say" lists it at the bottom when Home Assistant is connected. Long answers are written smaller, on more lines. Settings > Plancia > Ask Home Assistant in the car turns it off.
 
-## Certificates
-- A third certificate to pick: CarService, Android Auto's own, for the cars that check phones most strictly - recent Volkswagens among them. On the phone, Settings > Certificate > CarService · Newest cars downloads it and uses it from the next connection. Get certificates, in the setup, now brings it too, as a second spare.
-- Android Auto replaces it every few months (this one runs until 3 February 2027). A month before it runs out, myCar gets the new one by itself, and puts it in place if it was the one in use. Settings shows until when it's valid.
-- Each copy is checked before it's kept: signed by Google's root for Android Auto, the same that signs aasdk and Headunit Revived, with its key, its dates and a TLS handshake tried on the phone. It's downloaded only when you tap, from the android-auto-certificates archive, never shipped inside myCar.
-- If your car turns down aasdk and Headunit Revived, Home now offers CarService (Get CarService, then connect again) instead of saying the car turned down every certificate - also if it said so before this update.
-
-## Cinema
-- Leaving Cinema, the music that was playing when you opened it starts again by itself: a film takes the speakers, and the music stayed stopped until you pressed play.
-
-## On the phone
-- After every update, the first time you open myCar, the pirate flag runs up its pole and flies, with the version you've just got. A tap, Back, or a few seconds go on.
-- Big releases bring a pirate ship into their welcome: a galleon sails in on the waves and hoists the flag on its mainmast - sun and gulls by day, the moon and the stars with the dark theme. Settings > About > Replay the 0.5 intro shows it now.
+## Also in 0.5.21-alpha
+- The voice assistant in your phone's language: Italian, Spanish, French, German or Portuguese, with the speech model that knows it (Settings > Voice).
+- A third certificate, CarService - Android Auto's own - for the cars that check phones most strictly; if your car turns down the other two, Home offers it.
+- Leaving Cinema, the music that was playing before the film starts again by itself.
+- After every update the pirate flag flies with the new version; big releases bring a pirate ship.
 
 ## Also in 0.5.20-alpha
 - Phone: a Recents tab with your latest calls (missed ones in red, a tap to call back), and Call back on a missed call's popup, on LineageOS and other ROMs too.

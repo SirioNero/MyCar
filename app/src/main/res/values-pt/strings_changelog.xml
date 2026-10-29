@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_35">
+        <item>Com o Home Assistant configurado no telefone (Configurações &gt; Plancia), o que o assistente de voz não sabe fazer sozinho vai para o assistente de voz que você escolheu no Home Assistant: Claude, Gemini, ChatGPT, um modelo em casa ou o próprio do Home Assistant, que comanda a casa.</item>
+        <item>“Abra o portão”, “que dia é hoje?”, “e amanhã?”: ele responde no seu idioma, e pergunta de volta quando precisa.</item>
+        <item>Telefone bloqueado com o assistente do telefone escolhido: o myCar escuta sozinho e o Home Assistant responde, sem nada para desbloquear.</item>
+    </string-array>
     <string-array name="changelog_34">
         <item>O assistente de voz fala o idioma do seu telefone: italiano, espanhol, francês, alemão ou português. Ele ouve, responde e mostra as palavras nesse idioma.</item>
         <item>Para isso, ele precisa de um modelo de voz desse idioma: no telefone, Configurações &gt; Voz diz qual é, com um botão para baixá-lo.</item>

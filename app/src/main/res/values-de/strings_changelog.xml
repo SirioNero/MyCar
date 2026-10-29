@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_35">
+        <item>Ist Home Assistant auf dem Telefon eingerichtet (Einstellungen &gt; Plancia), geht, was der Sprachassistent nicht selbst kann, an den Sprachassistenten, den du in Home Assistant gewählt hast: Claude, Gemini, ChatGPT, ein Modell bei dir zu Hause oder der von Home Assistant selbst, der das Haus steuert.</item>
+        <item>„Öffne das Tor“, „Welches Datum ist heute?“, „Und morgen?“: Er antwortet in deiner Sprache und fragt nach, wenn er etwas wissen muss.</item>
+        <item>Telefon gesperrt und der Assistent des Telefons gewählt: myCar hört selbst zu und Home Assistant antwortet, ohne dass du entsperren musst.</item>
+    </string-array>
     <string-array name="changelog_34">
         <item>Der Sprachassistent spricht die Sprache deines Telefons: Italienisch, Spanisch, Französisch, Deutsch oder Portugiesisch. Er hört zu, antwortet und zeigt seine Worte in dieser Sprache.</item>
         <item>Dafür braucht er ein Sprachmodell für diese Sprache: Auf dem Telefon steht unter Einstellungen &gt; Sprachsteuerung, welches, mit einer Taste zum Herunterladen.</item>

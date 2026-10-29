@@ -5,6 +5,12 @@
   "Settings >" are the app's own: translate them as the app's screens say them.
 -->
 <resources>
+    <!-- 0.5.22-alpha -->
+    <string-array name="changelog_35">
+        <item>With Home Assistant set up on the phone (Settings &gt; Plancia), what the voice assistant can\'t do itself goes to the voice assistant you chose there: Claude, Gemini, ChatGPT, a model at home, or Home Assistant\'s own, which runs the house.</item>
+        <item>\"Open the gate\", \"what\'s the date?\", \"and tomorrow?\": it answers in your language, and asks back when it needs to.</item>
+        <item>Phone locked with the phone\'s assistant chosen: myCar listens itself and Home Assistant answers, with nothing to unlock.</item>
+    </string-array>
     <!-- 0.5.21-alpha -->
     <string-array name="changelog_34">
         <item>The voice assistant speaks your phone\'s language: Italian, Spanish, French, German or Portuguese. It listens, answers and shows its words in it.</item>

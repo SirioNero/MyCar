@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_35">
+        <item>Con Home Assistant configurato sul telefono (Impostazioni &gt; Plancia), quello che l\'assistente vocale non sa fare da solo va all\'assistente vocale che hai scelto in Home Assistant: Claude, Gemini, ChatGPT, un modello che gira in casa o quello di Home Assistant, che comanda la casa.</item>
+        <item>«Apri il cancello», «che giorno è oggi?», «e domani?»: risponde nella tua lingua, e quando gli serve ti fa una domanda.</item>
+        <item>Telefono bloccato con l\'assistente del telefono scelto: myCar ascolta da sé e risponde Home Assistant, senza niente da sbloccare.</item>
+    </string-array>
     <string-array name="changelog_34">
         <item>L\'assistente vocale parla la lingua del tuo telefono: italiano, spagnolo, francese, tedesco o portoghese. Ascolta, risponde e mostra le sue parole in quella lingua.</item>
         <item>Serve un modello vocale per quella lingua: sul telefono, Impostazioni &gt; Voce dice quale, con un tasto per scaricarlo.</item>

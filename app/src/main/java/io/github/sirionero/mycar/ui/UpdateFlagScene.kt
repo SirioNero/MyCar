@@ -82,7 +82,7 @@ internal fun UpdateSplashContent(
         Canvas(Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2, (flagTop + flagH * 0.55f).toPx())
             val r = size.width * (0.62f + 0.04f * sin(2 * PI.toFloat() * breath))
-            drawCircle(Brush.radialGradient(listOf(glow.copy(alpha = 0.85f), glow.copy(alpha = 0.25f), glow.copy(alpha = 0f)), center = center, radius = r), radius = r, center = center)
+            drawGlow(Brush.radialGradient(listOf(glow.copy(alpha = 0.85f), glow.copy(alpha = 0.25f), glow.copy(alpha = 0f)), center = center, radius = r), center, r)
         }
         Sparkles(accent, Modifier.fillMaxSize(), flagTop, flagH)
 
