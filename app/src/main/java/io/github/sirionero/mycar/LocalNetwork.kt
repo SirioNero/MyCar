@@ -39,7 +39,7 @@ object LocalNetwork {
     @Volatile var askedAtStart = false
 
     /** What to say when the home network is what's missing, in the car and on the phone alike. */
-    const val HINT = "Android keeps myCar off your home network: on the phone, allow myCar's Nearby devices permission."
+    val HINT: String get() = Words.get(R.string.network_home_hint)
 
     /**
      * Whether [url] points into a local network: a .local name, a name without dots, or a private,

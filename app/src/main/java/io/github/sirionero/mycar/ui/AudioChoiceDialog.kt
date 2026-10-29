@@ -11,8 +11,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.R
 
 /**
  * Shown once, the first time the driver turns down Android's screen-sharing dialog: that dialog
@@ -24,28 +26,25 @@ fun AudioChoiceDialog(onUseBluetooth: () -> Unit, onKeepAsking: () -> Unit) {
     var showCommand by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onKeepAsking,
-        title = { Text("Play car audio over Bluetooth?") },
+        title = { Text(stringResource(R.string.settings_audio_choice_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "Android treats music sent through myCar like sharing your screen, so it asks every " +
-                        "drive. Over Bluetooth it never asks, if your car plays the phone's music that way. You " +
-                        "can change this later in Settings.",
+                    stringResource(R.string.settings_audio_choice_text),
                 )
                 if (showCommand) {
                     Text(
-                        "Or keep it and stop the question for good: plug the phone into a " +
-                            "computer with USB debugging on, and run this once.",
+                        stringResource(R.string.settings_audio_choice_command),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     CopyableCommand("adb shell appops set ${BuildConfig.APPLICATION_ID} PROJECT_MEDIA allow")
                 } else {
-                    TextButton(onClick = { showCommand = true }) { Text("Never ask, using a computer") }
+                    TextButton(onClick = { showCommand = true }) { Text(stringResource(R.string.settings_audio_choice_never_ask)) }
                 }
             }
         },
-        confirmButton = { TextButton(onClick = onUseBluetooth) { Text("Use Bluetooth") } },
-        dismissButton = { TextButton(onClick = onKeepAsking) { Text("Keep asking") } },
+        confirmButton = { TextButton(onClick = onUseBluetooth) { Text(stringResource(R.string.settings_audio_choice_bluetooth)) } },
+        dismissButton = { TextButton(onClick = onKeepAsking) { Text(stringResource(R.string.settings_audio_choice_keep)) } },
     )
 }
 
@@ -58,15 +57,13 @@ fun AudioChoiceDialog(onUseBluetooth: () -> Unit, onKeepAsking: () -> Unit) {
 fun MicBlockedDialog(onOpenSettings: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Car audio needs the microphone permission") },
+        title = { Text(stringResource(R.string.settings_mic_blocked_title)) },
         text = {
             Text(
-                "Android lets an app send other apps' sound to the car only if it has the " +
-                    "microphone permission. It's turned off for myCar, so music plays on the " +
-                    "phone. Turn it on under Permissions, then Microphone.",
+                stringResource(R.string.settings_mic_blocked_text),
             )
         },
-        confirmButton = { TextButton(onClick = onOpenSettings) { Text("Open app settings") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Not now") } },
+        confirmButton = { TextButton(onClick = onOpenSettings) { Text(stringResource(R.string.settings_mic_blocked_open)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_not_now)) } },
     )
 }

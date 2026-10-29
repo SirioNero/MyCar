@@ -72,6 +72,19 @@ class TailnetTest {
     }
 
     @Test
+    fun whyInWords() {
+        TestWords.install()
+        // No ConnectivityManager on the JVM: as on a phone without a VPN.
+        val context = android.content.ContextWrapper(null)
+        assertEquals(
+            "“umbrel” isn't found from here. If it's a Tailscale name, turn Tailscale on: myCar reaches it only through Tailscale.",
+            Tailnet.why(context, listOf("http://umbrel:8123"), Tailnet.Failure.NO_SUCH_HOST, "No answer"),
+        )
+        // Not the network's doing: said as it came.
+        assertEquals("No answer", Tailnet.why(context, listOf("http://umbrel:8123"), Tailnet.Failure.OTHER, "No answer"))
+    }
+
+    @Test
     fun aNameIsTailscalesOnlyBehindTailscale() {
         // Behind Tailscale: MagicDNS's names, *.ts.net, the search domain's, and the addresses.
         assertTrue(Tailnet.onTailnetBehind("http://homeassistant:8123", tailscale = true, searchDomains = emptyList()))

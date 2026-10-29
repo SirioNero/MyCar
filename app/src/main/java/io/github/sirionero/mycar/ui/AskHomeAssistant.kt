@@ -8,7 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.AssistantBrain
 
 /**
@@ -19,12 +21,9 @@ import io.github.sirionero.mycar.car.AssistantBrain
 internal fun AskHomeAssistantRow() {
     val on by AssistantBrain.enabled.collectAsState()
     SettingsRow(
-        "Ask Home Assistant in the car",
+        stringResource(R.string.settings_ask_ha),
         Modifier.toggleable(on, role = Role.Switch) { AssistantBrain.setEnabled(it) },
-        subtitle = "What myCar's voice assistant can't do itself goes to the voice assistant set up in Home " +
-            "Assistant (Settings > Voice assistants there): Claude, Gemini, ChatGPT, a model at home, or Home " +
-            "Assistant's own, which also runs the house. With the phone locked, it answers in place of the " +
-            "phone's assistant. Only those words go to your Home Assistant, as text.",
+        subtitle = stringResource(R.string.settings_ask_ha_detail),
         icon = Icons.Filled.Home,
         trailing = { Switch(checked = on, onCheckedChange = null) },
     )

@@ -59,6 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -69,7 +70,9 @@ import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.CertRotation
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.notify.TestMessage
 import io.github.sirionero.mycar.stats.UsageStats
@@ -114,10 +117,10 @@ fun SettingsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.common_settings)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
             )
@@ -139,8 +142,8 @@ fun SettingsScreen(
             Spacer(Modifier.height(0.dp))
             LanguageSection()
             SettingsSection(
-                "Support myCar",
-                footer = "myCar is free, with no ads and no tracking. Your support keeps it going.",
+                stringResource(R.string.settings_support_title),
+                footer = stringResource(R.string.settings_support_footer),
             ) { DonateRows() }
             ConnectionSection()
             HelpSection(onOpenHelp, onOpenCarPreview, onOpenLogs)
@@ -154,12 +157,12 @@ fun SettingsScreen(
             // A build without a stats server sends nothing: no switch that would do nothing.
             if (UsageStats.sends) {
                 SettingsSection(
-                    "Usage notes",
+                    stringResource(R.string.settings_usage_notes_title),
                     Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
                     header = USAGE_STATS_INTRO,
                 ) { UsageStatsRows() }
             }
-            SettingsSection("Updates") { UpdateRow() }
+            SettingsSection(stringResource(R.string.settings_updates_title)) { UpdateRow() }
             CertificateSection(Modifier.onGloballyPositioned { certificateY = it.positionInParent().y.toInt() })
             AboutSection(onOpenWhatsNew, onReplayTutorial, onReplayIntro)
             Spacer(Modifier.height(16.dp))
@@ -177,27 +180,27 @@ private fun Arrow() = Icon(
 /** What's new, the replays, and where myCar lives outside the app. */
 @Composable
 private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Unit, onReplayIntro: () -> Unit) {
-    SettingsSection("About") {
+    SettingsSection(stringResource(R.string.settings_about_title)) {
         SettingsRow(
-            "What's new",
+            stringResource(R.string.settings_about_whats_new),
             Modifier.clickable(onClick = onOpenWhatsNew),
-            subtitle = "Version ${BuildConfig.VERSION_NAME}",
+            subtitle = stringResource(R.string.settings_about_version, BuildConfig.VERSION_NAME),
             icon = Icons.Filled.Star,
             trailing = { Arrow() },
         )
         SettingsDivider()
         SettingsRow(
-            "Replay the ${Intro.release} intro",
+            stringResource(R.string.settings_about_replay_intro, Intro.release),
             Modifier.clickable(onClick = onReplayIntro),
-            subtitle = "What's in this release, in a few taps",
+            subtitle = stringResource(R.string.settings_about_replay_intro_detail),
             icon = Icons.Filled.Star,
             trailing = { Arrow() },
         )
         SettingsDivider()
         SettingsRow(
-            "Initial setup",
+            stringResource(R.string.settings_about_setup),
             Modifier.clickable(onClick = onReplayTutorial),
-            subtitle = "What's done and what's left. Nothing is deleted.",
+            subtitle = stringResource(R.string.settings_about_setup_detail),
             icon = Icons.Filled.Refresh,
             trailing = { Arrow() },
         )
@@ -211,14 +214,14 @@ private fun AboutSection(onOpenWhatsNew: () -> Unit, onReplayTutorial: () -> Uni
 private fun ConnectionSection() {
     val context = LocalContext.current
     var enabled by remember { mutableStateOf(AppSettings.myCarEnabled(context)) }
-    SettingsSection("Connection") {
+    SettingsSection(stringResource(R.string.settings_connection_title)) {
         SettingsRow(
-            "Use myCar in the car",
+            stringResource(R.string.settings_use_mycar),
             Modifier.toggleable(enabled, role = Role.Switch) {
                 enabled = it
                 AppSettings.setMyCarEnabled(context, it)
             },
-            subtitle = if (enabled) "myCar answers when you plug into a car" else "Off: Android Auto can take the connection instead",
+            subtitle = stringResource(if (enabled) R.string.settings_use_mycar_on else R.string.settings_use_mycar_off),
             icon = Icons.Filled.Settings,
             trailing = { Switch(checked = enabled, onCheckedChange = null) },
         )
@@ -233,11 +236,11 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
     val context = LocalContext.current
     val status by SessionStatus.state.collectAsState()
     val live = status.phase == SessionStatus.Phase.CONNECTING || status.phase == SessionStatus.Phase.PROJECTING
-    SettingsSection("Help and tools") {
+    SettingsSection(stringResource(R.string.settings_help_title)) {
         SettingsRow(
-            "How to connect",
+            stringResource(R.string.settings_help_connect),
             Modifier.clickable(onClick = onOpenHelp),
-            subtitle = "Which cars work, and what's left to set up",
+            subtitle = stringResource(R.string.settings_help_connect_detail),
             icon = Icons.Filled.Info,
             trailing = { Arrow() },
         )
@@ -245,18 +248,18 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
         if (!live) {
             SettingsDivider()
             SettingsRow(
-                "Car preview",
+                stringResource(R.string.settings_help_preview),
                 Modifier.clickable(onClick = onOpenCarPreview),
-                subtitle = "See the car screen on your phone",
+                subtitle = stringResource(R.string.settings_help_preview_detail),
                 icon = Icons.Filled.PlayArrow,
                 trailing = { Arrow() },
             )
         }
         SettingsDivider()
         SettingsRow(
-            "Live logs",
+            stringResource(R.string.settings_help_logs),
             Modifier.clickable(onClick = onOpenLogs),
-            subtitle = "What myCar and the car are saying to each other",
+            subtitle = stringResource(R.string.settings_help_logs_detail),
             icon = Icons.AutoMirrored.Filled.List,
             trailing = { Arrow() },
         )
@@ -277,26 +280,26 @@ private fun HelpSection(onOpenHelp: () -> Unit, onOpenCarPreview: () -> Unit, on
 private fun CarAudioSection() {
     val route by CarSettings.audioRoute.collectAsState()
     SettingsSection(
-        "Car audio",
+        stringResource(R.string.settings_audio_title),
         footer = if (route != AudioRoute.BLUETOOTH) {
-            "Calls go over Bluetooth either way. Run the command in How to connect once, and myCar stops asking to share audio."
+            stringResource(R.string.settings_audio_footer_ask)
         } else {
-            "Calls go over Bluetooth either way."
+            stringResource(R.string.settings_audio_footer)
         },
     ) {
         AudioRouteRow(
-            AudioRoute.AUTO, route, "Automatic (Recommended)",
-            "Bluetooth when the car takes the phone's music that way, otherwise through myCar",
+            AudioRoute.AUTO, route, stringResource(R.string.settings_audio_auto),
+            stringResource(R.string.settings_audio_auto_detail),
         )
         SettingsDivider()
         AudioRouteRow(
             AudioRoute.BLUETOOTH, route, "Bluetooth",
-            "No prompt each drive, and your map app's voice reaches the car. Some cars take only calls over it",
+            stringResource(R.string.settings_audio_bluetooth_detail),
         )
         SettingsDivider()
         AudioRouteRow(
-            AudioRoute.CAR_LINK, route, "Through myCar",
-            "Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive",
+            AudioRoute.CAR_LINK, route, stringResource(R.string.settings_audio_mycar),
+            stringResource(R.string.settings_audio_mycar_detail),
         )
     }
 }
@@ -313,9 +316,9 @@ private fun AudioRouteRow(value: AudioRoute, route: AudioRoute, title: String, s
 
 @Composable
 private fun AppsSection(onOpenRecommendedApps: () -> Unit) {
-    SettingsSection("Apps") {
+    SettingsSection(stringResource(R.string.settings_apps_title)) {
         SettingsRow(
-            "Recommended apps",
+            stringResource(R.string.settings_apps_recommended),
             Modifier.clickable(onClick = onOpenRecommendedApps),
             icon = Icons.Filled.Star,
             trailing = { Arrow() },
@@ -343,21 +346,21 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
         if (uri != null) pendingUri = uri
     }
 
-    SettingsSection("Certificate", modifier, footer = notice ?: "Changes take effect on the next connection.") {
+    SettingsSection(stringResource(R.string.settings_cert_title), modifier, footer = notice ?: stringResource(R.string.settings_cert_footer)) {
         val s = summary
         val loaded = s != null && s.kind != CertProvider.Kind.SELF_SIGNED
         val hasDetails = s?.subject != null || s?.issuer != null
         SettingsRow(
-            s?.headline ?: "Checking…",
+            s?.headline ?: stringResource(R.string.settings_cert_checking),
             if (hasDetails) Modifier.clickable { detailsOpen = !detailsOpen } else Modifier,
-            subtitle = s?.validUntil?.let { "Valid until $it" },
+            subtitle = s?.validUntil?.let { stringResource(R.string.settings_cert_valid_until, it) },
             icon = if (s == null || loaded) Icons.Filled.Lock else Icons.Filled.Warning,
             tint = if (s == null || loaded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
             trailing = if (hasDetails) {
                 {
                     Icon(
                         if (detailsOpen) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                        contentDescription = if (detailsOpen) "Hide details" else "Show details",
+                        contentDescription = stringResource(if (detailsOpen) R.string.settings_cert_hide_details else R.string.settings_cert_show_details),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -368,8 +371,8 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
                 Modifier.padding(start = 56.dp, end = 16.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                s?.subject?.let { Detail("Subject", it) }
-                s?.issuer?.let { Detail("Issuer", it) }
+                s?.subject?.let { Detail(stringResource(R.string.settings_cert_subject), it) }
+                s?.issuer?.let { Detail(stringResource(R.string.settings_cert_issuer), it) }
             }
         }
         // The public certificates: the recommended one and the spares, picked here by hand.
@@ -402,21 +405,21 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
                         notice = result.fold(
                             onSuccess = {
                                 // An imported certificate comes before the downloaded ones.
-                                if (s?.kind == CertProvider.Kind.IMPORTED) "${entry.label} is ready, but your own certificate comes first: remove it to use ${entry.label}."
-                                else "${entry.label} is in use from the next connection."
+                                if (s?.kind == CertProvider.Kind.IMPORTED) Words.get(R.string.settings_cert_ready_own_first, entry.label)
+                                else Words.get(R.string.settings_cert_in_use_next, entry.label)
                             },
-                            onFailure = { "Couldn't get ${entry.label}: check your internet connection, then try again." },
+                            onFailure = { Words.get(R.string.settings_cert_download_failed, entry.label) },
                         )
                         refresh++
                     }
                 },
                 subtitle = entry.about +
-                    (until[entry.id]?.let { " This one is valid until ${java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(it)}." } ?: "") +
+                    (until[entry.id]?.let { " " + stringResource(R.string.settings_cert_valid_until_sentence, java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(it)) } ?: "") +
                     when {
-                        inUse -> " In use."
-                        stored -> " Downloaded."
+                        inUse -> " " + stringResource(R.string.settings_cert_in_use)
+                        stored -> " " + stringResource(R.string.settings_cert_downloaded)
                         downloading -> ""
-                        else -> " Not downloaded yet: tap to get it."
+                        else -> " " + stringResource(R.string.settings_cert_not_downloaded)
                     },
                 icon = Icons.Filled.Refresh,
                 trailing = { RadioButton(selected = inUse, onClick = null) },
@@ -424,14 +427,14 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
         }
         SettingsDivider()
         SettingsRow(
-            "Import my own file",
+            stringResource(R.string.settings_cert_import),
             Modifier.clickable { picker.launch(arrayOf("*/*")) },
-            subtitle = "A .p12 file with its private key, from wherever you choose",
+            subtitle = stringResource(R.string.settings_cert_import_detail),
             icon = Icons.Filled.Add,
         )
         val removable = when (s?.kind) {
-            CertProvider.Kind.IMPORTED -> "Remove imported certificate"
-            CertProvider.Kind.DOWNLOADED -> "Remove downloaded certificates"
+            CertProvider.Kind.IMPORTED -> stringResource(R.string.settings_cert_remove_imported)
+            CertProvider.Kind.DOWNLOADED -> stringResource(R.string.settings_cert_remove_downloaded)
             else -> null
         }
         if (removable != null) {
@@ -449,13 +452,13 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
     removeAsk?.let { kind ->
         val imported = kind == CertProvider.Kind.IMPORTED
         ConfirmDialog(
-            title = if (imported) "Remove the imported certificate?" else "Remove the downloaded certificates?",
+            title = stringResource(if (imported) R.string.settings_cert_remove_imported_title else R.string.settings_cert_remove_downloaded_title),
             text = if (imported) {
-                "myCar goes back to the downloaded certificates, if it has them. Without one, it can't connect to a car."
+                stringResource(R.string.settings_cert_remove_imported_text)
             } else {
-                "myCar can't connect to a car until it downloads them again, which needs the internet."
+                stringResource(R.string.settings_cert_remove_downloaded_text)
             },
-            confirm = "Remove",
+            confirm = stringResource(R.string.common_remove),
             onConfirm = {
                 if (imported) CertProvider.removeImported(context) else CertProvider.removeDownloaded(context)
                 // What Home's card asked for: done, so the card goes.
@@ -464,7 +467,7 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
                 ) {
                     io.github.sirionero.mycar.CertRotation.dismiss(context)
                 }
-                notice = if (imported) "Removed the imported certificate." else "Removed the downloaded certificates."
+                notice = Words.get(if (imported) R.string.settings_cert_removed_imported else R.string.settings_cert_removed_downloaded)
                 refresh++
             },
             onDismiss = { removeAsk = null },
@@ -481,10 +484,10 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
                     }
                     result.onSuccess {
                         pendingUri = null
-                        notice = "Certificate imported."
+                        notice = Words.get(R.string.settings_cert_imported)
                         refresh++
                     }.onFailure {
-                        reportError("Could not import: wrong password, or not a PKCS#12 file with a private key.")
+                        reportError(Words.get(R.string.settings_cert_import_failed))
                     }
                 }
             },
@@ -507,20 +510,20 @@ private fun PasswordDialog(onDismiss: () -> Unit, onConfirm: (String, (String) -
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Certificate password") },
+        title = { Text(stringResource(R.string.settings_cert_password_title)) },
         text = {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it; error = null },
                 singleLine = true,
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.settings_password)) },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 isError = error != null,
-                supportingText = { Text(error ?: "Leave empty if the file has none.") },
+                supportingText = { Text(error ?: stringResource(R.string.settings_cert_password_hint)) },
             )
         },
-        confirmButton = { TextButton(onClick = { onConfirm(password) { error = it } }) { Text("Import") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        confirmButton = { TextButton(onClick = { onConfirm(password) { error = it } }) { Text(stringResource(R.string.settings_cert_import_button)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) } },
     )
 }

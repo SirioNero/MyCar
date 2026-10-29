@@ -42,32 +42,35 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.stats.UsageStats
 
 internal const val USAGE_STATS_TITLE = "Help show which cars work"
 
-private const val INTRO_START =
-    "Turn this on, and myCar sends a short note when you open it and after each drive. "
-private const val INTRO_PRIVACY =
-    "The note holds no name, account, or location. A random number counts your phone once, and the server keeps no IP address."
-private const val INTRO_END =
-    " The notes show which cars work and where the others fail."
-
-/** The pitch for the usage notes, in setup and Settings, with the privacy promise in bold so it isn't missed. */
-internal val USAGE_STATS_INTRO: AnnotatedString = buildAnnotatedString {
-    append(INTRO_START)
-    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(INTRO_PRIVACY) }
-    append(INTRO_END)
-}
+/**
+ * The pitch for the usage notes, in setup and Settings, with the privacy promise in bold so it isn't missed.
+ * In myCar's language: the promise goes where the sentence around it puts it.
+ */
+internal val USAGE_STATS_INTRO: AnnotatedString
+    get() {
+        val privacy = Words.get(R.string.stats_intro_privacy)
+        val text = Words.get(R.string.stats_intro, privacy)
+        val at = text.indexOf(privacy)
+        return buildAnnotatedString {
+            append(text)
+            if (at >= 0) addStyle(SpanStyle(fontWeight = FontWeight.Bold), at, at + privacy.length)
+        }
+    }
 
 /** The usage notes card for the setup guide: the same rows Settings shows. */
 @Composable
@@ -90,7 +93,7 @@ internal fun ColumnScope.UsageStatsRows() {
     DisposableEffect(Unit) { onDispose { UsageStats.choicesClosed(context) } }
 
     SettingsRow(
-        "Send usage notes",
+        stringResource(R.string.stats_send),
         Modifier.toggleable(on, role = Role.Switch) { on = it; save() },
         subtitle = buildNote(),
         icon = Icons.Filled.Send,
@@ -100,31 +103,31 @@ internal fun ColumnScope.UsageStatsRows() {
         Column {
             SettingsDivider()
             Text(
-                "Also share",
+                stringResource(R.string.stats_also_share),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 56.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
             )
-            Choice("Android version and system", choices.android) { choices = choices.copy(android = it); save() }
-            Choice("Phone model", choices.phone) { choices = choices.copy(phone = it); save() }
-            Choice("Each car and whether it connected", choices.cars) {
+            Choice(stringResource(R.string.stats_share_android), choices.android) { choices = choices.copy(android = it); save() }
+            Choice(stringResource(R.string.stats_share_phone), choices.phone) { choices = choices.copy(phone = it); save() }
+            Choice(stringResource(R.string.stats_share_cars), choices.cars) {
                 choices = choices.copy(cars = it)
                 save()
             }
-            Choice("Each drive and how it ended", choices.failures) {
+            Choice(stringResource(R.string.stats_share_drives), choices.failures) {
                 choices = choices.copy(failures = it)
                 save()
             }
             SettingsDivider()
             SettingsRow(
-                "What gets sent",
+                stringResource(R.string.stats_whats_sent),
                 Modifier.clickable { noteOpen = !noteOpen },
-                subtitle = "Every field, exactly as it goes out",
+                subtitle = stringResource(R.string.stats_whats_sent_detail),
                 icon = Icons.Filled.Info,
                 trailing = {
                     Icon(
                         if (noteOpen) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                        contentDescription = if (noteOpen) "Hide the note" else "Show the note",
+                        contentDescription = stringResource(if (noteOpen) R.string.stats_hide_note else R.string.stats_show_note),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 },
@@ -167,14 +170,14 @@ private fun notePreview(context: Context): String {
     val preview = UsageStats.preview(context, everything = true)
     // Until the first drive the list is empty, so show what one entry looks like.
     val example = if (preview.optJSONArray("sessions")?.length() == 0) {
-        "\n\nExample, not sent: one drive adds this to \"sessions\"\n" + UsageStats.exampleSession.toString(2)
+        "\n\n" + Words.get(R.string.stats_example) + "\n" + UsageStats.exampleSession.toString(2)
     } else ""
     return preview.toString(2) + example
 }
 
 /** What's different about where this build's notes go; null for a normal release. */
 private fun buildNote(): String? = when {
-    BuildConfig.STATS_URL.isBlank() -> "This build has no stats server, so it sends nothing"
+    BuildConfig.STATS_URL.isBlank() -> Words.get(R.string.stats_no_server)
     BuildConfig.DEBUG -> "Debug build: notes are kept apart and never counted in the stats"
     else -> null
 }
@@ -184,7 +187,7 @@ private fun buildNote(): String? = when {
  * turns on usage notes like the switch does; the link shows exactly what that sends first.
  */
 @Composable
-internal fun WorkedCard(car: String, onSeeWhatsSent: () -> Unit, modifier: Modifier = Modifier) {
+internal fun WorkedCard(title: String, onSeeWhatsSent: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
     Surface(
@@ -197,14 +200,14 @@ internal fun WorkedCard(car: String, onSeeWhatsSent: () -> Unit, modifier: Modif
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Filled.Check, contentDescription = null)
                 Text(
-                    WorkedPrompt.TITLE_START + car,
+                    title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(start = 12.dp),
                 )
             }
             Text(
-                "Share that so the next driver knows it works? No name, account, or location.",
+                stringResource(R.string.stats_worked_text),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -217,11 +220,11 @@ internal fun WorkedCard(car: String, onSeeWhatsSent: () -> Unit, modifier: Modif
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 TextButton(onClick = onSeeWhatsSent, contentPadding = PaddingValues(horizontal = 0.dp)) {
-                    Text("What gets sent")
+                    Text(stringResource(R.string.stats_whats_sent))
                 }
                 Spacer(Modifier.weight(1f))
-                OutlinedButton(onClick = { WorkedPrompt.answer(context, share = false) }) { Text("Not now") }
-                Button(onClick = { WorkedPrompt.answer(context, share = true) }) { Text("Share") }
+                OutlinedButton(onClick = { WorkedPrompt.answer(context, share = false) }) { Text(stringResource(R.string.common_not_now)) }
+                Button(onClick = { WorkedPrompt.answer(context, share = true) }) { Text(stringResource(R.string.stats_worked_share)) }
             }
         }
     }
