@@ -37,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
 import kotlinx.coroutines.delay
@@ -77,7 +79,7 @@ fun NotificationsSection() {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Notifications",
+                stringResource(R.string.notifications_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f),
@@ -99,7 +101,7 @@ fun NotificationsSection() {
                     },
                     tone = if (clearing) GsTone.Danger else GsTone.Tonal,
                     modifier = Modifier.height(56.dp),
-                ) { Text(if (clearing) "Clear them all" else "Clear all", style = MaterialTheme.typography.titleMedium) }
+                ) { Text(stringResource(if (clearing) R.string.notifications_clear_confirm else R.string.notifications_clear_all), style = MaterialTheme.typography.titleMedium) }
             }
         }
 
@@ -109,7 +111,7 @@ fun NotificationsSection() {
 
         if (history.isEmpty()) {
             Text(
-                "Nothing yet. New notifications from the phone will show up here.",
+                stringResource(R.string.notifications_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -136,11 +138,11 @@ internal fun AccessBanner(onOpen: () -> Unit) {
         ) {
             Icon(Icons.Filled.Warning, contentDescription = null)
             Text(
-                "Notifications are off. Allow myCar under Settings > Notifications > Notification access on the phone.",
+                stringResource(R.string.notifications_access_off),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
-            GsButton(onClick = onOpen) { Text("Open") }
+            GsButton(onClick = onOpen) { Text(stringResource(R.string.common_open)) }
         }
     }
 }
@@ -172,10 +174,10 @@ private fun NotificationRow(n: CarNotification, onReply: (CarNotification) -> Un
                 }
             }
             when {
-                n.replied -> Icon(Icons.Filled.Check, contentDescription = "Replied", tint = MaterialTheme.colorScheme.primary)
+                n.replied -> Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.message_replied), tint = MaterialTheme.colorScheme.primary)
                 n.reply != null -> GsButton(onClick = { VoiceReply.reply(n) }, tone = GsTone.Tonal) {
                     ReplyGlyph(Modifier.size(20.dp))
-                    Text("Reply", Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.message_reply), Modifier.padding(start = 8.dp))
                 }
             }
         }
@@ -210,14 +212,14 @@ private fun ReplyPane(n: CarNotification, onDone: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", onDone)
+            GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back), onDone)
             Surface(
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
                 modifier = Modifier.weight(1f),
             ) {
                 Text(
-                    if (text.isEmpty()) "Reply to ${n.title.ifBlank { n.appLabel }}" else "$text|",
+                    if (text.isEmpty()) stringResource(R.string.message_reply_to, n.title.ifBlank { n.appLabel }) else "$text|",
                     color = if (text.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

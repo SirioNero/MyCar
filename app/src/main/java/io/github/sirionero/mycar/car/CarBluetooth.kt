@@ -16,8 +16,10 @@ import androidx.car.app.CarToast
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.ServiceDiscovery
 import io.github.sirionero.mycar.Wire
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.security.MessageDigest
@@ -111,7 +113,7 @@ object CarBluetooth {
         // If the car never answers on its channel, pair from the phone anyway.
         main.postDelayed({ startBond("the car didn't answer the pairing request") }, CAR_REPLY_WAIT_MS)
         main.postDelayed({
-            if (pairing) finish("Pairing didn't finish. Pair from the car's Bluetooth menu instead.")
+            if (pairing) finish(Words.get(R.string.bluetooth_pairing_unfinished))
         }, GIVE_UP_MS)
     }
 
@@ -168,7 +170,7 @@ object CarBluetooth {
         bondStarted = true
         val started = runCatching { device.createBond() }.getOrDefault(false)
         log.i("pairing from the phone ($why): ${if (started) "started" else "refused"}")
-        if (!started) finish("Pairing didn't start. Pair from the car's Bluetooth menu instead.")
+        if (!started) finish(Words.get(R.string.bluetooth_pairing_not_started))
     }
 
     private fun watchBonding(device: BluetoothDevice) {
@@ -184,8 +186,8 @@ object CarBluetooth {
                 log.i("bond state $previous -> $state")
                 when {
                     state == BluetoothDevice.BOND_BONDING -> bondStarted = true
-                    state == BluetoothDevice.BOND_BONDED -> finish("Paired. Calls now play through the car.")
-                    previous == BluetoothDevice.BOND_BONDING -> finish("Pairing didn't finish. Pair from the car's Bluetooth menu instead.")
+                    state == BluetoothDevice.BOND_BONDED -> finish(Words.get(R.string.bluetooth_paired))
+                    previous == BluetoothDevice.BOND_BONDING -> finish(Words.get(R.string.bluetooth_pairing_unfinished))
                 }
             }
         }

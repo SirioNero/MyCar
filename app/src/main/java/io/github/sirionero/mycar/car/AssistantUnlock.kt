@@ -11,6 +11,8 @@ import android.os.PowerManager
 import android.os.SystemClock
 import androidx.car.app.CarToast
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * Opens the phone for the assistant the driver asked for in the car. On a locked phone an
@@ -47,7 +49,7 @@ internal object AssistantUnlock {
     fun start(context: Context, name: String) {
         // Whether opening takes the driver's face, finger or PIN, rather than nothing.
         if (context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true) {
-            CarToasts.show(this, "Unlock the phone: $name starts as soon as it's open", CarToast.LENGTH_LONG)
+            CarToasts.show(this, Words.get(R.string.assistant_unlock_to_start, name), CarToast.LENGTH_LONG)
         }
         main.removeCallbacksAndMessages(watching)
         runCatching {
@@ -59,7 +61,7 @@ internal object AssistantUnlock {
         // Android refuses a screen from the background without a word: if none came, say so.
         main.postDelayed({
             MyCarLog.w("assistant: Android didn't let myCar light the phone - is myCar on under Accessibility?")
-            CarToasts.show(this, "Unlock the phone, then touch the microphone again", CarToast.LENGTH_LONG)
+            CarToasts.show(this, Words.get(R.string.assistant_unlock_then_touch), CarToast.LENGTH_LONG)
         }, watching, SHOWN_WITHIN_MS)
     }
 
@@ -75,7 +77,7 @@ internal object AssistantUnlock {
 
     internal fun stayedLocked(why: String) {
         MyCarLog.i("assistant: the phone stayed locked ($why)")
-        CarToasts.show(this, "The phone stayed locked", CarToast.LENGTH_SHORT)
+        CarToasts.show(this, Words.get(R.string.assistant_stayed_locked), CarToast.LENGTH_SHORT)
     }
 
     private const val SHOWN_WITHIN_MS = 2_500L

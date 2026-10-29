@@ -18,8 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.theme.GsIconButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,7 +83,7 @@ fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f).padding(top = 6.dp),
                 )
-                GsIconButton(Icons.Filled.Close, "Close", VoiceHelp::hide)
+                GsIconButton(Icons.Filled.Close, stringResource(R.string.common_close), VoiceHelp::hide)
             }
             // Full width, so a drag anywhere on the card scrolls, not just one on the words.
             Column(

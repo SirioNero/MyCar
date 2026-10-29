@@ -4,6 +4,8 @@ import android.content.Context
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -145,12 +147,12 @@ object TvLists {
 
     private fun problemWith(context: Context, list: TvList, error: Throwable): String = when {
         LocalNetwork.blocks(context, listOf(list.url)) -> LocalNetwork.HINT
-        error is ListRefused -> "The list's server said no (${error.code})."
-        error is ListTooBig -> "The list is too big for the car (over ${MAX_BYTES / 1024 / 1024} MB)."
-        error is NoChannels -> "No channels the phone can play in this list."
-        error is UnknownHostException -> "Couldn't find ${list.host}: check the address, or the phone's connection."
-        error is SocketTimeoutException || error is ConnectException -> "${list.host} didn't answer."
-        else -> "The list didn't load: ${error.message ?: error.javaClass.simpleName}"
+        error is ListRefused -> Words.get(R.string.cinema_tv_refused, error.code)
+        error is ListTooBig -> Words.get(R.string.cinema_tv_too_big, MAX_BYTES / 1024 / 1024)
+        error is NoChannels -> Words.get(R.string.cinema_tv_nothing_playable)
+        error is UnknownHostException -> Words.get(R.string.cinema_tv_unknown_host, list.host)
+        error is SocketTimeoutException || error is ConnectException -> Words.get(R.string.cinema_tv_no_answer, list.host)
+        else -> Words.get(R.string.cinema_tv_failed, error.message ?: error.javaClass.simpleName)
     }
 
     private fun save(list: List<TvList>) {

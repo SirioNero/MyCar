@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.car.theme.*
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -190,12 +192,12 @@ fun PhoneDialerScreen() {
         val tabWidth = if (narrow) 96.dp else 124.dp
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             // The tabs share the title's row, so the list and keypad get the height back.
-            ScreenHeader(if (narrow && hasPermissions) "" else "Phone") {
+            ScreenHeader(if (narrow && hasPermissions) "" else stringResource(R.string.dialer_title)) {
                 if (hasPermissions) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        DialerTab("Recents", tab == TAB_RECENTS, Modifier.width(tabWidth)) { show(TAB_RECENTS) }
-                        DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(tabWidth)) { show(TAB_CONTACTS) }
-                        DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(tabWidth)) { show(TAB_KEYPAD) }
+                        DialerTab(stringResource(R.string.dialer_tab_recents), tab == TAB_RECENTS, Modifier.width(tabWidth)) { show(TAB_RECENTS) }
+                        DialerTab(stringResource(R.string.dialer_tab_contacts), tab == TAB_CONTACTS, Modifier.width(tabWidth)) { show(TAB_CONTACTS) }
+                        DialerTab(stringResource(R.string.dialer_tab_keypad), tab == TAB_KEYPAD, Modifier.width(tabWidth)) { show(TAB_KEYPAD) }
                     }
                 }
             }
@@ -226,14 +228,13 @@ private fun MissingPermission(context: Context, onGranted: () -> Unit) {
     }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            "myCar needs the Phone and Contacts permissions to dial from here. Allow them on " +
-                "the phone when you're parked.",
+            stringResource(R.string.dialer_permissions),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         GsButton(tone = GsTone.Tonal, onClick = {
             io.github.sirionero.mycar.PermissionActivity.ask(context, CALL_PERMISSIONS)
-        }) { Text("Ask on the phone") }
+        }) { Text(stringResource(R.string.dialer_ask_on_phone)) }
     }
 }
 
@@ -269,7 +270,7 @@ private fun Keypad(context: Context) {
 
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(
-            number.ifEmpty { "Enter a number" },
+            number.ifEmpty { stringResource(R.string.dialer_enter_number) },
             style = MaterialTheme.typography.headlineSmall,
             color = if (number.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
@@ -298,7 +299,7 @@ private fun Keypad(context: Context) {
                     colors = gsColors(GsTone.Primary),
                     enabled = number.isNotEmpty(),
                     modifier = Modifier.weight(1f).fillMaxWidth(),
-                ) { Icon(Icons.Filled.Call, "Call") }
+                ) { Icon(Icons.Filled.Call, stringResource(R.string.dialer_call)) }
             }
         }
     }
@@ -344,17 +345,17 @@ private fun ContactsList(context: Context) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
                 loaded == null -> Text(
-                    "Loading contacts…",
+                    stringResource(R.string.dialer_loading_contacts),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 contacts.isEmpty() -> Text(
-                    "No contacts with a phone number found.",
+                    stringResource(R.string.dialer_no_contacts),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 filtered.isEmpty() -> Text(
-                    "No contacts match \"$query\".",
+                    stringResource(R.string.dialer_no_match, query),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -411,14 +412,14 @@ private fun ConfirmCallOverlay(contact: Contact, onConfirm: () -> Unit, onDismis
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("Call ${contact.name}?", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.dialer_call_confirm, contact.name), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text(contact.number, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     GsButton(onClick = onDismiss, tone = GsTone.Outline, modifier = Modifier.weight(1f).height(56.dp)) {
-                        Text("Cancel", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.common_cancel), style = MaterialTheme.typography.titleMedium)
                     }
                     GsButton(onClick = onConfirm, modifier = Modifier.weight(1f).height(56.dp)) {
-                        Text("Call", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.dialer_call), style = MaterialTheme.typography.titleMedium)
                     }
                 }
             }
@@ -435,7 +436,7 @@ private fun ContactSearchField(query: String, active: Boolean, onToggle: () -> U
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
-            query.ifEmpty { "Search contacts" },
+            query.ifEmpty { stringResource(R.string.dialer_search_contacts) },
             style = MaterialTheme.typography.bodyLarge,
             color = if (query.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
@@ -472,7 +473,7 @@ private fun ContactRow(contact: Contact, onClick: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     if (contact.starred) {
-                        Icon(Icons.Filled.Star, contentDescription = "Favourite", Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Filled.Star, contentDescription = stringResource(R.string.dialer_favourite), Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
                     }
                     Text(contact.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
@@ -483,7 +484,7 @@ private fun ContactRow(contact: Contact, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Icon(Icons.Filled.Call, contentDescription = "Call", tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Filled.Call, contentDescription = stringResource(R.string.dialer_call), tint = MaterialTheme.colorScheme.primary)
         }
     }
 }

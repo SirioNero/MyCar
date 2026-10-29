@@ -22,9 +22,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 
 /**
  * Asks once per car whether to pair it over Bluetooth, then waits while the phone shows its
@@ -52,33 +54,30 @@ internal fun BluetoothPairOverlay() {
             val moving = if (bluetoothDue || locationDue) !rememberVideoAllowed() else false
             if (moving) return
             if (bluetoothDue) PairCard(
-                title = "Bluetooth isn't connected",
-                body = (if (bluetoothAudio) "Calls and music play" else "Calls play") +
-                    " over Bluetooth, but your phone isn't connected to the car. " +
-                    "Connect it from the car's Bluetooth menu or your phone's.",
-                secondary = "Don't show again" to BluetoothAudioCheck::neverAgain,
-                primary = "OK" to BluetoothAudioCheck::dismissOnCar,
+                title = stringResource(R.string.bluetooth_not_connected_title),
+                body = stringResource(
+                    if (bluetoothAudio) R.string.bluetooth_not_connected_calls_music else R.string.bluetooth_not_connected_calls,
+                ),
+                secondary = stringResource(R.string.bluetooth_dont_show_again) to BluetoothAudioCheck::neverAgain,
+                primary = stringResource(R.string.common_ok) to BluetoothAudioCheck::dismissOnCar,
             ) else if (locationDue) PairCard(
-                title = "Location is off",
-                body = "Map apps can't show where you are or give directions. Turn on location " +
-                    "in your phone's quick settings when you're parked.",
-                secondary = "Don't show again" to LocationCheck::neverAgain,
-                primary = "OK" to LocationCheck::dismissOnCar,
+                title = stringResource(R.string.bluetooth_location_off_title),
+                body = stringResource(R.string.bluetooth_location_off_body),
+                secondary = stringResource(R.string.bluetooth_dont_show_again) to LocationCheck::neverAgain,
+                primary = stringResource(R.string.common_ok) to LocationCheck::dismissOnCar,
             )
         }
         CarBluetooth.Prompt.ASK -> PairCard(
-            title = "Pair with this car?",
-            body = (if (bluetoothAudio) "Calls and music play" else "Calls play") +
-                " through the car's speakers once your phone and the car are paired. Your phone " +
-                "then asks you to confirm a code.",
-            secondary = "Not now" to CarBluetooth::notNow,
-            primary = "Pair" to CarBluetooth::pair,
+            title = stringResource(R.string.bluetooth_pair_title),
+            body = stringResource(if (bluetoothAudio) R.string.bluetooth_pair_body_calls_music else R.string.bluetooth_pair_body_calls),
+            secondary = stringResource(R.string.common_not_now) to CarBluetooth::notNow,
+            primary = stringResource(R.string.bluetooth_pair) to CarBluetooth::pair,
         )
         CarBluetooth.Prompt.PAIRING -> PairCard(
-            title = "Confirm on your phone",
-            body = "Check the code on your phone and tap Pair. The car may ask too.",
+            title = stringResource(R.string.bluetooth_confirm_title),
+            body = stringResource(R.string.bluetooth_confirm_body),
             secondary = null,
-            primary = "Hide" to CarBluetooth::hide,
+            primary = stringResource(R.string.bluetooth_hide) to CarBluetooth::hide,
         )
     }
 }

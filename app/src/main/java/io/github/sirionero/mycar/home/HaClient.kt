@@ -1,7 +1,9 @@
 package io.github.sirionero.mycar.home
 
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Tailnet
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
@@ -53,7 +55,7 @@ class HaClient(private val http: OkHttpClient) {
         val request = try {
             Request.Builder().url(websocketUrl(baseUrl)).build()
         } catch (e: IllegalArgumentException) {
-            throw HaException("Not a valid address: $baseUrl", HaException.Reason.BAD_ADDRESS)
+            throw HaException(Words.get(R.string.ha_bad_address, baseUrl), HaException.Reason.BAD_ADDRESS)
         }
         socket = http.newWebSocket(request, listener)
         val version = try {
@@ -67,7 +69,7 @@ class HaClient(private val http: OkHttpClient) {
             // otherwise wait without end (no read timeout, for the long-lived socket).
             socket?.cancel()
             close()
-            throw HaException("No answer from $baseUrl", HaException.Reason.NO_RESPONSE)
+            throw HaException(Words.get(R.string.ha_no_answer_from, baseUrl), HaException.Reason.NO_RESPONSE)
         }
         return version.ifBlank { "?" }
     }
@@ -108,23 +110,23 @@ class HaClient(private val http: OkHttpClient) {
 
     fun close() {
         socket?.close(1000, null)
-        shutdown(HaException("Connection closed", HaException.Reason.CLOSED))
+        shutdown(HaException(Words.get(R.string.ha_connection_closed), HaException.Reason.CLOSED))
     }
 
     private suspend fun send(id: Int, type: String, fill: JSONObject.() -> Unit): Any? {
         val ws = socket
-        if (ws == null || closed.isCompleted) throw HaException("Not connected to Home Assistant", HaException.Reason.CLOSED)
+        if (ws == null || closed.isCompleted) throw HaException(Words.get(R.string.ha_not_connected), HaException.Reason.CLOSED)
         val message = JSONObject().put("id", id).put("type", type).apply(fill)
         val deferred = CompletableDeferred<Box>()
         pending[id] = deferred
         if (!ws.send(message.toString())) {
             pending.remove(id)
-            throw HaException("Couldn't send to Home Assistant", HaException.Reason.CLOSED)
+            throw HaException(Words.get(R.string.ha_send_failed), HaException.Reason.CLOSED)
         }
         val box = withTimeoutOrNull(COMMAND_TIMEOUT_MS) { deferred.await() }
         if (box == null) {
             pending.remove(id)
-            throw HaException("Home Assistant isn't answering", HaException.Reason.NO_RESPONSE)
+            throw HaException(Words.get(R.string.ha_not_answering), HaException.Reason.NO_RESPONSE)
         }
         return box.value
     }
@@ -149,17 +151,17 @@ class HaClient(private val http: OkHttpClient) {
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            shutdown(HaException("Connection closed", HaException.Reason.CLOSED))
+            shutdown(HaException(Words.get(R.string.ha_connection_closed), HaException.Reason.CLOSED))
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             val error = when {
                 response?.code == 401 || response?.code == 403 ->
-                    HaException("Access denied", HaException.Reason.ACCESS_DENIED)
+                    HaException(Words.get(R.string.ha_access_denied), HaException.Reason.ACCESS_DENIED)
                 response != null ->
-                    HaException("HTTP error ${response.code}", HaException.Reason.HTTP_ERROR)
+                    HaException(Words.get(R.string.ha_http_error, response.code), HaException.Reason.HTTP_ERROR)
                 else ->
-                    HaException(t.message ?: "Network error", HaException.Reason.NETWORK, t)
+                    HaException(t.message ?: Words.get(R.string.ha_network_error), HaException.Reason.NETWORK, t)
             }
             shutdown(error)
         }
@@ -169,7 +171,7 @@ class HaClient(private val http: OkHttpClient) {
         when (msg.optString("type")) {
             "auth_required" -> ws.send(JSONObject().put("type", "auth").put("access_token", token).toString())
             "auth_ok" -> auth.complete(msg.optString("ha_version"))
-            "auth_invalid" -> auth.completeExceptionally(HaException("The token isn't valid", HaException.Reason.INVALID_TOKEN))
+            "auth_invalid" -> auth.completeExceptionally(HaException(Words.get(R.string.ha_token_invalid), HaException.Reason.INVALID_TOKEN))
             "result" -> {
                 val deferred = pending.remove(msg.optInt("id")) ?: return
                 if (msg.optBoolean("success")) {
@@ -177,7 +179,7 @@ class HaClient(private val http: OkHttpClient) {
                     deferred.complete(Box(if (result == JSONObject.NULL) null else result))
                 } else {
                     val error = msg.optJSONObject("error")
-                    deferred.completeExceptionally(HaException(error?.str("message") ?: "Command refused"))
+                    deferred.completeExceptionally(HaException(error?.str("message") ?: Words.get(R.string.ha_command_refused)))
                 }
             }
             "event" -> {

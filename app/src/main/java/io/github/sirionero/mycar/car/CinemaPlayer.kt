@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -62,6 +63,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.audio.CarAudio
 import io.github.sirionero.mycar.car.design.MyCarSpace
 import io.github.sirionero.mycar.car.theme.GsButton
@@ -221,12 +223,12 @@ private fun PlayerControls(media: CinemaMedia, playback: Playback, onTouch: () -
             horizontalArrangement = Arrangement.spacedBy(MyCarSpace.XL),
         ) {
             if (!media.live) {
-                PlainButton({ onTouch(); playback.seekBy(-SKIP_MS) }, "Back 10 seconds", BUTTON) {
+                PlainButton({ onTouch(); playback.seekBy(-SKIP_MS) }, stringResource(R.string.cinema_back_10s), BUTTON) {
                     Icon(painterResource(R.drawable.sym_replay_10), null, Modifier.size(GLYPH))
                 }
             } else {
                 Text(
-                    "LIVE",
+                    stringResource(R.string.cinema_live),
                     color = Color.White,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
@@ -236,7 +238,7 @@ private fun PlayerControls(media: CinemaMedia, playback: Playback, onTouch: () -
                         .padding(horizontal = MyCarSpace.S, vertical = 2.dp),
                 )
             }
-            PlainButton({ onTouch(); playback.toggle() }, if (playback.playing) "Pause" else "Play", BUTTON * 1.25f) {
+            PlainButton({ onTouch(); playback.toggle() }, stringResource(if (playback.playing) R.string.cinema_pause else R.string.cinema_play), BUTTON * 1.25f) {
                 Icon(
                     painterResource(if (playback.playing) R.drawable.sym_pause else R.drawable.sym_play_arrow),
                     null,
@@ -244,7 +246,7 @@ private fun PlayerControls(media: CinemaMedia, playback: Playback, onTouch: () -
                 )
             }
             if (!media.live) {
-                PlainButton({ onTouch(); playback.seekBy(SKIP_MS) }, "Forward 10 seconds", BUTTON) {
+                PlainButton({ onTouch(); playback.seekBy(SKIP_MS) }, stringResource(R.string.cinema_forward_10s), BUTTON) {
                     Icon(painterResource(R.drawable.sym_forward_10), null, Modifier.size(GLYPH))
                 }
             } else {
@@ -264,7 +266,7 @@ private fun PlayerProblem(problem: String, onRetry: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
     ) {
         Text(problem, color = Color.White, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
-        GsButton(onClick = onRetry) { Text("Try again") }
+        GsButton(onClick = onRetry) { Text(stringResource(R.string.common_retry)) }
     }
 }
 
@@ -351,7 +353,7 @@ private class Playback(private val context: Context, private val media: CinemaMe
             player.prepareAsync()
         } catch (e: Exception) {
             MyCarLog.w("cinema: ${media.title} didn't open - ${e.javaClass.simpleName}: ${e.message}")
-            problem = "It didn't open: ${e.message ?: e.javaClass.simpleName}"
+            problem = Words.get(R.string.cinema_error_open, e.message ?: e.javaClass.simpleName)
         }
     }
 
@@ -382,12 +384,12 @@ private class Playback(private val context: Context, private val media: CinemaMe
             // phone ends where it ends: a recording cut short is not the connection's fault.)
             positionMs = at
             leave()
-            problem = "It stopped before the end: check the phone's connection."
+            problem = Words.get(R.string.cinema_error_stopped_early)
             return
         }
         if (media.live) {
             // A channel has no end: it stopped coming. It tries again by itself, as after an error.
-            problem = "The channel stopped."
+            problem = Words.get(R.string.cinema_error_channel_stopped)
             if (autoRetries < AUTO_RETRY_MS.size) main.postDelayed(autoRetry, AUTO_RETRY_MS[autoRetries++])
         } else {
             ended = true
@@ -515,12 +517,12 @@ private class Playback(private val context: Context, private val media: CinemaMe
         }
         problem = when {
             media.uri.scheme?.startsWith("http") == true && LocalNetwork.blocks(context, listOf(media.uri.toString())) -> LocalNetwork.HINT
-            extra == MediaPlayer.MEDIA_ERROR_IO -> "Couldn't reach it: check the phone's connection."
-            extra == MediaPlayer.MEDIA_ERROR_TIMED_OUT -> "It didn't answer in time."
+            extra == MediaPlayer.MEDIA_ERROR_IO -> Words.get(R.string.cinema_error_unreachable)
+            extra == MediaPlayer.MEDIA_ERROR_TIMED_OUT -> Words.get(R.string.cinema_error_timeout)
             extra == MediaPlayer.MEDIA_ERROR_UNSUPPORTED || extra == MediaPlayer.MEDIA_ERROR_MALFORMED ->
-                "The phone's player can't play this format."
-            what == MediaPlayer.MEDIA_ERROR_SERVER_DIED -> "The phone's player stopped."
-            else -> "It didn't play (error $what, $extra)."
+                Words.get(R.string.cinema_error_format)
+            what == MediaPlayer.MEDIA_ERROR_SERVER_DIED -> Words.get(R.string.cinema_error_player_died)
+            else -> Words.get(R.string.cinema_error_other, what, extra)
         }
     }
 }

@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The car's own apps and what comes up over the car's screen: the Phone (dialer, recents,
+  contacts), calls, messages and notifications, Cinema, Plancia (Home Assistant inside myCar),
+  the voice assistant's buttons and toasts (not its words: those are in the assistant's own
+  phrasebooks), the spoken turn-by-turn directions and the Bluetooth cards. Almost everything
+  here shows on a car's display, read at a glance: keep buttons and tabs short.
+-->
+<resources>
+    <!-- A call coming in, over the whole car screen (car/CallOverlay.kt) -->
+    <string name="call_incoming">Incoming call</string>
+    <!-- Instead of the caller's name or number, when the phone doesn't know either -->
+    <string name="call_unknown_number">Unknown number</string>
+    <string name="call_no_bluetooth_ringing">Your phone isn\'t connected to the car over Bluetooth: the call will play on the phone.</string>
+    <!-- Round buttons under the caller's name -->
+    <string name="call_decline">Decline</string>
+    <string name="call_answer">Answer</string>
+    <!-- When the call can't be declined from the car any more -->
+    <string name="call_ringing_aloud">Already ringing out loud - answer here, or let it ring.</string>
+    <!-- The band along the top during a call -->
+    <string name="call_on_call">On a call</string>
+    <!-- %1$s: who the call is with (a name or a number) -->
+    <string name="call_on_call_with">On a call with %1$s</string>
+    <string name="call_on_phone">Playing on the phone: not connected to the car over Bluetooth</string>
+    <string name="call_end">End call</string>
+
+    <!-- The Phone app on the car's screen (car/PhoneDialerScreen.kt). Screen title, then its three tabs -->
+    <string name="dialer_title">Phone</string>
+    <string name="dialer_tab_recents">Recents</string>
+    <string name="dialer_tab_contacts">Contacts</string>
+    <string name="dialer_tab_keypad">Keypad</string>
+    <string name="dialer_permissions">myCar needs the Phone and Contacts permissions to dial from here. Allow them on the phone when you\'re parked.</string>
+    <!-- Button: Android's permission question opens on the phone -->
+    <string name="dialer_ask_on_phone">Ask on the phone</string>
+    <!-- Placeholder over the keypad until a digit is typed -->
+    <string name="dialer_enter_number">Enter a number</string>
+    <!-- Button and icon label: place the call -->
+    <string name="dialer_call">Call</string>
+    <string name="dialer_loading_contacts">Loading contacts…</string>
+    <string name="dialer_no_contacts">No contacts with a phone number found.</string>
+    <!-- %1$s: what was typed in the search -->
+    <string name="dialer_no_match">No contacts match \"%1$s\".</string>
+    <!-- Asked before a call is placed. %1$s: the contact's name, or the number -->
+    <string name="dialer_call_confirm">Call %1$s?</string>
+    <!-- Placeholder of the search field above the contacts -->
+    <string name="dialer_search_contacts">Search contacts</string>
+    <!-- Icon label: a contact starred on the phone -->
+    <string name="dialer_favourite">Favourite</string>
+
+    <!-- The Phone's Recents tab (car/PhoneRecents.kt). How each call went, after an arrow -->
+    <string name="recents_incoming">Incoming</string>
+    <string name="recents_outgoing">Outgoing</string>
+    <string name="recents_missed">Missed</string>
+    <string name="recents_declined">Declined</string>
+    <string name="recents_loading">Loading recent calls…</string>
+    <string name="recents_empty">No recent calls.</string>
+    <string name="recents_permission">Recent calls come from the phone\'s call log. Allow it on the phone when you\'re parked.</string>
+    <!-- A call from a number the caller hid -->
+    <string name="recents_private_number">Private number</string>
+    <!-- When a call was: today shows the time, then this, then the day of the week -->
+    <string name="recents_yesterday">Yesterday</string>
+
+    <!-- A new message's card at the top of the car screen, and voice replies (car/MessagePopup.kt) -->
+    <!-- Title of the card when several messages came in one chat. %1$s: who wrote; %2$d: how many (2 or more) -->
+    <plurals name="message_new_count">
+        <item quantity="one">%1$s · %2$d new</item>
+        <item quantity="other">%1$s · %2$d new</item>
+    </plurals>
+    <!-- Icon label: closes the card -->
+    <string name="message_dismiss">Dismiss</string>
+    <!-- Button: have the message read aloud (an order, not "has been read") -->
+    <string name="message_read">Read</string>
+    <!-- Button: answer the message -->
+    <string name="message_reply">Reply</string>
+    <!-- Button on a missed call's card: call that person -->
+    <string name="message_call_back">Call back</string>
+    <!-- Button: stop reading the message aloud -->
+    <string name="message_stop">Stop</string>
+    <!-- Button: send the reply now instead of waiting for the countdown -->
+    <string name="message_send_now">Send now</string>
+    <!-- Button: write the reply on the car's keyboard instead -->
+    <string name="message_type">Type</string>
+    <!-- The card's title while the reply is asked for, and the reply field's placeholder. %1$s: who it goes to -->
+    <string name="message_reply_to">Reply to %1$s</string>
+    <!-- The card's title while the microphone listens to the reply -->
+    <string name="message_listening">Listening</string>
+    <!-- %1$s: who the reply goes to -->
+    <string name="message_sending_to">Sending to %1$s</string>
+    <string name="message_sent_to">Sent to %1$s</string>
+    <string name="message_reply_failed">Couldn\'t reply</string>
+    <!-- The reply as the driver said it, in quotes: use your language's quotation marks -->
+    <string name="message_quoted">“%1$s”</string>
+
+    <!-- A messaging app's conversations (car/MessagesScreen.kt) -->
+    <!-- The screen's title when the app's own name isn't known -->
+    <string name="message_screen_title">Messages</string>
+    <!-- %1$s: the app's name (Signal, WhatsApp...) -->
+    <string name="message_empty">No recent messages. New %1$s messages appear here as they arrive on the phone.</string>
+    <!-- Over a conversation: how many older messages are hidden until it's tapped -->
+    <plurals name="message_earlier">
+        <item quantity="one">%d earlier</item>
+        <item quantity="other">%d earlier</item>
+    </plurals>
+    <!-- Icon label: the driver has answered this conversation -->
+    <string name="message_replied">Replied</string>
+    <!-- Buttons: show or hide ready-made answers -->
+    <string name="message_quick_reply">Quick reply</string>
+    <string name="message_quick_replies_hide">Hide quick replies</string>
+    <!-- Button: tell the app the conversation has been read -->
+    <string name="message_mark_read">Mark read</string>
+    <!-- A message the driver sent. %1$s: the message -->
+    <string name="message_line_you">You: %1$s</string>
+    <!-- A message in a group. %1$s: who wrote it; %2$s: the message -->
+    <string name="message_line_from">%1$s: %2$s</string>
+
+    <!-- The test message debug builds post to try the car's message cards (notify/TestMessage.kt) -->
+    <string name="message_test_channel">Test messages</string>
+    <!-- How the phone's owner is named in the test chat -->
+    <string name="message_test_you">You</string>
+    <string name="message_test_late">Running ten minutes late, save me a seat?</string>
+    <string name="message_test_tonight">Are you still coming over tonight?</string>
+    <string name="message_test_milk">Can you grab milk on the way home?</string>
+    <string name="message_test_parked">Call me when you\'re parked.</string>
+    <!-- The test message's action on the phone -->
+    <string name="message_test_mark_as_read">Mark as read</string>
+
+    <!-- Notifications on the car's dashboard (car/NotificationsScreen.kt) -->
+    <string name="notifications_title">Notifications</string>
+    <!-- Button, then the same button asking for a second tap to confirm -->
+    <string name="notifications_clear_all">Clear all</string>
+    <string name="notifications_clear_confirm">Clear them all</string>
+    <!-- "Settings > Notifications > Notification access": use the names Android gives these pages in your language -->
+    <string name="notifications_access_off">Notifications are off. Allow myCar under Settings > Notifications > Notification access on the phone.</string>
+    <string name="notifications_empty">Nothing yet. New notifications from the phone will show up here.</string>
+
+    <!-- The voice assistant's overlay and its choice (car/AssistantOverlay.kt, car/PhoneAssistants.kt, car/AssistantUnlock.kt) -->
+    <!-- Button: opens myCar's permissions on the phone, when the microphone isn't allowed -->
+    <string name="assistant_grant">Grant</string>
+    <!-- Icon label: closes the assistant -->
+    <string name="assistant_dismiss">Dismiss</string>
+    <!-- Icon label of the assistant's microphone -->
+    <string name="assistant_mic">Assistant</string>
+    <!-- Fills %1$s in the sentences below when the phone's own assistant is chosen: lower case, mid-sentence -->
+    <string name="assistant_phone_inline">the phone\'s assistant</string>
+    <!-- %1$s: the assistant (an app's name, or assistant_phone_inline) -->
+    <string name="assistant_unlock_to_start">Unlock the phone: %1$s starts as soon as it\'s open</string>
+    <string name="assistant_unlock_then_touch">Unlock the phone, then touch the microphone again</string>
+    <string name="assistant_stayed_locked">The phone stayed locked</string>
+    <string name="assistant_locked_brain">The phone is locked: myCar is listening, and Home Assistant answers.</string>
+    <!-- %1$s: the assistant (an app's name, or assistant_phone_inline) -->
+    <string name="assistant_start_failed">Couldn\'t start %1$s. myCar is listening instead.</string>
+    <string name="assistant_listening_on_phone">Listening on the phone</string>
+    <!-- %1$s: the assistant app's name -->
+    <string name="assistant_app_listening_on_phone">%1$s is listening on the phone</string>
+    <!-- Settings on the car's screen: which assistant the microphone starts. Title, then the choice beside myCar and the apps -->
+    <string name="assistant_picker_title">Voice assistant</string>
+    <string name="assistant_choice_phone">Phone\'s assistant</string>
+    <string name="assistant_picker_footer">The phone\'s assistant wakes as with the swipe up from a bottom corner of the phone\'s screen. Another assistant listens and answers on the phone, and its voice reaches the car only over Bluetooth; with the phone locked, it starts once the phone is unlocked - or, with Home Assistant set up in myCar, myCar listens instead and Home Assistant answers. myCar\'s own works offline, locked or not, and shows on the car screen; with Home Assistant set up, what it can\'t do itself goes to Home Assistant\'s voice assistant.</string>
+
+    <!-- Bluetooth cards over the car screen (car/BluetoothPairOverlay.kt) -->
+    <string name="bluetooth_not_connected_title">Bluetooth isn\'t connected</string>
+    <!-- When music also goes over Bluetooth -->
+    <string name="bluetooth_not_connected_calls_music">Calls and music play over Bluetooth, but your phone isn\'t connected to the car. Connect it from the car\'s Bluetooth menu or your phone\'s.</string>
+    <!-- When music goes through myCar and only calls need Bluetooth -->
+    <string name="bluetooth_not_connected_calls">Calls play over Bluetooth, but your phone isn\'t connected to the car. Connect it from the car\'s Bluetooth menu or your phone\'s.</string>
+    <!-- Button: never show this warning again -->
+    <string name="bluetooth_dont_show_again">Don\'t show again</string>
+    <string name="bluetooth_location_off_title">Location is off</string>
+    <string name="bluetooth_location_off_body">Map apps can\'t show where you are or give directions. Turn on location in your phone\'s quick settings when you\'re parked.</string>
+    <string name="bluetooth_pair_title">Pair with this car?</string>
+    <!-- When music also goes over Bluetooth -->
+    <string name="bluetooth_pair_body_calls_music">Calls and music play through the car\'s speakers once your phone and the car are paired. Your phone then asks you to confirm a code.</string>
+    <!-- When music goes through myCar and only calls need Bluetooth -->
+    <string name="bluetooth_pair_body_calls">Calls play through the car\'s speakers once your phone and the car are paired. Your phone then asks you to confirm a code.</string>
+    <!-- Button: start pairing the phone with the car -->
+    <string name="bluetooth_pair">Pair</string>
+    <string name="bluetooth_confirm_title">Confirm on your phone</string>
+    <!-- "Pair": the button of Android's own pairing dialog, as Android names it in your language -->
+    <string name="bluetooth_confirm_body">Check the code on your phone and tap Pair. The car may ask too.</string>
+    <!-- Button: hide the card while the phone's dialog stays -->
+    <string name="bluetooth_hide">Hide</string>
+    <!-- How pairing ended, said on the car screen (car/CarBluetooth.kt) -->
+    <string name="bluetooth_pairing_unfinished">Pairing didn\'t finish. Pair from the car\'s Bluetooth menu instead.</string>
+    <string name="bluetooth_pairing_not_started">Pairing didn\'t start. Pair from the car\'s Bluetooth menu instead.</string>
+    <string name="bluetooth_paired">Paired. Calls now play through the car.</string>
+
+    <!-- Cinema, myCar's video app (car/CinemaApp.kt, car/CinemaShelves.kt, car/CinemaPlayer.kt, cinema/TvLists.kt) -->
+    <!-- Tile: open again what was on last. %1$s: a site's or a video's name -->
+    <string name="cinema_continue">Continue: %1$s</string>
+    <!-- Tile and title: the videos stored on the phone -->
+    <string name="cinema_on_this_phone">On this phone</string>
+    <string name="cinema_empty">Add video sites and TV lists in myCar\'s settings on the phone, under Cinema.</string>
+    <!-- Under a site's tile: its video is copy-protected and most likely shows black in the car -->
+    <string name="cinema_protected">Protected video: likely black</string>
+    <string name="cinema_page_failed_title">The page didn\'t load</string>
+    <string name="cinema_page_failed_text">Check the phone\'s connection: it loads again by itself when it\'s back.\nTap to try again.</string>
+    <string name="cinema_home_network_title">This site is on your home network</string>
+    <string name="cinema_tap_to_retry">Tap to try again.</string>
+    <!-- Icon label: back to the site's previous page -->
+    <string name="cinema_back_page">Back a page</string>
+    <!-- Over the picture while the car moves; also the name of the setting on the phone -->
+    <string name="cinema_parked_title">Video only when parked</string>
+    <string name="cinema_parked_text">The sound carries on. The picture comes back when the car stops.</string>
+    <!-- The player's buttons -->
+    <string name="cinema_back_10s">Back 10 seconds</string>
+    <string name="cinema_forward_10s">Forward 10 seconds</string>
+    <string name="cinema_play">Play</string>
+    <string name="cinema_pause">Pause</string>
+    <!-- A badge on a TV channel playing live: keep it short -->
+    <string name="cinema_live">LIVE</string>
+    <!-- Why a video or a channel didn't play -->
+    <!-- %1$s: Android's reason, often in English -->
+    <string name="cinema_error_open">It didn\'t open: %1$s</string>
+    <string name="cinema_error_stopped_early">It stopped before the end: check the phone\'s connection.</string>
+    <string name="cinema_error_channel_stopped">The channel stopped.</string>
+    <string name="cinema_error_unreachable">Couldn\'t reach it: check the phone\'s connection.</string>
+    <string name="cinema_error_timeout">It didn\'t answer in time.</string>
+    <string name="cinema_error_format">The phone\'s player can\'t play this format.</string>
+    <string name="cinema_error_player_died">The phone\'s player stopped.</string>
+    <!-- %1$d and %2$d: Android's error codes -->
+    <string name="cinema_error_other">It didn\'t play (error %1$d, %2$d).</string>
+    <!-- The phone's videos -->
+    <string name="cinema_videos_permission">To show the phone\'s videos here, myCar needs Android\'s permission for them.</string>
+    <!-- Button: Android's permission question opens on the phone -->
+    <string name="cinema_ask_on_phone">Ask on the phone</string>
+    <string name="cinema_videos_none_picked">No videos picked for myCar. On the phone, in myCar\'s settings under Cinema, choose which ones it may see.</string>
+    <string name="cinema_videos_none">No videos on this phone.</string>
+    <!-- A TV list's channels. Icon labels first -->
+    <string name="cinema_find_channel">Find a channel</string>
+    <string name="cinema_reload_list">Download the list again</string>
+    <!-- %1$s: what went wrong, one of the cinema_tv_* sentences below -->
+    <string name="cinema_tv_old_channels">%1$s Showing the channels from the last time.</string>
+    <!-- %1$s: what was searched for; %2$d: how many channels have it in their name -->
+    <string name="cinema_tv_found">Channels with “%1$s”: %2$d</string>
+    <string name="cinema_tv_no_channels">No channels in this list.</string>
+    <!-- The tile that shows every channel, before the list's groups -->
+    <string name="cinema_tv_all_channels">All channels</string>
+    <!-- Under a group of channels -->
+    <plurals name="cinema_tv_channels">
+        <item quantity="one">%d channel</item>
+        <item quantity="other">%d channels</item>
+    </plurals>
+    <!-- Why a TV list didn't download. %1$d: the server's HTTP code -->
+    <string name="cinema_tv_refused">The list\'s server said no (%1$d).</string>
+    <!-- %1$d: the size limit in megabytes -->
+    <string name="cinema_tv_too_big">The list is too big for the car (over %1$d MB).</string>
+    <string name="cinema_tv_nothing_playable">No channels the phone can play in this list.</string>
+    <!-- %1$s: the list's server name -->
+    <string name="cinema_tv_unknown_host">Couldn\'t find %1$s: check the address, or the phone\'s connection.</string>
+    <!-- %1$s: the list's server name -->
+    <string name="cinema_tv_no_answer">%1$s didn\'t answer.</string>
+    <!-- %1$s: the reason, often in English -->
+    <string name="cinema_tv_failed">The list didn\'t load: %1$s</string>
+
+    <!-- Plancia, Home Assistant inside myCar, on the car's screen (car/PlanciaApp.kt, car/PlanciaWeb.kt) -->
+    <string name="plancia_set_up_title">Set up Plancia on the phone</string>
+    <string name="plancia_set_up_text">In myCar on the phone: Settings, then Plancia - your Home Assistant\'s address and a token.</string>
+    <string name="plancia_connecting">Connecting to Home Assistant</string>
+    <string name="plancia_dashboard_failed">Couldn\'t open the dashboard</string>
+    <!-- %1$s: why the dashboard didn't open -->
+    <string name="plancia_dashboard_failed_detail">%1$s\nTap to try again.</string>
+    <!-- %1$d: the web page's error code -->
+    <string name="plancia_web_error">Error %1$d</string>
+    <!-- %1$d: an HTTP error code (500, 502...) -->
+    <string name="plancia_web_http_error">Home Assistant answered with error %1$d</string>
+    <!-- Plancia's menu. Its title, and the title of the list where the driver picks the dashboard Plancia shows first -->
+    <string name="plancia_menu_dashboards">Dashboards</string>
+    <string name="plancia_menu_opens">Plancia opens</string>
+    <!-- A choice for the dashboard Plancia shows first: the one Home Assistant itself opens -->
+    <string name="plancia_as_in_ha">As in Home Assistant</string>
+    <!-- Under "As in Home Assistant". %1$s: the dashboard Home Assistant opens now -->
+    <string name="plancia_now">Now: %1$s</string>
+    <string name="plancia_no_dashboards">No dashboards</string>
+    <!-- Notes under a dashboard: it's the one on screen now; it's the one Plancia shows first -->
+    <string name="plancia_note_open">Open</string>
+    <string name="plancia_note_opens_first">Opens first</string>
+    <!-- How big the dashboard is drawn -->
+    <string name="plancia_size">Size</string>
+    <!-- One of the sizes. %1$d: a percentage; %% is the percent sign -->
+    <string name="plancia_size_percent">%1$d%%</string>
+    <string name="plancia_reload">Reload the dashboard</string>
+
+    <!-- What went wrong with Home Assistant, on the car's screen and the phone's (home/HaClient.kt) -->
+    <!-- %1$s: the address as written -->
+    <string name="ha_bad_address">Not a valid address: %1$s</string>
+    <!-- %1$s: the address -->
+    <string name="ha_no_answer_from">No answer from %1$s</string>
+    <string name="ha_connection_closed">Connection closed</string>
+    <string name="ha_not_connected">Not connected to Home Assistant</string>
+    <string name="ha_send_failed">Couldn\'t send to Home Assistant</string>
+    <string name="ha_not_answering">Home Assistant isn\'t answering</string>
+    <string name="ha_access_denied">Access denied</string>
+    <!-- %1$d: an HTTP error code -->
+    <string name="ha_http_error">HTTP error %1$d</string>
+    <string name="ha_network_error">Network error</string>
+    <string name="ha_token_invalid">The token isn\'t valid</string>
+    <!-- Home Assistant turned a request down without saying why -->
+    <string name="ha_command_refused">Command refused</string>
+    <!-- Names of Home Assistant's own dashboards in Plancia's menu (home/Panels.kt): use the names Home Assistant gives them in your language -->
+    <string name="ha_panel_overview">Overview</string>
+    <string name="ha_panel_energy">Energy</string>
+    <string name="ha_panel_map">Map</string>
+    <string name="ha_panel_logbook">Logbook</string>
+    <string name="ha_panel_history">History</string>
+    <string name="ha_panel_calendar">Calendar</string>
+    <string name="ha_panel_todo">To-do lists</string>
+    <string name="ha_panel_shopping_list">Shopping list</string>
+    <string name="ha_panel_media">Media</string>
+    <string name="ha_panel_lights">Lights</string>
+    <string name="ha_panel_security">Security</string>
+    <string name="ha_panel_climate">Climate</string>
+    <string name="ha_panel_maintenance">Maintenance</string>
+    <string name="ha_panel_apps">Apps</string>
+    <!-- Home Assistant's add-ons panel: most languages keep the English name -->
+    <string name="ha_panel_supervisor">Supervisor</string>
+
+    <!--
+      Spoken turn-by-turn directions (car/DirectionsVoice.kt): said by the phone's voice in the car,
+      never shown. %1$s in the "onto" and "toward" sentences is a road's or a place's name, as the
+      map app gives it.
+    -->
+    <!-- %1$s: a distance (directions_kilometers, directions_meters...); %2$s: one of the instructions below -->
+    <string name="directions_in_distance">In %1$s, %2$s</string>
+    <string name="directions_turn_slight_left">Turn slightly left</string>
+    <string name="directions_turn_slight_left_onto">Turn slightly left onto %1$s</string>
+    <string name="directions_turn_slight_right">Turn slightly right</string>
+    <string name="directions_turn_slight_right_onto">Turn slightly right onto %1$s</string>
+    <string name="directions_turn_left">Turn left</string>
+    <string name="directions_turn_left_onto">Turn left onto %1$s</string>
+    <string name="directions_turn_right">Turn right</string>
+    <string name="directions_turn_right_onto">Turn right onto %1$s</string>
+    <string name="directions_turn_sharp_left">Turn sharply left</string>
+    <string name="directions_turn_sharp_left_onto">Turn sharply left onto %1$s</string>
+    <string name="directions_turn_sharp_right">Turn sharply right</string>
+    <string name="directions_turn_sharp_right_onto">Turn sharply right onto %1$s</string>
+    <string name="directions_u_turn">Make a U-turn</string>
+    <string name="directions_keep_left">Keep left</string>
+    <string name="directions_keep_left_toward">Keep left toward %1$s</string>
+    <string name="directions_keep_right">Keep right</string>
+    <string name="directions_keep_right_toward">Keep right toward %1$s</string>
+    <string name="directions_fork_left">Keep left at the fork</string>
+    <string name="directions_fork_left_toward">Keep left at the fork toward %1$s</string>
+    <string name="directions_fork_right">Keep right at the fork</string>
+    <string name="directions_fork_right_toward">Keep right at the fork toward %1$s</string>
+    <!-- Ramps onto a motorway -->
+    <string name="directions_ramp_left">Take the ramp on the left</string>
+    <string name="directions_ramp_left_onto">Take the ramp on the left onto %1$s</string>
+    <string name="directions_ramp_right">Take the ramp on the right</string>
+    <string name="directions_ramp_right_onto">Take the ramp on the right onto %1$s</string>
+    <!-- Exits off a motorway -->
+    <string name="directions_exit_left">Take the exit on the left</string>
+    <string name="directions_exit_left_toward">Take the exit on the left toward %1$s</string>
+    <string name="directions_exit_right">Take the exit on the right</string>
+    <string name="directions_exit_right_toward">Take the exit on the right toward %1$s</string>
+    <string name="directions_merge_left">Merge left</string>
+    <string name="directions_merge_left_onto">Merge left onto %1$s</string>
+    <string name="directions_merge_right">Merge right</string>
+    <string name="directions_merge_right_onto">Merge right onto %1$s</string>
+    <string name="directions_merge">Merge</string>
+    <string name="directions_merge_onto">Merge onto %1$s</string>
+    <!-- %1$s: which exit (directions_ordinal_*) -->
+    <string name="directions_roundabout_exit">At the roundabout, take the %1$s exit</string>
+    <!-- %1$s: which exit (directions_ordinal_*); %2$s: the road -->
+    <string name="directions_roundabout_exit_onto">At the roundabout, take the %1$s exit onto %2$s</string>
+    <!-- Which exit of the roundabout, put into directions_roundabout_exit: the form that goes with "exit" there -->
+    <string name="directions_ordinal_1">first</string>
+    <string name="directions_ordinal_2">second</string>
+    <string name="directions_ordinal_3">third</string>
+    <string name="directions_ordinal_4">fourth</string>
+    <string name="directions_ordinal_5">fifth</string>
+    <string name="directions_ordinal_6">sixth</string>
+    <string name="directions_ordinal_7">seventh</string>
+    <string name="directions_ordinal_8">eighth</string>
+    <string name="directions_roundabout_through">Go through the roundabout</string>
+    <string name="directions_roundabout_through_onto">Go through the roundabout onto %1$s</string>
+    <string name="directions_roundabout_enter">Enter the roundabout</string>
+    <string name="directions_roundabout_leave">Exit the roundabout</string>
+    <string name="directions_roundabout_leave_onto">Exit the roundabout onto %1$s</string>
+    <string name="directions_straight">Continue straight</string>
+    <string name="directions_straight_onto">Continue straight onto %1$s</string>
+    <!-- The road ahead changes its name -->
+    <string name="directions_continue">Continue</string>
+    <string name="directions_continue_onto">Continue onto %1$s</string>
+    <string name="directions_ferry">Take the ferry</string>
+    <string name="directions_train">Take the train</string>
+    <string name="directions_destination_ahead">Your destination is ahead</string>
+    <string name="directions_destination_left">Your destination is on the left</string>
+    <string name="directions_destination_right">Your destination is on the right</string>
+    <!-- Distances as the voice says them, put into directions_in_distance. A whole number: -->
+    <plurals name="directions_kilometers">
+        <item quantity="one">%d kilometer</item>
+        <item quantity="other">%d kilometers</item>
+    </plurals>
+    <!-- A number with a decimal, already written (1.5): the form your language uses after one -->
+    <string name="directions_kilometers_decimal">%1$s kilometers</string>
+    <plurals name="directions_miles">
+        <item quantity="one">%d mile</item>
+        <item quantity="other">%d miles</item>
+    </plurals>
+    <!-- A number with a decimal, already written (1.5) -->
+    <string name="directions_miles_decimal">%1$s miles</string>
+    <string name="directions_quarter_mile">a quarter mile</string>
+    <string name="directions_half_mile">half a mile</string>
+    <string name="directions_three_quarters_mile">three quarters of a mile</string>
+    <plurals name="directions_feet">
+        <item quantity="one">%d foot</item>
+        <item quantity="other">%d feet</item>
+    </plurals>
+    <!-- A number with a decimal, already written (2.5) -->
+    <string name="directions_feet_decimal">%1$s feet</string>
+    <plurals name="directions_yards">
+        <item quantity="one">%d yard</item>
+        <item quantity="other">%d yards</item>
+    </plurals>
+    <!-- A number with a decimal, already written (2.5) -->
+    <string name="directions_yards_decimal">%1$s yards</string>
+    <plurals name="directions_meters">
+        <item quantity="one">%d meter</item>
+        <item quantity="other">%d meters</item>
+    </plurals>
+</resources>
