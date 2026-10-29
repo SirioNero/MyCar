@@ -8,8 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -123,6 +125,10 @@ fun SettingsScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
+                // Edge to edge, the window no longer shrinks for the keyboard: without this, a field
+                // in the lower half (Plancia's token, Xonos's password) stays under it.
+                .consumeWindowInsets(padding)
+                .imePadding()
                 .padding(horizontal = 24.dp)
                 .verticalScroll(scroll),
             verticalArrangement = Arrangement.spacedBy(24.dp),
