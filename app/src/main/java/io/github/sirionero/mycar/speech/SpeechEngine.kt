@@ -80,6 +80,8 @@ object SpeechEngine {
     private var loadedModel: SpeechModels.Model? = null
     @Volatile private var finalRecognizer: OfflineRecognizer? = null
     @Volatile private var loadedFinal: SpeechModels.Model? = null
+    /** The language [finalRecognizer] was set up for: Canary is told which one it hears. */
+    @Volatile private var loadedLanguage: VoiceLanguage? = null
 
     /**
      * The final model holds most of the memory the two models take, so it goes after a few
@@ -88,15 +90,15 @@ object SpeechEngine {
     private val idleUnload = Runnable { unloadFinal("after ${IDLE_UNLOAD_MS / 60_000} minutes without use") }
     @Volatile private var run = 0
 
-    /** Loads the model ahead of time, so the first command doesn't wait for it. */
-    fun warm(context: Context) {
+    /** Loads the model ahead of time, so the first command doesn't wait for it; [language] is the one the assistant will listen in. */
+    fun warm(context: Context, language: VoiceLanguage = VoiceLanguage.EN) {
         val app = context.applicationContext
         SpeechModels.init(app)
         // Kroko first, alone: loading both at once slowed it from a fraction of a second to six.
         worker.execute {
             ensureLoaded(app)
             finalWorker.execute {
-                ensureFinalLoaded(app)
+                ensureFinalLoaded(app, language)
                 // A drive may never use it: it goes after the same idle minutes as after a command,
                 // instead of holding its memory until the car disconnects.
                 main.removeCallbacks(idleUnload)
@@ -112,6 +114,7 @@ object SpeechEngine {
                 finalRecognizer?.release()
                 finalRecognizer = null
                 loadedFinal = null
+                loadedLanguage = null
                 MyCarLog.i("speech: unloaded ${model.label} $why")
             }
         }
@@ -131,6 +134,7 @@ object SpeechEngine {
                 finalRecognizer?.release()
                 finalRecognizer = null
                 loadedFinal = null
+                loadedLanguage = null
             }
         }
     }
@@ -139,10 +143,13 @@ object SpeechEngine {
      * Listens for one phrase. [cue] plays a short tone first, so the driver knows when to talk.
      * [onPartial] gets the words so far as they're recognized, [onSpeaking] fires at the first
      * word, [onHeard] when the driver stops; [onResult] gets the text, [onError] a sentence fit to
-     * show on the car screen.
+     * show on the car screen. In a [language] other than English the live model (Kroko, English
+     * only) just hears when the driver stops: the words are the final model's, and none show
+     * while they talk.
      */
     fun listen(
         context: Context,
+        language: VoiceLanguage = VoiceLanguage.EN,
         cue: Boolean = true,
         onSpeaking: () -> Unit = {},
         onPartial: (String) -> Unit = {},
@@ -160,7 +167,7 @@ object SpeechEngine {
         fun post(block: () -> Unit) { main.post { if (id == run) block() } }
         // Brings Parakeet back if it was unloaded, while the driver talks.
         main.removeCallbacks(idleUnload)
-        finalWorker.execute { ensureFinalLoaded(app) }
+        finalWorker.execute { ensureFinalLoaded(app, language) }
         worker.execute {
             if (id != run) return@execute
             if (!SpeechModels.isReady(app, SpeechModels.selected.value)) return@execute post { onError(NOT_DOWNLOADED) }
@@ -170,7 +177,10 @@ object SpeechEngine {
                 if (cue) cue()
                 if (id != run) return@execute
                 post(onListening)
-                stream(app, r, id, onSpeaking = { post(onSpeaking) }, onPartial = { post { onPartial(it) } }, onStopped = { post(onHeard) })
+                stream(app, r, id, language, onSpeaking = { post(onSpeaking) }, onPartial = { post { onPartial(it) } }, onStopped = { post(onHeard) })
+            } catch (e: FinalMissing) {
+                MyCarLog.w("speech: no model loaded that hears ${language.code}")
+                return@execute post { onError(NOT_LOADED) }
             } catch (e: MicSilenced) {
                 MyCarLog.w("speech: the phone's microphone gives only silence - Android keeps it from myCar now")
                 return@execute post { onError("The phone's microphone is silenced. Unlock the phone and try again.") }
@@ -199,6 +209,7 @@ object SpeechEngine {
         context: Context,
         r: OnlineRecognizer,
         id: Int,
+        language: VoiceLanguage,
         onSpeaking: () -> Unit,
         onPartial: (String) -> Unit,
         onStopped: () -> Unit,
@@ -244,7 +255,8 @@ object SpeechEngine {
                         spoke = true
                         onSpeaking()
                     }
-                    onPartial(text)
+                    // Kroko's English guesses at another language would only mislead.
+                    if (language == VoiceLanguage.EN) onPartial(text)
                 }
                 if (r.isEndpoint(s)) break
             }
@@ -260,20 +272,25 @@ object SpeechEngine {
             "speech: $audioMs ms of audio, decoding took $decodeMs ms " +
                 "(${"%.2f".format(decodeMs.toFloat() / max(1L, audioMs))} of real time)",
         )
-        if (last.isEmpty() || id != run) { phrase.fill(0f); return last }
-        // Still loading (just connected, or back after going idle): the live words now beat
-        // Parakeet's in several seconds.
-        val wanted = SpeechModels.final.value
-        if (wanted == null || finalRecognizer == null || loadedFinal != wanted) {
+        val english = language == VoiceLanguage.EN
+        // Another language: Kroko may have written nothing for it, so only quiet ends it here.
+        if ((english && last.isEmpty()) || id != run || (!english && held == 0)) { phrase.fill(0f); return if (english) last else "" }
+        val wanted = SpeechModels.finalFor(context, language)
+        if (english && (wanted == null || finalRecognizer == null || loadedFinal != wanted || loadedLanguage != language)) {
+            // Still loading (just connected, or back after going idle): the live words now beat
+            // Parakeet's in several seconds.
             if (wanted != null) MyCarLog.i("speech: ${wanted.label} isn't loaded yet, keeping the live words")
             phrase.fill(0f)
             return last
         }
         onStopped()
+        // Another language has only the final model's words: wait for it, as the driver waits for an answer.
+        if (!english && ensureFinalLoaded(context, language) == null) { phrase.fill(0f); throw FinalMissing() }
         val started = SystemClock.uptimeMillis()
         // Held for the whole read, so a model swap or the idle unload can't free it mid-decode.
         val reread = synchronized(finalLock) {
-            val final = finalRecognizer?.takeIf { loadedFinal == wanted } ?: run { phrase.fill(0f); return last }
+            val final = finalRecognizer?.takeIf { loadedFinal == wanted && loadedLanguage == language }
+                ?: run { phrase.fill(0f); if (english) return last else throw FinalMissing() }
             final.createStream().run {
                 try {
                     acceptWaveform(phrase.copyOf(held), RATE)
@@ -286,17 +303,22 @@ object SpeechEngine {
         }
         phrase.fill(0f)
         MyCarLog.i("speech: the final read took ${SystemClock.uptimeMillis() - started} ms")
-        if (reread.isEmpty()) return last
+        if (reread.isEmpty()) return if (english) last else ""
         if (reread != last) onPartial(reread)
         return reread
     }
 
-    /** The model that rereads the phrase, when one is chosen and downloaded; null otherwise. */
-    private fun ensureFinalLoaded(context: Context): OfflineRecognizer? = synchronized(finalLock) {
-        val model = SpeechModels.final.value ?: return null
-        if (finalRecognizer != null && loadedFinal == model) return finalRecognizer
+    /** The final model for a language other than English didn't load: without it there are no words. */
+    private class FinalMissing : Exception()
+
+    /** The model that rereads the phrase in [language], when one is chosen (or knows it) and is downloaded; null otherwise. */
+    private fun ensureFinalLoaded(context: Context, language: VoiceLanguage): OfflineRecognizer? = synchronized(finalLock) {
+        val model = SpeechModels.finalFor(context, language) ?: return null
+        if (finalRecognizer != null && loadedFinal == model && loadedLanguage == language) return finalRecognizer
         finalRecognizer?.release()
         finalRecognizer = null
+        loadedFinal = null
+        loadedLanguage = null
         if (!SpeechModels.isReady(context, model)) return null
         val dir = SpeechModels.dir(context, model)
         fun path(name: String) = File(dir, name).absolutePath
@@ -306,9 +328,11 @@ object SpeechEngine {
                 config = OfflineRecognizerConfig(
                     featConfig = FeatureConfig(sampleRate = RATE, featureDim = 80),
                     modelConfig = if (model.modelType == "canary") {
-                        // English in, English out, and no punctuation: clean() strips it anyway.
+                        // The driver's language in, the same language out (not a translation), and
+                        // no punctuation: clean() strips it anyway.
+                        val lang = language.code.takeIf { language in model.languages } ?: "en"
                         OfflineModelConfig(
-                            canary = OfflineCanaryModelConfig(path(model.encoder), path(model.decoder), srcLang = "en", tgtLang = "en", usePnc = false),
+                            canary = OfflineCanaryModelConfig(path(model.encoder), path(model.decoder), srcLang = lang, tgtLang = lang, usePnc = false),
                             tokens = path("tokens.txt"),
                             numThreads = threads(),
                         )
@@ -326,7 +350,8 @@ object SpeechEngine {
         }.onSuccess {
             finalRecognizer = it
             loadedFinal = model
-            MyCarLog.i("speech: loaded ${model.label} in ${SystemClock.uptimeMillis() - started} ms")
+            loadedLanguage = language
+            MyCarLog.i("speech: loaded ${model.label} (${language.code}) in ${SystemClock.uptimeMillis() - started} ms")
         }.onFailure {
             MyCarLog.e("speech: couldn't load ${model.label}", it)
         }.getOrNull()
