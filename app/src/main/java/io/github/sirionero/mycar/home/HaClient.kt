@@ -86,6 +86,26 @@ class HaClient(private val http: OkHttpClient) {
         }
     }
 
+    /**
+     * A command that goes on answering with events under its own id after its result, as
+     * assist_pipeline/run does: [onEvent] gets them until [forget]. Returns that id.
+     */
+    suspend fun stream(type: String, onEvent: (JSONObject) -> Unit, fill: JSONObject.() -> Unit = {}): Int {
+        val id = ids.getAndIncrement()
+        handlers[id] = onEvent
+        try {
+            send(id, type, fill)
+        } catch (e: Exception) {
+            handlers.remove(id)
+            throw e
+        }
+        return id
+    }
+
+    fun forget(id: Int) {
+        handlers.remove(id)
+    }
+
     fun close() {
         socket?.close(1000, null)
         shutdown(HaException("Connection closed", HaException.Reason.CLOSED))

@@ -189,6 +189,9 @@ object HomeAssistant {
 
     fun newClient() = HaClient(http)
 
+    /** The drive's connection, while there is one: Assist asks over it too. */
+    internal val live: HaClient? get() = client
+
     /**
      * The car connected: stay connected, so the dashboard is ready before it's asked for. Not set
      * up yet, the Plancia app is asked again first: it may have been set up, or updated, since.
