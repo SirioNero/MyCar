@@ -30,6 +30,12 @@ class VoiceCheckActivity : ComponentActivity() {
             for (model in SpeechModels.Model.entries) for (name in model.files) {
                 MyCarLog.i("voice check: ${model.label} $name: ${sizeOf(model.fileUrl(name))}")
             }
+            // Whisper for Chinese, not offered yet: each size's files, to pick one.
+            for (size in listOf("tiny", "base", "small", "medium", "turbo")) {
+                for (name in listOf("$size-encoder.int8.onnx", "$size-decoder.int8.onnx", "$size-tokens.txt")) {
+                    MyCarLog.i("voice check: whisper $name: ${sizeOf("https://huggingface.co/csukuangfj/sherpa-onnx-whisper-$size/resolve/main/$name")}")
+                }
+            }
             for (l in VoiceLanguage.entries) {
                 MyCarLog.i("voice check: ${l.code}: ${AssistantLanguage.answer("Around 14:30, in 1 hour 5 minutes.", l)}")
             }
