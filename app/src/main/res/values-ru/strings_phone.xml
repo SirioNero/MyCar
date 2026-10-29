@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_whats_new_in">Что нового в %1$s</string>
+    <string name="home_how_to_connect_subtitle">Какие автомобили подходят и что ещё нужно настроить</string>
+    <string name="home_disconnect">Отключиться</string>
+    <string name="home_disconnect_title">Отключиться от автомобиля?</string>
+    <string name="home_disconnect_text">myCar сейчас уйдёт с экрана автомобиля. Если вы подключены кабелем, отключите и снова подключите его, чтобы вернуться.</string>
+    <string name="home_bluetooth_missing_title">Bluetooth не подключён</string>
+    <string name="home_bluetooth_missing_calls">Звонки идут через Bluetooth, но телефон не подключён к автомобилю. Подключите его здесь или через меню Bluetooth автомобиля.</string>
+    <string name="home_bluetooth_missing_calls_music">Звонки и музыка идут через Bluetooth, но телефон не подключён к автомобилю. Подключите его здесь или через меню Bluetooth автомобиля.</string>
+    <string name="home_bluetooth_settings">Настройки Bluetooth</string>
+    <string name="home_voice_downloading">Загрузка голоса: %1$d%%</string>
+
+    <string name="wireless_button_connect">Подключить без кабеля</string>
+    <string name="wireless_button_denied">Для этого myCar нужен доступ к Bluetooth и к устройствам Wi-Fi поблизости.</string>
+    <string name="wireless_button_enable_permission">Включить разрешение «Устройства поблизости»</string>
+    <string name="wireless_button_switched_off">myCar выключен для автомобиля (Настройки, «Использовать myCar в автомобиле»).</string>
+    <string name="wireless_button_turn_on">Включить</string>
+    <string name="wireless_button_which_car">Какой автомобиль?</string>
+    <string name="wireless_button_bluetooth_off">Bluetooth выключен. Включите его и снова нажмите «Подключить без кабеля».</string>
+    <string name="wireless_button_not_paired">Телефон пока ни с чем не сопряжён. Сначала выполните сопряжение с автомобилем.</string>
+    <string name="wireless_button_not_listed">Автомобиля нет в списке? Сначала выполните сопряжение телефона с ним.</string>
+
+    <string name="help_title">Как подключиться</string>
+    <string name="help_which_cars">Какие автомобили подходят</string>
+    <string name="help_which_cars_text">Подходит большинство автомобилей. Примерно с 2020 года в некоторых автомобилях появились новые стандарты безопасности, которые отклоняют сертификат myCar, и в таких автомобилях myCar работать не может.</string>
+    <string name="help_see_full_list">Полный список</string>
+    <string name="help_in_the_car">В автомобиле</string>
+    <string name="help_sound_through_mycar">Звук через myCar</string>
+    <string name="help_step_connect">Подключите кабель или подключитесь без него.</string>
+    <string name="help_step_connect_detail">myCar открывается сам, когда автомобиль подключается. Для подключения без кабеля сначала выполните сопряжение телефона с автомобилем, затем нажмите «Подключить без кабеля» на главном экране.</string>
+    <string name="help_step_pair">Выполните сопряжение по Bluetooth для звонков.</string>
+    <string name="help_step_pair_detail">После сопряжения телефона и автомобиля звонки звучат через автомобиль. myCar предложит сопряжение при первом подключении.</string>
+    <string name="help_step_screening">Отклоняйте неизвестные звонки до того, как они зазвонят.</string>
+    <string name="help_step_screening_detail">Сделайте myCar приложением для определения номера и защиты от спама. Без этого автомобиль всё равно показывает каждый звонок, и вы отвечаете или отклоняете его там.</string>
+    <string name="help_set_up">Настроить</string>
+    <string name="help_step_audio_prompt">Уберите вопрос о звуке в каждой поездке.</string>
+    <string name="help_step_audio_prompt_detail">Подключите телефон к компьютеру с включённой отладкой по USB и один раз выполните эту команду. Если пропустить этот шаг, в начале каждой поездки нужно нажимать «Начать».</string>
+    <string name="help_step_notifications">Оставьте уведомления читаемыми.</string>
+    <string name="help_step_notifications_detail">Пока идёт трансляция звука, Android скрывает текст уведомлений. Выполните и эту команду, и myCar будет снимать это ограничение только на то время, пока музыка идёт в автомобиль.</string>
+    <string name="help_tap_to_copy">Нажмите, чтобы скопировать</string>
+    <string name="help_command_copied">Команда скопирована</string>
+
+    <string name="cert_notice_turned_down_title">Ваш автомобиль отклонил этот сертификат</string>
+    <string name="cert_notice_switched_text">Теперь myCar использует %1$s. Подключитесь к автомобилю снова: переподключите кабель или подключитесь без кабеля.</string>
+    <string name="cert_notice_switched_next_text">Теперь myCar использует следующий сертификат. Подключитесь к автомобилю снова: переподключите кабель или подключитесь без кабеля.</string>
+    <string name="cert_notice_no_spare_text">Получите %1$s, затем снова подключитесь к автомобилю.</string>
+    <string name="cert_notice_no_spare_unnamed_text">Получите запасной сертификат, затем снова подключитесь к автомобилю.</string>
+    <string name="cert_notice_exhausted_title">Ваш автомобиль отклонил все сертификаты</string>
+    <plurals name="cert_notice_exhausted_text">
+        <item quantity="one">myCar попробовал %1$d сертификат. Некоторые автомобили выпуска примерно с 2020 года проверяют телефоны строже, и к ним myCar пока подключиться не может.</item>
+        <item quantity="few">myCar попробовал %1$d сертификата. Некоторые автомобили выпуска примерно с 2020 года проверяют телефоны строже, и к ним myCar пока подключиться не может.</item>
+        <item quantity="many">myCar попробовал %1$d сертификатов. Некоторые автомобили выпуска примерно с 2020 года проверяют телефоны строже, и к ним myCar пока подключиться не может.</item>
+        <item quantity="other">myCar попробовал %1$d сертификата. Некоторые автомобили выпуска примерно с 2020 года проверяют телефоны строже, и к ним myCar пока подключиться не может.</item>
+    </plurals>
+    <string name="cert_notice_no_cert_title">У myCar пока нет сертификата для автомобиля</string>
+    <string name="cert_notice_no_cert_text">Автомобили общаются только с телефонами, у которых есть сертификат, которому они доверяют. Получите его сейчас, затем снова подключитесь к автомобилю.</string>
+    <string name="cert_notice_own_refused_title">Ваш автомобиль отклонил ваш сертификат</string>
+    <string name="cert_notice_own_refused_text">Чтобы вместо него использовать общедоступные, удалите свой в настройках, в разделе «Сертификат».</string>
+    <string name="cert_notice_clock_title">Проверьте дату в автомобиле</string>
+    <string name="cert_notice_clock_text">Автомобиль сообщает, что сертификат недействителен на его дату. Установите часы автомобиля и подключитесь снова.</string>
+    <string name="cert_notice_download_failed">Не удалось скачать сертификаты. Проверьте подключение к интернету и попробуйте ещё раз.</string>
+    <string name="cert_notice_get_spare">Получить запасной</string>
+    <string name="cert_notice_getting_spare">Получение…</string>
+    <string name="cert_notice_get_certificates">Получить сертификаты</string>
+    <string name="cert_notice_getting_certificates">Получение сертификатов…</string>
+    <string name="cert_notice_start_over">Попробовать снова с первого</string>
+
+    <string name="cert_role_recommended">Рекомендуется</string>
+    <string name="cert_role_spare">Запасной</string>
+    <string name="cert_role_newest">Новейшие автомобили</string>
+    <string name="cert_about_aasdk">Работает в большинстве опробованных автомобилей. Из проекта aasdk.</string>
+    <string name="cert_about_revived">Действителен до 2044 года, для автомобилей, которые отклоняют первый. Из проекта Headunit Revived.</string>
+    <string name="cert_about_carservice">Собственный сертификат Android Auto — для автомобилей, которые проверяют телефоны строже всего, в том числе последних Volkswagen. Android Auto меняет его каждые несколько месяцев: myCar получает новый до того, как истечёт срок старого.</string>
+
+    <string name="cert_summary_none">Сертификата для автомобиля пока нет: нажмите на один из них ниже, чтобы получить его</string>
+    <string name="cert_summary_imported">Импортирован: %1$s</string>
+    <string name="cert_summary_downloaded">Скачан: %1$s</string>
+    <string name="cert_summary_staged">Загружен через adb: %1$s</string>
+    <string name="cert_summary_self_signed">Самоподписанный: %1$s</string>
+
+    <string name="cert_setup_title">Настройка сертификата</string>
+    <string name="cert_setup_intro">Автомобили принимают только сертификаты, выданные Google. В myCar его нет, поэтому выберите, откуда взять ваш.</string>
+    <string name="cert_setup_intro_installed">Автомобили принимают только сертификаты, выданные Google, и у вас такой уже загружен.</string>
+    <string name="cert_setup_imported">Сертификат импортирован.</string>
+    <string name="cert_setup_installed">Сертификат установлен.</string>
+    <string name="cert_setup_continue">Продолжить</string>
+    <string name="cert_setup_download">Скачать из aasdk</string>
+    <string name="cert_setup_download_about">Проект с открытым исходным кодом aasdk публикует этот сертификат на github.com/opencardev/aasdk. Большинство автомобилей его принимают; некоторые выпуска примерно с 2020 года — нет.</string>
+    <string name="cert_setup_downloading">Загрузка…</string>
+    <string name="cert_setup_download_failed">Ошибка загрузки</string>
+    <string name="cert_setup_unknown_error">Неизвестная ошибка</string>
+    <string name="cert_setup_retry">Повторить</string>
+    <string name="cert_setup_import">Импортировать свой файл</string>
+    <string name="cert_setup_import_about">Файл .p12 с закрытым ключом, откуда угодно.</string>
+    <string name="cert_setup_skip">Пропустить настройку подключения к автомобилю</string>
+    <string name="cert_setup_password_title">Пароль сертификата</string>
+    <string name="cert_setup_password">Пароль</string>
+    <string name="cert_setup_password_hint">Оставьте пустым, если у файла нет пароля.</string>
+    <string name="cert_setup_wrong_password">Неверный пароль или это не файл PKCS#12 с закрытым ключом.</string>
+    <string name="cert_setup_import_button">Импортировать</string>
+
+    <string name="update_title">Обновления</string>
+    <string name="update_out">Вышел myCar %1$s</string>
+    <string name="update_downloading">Загрузка… %1$d%%</string>
+    <string name="update_unplug_first">Чтобы установить обновление, отключитесь от автомобиля. Установка закроет myCar.</string>
+    <string name="update_downloaded">Скачано. Android спросит перед установкой.</string>
+    <string name="update_download_now">Скачайте его сейчас. Android спросит перед установкой.</string>
+    <string name="update_install">Установить</string>
+    <string name="update_update">Обновить</string>
+    <string name="update_download">Скачать</string>
+    <string name="update_check_now">Проверить сейчас</string>
+    <string name="update_status_debug">Отладочные сборки проверяют обновления, только когда вы нажимаете «Проверить сейчас»</string>
+    <string name="update_status_daily">myCar проверяет раз в день</string>
+    <string name="update_status_checking">Проверка…</string>
+    <string name="update_status_latest">У вас последняя версия</string>
+    <string name="update_status_available">Вышла версия %1$s</string>
+    <string name="update_status_ready">Версия %1$s готова к установке</string>
+    <string name="update_version_status">Версия %1$s. %2$s.</string>
+    <string name="update_check_automatically">Проверять автоматически</string>
+    <string name="update_once_a_day">Раз в день</string>
+    <string name="update_notification_text">Нажмите, чтобы обновить.</string>
+    <string name="update_car_notification_text">Обновите в приложении myCar или на GitHub</string>
+    <string name="update_error_no_github">Не удалось связаться с GitHub. Проверьте подключение и попробуйте ещё раз.</string>
+    <string name="update_error_no_space">На телефоне недостаточно места для обновления. Освободите место и попробуйте ещё раз.</string>
+    <string name="update_error_stopped">Загрузка остановилась. Проверьте подключение и попробуйте ещё раз.</string>
+    <string name="update_error_installer">Не удалось открыть установщик Android. Попробуйте ещё раз.</string>
+    <string name="update_error_not_sent">GitHub не отдал обновление (код %1$d). Попробуйте позже.</string>
+    <string name="update_error_stopped_early">Загрузка прервалась раньше времени. Попробуйте ещё раз.</string>
+    <string name="update_error_damaged">Скачанный файл повреждён. Попробуйте ещё раз.</string>
+    <string name="update_splash_updated_to">Обновлено до</string>
+    <string name="update_splash_tap">Нажмите где угодно, чтобы продолжить</string>
+    <string name="update_flag_local">100% ЛОКАЛЬНО</string>
+    <string name="update_flag_motto">МЫ ЗАЩИЩАЕМ НАШИ ДАННЫЕ</string>
+    <string name="update_flag_description">Пиратский флаг: 100% локально. Мы защищаем наши данные.</string>
+    <string name="update_ship_description">Пиратский корабль под флагом myCar: 100% локально. Мы защищаем наши данные.</string>
+
+    <string name="whatsnew_title">Что нового</string>
+    <string name="whatsnew_this_version">%1$s (эта версия)</string>
+
+    <string name="recommended_title">Рекомендуемые приложения</string>
+    <string name="recommended_intro">Эти бесплатные приложения работают на экране автомобиля в myCar. Каждая кнопка открывает страницу приложения на GitHub.</string>
+    <string name="recommended_section_maps">Карты</string>
+    <string name="recommended_section_music">Музыка</string>
+    <string name="recommended_section_podcasts">Подкасты</string>
+    <string name="recommended_about_organic_maps">Офлайн-карты и маршруты.</string>
+    <string name="recommended_about_vela">Пошаговая навигация без Google.</string>
+    <string name="recommended_about_youtube_music">Плеер для YouTube Music.</string>
+    <string name="recommended_about_antennapod">Подкасты — с главами и всем остальным.</string>
+    <string name="recommended_installed">Установлено</string>
+
+    <string name="logs_title">Журнал в реальном времени</string>
+    <string name="logs_share">Поделиться</string>
+    <string name="logs_earlier">Прошлые</string>
+    <string name="logs_clear">Очистить</string>
+    <string name="logs_jump_to_latest">К последним записям</string>
+    <string name="logs_empty">Пока ничего не записано. Строки появляются здесь в реальном времени, пока идёт сеанс.</string>
+    <string name="logs_share_subject">Журнал myCar</string>
+    <string name="logs_share_chooser">Поделиться журналом</string>
+    <string name="logs_earlier_title">Прошлые журналы</string>
+    <string name="logs_earlier_empty">Прошлых журналов пока нет. При каждом запуске myCar начинает новый.</string>
+    <string name="logs_crashed">Сбой</string>
+    <string name="logs_size_kb">%1$d КБ</string>
+
+    <string name="preview_title">Предпросмотр экрана автомобиля</string>
+    <string name="preview_size">%1$d×%2$d @ %3$d dpi — касания передаются в интерфейс автомобиля</string>
+    <string name="preview_car_screen">Экран автомобиля</string>
+    <string name="preview_waiting">Ожидание кадра…</string>
+    <string name="preview_leave">Закрыть предпросмотр</string>
+
+    <string name="donate_title">Рады, что поездка удалась</string>
+    <string name="donate_text">myCar бесплатный, без рекламы и слежки. Если он помогает вам в дороге, ваша поддержка помогает проекту жить.</string>
+    <string name="donate_bitcoin">Поддержать через Bitcoin</string>
+    <string name="donate_card">Пожертвовать картой</string>
+</resources>
