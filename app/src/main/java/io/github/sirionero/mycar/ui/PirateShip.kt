@@ -36,11 +36,13 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import io.github.sirionero.mycar.R
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan
@@ -61,6 +63,9 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun PirateShip(key: Any, ink: Color, modifier: Modifier) {
     val measurer = rememberTextMeasurer()
+    val description = stringResource(R.string.update_ship_description)
+    val local = stringResource(R.string.update_flag_local)
+    val motto = stringResource(R.string.update_flag_motto)
     // A light ink is a dark page: the sun becomes the moon, the sea goes deep, the lanterns glow.
     val night = ink.luminance() > 0.5f
     // Seconds since the step opened, up to the end of the arrival; then only the sea's clock runs.
@@ -73,7 +78,7 @@ internal fun PirateShip(key: Any, ink: Color, modifier: Modifier) {
     val clock by sea.animateFloat(0f, LOOP_S, infiniteRepeatable(tween((LOOP_S * 1000).toInt(), easing = LinearEasing)), label = "clock")
     Spacer(
         modifier
-            .semantics { contentDescription = "A pirate ship flying the myCar flag: 100% local. We defend our data." }
+            .semantics { contentDescription = description }
             // One layer, so the edges can fade into the page.
             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
             .drawWithCache {
@@ -81,7 +86,7 @@ internal fun PirateShip(key: Any, ink: Color, modifier: Modifier) {
                 val flagW = (FLAG_W * k).roundToInt().coerceAtLeast(12)
                 val flagH = (flagW / 1.5f).roundToInt().coerceAtLeast(8)
                 val face = ImageBitmap(flagW, flagH)
-                CanvasDrawScope().draw(this, layoutDirection, Canvas(face), Size(flagW.toFloat(), flagH.toFloat())) { drawCloth(measurer) }
+                CanvasDrawScope().draw(this, layoutDirection, Canvas(face), Size(flagW.toFloat(), flagH.toFloat())) { drawCloth(measurer, local, motto) }
                 val hull = hullPath()
                 val sheer = sheerPath()
                 val planks = plankPaths()

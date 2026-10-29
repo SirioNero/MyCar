@@ -19,9 +19,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -100,25 +102,24 @@ internal fun DonateDialog(live: Boolean) {
     AlertDialog(
         onDismissRequest = { DonatePrompt.answer(context, donated = false) },
         icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-        title = { Text("Glad that drive worked") },
+        title = { Text(stringResource(R.string.donate_title)) },
         text = {
             Text(
-                "myCar is free, with no ads and no tracking. If it gets you on the road, your " +
-                    "support keeps it going.",
+                stringResource(R.string.donate_text),
             )
         },
         confirmButton = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { bitcoin = true }, Modifier.fillMaxWidth()) {
-                    Text("Support with Bitcoin")
+                    Text(stringResource(R.string.donate_bitcoin))
                 }
                 if (MyCarLinks.PAYMENT_LINK.isNotEmpty()) {
                     OutlinedButton(onClick = { give(MyCarLinks.PAYMENT_LINK) }, Modifier.fillMaxWidth()) {
-                        Text("Give once by card")
+                        Text(stringResource(R.string.donate_card))
                     }
                 }
                 TextButton(onClick = { DonatePrompt.answer(context, donated = false) }, Modifier.fillMaxWidth()) {
-                    Text("Not now")
+                    Text(stringResource(R.string.common_not_now))
                 }
             }
         },

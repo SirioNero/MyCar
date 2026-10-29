@@ -47,6 +47,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -54,6 +55,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.ScreenProjector
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.TouchPoint
@@ -163,11 +165,11 @@ fun CarPreviewScreen(onBack: () -> Unit) {
             bitmap?.let {
                 Image(
                     it.asImageBitmap(),
-                    contentDescription = "Car screen",
+                    contentDescription = stringResource(R.string.preview_car_screen),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                 )
-            } ?: Text("Waiting for a frame…", color = Color.White)
+            } ?: Text(stringResource(R.string.preview_waiting), color = Color.White)
         }
     }
 
@@ -183,12 +185,12 @@ fun CarPreviewScreen(onBack: () -> Unit) {
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp)) {
             Text(
-                "Car preview",
+                stringResource(R.string.preview_title),
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(vertical = 12.dp),
             )
             Text(
-                "${width}x$height @ ${density}dpi - touches go to the car UI",
+                stringResource(R.string.preview_size, width, height, density),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -196,7 +198,7 @@ fun CarPreviewScreen(onBack: () -> Unit) {
             frameContent(Modifier.padding(vertical = 12.dp).fillMaxWidth())
 
             Row {
-                TextButton(onClick = onBack) { Text("Back") }
+                TextButton(onClick = onBack) { Text(stringResource(R.string.common_back)) }
             }
         }
     }
@@ -245,7 +247,7 @@ private fun Fullscreen(
             onClick = onBack,
             modifier = Modifier.align(Alignment.BottomStart).padding(8.dp),
         ) {
-            Icon(Icons.Filled.Close, contentDescription = "Leave the car preview")
+            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.preview_leave))
         }
     }
 }

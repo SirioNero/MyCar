@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 
 /**
  * A command to run on a computer, shown so it can be copied rather than retyped. Tapping it puts
@@ -24,12 +26,13 @@ import androidx.compose.ui.unit.dp
 fun CopyableCommand(command: String) {
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
+    val copied = stringResource(R.string.help_command_copied)
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHighest,
         shape = MaterialTheme.shapes.small,
         onClick = {
             clipboard.setText(AnnotatedString(command))
-            Toast.makeText(context, "Command copied", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, copied, Toast.LENGTH_SHORT).show()
         },
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
     ) {
@@ -41,7 +44,7 @@ fun CopyableCommand(command: String) {
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Text(
-                "Tap to copy",
+                stringResource(R.string.help_tap_to_copy),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
             )

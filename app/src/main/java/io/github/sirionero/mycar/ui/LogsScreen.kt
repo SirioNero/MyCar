@@ -40,11 +40,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -84,10 +87,10 @@ fun LogsScreen(onBack: () -> Unit) {
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Live logs") },
+                title = { Text(stringResource(R.string.logs_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
             )
@@ -110,17 +113,17 @@ fun LogsScreen(onBack: () -> Unit) {
                         },
                         modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                         contentPadding = LOG_BUTTON_PADDING,
-                    ) { Text("Share") }
+                    ) { Text(stringResource(R.string.logs_share)) }
                     OutlinedButton(
                         onClick = { pastOpen = true },
                         modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                         contentPadding = LOG_BUTTON_PADDING,
-                    ) { Text("Earlier") }
+                    ) { Text(stringResource(R.string.logs_earlier)) }
                     OutlinedButton(
                         onClick = { MyCarLog.clearLive() },
                         modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                         contentPadding = LOG_BUTTON_PADDING,
-                    ) { Text("Clear") }
+                    ) { Text(stringResource(R.string.logs_clear)) }
                 }
             }
         },
@@ -131,13 +134,13 @@ fun LogsScreen(onBack: () -> Unit) {
                         follow = true
                         scope.launch { listState.scrollToItem(lines.size - 1) }
                     },
-                ) { Text("Jump to latest") }
+                ) { Text(stringResource(R.string.logs_jump_to_latest)) }
             }
         },
     ) { padding ->
         if (lines.isEmpty()) {
             Text(
-                "Nothing logged yet. Lines appear here live while a session runs.",
+                stringResource(R.string.logs_empty),
                 modifier = Modifier.padding(padding).padding(24.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -166,10 +169,10 @@ fun LogsScreen(onBack: () -> Unit) {
 private fun shareLog(context: android.content.Context, uri: android.net.Uri) {
     val send = Intent(Intent.ACTION_SEND)
         .setType("text/plain")
-        .putExtra(Intent.EXTRA_SUBJECT, "myCar log")
+        .putExtra(Intent.EXTRA_SUBJECT, Words.get(R.string.logs_share_subject))
         .putExtra(Intent.EXTRA_STREAM, uri)
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    context.startActivity(Intent.createChooser(send, "Share log"))
+    context.startActivity(Intent.createChooser(send, Words.get(R.string.logs_share_chooser)))
 }
 
 /**
@@ -186,12 +189,12 @@ private fun PastLogsDialog(onDismiss: () -> Unit) {
     val format = remember { java.text.SimpleDateFormat("EEE d MMM, h:mm a", java.util.Locale.getDefault()) }
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Earlier logs") },
+        title = { Text(stringResource(R.string.logs_earlier_title)) },
         text = {
             val list = logs
             when {
-                list == null -> Text("Loading…")
-                list.isEmpty() -> Text("No earlier logs yet. Each time myCar starts, it begins a new one.")
+                list == null -> Text(stringResource(R.string.common_loading))
+                list.isEmpty() -> Text(stringResource(R.string.logs_earlier_empty))
                 else -> LazyColumn {
                     itemsIndexed(list) { _, log ->
                         androidx.compose.foundation.layout.Column(
@@ -210,9 +213,9 @@ private fun PastLogsDialog(onDismiss: () -> Unit) {
                         ) {
                             Text(log.started?.let(format::format) ?: log.file.name, style = MaterialTheme.typography.titleMedium)
                             val detail = listOfNotNull(
-                                "Crashed".takeIf { log.crashed },
+                                stringResource(R.string.logs_crashed).takeIf { log.crashed },
                                 log.car,
-                                "${(log.file.length() + 1023) / 1024} KB",
+                                stringResource(R.string.logs_size_kb, (log.file.length() + 1023) / 1024),
                             ).joinToString(" · ")
                             Text(
                                 detail,
@@ -224,7 +227,7 @@ private fun PastLogsDialog(onDismiss: () -> Unit) {
                 }
             }
         },
-        confirmButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text("Close") } },
+        confirmButton = { androidx.compose.material3.TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_close)) } },
     )
 }
 

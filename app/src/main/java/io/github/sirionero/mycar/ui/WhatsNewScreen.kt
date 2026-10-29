@@ -24,10 +24,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.Changelog
+import io.github.sirionero.mycar.R
 
 /** Every release's notes, newest first: the same list the car screen shows after an update. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,10 +39,10 @@ fun WhatsNewScreen(onBack: () -> Unit) {
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("What's new") },
+                title = { Text(stringResource(R.string.whatsnew_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
             )
@@ -58,7 +60,7 @@ fun WhatsNewScreen(onBack: () -> Unit) {
             Changelog.releases.forEach { release ->
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        if (release.versionCode == BuildConfig.VERSION_CODE) "${release.versionName} (this version)" else release.versionName,
+                        if (release.versionCode == BuildConfig.VERSION_CODE) stringResource(R.string.whatsnew_this_version, release.versionName) else release.versionName,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,

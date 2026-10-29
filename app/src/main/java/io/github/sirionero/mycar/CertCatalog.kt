@@ -1,6 +1,7 @@
 package io.github.sirionero.mycar
 
 import android.content.Context
+import androidx.annotation.StringRes
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.security.KeyStore
@@ -30,10 +31,16 @@ object CertCatalog {
         /** For a certificate its source replaces every few months: what each new one must be. */
         val family: Family? = null,
         /** Its place in the phone's list ("Recommended", "Spare"...). */
-        val role: String = "",
+        @StringRes private val roleText: Int = 0,
         /** What it's for, under its name in Settings. */
-        val about: String = "",
-    )
+        @StringRes private val aboutText: Int = 0,
+    ) {
+        /** [roleText] in myCar's language; empty for none. */
+        val role: String get() = if (roleText == 0) "" else Words.get(roleText)
+
+        /** [aboutText] in myCar's language; empty for none. */
+        val about: String get() = if (aboutText == 0) "" else Words.get(aboutText)
+    }
 
     /**
      * A certificate its source replaces every few months, as Android Auto does its own: no fixed
@@ -60,8 +67,8 @@ object CertCatalog {
         certUrls = listOf(AASDK_COMMIT, "main", "newdev").map { "$AASDK/$it/cert/headunit.crt" },
         keyUrls = listOf(AASDK_COMMIT, "main", "newdev").map { "$AASDK/$it/cert/headunit.key" },
         sha256 = "1C0E0EF9E672DD1A63AB4D61AFAA8996A57CA7AA966D1922B97D8F9385EA3C35",
-        role = "Recommended",
-        about = "Works in most cars tried so far. From the aasdk project.",
+        roleText = R.string.cert_role_recommended,
+        aboutText = R.string.cert_about_aasdk,
     )
 
     /** The spare, valid until 2044, for a car that turns down the first. */
@@ -72,8 +79,8 @@ object CertCatalog {
         certUrls = listOf(REVIVED_COMMIT, "main").map { "$REVIVED/$it/app/src/main/res/raw/cert" },
         keyUrls = listOf(REVIVED_COMMIT, "main").map { "$REVIVED/$it/app/src/main/res/raw/privkey" },
         sha256 = "E323CC6DD52D1F2A280360A0E92EFA04AB3664DD68FAB3DD187F03D663FEED6D",
-        role = "Spare",
-        about = "Valid until 2044, for cars that turn down the first one. From the Headunit Revived project.",
+        roleText = R.string.cert_role_spare,
+        aboutText = R.string.cert_about_revived,
     )
 
     /**
@@ -90,9 +97,8 @@ object CertCatalog {
         keyUrls = listOf("main", ARCHIVE_COMMIT).map { "$ARCHIVE/$it/android-auto/latest/private-key.pem" },
         sha256 = null,
         family = Family(organisation = "CarService", rootOrganisation = "Google Automotive Link", rootSha256 = GOOGLE_AUTOMOTIVE_LINK),
-        role = "Newest cars",
-        about = "Android Auto's own, for cars that check phones most strictly, recent Volkswagens among them. " +
-            "Android Auto replaces it every few months: myCar gets the new one before it runs out.",
+        roleText = R.string.cert_role_newest,
+        aboutText = R.string.cert_about_carservice,
     )
 
     /** In the order myCar offers and tries them: the recommended one first. */

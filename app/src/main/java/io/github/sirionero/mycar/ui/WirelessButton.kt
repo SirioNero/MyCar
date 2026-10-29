@@ -34,11 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.wireless.WirelessLink
 
 /**
@@ -85,7 +87,7 @@ internal fun WirelessButton() {
 
     if (denied) {
         Text(
-            "myCar needs Bluetooth and nearby Wi-Fi access for this.",
+            stringResource(R.string.wireless_button_denied),
             style = MaterialTheme.typography.bodyMedium,
         )
         // Once Android stops asking, the only way back is the app's own permission settings.
@@ -98,11 +100,11 @@ internal fun WirelessButton() {
                 }
             },
             modifier = Modifier.padding(bottom = 4.dp),
-        ) { Text("Enable Nearby devices permission") }
+        ) { Text(stringResource(R.string.wireless_button_enable_permission)) }
     }
     if (switchedOff) {
         Text(
-            "myCar is switched off for the car (Settings, \"Use myCar in the car\").",
+            stringResource(R.string.wireless_button_switched_off),
             style = MaterialTheme.typography.bodyMedium,
         )
         TextButton(
@@ -111,7 +113,7 @@ internal fun WirelessButton() {
                 switchedOff = false
             },
             modifier = Modifier.padding(bottom = 4.dp),
-        ) { Text("Turn it on") }
+        ) { Text(stringResource(R.string.wireless_button_turn_on)) }
     }
     Button(
         onClick = {
@@ -127,13 +129,13 @@ internal fun WirelessButton() {
     ) {
         Box(Modifier.size(28.dp)) { WifiIcon(MaterialTheme.colorScheme.onPrimary) }
         Spacer(Modifier.width(12.dp))
-        Text("Connect wirelessly", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.wireless_button_connect), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     }
 
     devices?.let { list ->
         AlertDialog(
             onDismissRequest = { devices = null },
-            title = { Text("Which car?") },
+            title = { Text(stringResource(R.string.wireless_button_which_car)) },
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     if (list.isEmpty()) {
@@ -141,9 +143,9 @@ internal fun WirelessButton() {
                         val off = context.getSystemService(BluetoothManager::class.java)?.adapter?.isEnabled == false
                         Text(
                             if (off) {
-                                "Bluetooth is off. Turn it on, then tap Connect wirelessly again."
+                                stringResource(R.string.wireless_button_bluetooth_off)
                             } else {
-                                "Your phone isn't paired with anything yet. Pair it with the car first."
+                                stringResource(R.string.wireless_button_not_paired)
                             },
                         )
                     }
@@ -163,7 +165,7 @@ internal fun WirelessButton() {
                     // The car has to be paired before it shows up here, and pairing happens in Android's settings.
                     if (list.isNotEmpty()) {
                         Text(
-                            "Car not listed? Pair it with your phone first.",
+                            stringResource(R.string.wireless_button_not_listed),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(top = 8.dp),
@@ -177,9 +179,9 @@ internal fun WirelessButton() {
                     runCatching {
                         context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     }
-                }) { Text("Bluetooth settings") }
+                }) { Text(stringResource(R.string.home_bluetooth_settings)) }
             },
-            confirmButton = { TextButton(onClick = { devices = null }) { Text("Cancel") } },
+            confirmButton = { TextButton(onClick = { devices = null }) { Text(stringResource(R.string.common_cancel)) } },
         )
     }
 }

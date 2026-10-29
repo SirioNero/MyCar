@@ -16,7 +16,9 @@ import androidx.core.graphics.drawable.toBitmap
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.MyCarActivity
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.notify.CarMotion
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
@@ -179,8 +181,8 @@ object UpdateChecker {
                     id = CarNotifications.nextId(),
                     packageName = app.packageName,
                     appLabel = "myCar",
-                    title = "myCar ${release.version} is out",
-                    text = "Update in the myCar app or from GitHub",
+                    title = Words.get(R.string.update_out, release.version),
+                    text = Words.get(R.string.update_car_notification_text),
                     postedAt = System.currentTimeMillis(),
                     icon = runCatching { app.packageManager.getApplicationIcon(app.packageName).toBitmap(96, 96) }.getOrNull(),
                     reply = null,
@@ -203,7 +205,7 @@ object UpdateChecker {
     private fun notify(context: Context, release: Release): Boolean {
         if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return false
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(
-            NotificationChannel(CHANNEL, "Updates", NotificationManager.IMPORTANCE_DEFAULT),
+            NotificationChannel(CHANNEL, Words.get(R.string.update_title), NotificationManager.IMPORTANCE_DEFAULT),
         )
         val open = PendingIntent.getActivity(
             context, NOTIFICATION_ID,
@@ -212,8 +214,8 @@ object UpdateChecker {
         )
         val notification = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentTitle("myCar ${release.version} is out")
-            .setContentText("Tap to update.")
+            .setContentTitle(Words.get(R.string.update_out, release.version))
+            .setContentText(Words.get(R.string.update_notification_text))
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()
@@ -249,7 +251,7 @@ object UpdateChecker {
             MyCarLog.w("update: could not check: ${it.message}")
             // A version found before stays on show: no signal in the garage doesn't take it away.
             savedRelease(app)?.let { found -> State.Available(found) }
-                ?: State.Failed("Couldn't reach GitHub. Check the connection and try again.")
+                ?: State.Failed(Words.get(R.string.update_error_no_github))
         },
     )
 
@@ -262,8 +264,8 @@ object UpdateChecker {
         return when {
             e is IllegalStateException && message.isNotEmpty() -> message
             "ENOSPC" in message || message.contains("no space", ignoreCase = true) ->
-                "Not enough space on the phone for the update. Free some, then try again."
-            else -> "The download stopped. Check the connection, then try again."
+                Words.get(R.string.update_error_no_space)
+            else -> Words.get(R.string.update_error_stopped)
         }
     }
 
@@ -316,7 +318,7 @@ object UpdateChecker {
             )
         }.onFailure {
             MyCarLog.w("update: couldn't open Android's installer: ${it.message}")
-            flow.value = State.Failed("Couldn't open Android's installer. Try again.", ready.release)
+            flow.value = State.Failed(Words.get(R.string.update_error_installer), ready.release)
         }
     }
 
@@ -370,7 +372,7 @@ object UpdateChecker {
             setRequestProperty("User-Agent", "myCar/${BuildConfig.VERSION_NAME}")
         }
         try {
-            if (conn.responseCode !in 200..299) error("GitHub didn't send the update (code ${conn.responseCode}). Try again later.")
+            if (conn.responseCode !in 200..299) error(Words.get(R.string.update_error_not_sent, conn.responseCode))
             val total = release.size.takeIf { it > 0 } ?: conn.contentLengthLong
             val digest = MessageDigest.getInstance("SHA-256")
             var done = 0L
@@ -393,10 +395,10 @@ object UpdateChecker {
                     }
                 }
             }
-            if (release.size > 0 && done != release.size) error("The download stopped early. Try again.")
+            if (release.size > 0 && done != release.size) error(Words.get(R.string.update_error_stopped_early))
             val hex = digest.digest().joinToString("") { "%02x".format(it) }
             if (release.sha256 != null && !hex.equals(release.sha256, ignoreCase = true)) {
-                error("The download came out damaged. Try again.")
+                error(Words.get(R.string.update_error_damaged))
             }
         } finally {
             conn.disconnect()

@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,16 +34,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.update.UpdateChecker
 import io.github.sirionero.mycar.update.UpdateChecker.State
 
-private const val UNPLUG_FIRST = "Unplug from the car to install. Installing closes myCar."
+@StringRes private val UNPLUG_FIRST = R.string.update_unplug_first
 
 /** Shown on Home once a newer version is found; hidden otherwise. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -65,38 +68,38 @@ fun UpdateCard() {
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(Modifier.fillMaxWidth().padding(20.dp)) {
-            Text("myCar ${release.version} is out", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.update_out, release.version), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(4.dp))
             when (val s = state) {
                 is State.Downloading -> {
-                    Text("Downloading… ${(s.fraction * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.update_downloading, (s.fraction * 100).toInt()), style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(12.dp))
                     LinearProgressIndicator(progress = { s.fraction }, modifier = Modifier.fillMaxWidth())
                 }
                 is State.Ready -> {
                     val connected = UpdateChecker.carConnected
                     Text(
-                        if (connected) UNPLUG_FIRST else "Downloaded. Android asks before it installs.",
+                        stringResource(if (connected) UNPLUG_FIRST else R.string.update_downloaded),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(12.dp))
-                    Button(onClick = { UpdateChecker.install(context) }, enabled = !connected) { Text("Install") }
+                    Button(onClick = { UpdateChecker.install(context) }, enabled = !connected) { Text(stringResource(R.string.update_install)) }
                 }
                 else -> {
                     Text(
-                        (s as? State.Failed)?.message ?: "Download it now. Android asks before it installs.",
+                        (s as? State.Failed)?.message ?: stringResource(R.string.update_download_now),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(12.dp))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { UpdateChecker.download(context, release) }) {
-                            Text(if (s is State.Failed) "Try again" else "Update")
+                            Text(stringResource(if (s is State.Failed) R.string.common_retry else R.string.update_update))
                         }
                         if (release.pageUrl.isNotBlank()) {
                             TextButton(onClick = {
                                 // No browser for it must not close myCar, and the car's session with it.
                                 MyCarLinks.open(context, release.pageUrl)
-                            }) { Text("What's new") }
+                            }) { Text(stringResource(R.string.whatsnew_title)) }
                         }
                     }
                 }
@@ -108,13 +111,14 @@ fun UpdateCard() {
 }
 
 /** What the update check found, in a line. */
+@Composable
 private fun statusLine(state: State): String = when (state) {
-    State.Idle -> if (BuildConfig.DEBUG) "Debug builds check only when you tap Check now" else "myCar checks once a day"
-    State.Checking -> "Checking…"
-    State.UpToDate -> "You have the latest version"
-    is State.Available -> "Version ${state.release.version} is out"
-    is State.Downloading -> "Downloading… ${(state.fraction * 100).toInt()}%"
-    is State.Ready -> if (UpdateChecker.carConnected) UNPLUG_FIRST else "Version ${state.release.version} is ready to install"
+    State.Idle -> stringResource(if (BuildConfig.DEBUG) R.string.update_status_debug else R.string.update_status_daily)
+    State.Checking -> stringResource(R.string.update_status_checking)
+    State.UpToDate -> stringResource(R.string.update_status_latest)
+    is State.Available -> stringResource(R.string.update_status_available, state.release.version)
+    is State.Downloading -> stringResource(R.string.update_downloading, (state.fraction * 100).toInt())
+    is State.Ready -> if (UpdateChecker.carConnected) stringResource(UNPLUG_FIRST) else stringResource(R.string.update_status_ready, state.release.version)
     is State.Failed -> state.message
 }
 
@@ -137,7 +141,7 @@ internal fun UpdateRow() {
     var open by remember { mutableStateOf(false) }
     val channelName = CHANNELS.firstOrNull { it.first == channel }?.second
     SettingsRow(
-        "Updates",
+        stringResource(R.string.update_title),
         Modifier.clickable { open = true },
         subtitle = listOfNotNull(channelName, statusLine(state)).joinToString(" · "),
         icon = Icons.Filled.CheckCircle,
@@ -173,20 +177,20 @@ private fun UpdateDialog(
     var auto by remember { mutableStateOf(UpdateChecker.autoCheckEnabled(context)) }
     val action: Pair<String, () -> Unit>? = when (state) {
         State.Checking, is State.Downloading -> null
-        is State.Available -> "Download" to { UpdateChecker.download(context, state.release) }
-        is State.Ready -> if (UpdateChecker.carConnected) null else "Install" to { UpdateChecker.install(context) }
-        is State.Failed -> "Try again" to {
+        is State.Available -> stringResource(R.string.update_download) to { UpdateChecker.download(context, state.release) }
+        is State.Ready -> if (UpdateChecker.carConnected) null else stringResource(R.string.update_install) to { UpdateChecker.install(context) }
+        is State.Failed -> stringResource(R.string.common_retry) to {
             state.release?.let { UpdateChecker.download(context, it) } ?: UpdateChecker.check(context)
         }
-        else -> "Check now" to { UpdateChecker.check(context) }
+        else -> stringResource(R.string.update_check_now) to { UpdateChecker.check(context) }
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Updates") },
+        title = { Text(stringResource(R.string.update_title)) },
         text = {
             Column {
                 Text(
-                    "Version ${BuildConfig.VERSION_NAME}. ${statusLine(state)}.",
+                    stringResource(R.string.update_version_status, BuildConfig.VERSION_NAME, statusLine(state)),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -220,9 +224,9 @@ private fun UpdateDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text("Check automatically", style = MaterialTheme.typography.bodyLarge)
+                        Text(stringResource(R.string.update_check_automatically), style = MaterialTheme.typography.bodyLarge)
                         Text(
-                            if (BuildConfig.DEBUG) "Debug builds check only when you tap Check now" else "Once a day",
+                            stringResource(if (BuildConfig.DEBUG) R.string.update_status_debug else R.string.update_once_a_day),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -234,6 +238,6 @@ private fun UpdateDialog(
         confirmButton = {
             action?.let { (label, run) -> TextButton(onClick = run) { Text(label) } }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Done") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_done)) } },
     )
 }
