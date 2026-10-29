@@ -84,8 +84,12 @@ behind it all — still or moving.
   nearest gas station", "play Daft Punk", "call Mom on mobile", "call back", "read my messages",
   "reply to Anna" or "when do I arrive?". Say "help" for the full list. With the phone in
   Italian, Spanish, French, German or Portuguese, the assistant listens and answers in that
-  language, once the speech model that knows it is on the phone (Settings > Voice).
-  Speech turns into text on the phone, and nothing you say leaves it. Prefer your own
+  language, once the speech model that knows it is on the phone (Settings > Voice). With Home
+  Assistant set up (Plancia), what myCar can't do itself goes to the voice assistant you chose in
+  Home Assistant - Claude, Gemini, ChatGPT, a model at home, or its own, which runs the house - also
+  with the phone locked in your pocket.
+  Speech turns into text on the phone, and nothing you say leaves it, except what goes to your
+  Home Assistant, as text, when it's set up. Prefer your own
   assistant? Choose the phone's — Gemini, Google, Claude, and the rest — and myCar wakes it
   the way the swipe up from a bottom corner of the phone does, rather than in a typed chat.
   With the phone locked, myCar lights it and asks you to unlock it, and the assistant starts

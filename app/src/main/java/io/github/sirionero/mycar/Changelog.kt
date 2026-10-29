@@ -11,6 +11,14 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            35, "0.5.22-alpha",
+            listOf(
+                "With Home Assistant set up on the phone (Settings > Plancia), what the voice assistant can't do itself goes to the voice assistant you chose there: Claude, Gemini, ChatGPT, a model at home, or Home Assistant's own, which runs the house.",
+                "\"Open the gate\", \"what's the date?\", \"and tomorrow?\": it answers in your language, and asks back when it needs to.",
+                "Phone locked with the phone's assistant chosen: myCar listens itself and Home Assistant answers, with nothing to unlock.",
+            ),
+        ),
+        Release(
             34, "0.5.21-alpha",
             listOf(
                 "The voice assistant speaks your phone's language: Italian, Spanish, French, German or Portuguese. It listens, answers and shows its words in it.",
