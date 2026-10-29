@@ -338,7 +338,7 @@ private fun WebPageSetting() {
             )
         }
         Text(
-            "Shown by the Browser app on the launcher. Applies on the next connection.",
+            "Shown by the Browser app from the next time it opens, and by a browser on your pages from the next drive.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
