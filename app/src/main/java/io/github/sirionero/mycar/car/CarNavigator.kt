@@ -54,12 +54,11 @@ data class Crumb(val screen: CarScreen, val label: String)
  */
 class CarNavigator(startId: String) {
 
-    private val stack = mutableStateListOf(
-        Crumb(
-            if (CarApps.find(startId) != null) CarScreen.App(startId) else CarScreen.Home,
-            "Home",
-        ),
-    )
+    // An app opened on connect sits on Home, like one opened from the grid: with it as the root,
+    // its Back and the car's did nothing.
+    private val stack = mutableStateListOf(Crumb(CarScreen.Home, "Home")).apply {
+        CarApps.find(startId)?.let { add(Crumb(CarScreen.App(startId), it.label)) }
+    }
 
     /** The whole trail, root first. Size 1 means "at Home" - the breadcrumb bar hides then. */
     val trail: List<Crumb> get() = stack
@@ -168,6 +167,14 @@ class CarNavigator(startId: String) {
      * tapping a breadcrumb does. Index 0 (Home) is always on the trail, so this always succeeds. */
     fun jumpTo(index: Int) {
         while (stack.size > index + 1) stack.removeAt(stack.lastIndex)
+    }
+
+    /**
+     * Leaves the screen on top, as its Stop or "Close app" does: not a Back, which the screen may
+     * keep for itself (a browser's page, an app's own screen).
+     */
+    fun close() {
+        if (stack.size > 1) stack.removeAt(stack.lastIndex)
     }
 
     /** One step back, same as tapping the crumb before the current one. */

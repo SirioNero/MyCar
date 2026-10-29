@@ -408,7 +408,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
     val template by CarServices.browse.template.collectAsState()
     val leave = {
         CarServices.stopBrowse()
-        navigator.back()
+        navigator.close()
     }
     // An app that never answers is as stuck as one that says no; don't leave the driver on "Loading".
     var timedOut by remember { mutableStateOf(false) }

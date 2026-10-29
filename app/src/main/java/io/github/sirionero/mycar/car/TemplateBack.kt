@@ -63,9 +63,14 @@ internal fun AppBackKey(connection: CarAppConnection, active: Boolean) {
     val arrow = active && template.backAction() != null
     DisposableEffect(connection, arrow) {
         if (!arrow) return@DisposableEffect onDispose { }
+        // Read again when pressed: Stop may have closed the app a moment before this went.
         val back: () -> Boolean = {
-            connection.backPressed()
-            true
+            if (connection.template.value.backAction() != null) {
+                connection.backPressed()
+                true
+            } else {
+                false
+            }
         }
         navigator.backInterceptor = back
         onDispose { if (navigator.backInterceptor === back) navigator.backInterceptor = null }

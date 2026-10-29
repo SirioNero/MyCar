@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Home
@@ -177,7 +179,7 @@ internal fun closeApp(slot: RunningSlot, navigator: CarNavigator) {
         RunningSlot.MEDIA -> CarServices.closeMedia()
         RunningSlot.SCREEN -> Unit
     }
-    if (slot != RunningSlot.NAV && slot.isShowing(navigator.current)) navigator.back()
+    if (slot != RunningSlot.NAV && slot.isShowing(navigator.current)) navigator.close()
 }
 
 /**
@@ -222,7 +224,8 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                     onClick = {},
                 ),
         ) {
-            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Scrolls on a short screen: at Extra large "Close app" and "Cancel" were squashed to nothing.
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     entry.icon?.let { Image(it, null, Modifier.size(44.dp).clip(RoundedCornerShape(10.dp))) }
                     entry.builtIn?.let { Icon(it.glyph, null, Modifier.size(36.dp)) }
