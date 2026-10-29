@@ -639,5 +639,18 @@ setup_phone() {
 }
 setup_phone
 
+# myCar in its other languages (Settings > Language; from Android 13 the same as Android's own
+# language setting for the app, which `cmd locale` sets here): Home with music, the app grid and
+# the car's settings at 1920x720; Home, grid and dashboard at 800x480, where long words have the
+# least room. After the shots that tap English words, and English again at the end.
+LANGS="it es de fr pt el ru zh-CN"
+for lang in $LANGS; do
+    BEFORE="adb shell cmd locale set-app-locales $PKG --locales $lang" EXTRA="--ez demoSong true" \
+        shoot "lang-$lang" 1920 720 240 "$WAIT;$GRID_BUTTON;$(at settings);$WAIT"
+    BEFORE="adb shell cmd locale set-app-locales $PKG --locales $lang" \
+        shoot "lang-$lang-800x480" 800 480 160 "48,436;48,44"
+done
+adb shell cmd locale set-app-locales "$PKG" --locales en-US
+
 # The light theme isn't reachable from here; the dark default is what ships.
 ls -lR previews
