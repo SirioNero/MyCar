@@ -1,0 +1,16 @@
+Xonos
+Use the Xonos app's account
+Its addresses and sign-in, with nothing to type
+Signed in as mycar. Sign in again to change it.
+http://10.0.2.2:8095
+Music Assistant address
+Address away (optional)
+mycar
+Username
+Password
+Sign in
+Remove
+At home: Music Assistant 2.10.8, playing as myCar
+Your Music Assistant library among the car's music apps. With the car audio through myCar, its music goes straight to the car, and Android doesn't ask to share the audio while you listen to it.
+Back
+Settings
