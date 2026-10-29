@@ -119,14 +119,16 @@ object Intro {
      */
     fun due(context: Context): Boolean {
         if (context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_SEEN, null) == release) return false
-        val usedBefore = AppSettings.hasSeenPermissionsSetup(context) ||
-            AppSettings.hasSkippedCertSetup(context) || CertProvider.hasAnyCert(context)
-        if (!usedBefore) {
+        if (!usedBefore(context)) {
             markSeen(context)
             return false
         }
         return true
     }
+
+    /** Whether myCar was set up before: an install that wasn't is new, with nothing "new" to show yet. */
+    internal fun usedBefore(context: Context) = AppSettings.hasSeenPermissionsSetup(context) ||
+        AppSettings.hasSkippedCertSetup(context) || CertProvider.hasAnyCert(context)
 
     fun markSeen(context: Context) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -275,17 +277,14 @@ internal fun Modifier.pop(p: Float) = graphicsLayer {
 @Composable
 private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, height: Dp) {
     val key = IntroStep.WELCOME
-    val spin by rememberInfiniteTransition(label = "spin").animateFloat(
-        0f, 360f, infiniteRepeatable(tween(18_000, easing = LinearEasing)), label = "spin",
-    )
     Box(Modifier.fillMaxSize()) {
-        Cookie(c.primaryC, Modifier.size(cq(120f)).offset(x = cq(28f), y = -cq(22f)).align(Alignment.TopEnd).graphicsLayer { rotationZ = spin; alpha = 0.9f })
-        // Where a band of words used to scroll: a pirate flag flying "100% LOCAL" (see PirateFlag),
-        // as tall as the phone leaves room for above the welcome.
-        val flagHeight = minOf(cq(38f), height * 0.23f)
-        PirateFlag(key, Modifier.align(Alignment.TopStart).padding(start = cq(6f), top = height * 0.025f).size(width = flagHeight * 1.62f, height = flagHeight))
+        // The intro comes with a big release: the pirate ship sails in and runs its flag up the main
+        // mast (see PirateShip), where the flag alone flew at the top before. As big as the phone
+        // leaves room for above the welcome.
+        val shipHeight = minOf(cq(74f), height * 0.5f)
+        PirateShip(key, c.onSurface, Modifier.align(Alignment.TopCenter).size(width = shipHeight / 0.74f, height = shipHeight))
 
-        Column(Modifier.align(Alignment.CenterStart).padding(horizontal = cq(8f))) {
+        Column(Modifier.align(Alignment.BottomStart).padding(horizontal = cq(8f)).padding(bottom = height * 0.06f)) {
             Text("Welcome to", color = c.onVariant, style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.up(entrance(key, 100), cq(7f)))
             Text(
@@ -301,7 +300,8 @@ private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit
             )
         }
 
-        Confetti(c, key, Modifier.fillMaxSize())
+        // Thrown from behind the version number, under the ship.
+        Confetti(c, key, Modifier.align(Alignment.BottomStart).fillMaxWidth().height(height * 0.46f))
     }
 }
 
