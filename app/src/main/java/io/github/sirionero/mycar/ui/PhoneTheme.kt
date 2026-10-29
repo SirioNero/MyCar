@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -119,9 +120,11 @@ internal fun phoneDark(): Boolean = MaterialTheme.colorScheme.background.luminan
  * on a dark phone would otherwise get white icons on white.
  */
 @Composable
-internal fun SystemBarsFor(theme: PhoneTheme, dark: Boolean) {
+internal fun SystemBarsFor(theme: PhoneTheme, dark: Boolean, background: Color) {
     val activity = LocalContext.current.findActivity() ?: return
-    LaunchedEffect(theme, dark) {
+    LaunchedEffect(theme, dark, background) {
+        // What shows wherever nothing is drawn yet (opening, between screens): the theme's colour.
+        activity.window.decorView.setBackgroundColor(background.toArgb())
         if (theme == PhoneTheme.PHONE) {
             activity.enableEdgeToEdge()
         } else {

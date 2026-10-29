@@ -14,6 +14,6 @@ fun MyCarTheme(content: @Composable () -> Unit) {
     val theme by PhoneThemes.current(context).collectAsState()
     val chosen = theme ?: PhoneTheme.PHONE
     val scheme = phoneColors(chosen)
-    SystemBarsFor(chosen, scheme.background.luminance() < 0.5f)
+    SystemBarsFor(chosen, scheme.background.luminance() < 0.5f, scheme.background)
     MaterialTheme(colorScheme = scheme, content = content)
 }

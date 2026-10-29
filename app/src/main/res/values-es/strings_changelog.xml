@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_37">
+        <item>En el teléfono, la franja bajo la barra de estado también toma el color del tema, con Claro, Oscuro, Negro y Monokai.</item>
+    </string-array>
     <string-array name="changelog_36">
         <item>myCar habla tu idioma, en el teléfono y en la pantalla del coche: español, inglés, italiano, alemán, francés, portugués, griego, ruso o chino.</item>
         <item>Sigue el idioma del teléfono; para elegir otro, Ajustes &gt; Idioma en el teléfono.</item>

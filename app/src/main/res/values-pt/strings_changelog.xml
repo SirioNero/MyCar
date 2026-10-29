@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_37">
+        <item>No telefone, a faixa sob a barra de status também fica com a cor do tema, com Claro, Escuro, Preto e Monokai.</item>
+    </string-array>
     <string-array name="changelog_36">
         <item>O myCar fala o seu idioma, no telefone e na tela do carro: português, inglês, italiano, espanhol, alemão, francês, grego, russo ou chinês.</item>
         <item>Ele segue o idioma do telefone; para escolher outro, Configurações &gt; Idioma no telefone.</item>
