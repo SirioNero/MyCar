@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The car's screen: its Settings, the media player and its browse screens, Vehicle data, the
+  browser, the keyboard, What's new and Screen sharing. Everything here shows on a car's display,
+  read at a glance: keep buttons and tabs short.
+-->
+<resources>
+    <!-- Settings on the car's screen (car/CarSettingsScreen.kt). Row titles, then the choices under them. -->
+    <string name="car_settings_open_on_connect">Open on connect</string>
+    <!-- A choice under "Open on connect": myCar's Home screen; the other choices are app names -->
+    <string name="car_settings_open_home">Home</string>
+    <!-- How big everything on the car's screen is drawn -->
+    <string name="car_settings_size">Size</string>
+    <string name="car_settings_size_extra_small">Extra small</string>
+    <string name="car_settings_size_small">Small</string>
+    <string name="car_settings_size_normal">Normal</string>
+    <string name="car_settings_size_large">Large</string>
+    <string name="car_settings_size_extra_large">Extra large</string>
+    <!-- The car screen's colours: as the phone, always light or always dark -->
+    <string name="car_settings_app_theme">App theme</string>
+    <string name="car_settings_app_theme_phone">Follow phone</string>
+    <string name="car_settings_app_theme_light">Light</string>
+    <string name="car_settings_app_theme_dark">Dark</string>
+    <!-- The style the buttons are drawn in; its choices are names (myCar, Flat, Tactile, Keycap) -->
+    <string name="car_settings_controls_theme">Theme</string>
+    <!-- Whether the map is drawn for day or night -->
+    <string name="car_settings_map_day_night">Map day/night</string>
+    <!-- A choice under "Map day/night": from the light outside -->
+    <string name="car_settings_map_auto">Auto</string>
+    <string name="car_settings_map_day">Day</string>
+    <string name="car_settings_map_night">Night</string>
+    <!-- Units for distances and temperatures -->
+    <string name="car_settings_units">Units</string>
+    <!-- A choice under "Units": by the phone's region -->
+    <string name="car_settings_units_auto">Auto</string>
+    <string name="car_settings_units_imperial">Imperial (mi, ft, °F)</string>
+    <string name="car_settings_units_metric">Metric (km, m, °C)</string>
+    <!-- Whether the music starts by itself when the car connects -->
+    <string name="car_settings_autoplay">Autoplay on connect</string>
+    <!-- How the phone's sound reaches the car. The choices: Automatic, Bluetooth (a name), Through myCar -->
+    <string name="car_settings_car_audio">Car audio</string>
+    <string name="car_settings_car_audio_auto">Automatic</string>
+    <!-- The sound is sent over myCar's own link to the car (cable or Wi-Fi) -->
+    <string name="car_settings_car_audio_through_mycar">Through myCar</string>
+    <!-- Under "Car audio". "Through myCar" and "Automatic" are the choices above: the same words as there -->
+    <string name="car_settings_car_audio_note">Through myCar sends the phone\'s sound over myCar\'s own link, the cable or Wi-Fi, as Android Auto does. Android asks to share your screen each drive, and a few apps block it. Bluetooth plays as the phone normally would, and Android never asks, but some cars only take calls over it. Automatic uses Bluetooth when the car takes the phone\'s music that way, and myCar\'s link when it doesn\'t.</string>
+    <string name="car_settings_bluetooth_warning">Warn when Bluetooth isn\'t connected</string>
+    <string name="car_settings_location_warning">Warn when location is off</string>
+    <!-- myCar reads the map app's turns aloud -->
+    <string name="car_settings_spoken_directions">Spoken directions</string>
+    <string name="car_settings_spoken_directions_note">myCar reads each turn aloud through the car\'s speakers, and the music dips while it speaks. Turn it off if your map app\'s own voice already plays in the car.</string>
+    <!-- A switch: the voice assistant listens with the phone's speech service -->
+    <string name="car_settings_system_speech">Use the phone\'s speech recognition</string>
+    <string name="car_settings_system_speech_note">Listens through the phone\'s own speech service instead of myCar\'s. On most phones that\'s Google\'s, which may send your voice to Google. GrapheneOS has none, so myCar keeps using its own.</string>
+    <!-- Choices Hide and Show: whether the experimental features are listed -->
+    <string name="car_settings_experimental">Experimental features</string>
+    <string name="car_settings_experimental_hide">Hide</string>
+    <string name="car_settings_experimental_show">Show</string>
+    <!-- Under the Vehicle data switch. "Vehicle data" is the screen's name (car_vehicle_title) -->
+    <string name="car_settings_vehicle_data_note">Adds a Vehicle data tile: a live, raw dump of the head unit\'s sensor channel. Field labels (speed, RPM, fuel...) are carried over from other reverse-engineering projects and unverified against this car - treat them as a guess, not a fact, until you\'ve watched one change for yourself.</string>
+    <!-- A section: what myCar is connected to. Then a label and its value on each line -->
+    <string name="car_settings_connection">Connection</string>
+    <string name="car_settings_info_phone">Phone</string>
+    <string name="car_settings_info_vehicle">Vehicle</string>
+    <!-- The video sent to the car: its size and density -->
+    <string name="car_settings_info_video">Video</string>
+    <string name="car_settings_info_certificate">Certificate</string>
+    <!-- Shown as the certificate's value while it is read -->
+    <string name="car_settings_checking">Checking…</string>
+    <!-- Shown as the vehicle's name when myCar has no profile for this car -->
+    <string name="car_settings_unknown_vehicle">Unknown vehicle</string>
+    <!-- A section: myCar's version -->
+    <string name="car_settings_about">About</string>
+    <string name="car_settings_version">Version</string>
+    <!-- The build number -->
+    <string name="car_settings_build">Build</string>
+    <!-- A switch: the list of changes shows by itself after an update -->
+    <string name="car_settings_whats_new_after_updates">What\'s new after updates</string>
+    <string name="car_settings_whats_new_after_updates_note">Show the list of changes once, the first time the car connects after an update.</string>
+    <!-- Button: opens the list of changes in this version -->
+    <string name="car_settings_whats_new">What\'s new</string>
+    <!-- The page the Browser opens with -->
+    <string name="car_settings_web_page">Web page</string>
+    <!-- Shown in place of the page's address while none is set -->
+    <string name="car_settings_web_page_default">DuckDuckGo (default) - tap to set a different page</string>
+    <string name="car_settings_web_page_note">Shown by the Browser app from the next time it opens, and by a browser on your pages from the next drive.</string>
+    <!-- How much of the car's screen myCar leaves empty at the top and bottom, set by hand -->
+    <string name="car_settings_screen_fit">Screen fit</string>
+    <string name="car_settings_fit_top">Top</string>
+    <string name="car_settings_fit_bottom">Bottom</string>
+    <!-- %1$d: the height myCar draws in, in pixels; %2$d: the screen's whole height -->
+    <string name="car_settings_usable_height">Usable height %1$dpx of %2$d</string>
+    <!-- %1$d: a number of pixels -->
+    <string name="car_settings_pixels">%1$dpx</string>
+    <!-- %1$s: the vehicle's name -->
+    <string name="car_settings_saved_to">Saved to %1$s</string>
+    <string name="car_settings_save_failed">Could not save</string>
+    <!-- Button: keeps the screen fit for this car -->
+    <string name="car_settings_save_for_vehicle">Save for this vehicle</string>
+    <!-- The same button, unusable: myCar doesn't know this car -->
+    <string name="car_settings_no_vehicle_profile">No vehicle profile matched</string>
+
+    <!-- What's new, a card over the car's screen after an update (car/CarWhatsNew.kt) -->
+    <!-- %1$s: the version, as 0.5.18-alpha -->
+    <string name="car_whatsnew_title">What\'s new in %1$s</string>
+    <!-- Next to a switch: the card shows by itself after each update -->
+    <string name="car_whatsnew_show_after_updates">Show after updates</string>
+    <!-- Button: closes the card -->
+    <string name="car_whatsnew_got_it">Got it</string>
+
+    <!-- The car's own keyboard (car/CarKeyboard.kt). Key labels: short, lowercase like the letters -->
+    <string name="car_keyboard_shift">shift</string>
+    <!-- The shift key while the next letter will be a capital -->
+    <string name="car_keyboard_shift_on">SHIFT</string>
+    <string name="car_keyboard_space">space</string>
+    <!-- Descriptions of keys drawn as icons, read by accessibility services -->
+    <string name="car_keyboard_hide">Hide keyboard</string>
+    <string name="car_keyboard_submit">Submit</string>
+
+    <!-- The player's buttons, drawn as icons: what each one does, read by accessibility services -->
+    <string name="car_player_previous">Previous</string>
+    <string name="car_player_play">Play</string>
+    <string name="car_player_pause">Pause</string>
+    <!-- Skips to the next song -->
+    <string name="car_player_next">Next</string>
+    <string name="car_player_like">Like</string>
+    <string name="car_player_unlike">Unlike</string>
+    <!-- Turns shuffle on (it is off now) -->
+    <string name="car_player_shuffle_on">Shuffle on</string>
+    <!-- Turns shuffle off (it is on now) -->
+    <string name="car_player_shuffle_off">Shuffle off</string>
+    <string name="car_player_repeat">Repeat</string>
+    <!-- The song's lyrics: a tab of the media screen, and the button beside the map that shows them -->
+    <string name="car_player_lyrics">Lyrics</string>
+    <!-- Button on the player beside the map -->
+    <string name="car_player_close">Close the player</string>
+
+    <!-- A music app on the car's screen (car/MediaScreen.kt). The tabs: keep them short -->
+    <string name="car_media_tab_now_playing">Now playing</string>
+    <string name="car_media_tab_browse">Browse</string>
+    <!-- The songs queued after the one playing -->
+    <string name="car_media_tab_queue">Up next</string>
+    <!-- In place of the song's title when nothing plays -->
+    <string name="car_media_nothing_playing">Nothing playing</string>
+    <!-- Button: back to the folder above, while browsing -->
+    <string name="car_media_up">Up</string>
+    <!-- %1$s in these: the music app's name. While myCar connects to the app -->
+    <string name="car_media_connecting">Connecting to %1$s…</string>
+    <!-- The app doesn't let myCar see its library -->
+    <string name="car_media_library_closed">%1$s keeps its library to itself.</string>
+    <!-- Under car_media_library_closed, when myCar needs Notification access to control the app. The path is the phone's settings -->
+    <string name="car_media_needs_notification_access">myCar can still control it once it has Notification access on the phone. Allow it under Settings > Notifications > Notification access.</string>
+    <!-- Under car_media_library_closed, on the Browse tab -->
+    <string name="car_media_library_closed_detail">Start music in the app on your phone. Play, pause, skip and seek work from here.</string>
+    <!-- Button: opens the phone's settings for Notification access -->
+    <string name="car_media_open_on_phone">Open on phone</string>
+    <string name="car_media_not_running">%1$s isn\'t running.</string>
+    <string name="car_media_not_running_detail">%1$s plays through myCar\'s own player, but only while it\'s open on the phone. Open it once and it keeps playing here in the car.</string>
+    <!-- Button: opens the app on the phone -->
+    <string name="car_media_open_app">Open %1$s</string>
+    <string name="car_media_refused">%1$s would not let myCar browse it.</string>
+    <string name="car_media_refused_detail">Some media apps only accept Google\'s own host. Open it on the phone and myCar can still play, pause and skip it.</string>
+    <!-- The app closed (or crashed) on the phone twice -->
+    <string name="car_media_keeps_closing">%1$s keeps closing on the phone.</string>
+    <string name="car_media_keeps_closing_detail">It closed twice in a minute, so myCar stopped reconnecting to it.</string>
+    <string name="car_media_list_failed">Could not load this list.</string>
+    <string name="car_media_list_empty">Nothing here.</string>
+    <!-- The Up next tab with nothing in it, then one of the two lines under it -->
+    <string name="car_media_queue_empty">Nothing queued.</string>
+    <string name="car_media_queue_empty_idle">Nothing playing - not every app tells myCar what comes next.</string>
+    <string name="car_media_queue_empty_playing">Only what\'s already playing - not every app tells myCar what comes next.</string>
+    <!-- Searching the music app. %1$s: the app's name. Hint of the search field, and the search button -->
+    <string name="car_media_search_app">Search %1$s</string>
+    <string name="car_media_search_hint">Type a song, artist, album, or playlist.</string>
+    <!-- "search" is the keyboard's search key -->
+    <string name="car_media_search_no_list">%1$s can\'t list results. Press search, and %1$s picks what to play.</string>
+    <string name="car_media_search_unsupported">%1$s can\'t search from the car.</string>
+    <string name="car_media_searching">Searching %1$s…</string>
+    <!-- %1$s: the app's name; %2$s: what the driver typed -->
+    <string name="car_media_search_nothing">%1$s found nothing for \"%2$s\".</string>
+    <!-- Button: the app plays its own best match for what was typed -->
+    <string name="car_media_search_ask">Ask %1$s to play it</string>
+    <!-- %1$s: the app's name; %2$s: what was searched -->
+    <string name="car_media_search_running">Searching %1$s for \"%2$s\"…</string>
+    <string name="car_media_search_ignored">%1$s didn\'t play anything for \"%2$s\".</string>
+
+    <!-- Lyrics, on the media screen and beside the map. They come from lrclib.net (a name) -->
+    <string name="car_lyrics_looking">Looking for lyrics…</string>
+    <string name="car_lyrics_nothing_playing">Nothing playing.</string>
+    <string name="car_lyrics_none">No lyrics found for this track.</string>
+    <string name="car_lyrics_unreachable">Couldn\'t reach the lyrics.</string>
+    <string name="car_lyrics_unreachable_detail">They come from lrclib.net: check the phone\'s connection.</string>
+
+    <!-- Vehicle data, an experimental screen: the car's sensors, raw (car/VehicleDataScreen.kt) -->
+    <string name="car_vehicle_title">Vehicle data</string>
+    <string name="car_vehicle_intro">Raw sensor channel from the connected head unit. Field meaning is a best guess - watch a row change while you do the thing (brake, drive, headlights) to confirm it.</string>
+    <string name="car_vehicle_none">No sensor service advertised by this head unit, or not connected.</string>
+    <!-- In place of a sensor's data until the car sends some -->
+    <string name="car_sensor_waiting">(waiting for data)</string>
+    <!-- A sensor's name and its number in the car's protocol: %1$s the name, %2$d the number -->
+    <string name="car_sensor_named">%1$s (#%2$d)</string>
+    <!-- A sensor with no known name. %1$d: its number in the car's protocol -->
+    <string name="car_sensor_numbered">Sensor #%1$d</string>
+    <!-- The sensors' names -->
+    <string name="car_sensor_location">Location (GPS)</string>
+    <string name="car_sensor_compass">Compass</string>
+    <string name="car_sensor_speed">Speed</string>
+    <!-- Engine revolutions per minute -->
+    <string name="car_sensor_rpm">RPM</string>
+    <string name="car_sensor_odometer">Odometer</string>
+    <string name="car_sensor_fuel">Fuel</string>
+    <string name="car_sensor_parking_brake">Parking brake</string>
+    <string name="car_sensor_gear">Gear</string>
+    <string name="car_sensor_diagnostics">Diagnostics</string>
+    <string name="car_sensor_night_mode">Night mode</string>
+    <string name="car_sensor_environment">Environment</string>
+    <!-- Heating, ventilation and air conditioning -->
+    <string name="car_sensor_hvac">HVAC</string>
+    <string name="car_sensor_driving_status">Driving status</string>
+    <string name="car_sensor_dead_reckoning">Dead reckoned location</string>
+    <string name="car_sensor_passenger">Passenger</string>
+    <string name="car_sensor_door">Door</string>
+    <string name="car_sensor_light">Light</string>
+    <string name="car_sensor_tire_pressure">Tire pressure</string>
+    <string name="car_sensor_accelerometer">Accelerometer</string>
+    <string name="car_sensor_gyroscope">Gyroscope</string>
+    <string name="car_sensor_gps_satellites">GPS satellites</string>
+    <string name="car_sensor_toll_card">Toll card</string>
+
+    <!-- Screen sharing: a phone app shown on the car's screen (car/PhoneAppsScreen.kt) -->
+    <string name="car_phone_apps_title">Screen sharing</string>
+    <!-- The path is the phone's settings -->
+    <string name="car_phone_apps_touch_off">Touch is off. Enable myCar under Settings > Accessibility on the phone.</string>
+
+    <!-- The browser on the car's screen (car/WebApp.kt, car/WebSelect.kt) -->
+    <string name="car_web_title">Browser</string>
+    <!-- Heading of the page shown in place of one at home that Android keeps myCar from -->
+    <string name="car_web_home_network">This page is on your home network</string>
+    <!-- Title of a page's dropdown list when the page gives it none -->
+    <string name="car_web_select_title">Choose</string>
+    <!-- The tick next to the option chosen, read by accessibility services -->
+    <string name="car_web_select_chosen">Chosen</string>
+</resources>

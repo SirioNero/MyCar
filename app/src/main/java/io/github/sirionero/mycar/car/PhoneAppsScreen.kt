@@ -25,12 +25,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.mirror.PhoneApp
 import io.github.sirionero.mycar.mirror.PhoneApps
 import io.github.sirionero.mycar.mirror.PhoneMirror
@@ -53,7 +55,7 @@ fun PhoneAppsScreen() {
     }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 12.dp)) {
-        ScreenHeader("Screen sharing")
+        ScreenHeader(stringResource(R.string.car_phone_apps_title))
         Spacer(Modifier.height(12.dp))
         if (!TouchRelayService.enabled) {
             TouchRelayWarning()
@@ -94,11 +96,11 @@ private fun TouchRelayWarning() {
         ) {
             Icon(Icons.Filled.Warning, contentDescription = null)
             Text(
-                "Touch is off. Enable myCar under Settings > Accessibility on the phone.",
+                stringResource(R.string.car_phone_apps_touch_off),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
-            GsButton(onClick = { PhoneApps.openAccessibilitySettings(context) }) { Text("Open") }
+            GsButton(onClick = { PhoneApps.openAccessibilitySettings(context) }) { Text(stringResource(R.string.common_open)) }
         }
     }
 }
