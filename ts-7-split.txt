@@ -1,0 +1,19 @@
+Apps you select will access the internet without using Tailscale.
+Excluded apps (2)
+Ad Privacy
+com.google.android.adservices.api
+Android Accessibility Suite
+com.google.android.marvin.talkback
+Android Auto
+com.google.android.projection.gearhead
+Android Services Library
+com.google.android.ext.services
+Android Switch
+com.google.android.apps.restore
+Android System
+android
+Android System WebView
+com.google.android.webview
+Go back to the previous screen
+App split tunneling
+menu

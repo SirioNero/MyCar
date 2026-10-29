@@ -1,0 +1,8 @@
+06:53:35.965 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261029-065335.log
+06:53:35.969 I APP   myCar ready
+06:53:36.262 I APP   plancia: took the Plancia app's Home Assistant account
+06:53:36.518 I APP   prefetch done in 532ms
+06:53:36.884 I APP   xonos: took the Xonos app's Music Assistant account
+06:54:13.642 I BRIDGE bound to the Plancia app's bridge
+06:54:41.415 I APP   xonos: took the Xonos app's Music Assistant account
+06:54:41.497 I BRIDGE bound to the Xonos app's bridge

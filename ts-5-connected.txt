@@ -1,0 +1,12 @@
+Settings
+10.0.2.2
+Connected
+EXIT NODE
+None
+Search
+Search...
+sdk-gphone64-x86-64
+100.64.0.2
+umbrel
+100.64.0.1
+driver

@@ -1,0 +1,18 @@
+com.android.localtransport
+com.android.ondevicepersonalization.services.OnDevicePersonalizationApplication
+com.google.android.ondevicepersonalization.services
+com.android.ons
+com.android.ons
+com.android.providers.media
+com.android.providers.media
+com.google.android.federatedcompute
+com.google.android.federatedcompute
+com.google.android.sdksandbox
+com.google.android.sdksandbox
+license checker
+com.android.vending
+myCar
+io.github.sirionero.mycar
+Go back to the previous screen
+App split tunneling
+menu

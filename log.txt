@@ -1,0 +1,14 @@
+--------- beginning of main
+10-29 06:53:35.954  6434  6434 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261029-065335.log
+10-29 06:53:35.969  6434  6434 I myCar   : myCar ready
+10-29 06:53:36.253  6462  6474 I Plancia : Account passato a io.github.sirionero.mycar
+10-29 06:53:36.262  6434  6458 I myCar   : plancia: took the Plancia app's Home Assistant account
+10-29 06:53:36.517  6434  6461 I myCar   : prefetch done in 532ms
+10-29 06:53:36.881  6489  6499 I Xonos   : Account passato a io.github.sirionero.mycar
+10-29 06:53:36.884  6434  6460 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-29 06:54:13.642  6434  6434 I myCar   : bound to the Plancia app's bridge
+10-29 06:54:13.682  6462  6699 I Plancia : Ponte per io.github.sirionero.mycar verso umbrel:8123
+10-29 06:54:41.412  6489  6502 I Xonos   : Account passato a io.github.sirionero.mycar
+10-29 06:54:41.415  6434  6458 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-29 06:54:41.497  6434  6434 I myCar   : bound to the Xonos app's bridge
+10-29 06:54:41.519  6489  6770 I Xonos   : Ponte per io.github.sirionero.mycar verso umbrel:8095
