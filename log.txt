@@ -1,0 +1,11 @@
+--------- beginning of main
+10-29 06:49:57.955  4549  4549 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261029-064957.log
+10-29 06:49:57.959  4549  4549 I myCar   : myCar ready
+10-29 06:49:58.346  4581  4603 I Plancia : Account passato a io.github.sirionero.mycar
+10-29 06:49:58.348  4549  4577 I myCar   : plancia: took the Plancia app's Home Assistant account
+10-29 06:50:00.159  4549  4580 I myCar   : prefetch done in 2166ms
+10-29 06:50:00.340  4629  4637 I Xonos   : Account passato a io.github.sirionero.mycar
+10-29 06:50:00.348  4549  4578 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-29 06:50:12.179  4549  4639 I myCar   : weather: loaded
+10-29 06:51:06.670  4629  4641 I Xonos   : Account passato a io.github.sirionero.mycar
+10-29 06:51:06.671  4549  4624 I myCar   : xonos: took the Xonos app's Music Assistant account

@@ -1,0 +1,400 @@
+10-29 06:49:54.941  1768  1975 I LPRequestState: (REDACTED) [%s] #resolveDesiredLanguagePacks
+10-29 06:49:55.060  4447  4447 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:49:55.075  4447  4447 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:49:55.106  1768  1977 I LPRequestState: (REDACTED) [%s] #resolveUnusedLanguagePacks
+10-29 06:49:55.106  1768  1977 I LPRequestState: (REDACTED) [%s] #resolveDesiredLanguagePacks
+10-29 06:49:55.313   457  4477 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 10105 0}
+10-29 06:49:55.314   457  4478 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:49:55.314   457  4479 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:49:55.314   457  4478 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b850b90
+10-29 06:49:55.314   457  4478 I resolv  : doQuery: rcode=0, ancount=8, return value=257
+10-29 06:49:55.314   457  4479 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b852c90
+10-29 06:49:55.314   457  4479 I resolv  : doQuery: rcode=0, ancount=8, return value=161
+10-29 06:49:55.668  1768  1975 I LPRequestState: (REDACTED) [%s] #resolveDesiredLanguagePacks
+10-29 06:49:55.748  1768  1975 I LPRequestState: (REDACTED) [%s] #resolveUnusedLanguagePacks
+10-29 06:49:55.749  1768  1975 I LPRequestState: (REDACTED) [%s] #resolveDesiredLanguagePacks
+10-29 06:49:56.025   457  4504 I resolv  : GetAddrInfoHandler::run: {100 262244 100 983140 10146 0}
+10-29 06:49:56.026   457  4505 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:49:56.026   457  4506 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:49:56.026   457  4506 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b84fc70
+10-29 06:49:56.026   457  4506 I resolv  : doQuery: rcode=0, ancount=8, return value=170
+10-29 06:49:56.026   457  4505 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b850d50
+10-29 06:49:56.026   457  4505 I resolv  : doQuery: rcode=0, ancount=8, return value=266
+10-29 06:49:56.213  4447  4447 D AndroidRuntime: Shutting down VM
+10-29 06:49:57.159   661  1524 I ActivityManager: Force stopping it.plancia.ha appid=10217 user=0: from pid 4529
+10-29 06:49:57.174   661  1524 I ActivityManager: Killing 3541:it.plancia.ha/u0a217 (adj 0): stop it.plancia.ha due to from pid 4529
+10-29 06:49:57.181   661  1524 W ActivityTaskManager: Force removing ActivityRecord{56738362 u0 it.plancia.ha/.phone.SettingsActivity t11 f}}: app died, no saved state
+10-29 06:49:57.204   661  1524 I AppsFilter: interaction: PackageSetting{194f774 com.android.microdroid.empty_payload/10194} -> PackageSetting{b39059a it.plancia.ha/10217} BLOCKED
+10-29 06:49:57.210  1035  1118 V WindowManagerShell: Transition requested (#17): android.os.BinderProxy@3816a88 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=11 effectiveUid=10217 displayId=0 isRunning=false baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} numActivities=0 lastActiveTime=87586 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@9bffc21} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=true lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 0, 0) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=undefined}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 17 }
+10-29 06:49:57.252   661   690 W ActivityTaskManager: Unable to send transaction to client proc it.plancia.ha: no app thread
+10-29 06:49:57.265   661  2235 I WindowManager: WIN DEATH: Window{72f74fc u0 it.plancia.ha/it.plancia.ha.phone.SettingsActivity}
+10-29 06:49:57.271   661  1980 I ImeTracker: it.plancia.ha:c38e66b5: onRequestHide at ORIGIN_SERVER reason HIDE_REMOVE_CLIENT fromUser false
+10-29 06:49:57.271   661  1980 I ImeTracker: it.plancia.ha:c38e66b5: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-29 06:49:57.296   661   686 V WindowManager: Sent Transition (#17) createdAt=10-29 06:49:57.181 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=11 effectiveUid=10217 displayId=0 isRunning=false baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=it.plancia.ha/.phone.SettingsActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{it.plancia.ha/it.plancia.ha.phone.SettingsActivity} numActivities=0 lastActiveTime=87586 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{17373f3 Task{ca98eeb #11 type=standard A=10217:it.plancia.ha}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=true lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= false isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 0, 0) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=undefined}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 17 }
+10-29 06:49:57.301   661   686 V WindowManager:         {WCT{RemoteToken{17373f3 Task{ca98eeb #11 type=standard A=10217:it.plancia.ha}}} m=CLOSE f=NONE leash=Surface(name=Task=11)/@0x98bfc44 sb=Rect(0, 0 - 1080, 1920) eb=Rect(0, 0 - 1080, 1920) epz=Point(1080, 1920) d=0 taskParent=-1},
+10-29 06:49:57.355   661  1903 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x4 cmp=io.github.sirionero.mycar/.MyCarActivity} with LAUNCH_SINGLE_TOP from uid 0 (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+10-29 06:49:57.379   661   680 I AppsFilter: interaction: PackageSetting{194f774 com.android.microdroid.empty_payload/10194} -> PackageSetting{b95dbe4 io.github.sirionero.mycar/10216} BLOCKED
+10-29 06:49:57.414  1212  1212 D CarrierSvcBindHelper: onHandleForceStop: [it.plancia.ha]
+10-29 06:49:57.429   661  1093 V ActivityManager: Got obituary of 3541:it.plancia.ha
+10-29 06:49:57.464   661  1980 W WindowManager: Exception thrown during dispatchAppVisibility Window{72f74fc u0 it.plancia.ha/it.plancia.ha.phone.SettingsActivity EXITING}
+10-29 06:49:57.473  1035  1118 V WindowManagerShell: Transition requested (#18): android.os.BinderProxy@ea885b8 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=12 effectiveUid=10216 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=io.github.sirionero.mycar/.MyCarActivity } baseActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} topActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} origActivity=null realActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} numActivities=1 lastActiveTime=120037 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@acf2f91} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{5db9ef6 io.github.sirionero.mycar.MyCarActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 1920) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 18 }
+10-29 06:49:57.513   661   978 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10217 package it.plancia.ha isStopped true
+10-29 06:49:57.525   661   696 I ActivityManager: Start proc 4549:io.github.sirionero.mycar/u0a216 for next-top-activity {io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}
+10-29 06:49:57.541   661   978 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10216 package io.github.sirionero.mycar isStopped false
+10-29 06:49:57.557  4549  4549 I sirionero.mycar: Using CollectorTypeCMC GC.
+10-29 06:49:57.557  4549  4549 W sirionero.mycar: Unexpected CPU variant for x86: x86_64.
+10-29 06:49:57.557  4549  4549 W sirionero.mycar: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-29 06:49:57.724   661   686 V WindowManager: Sent Transition (#18) createdAt=10-29 06:49:57.329 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=12 effectiveUid=10216 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=io.github.sirionero.mycar/.MyCarActivity } baseActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} topActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} origActivity=null realActivity=ComponentInfo{io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity} numActivities=1 lastActiveTime=120037 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{bb3aa0 Task{497289b #12 type=standard A=10216:io.github.sirionero.mycar}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) topActivityInfo=ActivityInfo{354e659 io.github.sirionero.mycar.MyCarActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false isSleeping=false locusId=null displayAreaFeatureId=1 isTopActivityTransparent=false isActivityStackTransparent=false lastNonFullscreenBounds=Rect(215, 420 - 865, 1500) capturedLink=null capturedLinkTimestamp=0 requestedVisibleTypes=-9 topActivityRequestOpenInBrowserEducationTimestamp=0 appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false eligibleForLetterboxEducation= false isLetterboxEducationEnabled= true isLetterboxDoubleTapEnabled= false eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= false isFromLetterboxDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 topActivityAppBounds=Rect(0, 0 - 1080, 1920) isUserFullscreenOverrideEnabled=false isSystemFullscreenOverrideEnabled=false hasMinAspectRatioOverride=false topActivityLetterboxBounds=null cameraCompatTaskInfo=CameraCompatTaskInfo { freeformCameraCompatMode=inactive}} topActivityMainWindowFrame=null}, pipChange = null, remoteTransition = null, displayChange = null, flags = 0, debugId = 18 }
+10-29 06:49:57.726   661   686 V WindowManager:         {WCT{RemoteToken{bb3aa0 Task{497289b #12 type=standard A=10216:io.github.sirionero.mycar}}} m=OPEN f=NONE leash=Surface(name=Task=12)/@0x40d5f34 sb=Rect(0, 0 - 1080, 1920) eb=Rect(0, 0 - 1080, 1920) epz=Point(1080, 1920) d=0 taskParent=-1},
+10-29 06:49:57.780  4549  4549 E sirionero.mycar: Not starting debugger since process cannot load the jdwp agent.
+10-29 06:49:57.869  4549  4549 D nativeloader: Configuring clns-9 for other apk /data/app/~~prAYf-SDIxMXkGVKsq1Qhw==/io.github.sirionero.mycar-t1JuX8OHslh-S5H76ecmUA==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~prAYf-SDIxMXkGVKsq1Qhw==/io.github.sirionero.mycar-t1JuX8OHslh-S5H76ecmUA==/lib/arm64:/data/app/~~prAYf-SDIxMXkGVKsq1Qhw==/io.github.sirionero.mycar-t1JuX8OHslh-S5H76ecmUA==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/io.github.sirionero.mycar
+10-29 06:49:57.898  4549  4549 I sirionero.mycar: AssetManager2(0x72d837760f18) locale list changing from [] to [en-US]
+10-29 06:49:57.902  4549  4549 V GraphicsEnvironment: io.github.sirionero.mycar is not listed in per-application setting
+10-29 06:49:57.902  4549  4549 V GraphicsEnvironment: io.github.sirionero.mycar is not listed in ANGLE allowlist or settings, returning default
+10-29 06:49:57.922  4549  4549 I sirionero.mycar: AssetManager2(0x72d83776d3f8) locale list changing from [] to [en-US]
+10-29 06:49:57.955  4549  4549 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261029-064957.log
+10-29 06:49:57.959  4549  4549 I myCar   : myCar ready
+10-29 06:49:57.992   661   754 I AppsFilter: interaction: PackageSetting{194f774 com.android.microdroid.empty_payload/10194} -> PackageSetting{eb16ba7 it.plancia.ha/10217} BLOCKED
+10-29 06:49:58.000  4549  4580 I sirionero.mycar: AssetManager2(0x72d83776a1f8) locale list changing from [] to [en-US]
+10-29 06:49:58.001   661   978 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10217 package it.plancia.ha isStopped false
+10-29 06:49:58.005   661   696 I ActivityManager: Start proc 4581:it.plancia.ha/u0a217 for content provider {it.plancia.ha/it.plancia.ha.data.AccountProvider}
+10-29 06:49:58.049  4581  4581 I it.plancia.ha: Using CollectorTypeCMC GC.
+10-29 06:49:58.054  4581  4581 W it.plancia.ha: Unexpected CPU variant for x86: x86_64.
+10-29 06:49:58.054  4581  4581 W it.plancia.ha: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-29 06:49:58.057  4581  4581 E it.plancia.ha: Not starting debugger since process cannot load the jdwp agent.
+10-29 06:49:58.072  4549  4580 I sirionero.mycar: AssetManager2(0x72d8377685d8) locale list changing from [] to [en-US]
+10-29 06:49:58.101   661  1093 D CoreBackPreview: Window{6857c76 u0 io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@79ba44e, mPriority=-1, mIsAnimationCallback=false, mOverrideBehavior=0}
+10-29 06:49:58.102   661  1093 D CoreBackPreview: Window{6857c76 u0 io.github.sirionero.mycar/io.github.sirionero.mycar.MyCarActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@ba8e96f, mPriority=0, mIsAnimationCallback=true, mOverrideBehavior=0}
+10-29 06:49:58.209  4581  4581 D nativeloader: Configuring clns-9 for other apk /data/app/~~phvFVq47l-5Dbk5Y4zIk6A==/it.plancia.ha-VBk8hxffkKV-FfNrI8hCaw==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~phvFVq47l-5Dbk5Y4zIk6A==/it.plancia.ha-VBk8hxffkKV-FfNrI8hCaw==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/it.plancia.ha
+10-29 06:49:58.215  4581  4581 I it.plancia.ha: AssetManager2(0x72d837760f18) locale list changing from [] to [en-US]
+10-29 06:49:58.220  4549  4580 I sirionero.mycar: AssetManager2(0x72d83776a518) locale list changing from [] to [en-US]
+10-29 06:49:58.222  4549  4580 I sirionero.mycar: AssetManager2(0x72d83776cdb8) locale list changing from [] to [en-US]
+10-29 06:49:58.241  4581  4581 V GraphicsEnvironment: it.plancia.ha is not listed in per-application setting
+10-29 06:49:58.241  4581  4581 V GraphicsEnvironment: it.plancia.ha is not listed in ANGLE allowlist or settings, returning default
+10-29 06:49:58.337  4549  4580 I sirionero.mycar: AssetManager2(0x72d837769bb8) locale list changing from [] to [en-US]
+10-29 06:49:58.346  4581  4603 I Plancia : Account passato a io.github.sirionero.mycar
+10-29 06:49:58.348  4549  4577 I myCar   : plancia: took the Plancia app's Home Assistant account
+10-29 06:49:58.362  4549  4580 I sirionero.mycar: AssetManager2(0x72d837765d38) locale list changing from [] to [en-US]
+10-29 06:49:58.379  4549  4580 I sirionero.mycar: AssetManager2(0x72d837768c18) locale list changing from [] to [en-US]
+10-29 06:49:58.474  4549  4580 I sirionero.mycar: AssetManager2(0x72d837774478) locale list changing from [] to [en-US]
+10-29 06:49:58.490  4549  4580 I sirionero.mycar: AssetManager2(0x72d83776e398) locale list changing from [] to [en-US]
+10-29 06:49:58.499  4549  4580 I sirionero.mycar: AssetManager2(0x72d837773b18) locale list changing from [] to [en-US]
+10-29 06:49:58.502  4549  4580 I sirionero.mycar: AssetManager2(0x72d837770f58) locale list changing from [] to [en-US]
+10-29 06:49:58.504  4549  4580 I sirionero.mycar: AssetManager2(0x72d837775418) locale list changing from [] to [en-US]
+10-29 06:49:58.509  4549  4580 I sirionero.mycar: AssetManager2(0x72d837766ff8) locale list changing from [] to [en-US]
+10-29 06:49:58.597  4549  4580 I sirionero.mycar: AssetManager2(0x72d83777a238) locale list changing from [] to [en-US]
+10-29 06:49:58.616  4549  4580 I sirionero.mycar: AssetManager2(0x72d83777a558) locale list changing from [] to [en-US]
+10-29 06:49:58.739   457  4614 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 10105 0}
+10-29 06:49:58.742   457  4616 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:49:58.742   457  4616 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b852c90
+10-29 06:49:58.743   457  4615 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:49:58.743   457  4616 I resolv  : doQuery: rcode=0, ancount=8, return value=161
+10-29 06:49:58.743   457  4615 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b850b90
+10-29 06:49:58.743   457  4615 I resolv  : doQuery: rcode=0, ancount=8, return value=257
+10-29 06:49:58.777  4549  4580 I sirionero.mycar: AssetManager2(0x72d83777cdf8) locale list changing from [] to [en-US]
+10-29 06:49:58.781  4549  4580 I sirionero.mycar: AssetManager2(0x72d837775d78) locale list changing from [] to [en-US]
+10-29 06:49:58.808  4549  4580 I sirionero.mycar: AssetManager2(0x72d8377795b8) locale list changing from [] to [en-US]
+10-29 06:49:58.857  4549  4580 I sirionero.mycar: AssetManager2(0x72d837779bf8) locale list changing from [] to [en-US]
+10-29 06:49:58.936  4549  4580 I sirionero.mycar: AssetManager2(0x72d83777bb38) locale list changing from [] to [en-US]
+10-29 06:49:59.422  4549  4612 E SurfaceSyncGroup: Failed to receive transaction ready in 1000ms. Marking SurfaceSyncGroup(wmsSync-VRI[MyCarActivity]#0) as ready
+10-29 06:49:59.432  4549  4612 E SurfaceSyncGroup: Failed to receive transaction ready in 1000ms. Marking SurfaceSyncGroup(VRI[MyCarActivity]#1) as ready
+10-29 06:49:59.528  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.providers.media.module
+10-29 06:49:59.531  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.providers.media.module, users=[UserHandle{0}]
+10-29 06:49:59.543  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.providers.media.module, users=[UserHandle{0}]
+10-29 06:49:59.604   661   686 W system_server: Failed to determine oat file name for dex location /data/app/~~prAYf-SDIxMXkGVKsq1Qhw==/io.github.sirionero.mycar-t1JuX8OHslh-S5H76ecmUA==/base.apk: Dalvik cache directory does not exist
+10-29 06:49:59.628   661   686 I ActivityTaskManager: Displayed io.github.sirionero.mycar/.MyCarActivity for user 0: +2s153ms
+10-29 06:49:59.638   661  2235 I AppsFilter: interaction: PackageSetting{194f774 com.android.microdroid.empty_payload/10194} -> PackageSetting{4fada1 it.xonos.ma/10218} BLOCKED
+10-29 06:49:59.661   661   978 I AppWidgetServiceImpl: Updating package stopped masked state for uid 10218 package it.xonos.ma isStopped false
+10-29 06:49:59.710   661   793 I ImeTracker: io.github.sirionero.mycar:7af1dde2: onRequestHide at ORIGIN_SERVER reason HIDE_UNSPECIFIED_WINDOW fromUser false
+10-29 06:49:59.717  4549  4549 I ImeTracker: io.github.sirionero.mycar:7af1dde2: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+10-29 06:49:59.735  1358  2277 I FontLog : Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-29 06:49:59.757  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.as
+10-29 06:49:59.757  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.as, users=[UserHandle{0}]
+10-29 06:49:59.757  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.as, users=[UserHandle{0}]
+10-29 06:49:59.808  1507  1507 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1293 onStartInput(EditorInfo{EditorInfo{packageName=io.github.sirionero.mycar, inputType=0, inputTypeString=NULL, enableLearning=false, autoCorrection=false, autoComplete=false, imeOptions=0, privateImeOptions=null, actionName=UNSPECIFIED, actionLabel=null, initialSelStart=-1, initialSelEnd=-1, initialCapsMode=0, label=null, fieldId=0, fieldName=null, extras=null, hintText=null, hintLocales=[]}}, false)
+10-29 06:49:59.813   661  1991 W PackageConfigPersister: App-specific configuration not found for packageName: io.github.sirionero.mycar and userId: 0
+10-29 06:49:59.884  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.photopicker
+10-29 06:49:59.884  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.photopicker, users=[UserHandle{0}]
+10-29 06:49:59.884  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.photopicker, users=[UserHandle{0}]
+10-29 06:49:59.894   661   696 I ActivityManager: Start proc 4629:it.xonos.ma/u0a218 for content provider {it.xonos.ma/it.xonos.ma.data.AccountProvider}
+10-29 06:49:59.946  1507  1507 W StyleResolver: StyleResolver.createParsedStyleRule():233 Only one descendant combinator is supported: .keytop.pill-variant-colored  .label:pressed
+10-29 06:49:59.980  4629  4629 I it.xonos.ma: Using CollectorTypeCMC GC.
+10-29 06:49:59.983  4629  4629 W it.xonos.ma: Unexpected CPU variant for x86: x86_64.
+10-29 06:49:59.983  4629  4629 W it.xonos.ma: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, goldmont-without-sha-xsaves, tremont, kabylake, alderlake, default
+10-29 06:49:59.984  4629  4629 E it.xonos.ma: Not starting debugger since process cannot load the jdwp agent.
+10-29 06:50:00.020  4549  4580 I sirionero.mycar: AssetManager2(0x72d83777b818) locale list changing from [] to [en-US]
+10-29 06:50:00.140   457  4642 I resolv  : GetAddrInfoHandler::run: {100 262244 100 983140 10216 0}
+10-29 06:50:00.140   457  4643 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:00.140   457  4643 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850c10
+10-29 06:50:00.140   457  4643 I resolv  : doQuery: rcode=0, ancount=0, return value=86
+10-29 06:50:00.142   457  4644 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:00.142   457  4644 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850350
+10-29 06:50:00.142   457  4644 I resolv  : doQuery: rcode=0, ancount=2, return value=68
+10-29 06:50:00.159  4549  4580 I myCar   : prefetch done in 2166ms
+10-29 06:50:00.206  4629  4629 D nativeloader: Configuring clns-9 for other apk /data/app/~~OHgqlJjI25z-83kGf6UuJg==/it.xonos.ma-6F73kQvjQs8aiavWm-Ouag==/base.apk. target_sdk_version=34, uses_libraries=, library_path=/data/app/~~OHgqlJjI25z-83kGf6UuJg==/it.xonos.ma-6F73kQvjQs8aiavWm-Ouag==/lib/x86_64:/data/app/~~OHgqlJjI25z-83kGf6UuJg==/it.xonos.ma-6F73kQvjQs8aiavWm-Ouag==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/it.xonos.ma
+10-29 06:50:00.225  4629  4629 I it.xonos.ma: AssetManager2(0x72d837763df8) locale list changing from [] to [en-US]
+10-29 06:50:00.262  4629  4629 V GraphicsEnvironment: it.xonos.ma is not listed in per-application setting
+10-29 06:50:00.263  4629  4629 V GraphicsEnvironment: it.xonos.ma is not listed in ANGLE allowlist or settings, returning default
+10-29 06:50:00.340  4629  4637 I Xonos   : Account passato a io.github.sirionero.mycar
+10-29 06:50:00.348  4549  4578 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-29 06:50:00.561   457  4692 I resolv  : GetAddrInfoHandler::run: {100 100 100 983140 10152 0}
+10-29 06:50:00.562   457  4693 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:00.562   457  4693 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b850b90
+10-29 06:50:00.562   457  4693 I resolv  : doQuery: rcode=0, ancount=8, return value=257
+10-29 06:50:00.562   457  4694 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:00.562   457  4694 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b852c90
+10-29 06:50:00.562   457  4694 I resolv  : doQuery: rcode=0, ancount=8, return value=161
+10-29 06:50:00.807   457  4696 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 10105 0}
+10-29 06:50:00.808   457  4697 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:00.808   457  4697 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b850b90
+10-29 06:50:00.808   457  4697 I resolv  : doQuery: rcode=0, ancount=8, return value=257
+10-29 06:50:00.808   457  4698 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:00.808   457  4698 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b852c90
+10-29 06:50:00.808   457  4698 I resolv  : doQuery: rcode=0, ancount=8, return value=161
+10-29 06:50:01.410   457  4705 I resolv  : GetAddrInfoHandler::run: {100 100 100 983140 10152 0}
+10-29 06:50:01.410   457  4706 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:01.410   457  4707 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:01.415   457  4707 I resolv  : res_nsend: used send_dg 52 terrno: 0
+10-29 06:50:01.415   457  4707 I resolv  : doQuery: rcode=0, ancount=1, return value=52
+10-29 06:50:01.436   457  4706 I resolv  : res_nsend: used send_dg 64 terrno: 0
+10-29 06:50:01.436   457  4706 I resolv  : doQuery: rcode=0, ancount=1, return value=64
+10-29 06:50:03.075  4549  4716 D ProfileInstaller: Skipping profile installation for io.github.sirionero.mycar
+10-29 06:50:03.970  4581  4719 D ProfileInstaller: Installing profile for it.plancia.ha
+10-29 06:50:04.126   457  4723 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:04.126   457  4723 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b84f310
+10-29 06:50:04.127   457  4724 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:04.127   457  4724 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850890
+10-29 06:50:04.132   457  4726 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:04.132   457  4726 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850eb0
+10-29 06:50:04.132   457  4725 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:04.155   457  4725 I resolv  : res_nsend: used send_dg 160 terrno: 0
+10-29 06:50:04.186   457  4727 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 1073 1}
+10-29 06:50:04.186   457  4728 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:04.186   457  4728 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850890
+10-29 06:50:04.186   457  4728 I resolv  : doQuery: rcode=0, ancount=1, return value=75
+10-29 06:50:04.187   457  4729 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:04.187   457  4729 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850eb0
+10-29 06:50:04.187   457  4729 I resolv  : doQuery: rcode=0, ancount=1, return value=63
+10-29 06:50:04.201   457  4730 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 1073 1}
+10-29 06:50:04.201   457  4731 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:04.201   457  4731 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b84f310
+10-29 06:50:04.201   457  4731 I resolv  : doQuery: rcode=0, ancount=8, return value=256
+10-29 06:50:04.203   457  4732 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:04.203   457  4732 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d8b84d330
+10-29 06:50:04.203   457  4732 I resolv  : doQuery: rcode=0, ancount=8, return value=160
+10-29 06:50:05.766  4629  4751 D ProfileInstaller: Skipping profile installation for it.xonos.ma
+10-29 06:50:07.670   457  4767 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10147 0}
+10-29 06:50:07.676   457  4768 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:07.676   457  4769 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:07.676   457  4769 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b852c90
+10-29 06:50:07.676   457  4769 I resolv  : doQuery: rcode=0, ancount=8, return value=161
+10-29 06:50:07.677   457  4768 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b850b90
+10-29 06:50:07.677   457  4768 I resolv  : doQuery: rcode=0, ancount=8, return value=257
+10-29 06:50:08.105   457  4782 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10147 0}
+10-29 06:50:08.501  3933  4073 I BugleClearcutLogger: qosTierResolver for LOG_SPEC_LEGACY_LOGGING is null. Using DEFAULT QoS tier as there's no specific QoS configuration for this log spec.
+10-29 06:50:08.824   457  4804 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10147 0}
+10-29 06:50:08.824   457  4806 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:08.824   457  4806 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d6b84fb10
+10-29 06:50:08.824   457  4806 I resolv  : doQuery: rcode=0, ancount=8, return value=164
+10-29 06:50:08.825   457  4805 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:08.825   457  4805 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b84e890
+10-29 06:50:08.825   457  4805 I resolv  : doQuery: rcode=0, ancount=8, return value=260
+10-29 06:50:09.450  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.gms
+10-29 06:50:09.451  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.gms, users=[UserHandle{0}]
+10-29 06:50:09.515  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.gms, users=[UserHandle{0}]
+10-29 06:50:10.473  4839  4839 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:10.482  4839  4839 I AndroidRuntime: Using default boot image
+10-29 06:50:10.482  4839  4839 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:11.060  4839  4839 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:11.081  4839  4839 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:11.134   457  4887 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10147 0}
+10-29 06:50:11.136   457  4888 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:11.136   457  4889 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:11.141   457  4889 I resolv  : res_nsend: used send_dg 177 terrno: 0
+10-29 06:50:11.142   457  4889 I resolv  : doQuery: rcode=0, ancount=8, return value=177
+10-29 06:50:11.156   457  4888 I resolv  : res_nsend: used send_dg 273 terrno: 0
+10-29 06:50:11.156   457  4888 I resolv  : doQuery: rcode=0, ancount=8, return value=273
+10-29 06:50:11.419   457  4900 I resolv  : GetAddrInfoHandler::run: {100 100 100 983140 10166 0}
+10-29 06:50:11.419   457  4901 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:11.419   457  4902 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:11.444   457  4902 I resolv  : res_nsend: used send_dg 143 terrno: 0
+10-29 06:50:11.444   457  4901 I resolv  : res_nsend: used send_dg 159 terrno: 0
+10-29 06:50:11.444   457  4901 I resolv  : doQuery: rcode=0, ancount=4, return value=159
+10-29 06:50:11.444   457  4902 I resolv  : doQuery: rcode=0, ancount=6, return value=143
+10-29 06:50:11.638   457  4917 I resolv  : GetAddrInfoHandler::run: {100 100 100 983140 10166 0}
+10-29 06:50:11.639   457  4919 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:11.639   457  4918 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:11.645   457  4918 I resolv  : res_nsend: used send_dg 151 terrno: 0
+10-29 06:50:11.645   457  4918 I resolv  : doQuery: rcode=0, ancount=4, return value=151
+10-29 06:50:11.648   457  4919 I resolv  : res_nsend: used send_dg 135 terrno: 0
+10-29 06:50:11.648   457  4919 I resolv  : doQuery: rcode=0, ancount=6, return value=135
+10-29 06:50:11.655   457  4921 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10147 0}
+10-29 06:50:11.655   457  4923 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:11.656   457  4922 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:11.679   457  4922 I resolv  : res_nsend: used send_dg 277 terrno: 0
+10-29 06:50:11.679   457  4922 I resolv  : doQuery: rcode=0, ancount=8, return value=277
+10-29 06:50:11.690   457  4923 I resolv  : res_nsend: used send_dg 181 terrno: 0
+10-29 06:50:11.690   457  4923 I resolv  : doQuery: rcode=0, ancount=8, return value=181
+10-29 06:50:11.808  1358  2277 I FontLog : Query [name=Google Sans&weight=700&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-29 06:50:11.818  4892  4916 W cr_AWNetworkFetcherTask: java.io.IOException: Cleartext HTTP traffic to edgedl.me.gvt1.com not permitted
+10-29 06:50:11.818  4892  4916 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.HttpHandler$CleartextURLFilter.checkURLPermitted(HttpHandler.java:127)
+10-29 06:50:11.818  4892  4916 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.execute(HttpURLConnectionImpl.java:462)
+10-29 06:50:11.818  4892  4916 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponse(HttpURLConnectionImpl.java:411)
+10-29 06:50:11.818  4892  4916 W cr_AWNetworkFetcherTask: 	at com.android.okhttp.internal.huc.HttpURLConnectionImpl.getResponseCode(HttpURLConnectionImpl.java:542)
+10-29 06:50:11.826   457  4934 I resolv  : GetAddrInfoHandler::run: {100 100 100 983140 10166 0}
+10-29 06:50:11.827   457  4935 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:11.827   457  4936 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:11.827   457  4936 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ccb854050
+10-29 06:50:11.827   457  4936 I resolv  : doQuery: rcode=0, ancount=1, return value=52
+10-29 06:50:11.827   457  4935 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850510
+10-29 06:50:11.828   457  4935 I resolv  : doQuery: rcode=0, ancount=1, return value=64
+10-29 06:50:11.864  1358  1367 I FontLog : Query [name=Noto Color Emoji Compat&weight=400&besteffort=false] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-29 06:50:11.936  1358  1367 I FontLog : Query [name=Google Sans Flex&weight=400&besteffort=false] resolved to {Google Sans Flex, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-29 06:50:11.964  1358  1367 I FontLog : Query [name=Google Sans&weight=400&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-29 06:50:11.970  1358  1367 I FontLog : Query [name=Google Sans&weight=500&besteffort=false] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false}, isVf false} [CONTEXT service_id=132 ]
+10-29 06:50:12.179  4549  4639 I myCar   : weather: loaded
+10-29 06:50:12.407  4549  4561 W sirionero.mycar: Cleared Reference was only reachable from finalizer (only reported once)
+10-29 06:50:12.422  4839  4839 D AndroidRuntime: Shutting down VM
+10-29 06:50:13.201   457  4942 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10147 0}
+10-29 06:50:13.201   457  4944 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:13.202   457  4943 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:13.232   457  4944 I resolv  : res_nsend: used send_dg 165 terrno: 0
+10-29 06:50:13.232   457  4944 I resolv  : doQuery: rcode=0, ancount=8, return value=165
+10-29 06:50:13.233   457  4943 I resolv  : res_nsend: used send_dg 261 terrno: 0
+10-29 06:50:13.233   457  4943 I resolv  : doQuery: rcode=0, ancount=8, return value=261
+10-29 06:50:13.353   457  4946 I resolv  : GetAddrInfoHandler::run: {100 786532 100 983140 10145 0}
+10-29 06:50:13.353   457  4947 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:13.354   457  4948 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:13.375   457  4947 I resolv  : res_nsend: used send_dg 76 terrno: 0
+10-29 06:50:13.375   457  4947 I resolv  : doQuery: rcode=0, ancount=1, return value=76
+10-29 06:50:13.385   457  4948 I resolv  : res_nsend: used send_dg 64 terrno: 0
+10-29 06:50:13.385   457  4948 I resolv  : doQuery: rcode=0, ancount=1, return value=64
+10-29 06:50:13.589  3933  4803 I BugleClearcutLogger: qosTierResolver for LOG_SPEC_LEGACY_LOGGING is null. Using DEFAULT QoS tier as there's no specific QoS configuration for this log spec.
+10-29 06:50:13.724  4959  4959 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~prAYf-SDIxMXkGVKsq1Qhw==/io.github.sirionero.mycar-t1JuX8OHslh-S5H76ecmUA==/oat/x86_64/base.odex) is kOatUpToDate with filter 'verify' executable 'false'
+10-29 06:50:13.979  4963  4963 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:13.984  4963  4963 I AndroidRuntime: Using default boot image
+10-29 06:50:13.984  4963  4963 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:14.200  4963  4963 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:14.226  4963  4963 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:15.353  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.gms
+10-29 06:50:15.353  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.gms, users=[UserHandle{0}]
+10-29 06:50:15.354  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.gms, users=[UserHandle{0}]
+10-29 06:50:15.423  4963  4963 D AndroidRuntime: Shutting down VM
+10-29 06:50:17.186  4549  4561 W sirionero.mycar: Suspending all threads took: 9.045ms
+10-29 06:50:17.282  4549  4561 I sirionero.mycar: Background concurrent mark compact GC freed 1838KB AllocSpace bytes, 7(232KB) LOS objects, 49% free, 6314KB/12MB, paused 42.725ms,6.897ms total 445.199ms
+10-29 06:50:18.569  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.gms
+10-29 06:50:18.569  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.gms, users=[UserHandle{0}]
+10-29 06:50:18.569  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.gms, users=[UserHandle{0}]
+10-29 06:50:19.588   457  2120 I resolv  :  SSL_connect returned -1 with mark 0xf0064
+10-29 06:50:19.588   457  2120 W resolv  : SSL_connect ssl error =5, mark 0xf0064: Connection refused
+10-29 06:50:19.594   457  2120 W resolv  : TLS Handshake failed
+10-29 06:50:19.596   457  2120 W resolv  : query failed
+10-29 06:50:19.596   457  2120 W resolv  : validateDnsTlsServer returned 0 for {10.0.2.3/}
+10-29 06:50:19.597   457  2120 W resolv  : Validation failed
+10-29 06:50:19.806  5020  5020 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:19.811  5020  5020 I AndroidRuntime: Using default boot image
+10-29 06:50:19.811  5020  5020 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:19.950  5020  5020 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:19.955  5020  5020 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:21.015  5020  5020 D AndroidRuntime: Shutting down VM
+10-29 06:50:21.934  5035  5035 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:21.937  5035  5035 I AndroidRuntime: Using default boot image
+10-29 06:50:21.937  5035  5035 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:22.030  5035  5035 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:22.033  5035  5035 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:23.068  5035  5035 D AndroidRuntime: Shutting down VM
+10-29 06:50:25.524  5059  5059 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:25.527  5059  5059 I AndroidRuntime: Using default boot image
+10-29 06:50:25.527  5059  5059 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:25.625  5059  5059 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:25.628  5059  5059 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:26.651  5059  5059 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9187; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(210, 168 - 796, 231); boundsInWindow: Rect(210, 168 - 796, 231); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: myCar answers when you plug into a car; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:50:26.651  5059  5059 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@91c5; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(838, 168 - 975, 189); boundsInWindow: Rect(838, 168 - 975, 189); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-29 06:50:26.659  5059  5059 D AndroidRuntime: Shutting down VM
+10-29 06:50:29.116  5087  5087 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:29.119  5087  5087 I AndroidRuntime: Using default boot image
+10-29 06:50:29.119  5087  5087 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:29.201  5087  5087 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:29.206  5087  5087 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:30.237  5087  5087 D AndroidRuntime: Shutting down VM
+10-29 06:50:32.785  5107  5107 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:32.787  5107  5107 I AndroidRuntime: Using default boot image
+10-29 06:50:32.787  5107  5107 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:32.870  5107  5107 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:32.875  5107  5107 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:33.910  5107  5107 D AndroidRuntime: Shutting down VM
+10-29 06:50:34.697   661   774 D ActivityManager: freezing 4581 it.plancia.ha
+10-29 06:50:36.372  5130  5130 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:36.375  5130  5130 I AndroidRuntime: Using default boot image
+10-29 06:50:36.375  5130  5130 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:36.455  5130  5130 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:36.458  5130  5130 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:50:37.173   661   774 D ActivityManager: freezing 4629 it.xonos.ma
+10-29 06:50:37.485  5130  5130 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9b19; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(210, 168 - 796, 192); boundsInWindow: Rect(210, 168 - 796, 192); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Ask Home Assistant in the car; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:50:37.499  5130  5130 D AndroidRuntime: Shutting down VM
+10-29 06:50:44.867   457  5162 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:44.867   457  5163 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:44.867   457  5162 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850890
+10-29 06:50:44.867   457  5163 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b84f310
+10-29 06:50:44.869   457  5164 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:44.869   457  5164 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d8b84d330
+10-29 06:50:44.869   457  5165 I resolv  : ResNSendHandler::run: 0 / {100 983140 100 983140 1073 1}
+10-29 06:50:44.869   457  5165 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850eb0
+10-29 06:50:44.876   457  5166 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 1073 1}
+10-29 06:50:44.876   457  5167 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:44.876   457  5167 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d9b84f310
+10-29 06:50:44.876   457  5167 I resolv  : doQuery: rcode=0, ancount=8, return value=256
+10-29 06:50:44.876   457  5168 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:44.876   457  5168 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789d8b84d330
+10-29 06:50:44.876   457  5168 I resolv  : doQuery: rcode=0, ancount=8, return value=160
+10-29 06:50:44.878   457  5169 I resolv  : GetAddrInfoHandler::run: {100 983140 100 983140 1073 1}
+10-29 06:50:44.878   457  5170 I resolv  : res_nmkquery: (QUERY, IN, AAAA)
+10-29 06:50:44.878   457  5170 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850890
+10-29 06:50:44.878   457  5170 I resolv  : doQuery: rcode=0, ancount=1, return value=75
+10-29 06:50:44.879   457  5171 I resolv  : res_nmkquery: (QUERY, IN, A)
+10-29 06:50:44.879   457  5171 I resolv  : resolv_cache_lookup: FOUND IN CACHE entry=0x789ddb850eb0
+10-29 06:50:44.879   457  5171 I resolv  : doQuery: rcode=0, ancount=1, return value=63
+10-29 06:50:56.904  1212  1444 D ImsResolver: maybeAddedImsService, packageName: com.google.android.settings.intelligence
+10-29 06:50:56.904  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.settings.intelligence, users=[UserHandle{0}]
+10-29 06:50:56.908  1212  1444 V ImsResolver: searchForImsServices: package=com.google.android.settings.intelligence, users=[UserHandle{0}]
+10-29 06:50:58.818  5454  5454 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:50:58.824  5454  5454 I AndroidRuntime: Using default boot image
+10-29 06:50:58.824  5454  5454 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:50:58.984  5454  5454 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:50:58.993  5454  5454 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:51:00.054  5454  5454 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9b1d; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(210, 168 - 796, 192); boundsInWindow: Rect(210, 168 - 796, 192); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Ask Home Assistant in the car; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:51:00.064  5454  5454 D AndroidRuntime: Shutting down VM
+10-29 06:51:01.042  5501  5501 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:51:01.045  5501  5501 I AndroidRuntime: Using default boot image
+10-29 06:51:01.045  5501  5501 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:51:01.127  5501  5501 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:51:01.130  5501  5501 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:51:02.143  5501  5501 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9b27; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(210, 168 - 796, 192); boundsInWindow: Rect(210, 168 - 796, 192); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Ask Home Assistant in the car; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:51:02.148  5501  5501 D AndroidRuntime: Shutting down VM
+10-29 06:51:04.647  5523  5523 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:51:04.650  5523  5523 I AndroidRuntime: Using default boot image
+10-29 06:51:04.650  5523  5523 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:51:04.734  5523  5523 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:51:04.738  5523  5523 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:51:05.764  5523  5523 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9e54; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(147, 168 - 631, 198); boundsInWindow: Rect(147, 168 - 631, 198); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Address away (optional); error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:51:05.764  5523  5523 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9df7; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(147, 168 - 933, 198); boundsInWindow: Rect(147, 168 - 933, 198); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-29 06:51:05.777  5523  5523 D AndroidRuntime: Shutting down VM
+10-29 06:51:06.660   661  1392 D ActivityManager: sync unfroze 4629 it.xonos.ma for 7
+10-29 06:51:06.670  4629  4641 I Xonos   : Account passato a io.github.sirionero.mycar
+10-29 06:51:06.671  4549  4624 I myCar   : xonos: took the Xonos app's Music Assistant account
+10-29 06:51:27.009  5552  5552 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:51:27.014  5552  5552 I AndroidRuntime: Using default boot image
+10-29 06:51:27.014  5552  5552 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:51:27.166  5552  5552 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:51:27.171  5552  5552 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:51:28.224  5552  5552 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9e60; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(147, 168 - 631, 198); boundsInWindow: Rect(147, 168 - 631, 198); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Address away (optional); error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:51:28.224  5552  5552 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9e03; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(147, 168 - 933, 198); boundsInWindow: Rect(147, 168 - 933, 198); packageName: io.github.sirionero.mycar; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]; isTextSelectable: false
+10-29 06:51:28.232  5552  5552 D AndroidRuntime: Shutting down VM
+10-29 06:51:31.991  5577  5577 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 06:51:31.996  5577  5577 I AndroidRuntime: Using default boot image
+10-29 06:51:31.996  5577  5577 I AndroidRuntime: Leaving lock profiling enabled
+10-29 06:51:32.155  5577  5577 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+10-29 06:51:32.162  5577  5577 I AconfigPackage: com.android.intentresolver is mapped to system
+10-29 06:51:33.198  5577  5577 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@a1ab; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(210, 168 - 783, 192); boundsInWindow: Rect(210, 168 - 783, 192); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: Use the Xonos app's account; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:51:33.202  5577  5577 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@a90e; boundsInParent: Rect(0, 0 - 0, 0); boundsInScreen: Rect(210, 1881 - 796, 1912); boundsInWindow: Rect(210, 1881 - 796, 1912); packageName: io.github.sirionero.mycar; className: android.widget.TextView; text: While the car moves the picture is covered, and the sound carries on; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; containerTitle: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; granularScrollingSupported: false; importantForAccessibility: true; visible: false; actions: [AccessibilityAction: ACTION_NEXT_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SET_SELECTION - null]; isTextSelectable: false
+10-29 06:51:33.208  5577  5577 D AndroidRuntime: Shutting down VM
