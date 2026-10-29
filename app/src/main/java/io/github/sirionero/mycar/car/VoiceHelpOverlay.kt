@@ -74,7 +74,7 @@ fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
         Column(Modifier.padding(20.dp)) {
             Row(Modifier.fillMaxWidth()) {
                 Text(
-                    "You can say",
+                    AssistantLanguage.label("You can say"),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f).padding(top = 6.dp),
@@ -86,7 +86,7 @@ fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
                 Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                VoiceHelp.COMMANDS.forEach { (say, does) ->
+                (AssistantLanguage.help() ?: VoiceHelp.COMMANDS).forEach { (say, does) ->
                     Column(Modifier.fillMaxWidth()) {
                         Text(say, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text(does, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

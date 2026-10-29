@@ -11,6 +11,16 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            34, "0.5.21-alpha",
+            listOf(
+                "The voice assistant speaks your phone's language: Italian, Spanish, French, German or Portuguese. It listens, answers and shows its words in it.",
+                "It needs a speech model for that language: on the phone, Settings > Voice says which one, with a button to download it.",
+                "A third certificate for the newest cars: CarService, Android Auto's own. On the phone, Settings > Certificate.",
+                "Leaving Cinema, the music that was playing before the film starts again by itself.",
+                "On the phone, after each update, the pirate flag flies with the new version. Big releases bring a ship.",
+            ),
+        ),
+        Release(
             33, "0.5.20-alpha",
             listOf(
                 "Phone: a Recents tab with your latest calls, and Call back on a missed call's popup.",

@@ -207,7 +207,7 @@ private fun VoiceReplyBody(s: VoiceReply.State, n: CarNotification) {
         }
     }
     if (s.phase == VoiceReply.Phase.CONFIRMING) {
-        Text("Say “cancel” or “change it”", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(AssistantLanguage.label("Say “cancel” or “change it”"), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
     }
     if ((s.phase == VoiceReply.Phase.READ || s.phase == VoiceReply.Phase.OFFERING) && n.reply != null) {
         QuickReplies(n)
@@ -266,9 +266,10 @@ private fun voiceHeading(s: VoiceReply.State, who: String): String = when (s.pha
 
 private fun voiceDetail(s: VoiceReply.State, n: CarNotification): String? = when (s.phase) {
     VoiceReply.Phase.READING, VoiceReply.Phase.READ -> n.text
-    VoiceReply.Phase.OFFERING -> s.heard.ifBlank { "Do you want to reply? Say yes or no." }
-    VoiceReply.Phase.ASKING -> "Get ready to say your reply."
-    VoiceReply.Phase.LISTENING -> s.heard.ifBlank { "Say your reply" }
+    // What to say, in the language it's heard in.
+    VoiceReply.Phase.OFFERING -> s.heard.ifBlank { AssistantLanguage.label("Do you want to reply? Say yes or no.") }
+    VoiceReply.Phase.ASKING -> AssistantLanguage.label("Get ready to say your reply.")
+    VoiceReply.Phase.LISTENING -> s.heard.ifBlank { AssistantLanguage.label("Say your reply") }
     VoiceReply.Phase.CONFIRMING, VoiceReply.Phase.SENT -> "“${s.heard}”"
     VoiceReply.Phase.ERROR -> s.error
     VoiceReply.Phase.IDLE -> null

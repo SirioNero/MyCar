@@ -37,11 +37,12 @@ internal fun VoiceModelSection() {
     remember { SpeechModels.init(context) }
     val selected by SpeechModels.selected.collectAsState()
     val final by SpeechModels.final.collectAsState()
+    VoiceLanguageNote()
     SettingsSection(title = "Voice: live words") {
         Text(
             "The voice assistant turns speech into text on this phone, and nothing you say leaves it. " +
-                "It needs two models, about 270 MB together, downloaded once. " +
-                "This one writes your words as you speak.",
+                "It needs two models, about ${SpeechModels.recommended().sumOf { it.downloadMb }} MB together, downloaded once. " +
+                "This one writes your words as you speak, in English; in another language it only hears when you stop.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),

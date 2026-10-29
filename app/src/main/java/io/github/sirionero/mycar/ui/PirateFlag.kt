@@ -128,8 +128,8 @@ internal fun PirateFlag(key: Any, modifier: Modifier) {
     )
 }
 
-/** The cloth, flat: black with a torn fly, the skull and crossbones, and the words. */
-private fun DrawScope.drawCloth(measurer: TextMeasurer) {
+/** The cloth, flat: black with a torn fly, the skull and crossbones, and the words. The ship flies it too (PirateShip). */
+internal fun DrawScope.drawCloth(measurer: TextMeasurer) {
     val w = size.width
     val h = size.height
     val cloth = Path().apply {

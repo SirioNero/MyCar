@@ -45,6 +45,8 @@ object SpeechModels {
         val modelType: String = "",
         /** Where the unpacked files are, when not under the archive's own name on Hugging Face. */
         private val filesAt: String? = null,
+        /** The languages it hears; the assistant listens in the phone's language only with a model that knows it. */
+        val languages: Set<VoiceLanguage> = setOf(VoiceLanguage.EN),
     ) {
         KROKO(
             Role.LIVE, "kroko-en", "Kroko", "Banafo's Kroko ASR, CC BY-SA 4.0", 68,
@@ -60,14 +62,22 @@ object SpeechModels {
             filesAt = "punitd/sherpa-onnx-nemo-parakeet_tdt_transducer_110m-en-36000-int8/resolve/66a4fa70643dc7ce25c9b38b2f87e1b35ddad33d",
         ),
         CANARY(
-            Role.FINAL, "canary-180m-en", "Canary", "Recommended. Quick, and hears names and places well. Knows English, Spanish, German and French; myCar listens in English for now. NVIDIA NeMo, CC BY 4.0", 198,
+            Role.FINAL, "canary-180m-en", "Canary", "Recommended. Quick, and hears names and places well. English, Spanish, German and French. NVIDIA NeMo, CC BY 4.0", 198,
             "sherpa-onnx-nemo-canary-180m-flash-en-es-de-fr-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "", modelType = "canary",
+            languages = setOf(VoiceLanguage.EN, VoiceLanguage.ES, VoiceLanguage.DE, VoiceLanguage.FR),
         ),
         PARAKEET_LARGE(
             Role.FINAL, "parakeet-0.6b-en", "Parakeet large", "Hears names best, but slower and three times the size. NVIDIA NeMo, CC BY 4.0", 631,
             "sherpa-onnx-nemo-parakeet-tdt-0.6b-v2-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", modelType = "nemo_transducer",
+        ),
+        PARAKEET_MULTI(
+            Role.FINAL, "parakeet-0.6b-v3", "Parakeet multilingual",
+            "Italian, Portuguese, Spanish, French, German and English, and 19 more European languages. As big and slow as Parakeet large. NVIDIA NeMo, CC BY 4.0",
+            640, "sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
+            "encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", modelType = "nemo_transducer",
+            languages = VoiceLanguage.entries.toSet(),
         ),
         ;
 
@@ -75,10 +85,37 @@ object SpeechModels {
         val files get() = listOf(encoder, decoder, joiner, "tokens.txt").filter { it.isNotEmpty() }
     }
 
-    /** What setup offers in one tap: Kroko for the live words, Canary for the final ones. */
-    val RECOMMENDED = listOf(Model.KROKO, Model.CANARY)
+    /**
+     * What setup offers in one tap for [language]: Kroko for the live words (and to hear when the
+     * driver stops), Canary for the final ones; Parakeet multilingual where Canary doesn't know the
+     * language (Italian, Portuguese).
+     */
+    fun recommended(language: VoiceLanguage = VoiceLanguages.phone()): List<Model> =
+        listOf(Model.KROKO, if (language in Model.CANARY.languages) Model.CANARY else Model.PARAKEET_MULTI)
 
-    fun downloadRecommended(context: Context) = RECOMMENDED.forEach { download(context, it) }
+    /** Both recommended models, and the final one chosen: for a phone in Italian that's Parakeet multilingual. */
+    fun downloadRecommended(context: Context) {
+        val models = recommended()
+        models.forEach { download(context, it) }
+        selectFinal(context, models.last())
+    }
+
+    /**
+     * The model that rereads the phrase in [language]. English: the one chosen (or none), as
+     * always. Another language: the chosen one if it knows it, or any downloaded one that does,
+     * Canary first (quicker); null when none is downloaded, and the assistant stays in English.
+     */
+    fun finalFor(context: Context, language: VoiceLanguage): Model? {
+        val chosen = _final.value
+        if (language == VoiceLanguage.EN) {
+            // Chosen but not on the phone (still downloading, or deleted): another English one that is.
+            if (chosen == null || isReady(context, chosen)) return chosen
+            return listOf(Model.CANARY, Model.PARAKEET_LARGE, Model.PARAKEET_MULTI, Model.PARAKEET_SMALL)
+                .firstOrNull { isReady(context, it) } ?: chosen
+        }
+        return listOfNotNull(chosen, Model.CANARY, Model.PARAKEET_MULTI)
+            .firstOrNull { language in it.languages && isReady(context, it) }
+    }
 
     sealed interface State {
         data object Missing : State
@@ -215,7 +252,8 @@ object SpeechModels {
         dir(context, model).deleteRecursively()
         states.getValue(model).value = State.Missing
         updateProgress(context.applicationContext)
-        if (model == _selected.value || model == _final.value) SpeechEngine.unload()
+        // A final model may be in use without being the chosen one: the one for the phone's language.
+        if (model == _selected.value || model.role == Role.FINAL) SpeechEngine.unload()
     }
 
     /** Fetches just the files the recognizer reads. */

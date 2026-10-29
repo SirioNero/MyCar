@@ -114,7 +114,9 @@ class CertCatalogTest {
     @Test
     fun `the real catalog is well formed`() {
         for (e in CertCatalog.entries) {
-            assertTrue(e.id, e.sha256.matches(Regex("[0-9A-F]{64}")))
+            // A fixed fingerprint, or the root of a family whose members change.
+            val pin = e.sha256 ?: e.family?.rootSha256
+            assertTrue(e.id, pin.orEmpty().matches(Regex("[0-9A-F]{64}")))
             assertEquals(e.id, e.certUrls.size, e.keyUrls.size)
             assertTrue(e.id, e.certUrls.all { it.startsWith("https://") })
         }

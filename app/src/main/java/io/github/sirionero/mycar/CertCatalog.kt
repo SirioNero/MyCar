@@ -25,14 +25,32 @@ object CertCatalog {
         val certUrls: List<String>,
         /** The key beside each certificate, in the same order. */
         val keyUrls: List<String>,
-        /** SHA-256 of the certificate (DER), in capitals without separators. */
-        val sha256: String,
+        /** SHA-256 of the certificate (DER), in capitals without separators; null for one of a [family]. */
+        val sha256: String?,
+        /** For a certificate its source replaces every few months: what each new one must be. */
+        val family: Family? = null,
+        /** Its place in the phone's list ("Recommended", "Spare"...). */
+        val role: String = "",
+        /** What it's for, under its name in Settings. */
+        val about: String = "",
     )
+
+    /**
+     * A certificate its source replaces every few months, as Android Auto does its own: no fixed
+     * SHA-256, but always one naming [organisation] and signed by the same root ([rootSha256],
+     * named [rootOrganisation]), which the file carries after it.
+     */
+    class Family(val organisation: String, val rootOrganisation: String, val rootSha256: String)
 
     private const val AASDK = "https://raw.githubusercontent.com/opencardev/aasdk"
     private const val AASDK_COMMIT = "5483c6481742d35bd9ed5923eb74a3562eeab84b"
     private const val REVIVED = "https://raw.githubusercontent.com/andreknieriem/headunit-revived"
     private const val REVIVED_COMMIT = "620af558d7e7e98c9b64053177b636d3a692d233"
+    private const val ARCHIVE = "https://raw.githubusercontent.com/Iscle/android-auto-certificates"
+    private const val ARCHIVE_COMMIT = "c20cc85eb7ff8dee1f8947e9b310add420901557"
+
+    /** Google Automotive Link, the root every car trusts (the other two are signed by it too), valid until 2044. */
+    private const val GOOGLE_AUTOMOTIVE_LINK = "49E52EFC13AD2ED09F204C3B10698BD84BB7105F510558AA14B8119A5C4AD17F"
 
     /** Taken by most cars tried so far. */
     val aasdk = Entry(
@@ -42,6 +60,8 @@ object CertCatalog {
         certUrls = listOf(AASDK_COMMIT, "main", "newdev").map { "$AASDK/$it/cert/headunit.crt" },
         keyUrls = listOf(AASDK_COMMIT, "main", "newdev").map { "$AASDK/$it/cert/headunit.key" },
         sha256 = "1C0E0EF9E672DD1A63AB4D61AFAA8996A57CA7AA966D1922B97D8F9385EA3C35",
+        role = "Recommended",
+        about = "Works in most cars tried so far. From the aasdk project.",
     )
 
     /** The spare, valid until 2044, for a car that turns down the first. */
@@ -52,17 +72,38 @@ object CertCatalog {
         certUrls = listOf(REVIVED_COMMIT, "main").map { "$REVIVED/$it/app/src/main/res/raw/cert" },
         keyUrls = listOf(REVIVED_COMMIT, "main").map { "$REVIVED/$it/app/src/main/res/raw/privkey" },
         sha256 = "E323CC6DD52D1F2A280360A0E92EFA04AB3664DD68FAB3DD187F03D663FEED6D",
+        role = "Spare",
+        about = "Valid until 2044, for cars that turn down the first one. From the Headunit Revived project.",
+    )
+
+    /**
+     * Android Auto's own (CarService), for the cars that check phones most strictly, recent
+     * Volkswagens among them. Android Auto replaces it every few months, and the archive keeps the
+     * newest under latest: so no fixed fingerprint, but Google's root ([Family]), and fetched anew
+     * before it runs out ([refreshIfDue]). The branch first, for the newest; the commit last.
+     */
+    val carService = Entry(
+        id = "carservice",
+        label = "CarService",
+        project = "Iscle/android-auto-certificates, taken from Android Auto",
+        certUrls = listOf("main", ARCHIVE_COMMIT).map { "$ARCHIVE/$it/android-auto/latest/certificate.pem" },
+        keyUrls = listOf("main", ARCHIVE_COMMIT).map { "$ARCHIVE/$it/android-auto/latest/private-key.pem" },
+        sha256 = null,
+        family = Family(organisation = "CarService", rootOrganisation = "Google Automotive Link", rootSha256 = GOOGLE_AUTOMOTIVE_LINK),
+        role = "Newest cars",
+        about = "Android Auto's own, for cars that check phones most strictly, recent Volkswagens among them. " +
+            "Android Auto replaces it every few months: myCar gets the new one before it runs out.",
     )
 
     /** In the order myCar offers and tries them: the recommended one first. */
-    val entries = listOf(aasdk, revived)
+    val entries = listOf(aasdk, revived, carService)
 
     fun entry(id: String): Entry? = entries.firstOrNull { it.id == id }
 
-    /** Which catalog certificate [cert] is, by its fingerprint; null for one from elsewhere. */
+    /** Which catalog certificate [cert] is, by its fingerprint or its family; null for one from elsewhere. */
     fun idOf(cert: X509Certificate, list: List<Entry> = entries): String? {
         val sha = CertChecks.sha256(cert)
-        return list.firstOrNull { it.sha256 == sha }?.id
+        return list.firstOrNull { it.sha256 == sha || it.family?.let { family -> CertChecks.inFamily(family, cert) } == true }?.id
     }
 
     // --- download --------------------------------------------------------------------------
@@ -109,6 +150,50 @@ object CertCatalog {
         }
         throw IllegalStateException("couldn't get ${entry.label}: ${problem?.message}", problem)
     }
+
+    // --- a family's new certificate ---------------------------------------------------------
+
+    /** How close to its end a family certificate is fetched anew: about the time its source takes to publish the next. */
+    private const val REFRESH_BEFORE_MS = 30L * 24 * 60 * 60 * 1000
+    private val refreshedThisRun = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    /**
+     * Once a run (or [force]d, after a car found it expired): fetches anew a stored certificate its
+     * source replaces once it's within a month of its end, and puts the new one in use where the
+     * old one was. Without network it waits for the next start. Synchronous: off the main thread.
+     */
+    fun refreshIfDue(context: Context, force: Boolean = false) {
+        if (!force && !refreshedThisRun.compareAndSet(false, true)) return
+        if (refreshIfDue(context.filesDir, entries, CertDownloader::fetchText)) CertProvider.warm(context)
+    }
+
+    internal fun refreshIfDue(base: File, list: List<Entry>, fetch: (String) -> String, now: Long = System.currentTimeMillis()): Boolean {
+        var changed = false
+        for (entry in list) {
+            if (entry.family == null || !stored(base, entry.id)) continue
+            val old = runCatching { readCertificate(file(base, entry.id)) }.getOrNull() ?: continue
+            if (old.notAfter.time - now > REFRESH_BEFORE_MS) continue
+            val slot = CertProvider.downloadedSlot(base)
+            val inUse = slot.isFile && runCatching { CertChecks.sha256(readCertificate(slot)) == CertChecks.sha256(old) }.getOrDefault(false)
+            runCatching { fetchVerified(entry, fetch) }
+                .onSuccess { fresh ->
+                    if (fresh.certificate.notAfter.after(old.notAfter)) {
+                        store(base, entry.id, fresh)
+                        if (inUse) activate(base, entry.id)
+                        changed = true
+                        log.i("${entry.label}: the new one is here, valid until ${fresh.certificate.notAfter}")
+                    } else {
+                        log.i("${entry.label}: no newer one yet; this one runs out ${old.notAfter}")
+                    }
+                }
+                .onFailure { log.w("${entry.label}: couldn't get the new one - ${it.message}") }
+        }
+        return changed
+    }
+
+    /** When the stored copy of [id] runs out, or null when there's none. Opens the file: off the main thread. */
+    fun validUntil(context: Context, id: String): java.util.Date? =
+        runCatching { readCertificate(file(context.filesDir, id)).notAfter }.getOrNull()
 
     // --- storage ---------------------------------------------------------------------------
 

@@ -494,6 +494,33 @@ echo "--- the microphone with the phone locked ---"
 grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
     echo "assistant-locked: nothing in the log"
 
+# The assistant in another language on the car's screen (--es voiceLang, as with its model on the
+# phone): its help in Italian, in German (the longest words), at 800x480, and an answer in German.
+EXTRA="--es voiceLang it --ez voiceHelp true" shoot voice-it 1920 720 240 "$WAIT"
+EXTRA="--es voiceLang de --ez voiceHelp true" shoot voice-de 1920 720 240 "$WAIT"
+EXTRA="--es voiceLang it --ez voiceHelp true" shoot voice-it-800x480 800 480 160 "$WAIT"
+EXTRA="--es voiceLang de --es voiceReply 'Around 14:30, in 1 hour 5 minutes.'" shoot voice-reply 1920 720 240 "$WAIT"
+
+# The speech models' files where myCar downloads them, by size (the emulator can't run the speech
+# library, which is arm64 only), an answer in each language and the phone's voices for them.
+voice_check() {
+    case " ${ONLY:-voice-check} " in *" voice-check "*) ;; *) return ;; esac
+    local d=previews/voice-check i
+    mkdir -p $d
+    adb shell am force-stop "$PKG"
+    adb logcat -c
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.VoiceCheckActivity"
+    for i in $(seq 1 30); do
+        sleep 4
+        adb logcat -d -s myCar | grep -q "voice check: done" && break
+    done
+    adb logcat -d -s myCar > $d/log.txt
+    adb logcat -d -b crash > $d/crash.txt 2>&1
+    echo "--- voice check ---"
+    grep -h "voice check" $d/log.txt || echo "voice-check: nothing in the log"
+}
+voice_check
+
 # The setup list on the phone, as a new user finds it: myCar's data cleared and no permissions
 # (the install above granted them all). Last, since it wipes myCar's data. 01 the list; 02 after
 # "Get certificates", a real download from GitHub checked against the fingerprints; 03-* Android's
@@ -558,16 +585,29 @@ setup_phone() {
     adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
     sleep 5; tap_text "How to connect"; sleep 3
     tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/08-partial.png
-    # The intro, as after an update: its first page, the pirate flag hoisted and then in the wind.
-    # The emulator runs with animations off (the runner's default), which stops the wind: on for
-    # these shots only.
+    # The intro, as after a big release: its first page, the pirate ship sailing in, then running
+    # its flag up the main mast. The emulator runs with animations off (the runner's default),
+    # which stops the sea and the wind: on for these shots only.
     adb shell am force-stop "$PKG"
     adb shell run-as "$PKG" rm -f shared_prefs/intro.xml
     adb shell settings put global animator_duration_scale 1
     adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
-    sleep 2.5; adb exec-out screencap -p > $d/09-intro-1.png
-    sleep 0.6; adb exec-out screencap -p > $d/09-intro-2.png
-    sleep 0.6; adb exec-out screencap -p > $d/09-intro-3.png
+    sleep 1.2; adb exec-out screencap -p > $d/09-intro-1.png
+    sleep 1.2; adb exec-out screencap -p > $d/09-intro-2.png
+    sleep 1.2; adb exec-out screencap -p > $d/09-intro-3.png
+    sleep 2; adb exec-out screencap -p > $d/09-intro-4.png
+    # After a smaller update: the intro of this release seen, an older version noted, so the flag
+    # runs up on its own page (UpdateSplash) before Home.
+    adb shell am force-stop "$PKG"
+    release=$(sed -nE 's/.*versionName = .*"([0-9]+\.[0-9]+)\.[0-9]+[^"]*".*/\1/p' app/build.gradle.kts | head -1)
+    adb shell "run-as $PKG sh -c 'printf \"<map><string name=\\\"seen_release\\\">$release</string></map>\" > shared_prefs/intro.xml'"
+    adb shell "run-as $PKG sh -c 'printf \"<map><int name=\\\"version_code\\\" value=\\\"1\\\" /></map>\" > shared_prefs/update_flag.xml'"
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 1; adb exec-out screencap -p > $d/10-update-1.png
+    sleep 1.5; adb exec-out screencap -p > $d/10-update-2.png
+    sleep 2; adb exec-out screencap -p > $d/10-update-3.png
+    # A tap goes on to Home.
+    adb shell input tap 160 320; sleep 2; adb exec-out screencap -p > $d/10-update-4.png
     adb shell settings put global animator_duration_scale 0
     adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
     adb logcat -d -b crash > $d/crash.txt 2>&1

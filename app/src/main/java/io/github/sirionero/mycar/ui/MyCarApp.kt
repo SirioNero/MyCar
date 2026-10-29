@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.home.HomeAssistant
@@ -57,7 +58,10 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             else -> Screen.HOME
         }
     }
-    var screen by rememberSaveable { mutableStateOf(if (Intro.due(context)) Screen.INTRO else afterIntro) }
+    val introDue = remember { Intro.due(context) }
+    var screen by rememberSaveable { mutableStateOf(if (introDue) Screen.INTRO else afterIntro) }
+    // After an update too small for an intro: the flag run up, once, before anything else.
+    var updateFlag by rememberSaveable { mutableStateOf(UpdateFlag.due(context, introDue)) }
     // A replay from About goes back to Settings; the launch one carries on into setup.
     var introReturn by rememberSaveable { mutableStateOf(afterIntro) }
     // Home's cards open Settings at their section rather than at the top.
@@ -93,6 +97,10 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     LaunchedEffect(Unit) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { runCatching { CertSummary.read(context) } }
     }
+    // CarService lasts a few months: the new one is fetched before the one on the phone runs out.
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { CertCatalog.refreshIfDue(context) } }
+    }
 
     // Android 17 keeps myCar off the home network until it's allowed (see LocalNetwork), and
     // Plancia's and Xonos's servers are usually there, whatever their addresses look like: asked
@@ -111,6 +119,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             LocalNetwork.askedAtStart = true
             localNetworkPermission.launch(LocalNetwork.PERMISSION)
         }
+    }
+
+    if (updateFlag) {
+        UpdateSplash(onDone = { updateFlag = false })
+        return
     }
 
     Column(

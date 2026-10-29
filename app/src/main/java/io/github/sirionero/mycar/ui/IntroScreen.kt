@@ -88,7 +88,10 @@ import io.github.sirionero.mycar.car.theme.GsIconButton
 import io.github.sirionero.mycar.car.theme.GsThemes
 import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.car.theme.LocalGsTheme
+import io.github.sirionero.mycar.car.AssistantLanguage
 import io.github.sirionero.mycar.speech.SpeechModels
+import io.github.sirionero.mycar.speech.VoiceLanguage
+import io.github.sirionero.mycar.speech.VoiceLanguages
 import io.github.sirionero.mycar.stats.UsageStats
 import kotlin.math.PI
 import kotlin.math.cos
@@ -97,6 +100,7 @@ import kotlin.math.sqrt
 import kotlin.math.sin
 import kotlin.random.Random
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 /**
  * The release intro: a few screens shown once after updating to a new release, before setup. New
@@ -119,14 +123,16 @@ object Intro {
      */
     fun due(context: Context): Boolean {
         if (context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_SEEN, null) == release) return false
-        val usedBefore = AppSettings.hasSeenPermissionsSetup(context) ||
-            AppSettings.hasSkippedCertSetup(context) || CertProvider.hasAnyCert(context)
-        if (!usedBefore) {
+        if (!usedBefore(context)) {
             markSeen(context)
             return false
         }
         return true
     }
+
+    /** Whether myCar was set up before: an install that wasn't is new, with nothing "new" to show yet. */
+    internal fun usedBefore(context: Context) = AppSettings.hasSeenPermissionsSetup(context) ||
+        AppSettings.hasSkippedCertSetup(context) || CertProvider.hasAnyCert(context)
 
     fun markSeen(context: Context) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -275,17 +281,14 @@ internal fun Modifier.pop(p: Float) = graphicsLayer {
 @Composable
 private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, height: Dp) {
     val key = IntroStep.WELCOME
-    val spin by rememberInfiniteTransition(label = "spin").animateFloat(
-        0f, 360f, infiniteRepeatable(tween(18_000, easing = LinearEasing)), label = "spin",
-    )
     Box(Modifier.fillMaxSize()) {
-        Cookie(c.primaryC, Modifier.size(cq(120f)).offset(x = cq(28f), y = -cq(22f)).align(Alignment.TopEnd).graphicsLayer { rotationZ = spin; alpha = 0.9f })
-        // Where a band of words used to scroll: a pirate flag flying "100% LOCAL" (see PirateFlag),
-        // as tall as the phone leaves room for above the welcome.
-        val flagHeight = minOf(cq(38f), height * 0.23f)
-        PirateFlag(key, Modifier.align(Alignment.TopStart).padding(start = cq(6f), top = height * 0.025f).size(width = flagHeight * 1.62f, height = flagHeight))
+        // The intro comes with a big release: the pirate ship sails in and runs its flag up the main
+        // mast (see PirateShip), where the flag alone flew at the top before. As big as the phone
+        // leaves room for above the welcome.
+        val shipHeight = minOf(cq(74f), height * 0.5f)
+        PirateShip(key, c.onSurface, Modifier.align(Alignment.TopCenter).size(width = shipHeight / 0.74f, height = shipHeight))
 
-        Column(Modifier.align(Alignment.CenterStart).padding(horizontal = cq(8f))) {
+        Column(Modifier.align(Alignment.BottomStart).padding(horizontal = cq(8f)).padding(bottom = height * 0.06f)) {
             Text("Welcome to", color = c.onVariant, style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.up(entrance(key, 100), cq(7f)))
             Text(
@@ -301,7 +304,8 @@ private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit
             )
         }
 
-        Confetti(c, key, Modifier.fillMaxSize())
+        // Thrown from behind the version number, under the ship.
+        Confetti(c, key, Modifier.align(Alignment.BottomStart).fillMaxWidth().height(height * 0.46f))
     }
 }
 
@@ -403,7 +407,7 @@ private fun BadgeStep(
 private fun VoiceStep(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, key: IntroStep) {
     val context = LocalContext.current
     remember { SpeechModels.init(context) }
-    val needed = SpeechModels.RECOMMENDED
+    val needed = SpeechModels.recommended()
     val states = needed.map { SpeechModels.state(it).collectAsState().value }
     val ready = states.all { it == SpeechModels.State.Ready }
     val label = when {
@@ -412,10 +416,13 @@ private fun VoiceStep(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUn
         states.any { it is SpeechModels.State.Failed } -> "Download failed. Try again"
         else -> "Download voice, ${needed.sumOf { it.downloadMb }} MB"
     }
+    val phone = VoiceLanguages.phone()
+    val helpWord = AssistantLanguage.help(phone)?.last()?.first ?: "help"
+    val inLanguage = if (phone == VoiceLanguage.EN) "" else " It listens and answers in ${phone.locale.getDisplayLanguage(Locale.ENGLISH)}, like your phone."
     BadgeStep(
         c, cq, cqSp, c.primaryC, "Just say it.",
         "Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech " +
-            "into text by itself, and nothing you say leaves it. Say \"help\" in the car for the full list.",
+            "into text by itself, and nothing you say leaves it.$inLanguage Say \"$helpWord\" in the car for the full list.",
         key,
         action = if (ready) null else label to { SpeechModels.downloadRecommended(context) },
         outlined = true,
@@ -437,8 +444,10 @@ private val SAMPLE_COMMANDS = listOf(
 /** Example commands rising slowly through a window that fades at both edges. */
 @Composable
 private fun CommandDrift(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit, key: Any) {
+    // In the phone's language, the one the assistant will listen in.
+    val samples = remember { AssistantLanguage.samples(VoiceLanguages.phone()) ?: SAMPLE_COMMANDS }
     val scroll by rememberInfiniteTransition(label = "drift").animateFloat(
-        0f, 1f, infiniteRepeatable(tween(SAMPLE_COMMANDS.size * 2_200, easing = LinearEasing)), label = "drift",
+        0f, 1f, infiniteRepeatable(tween(samples.size * 2_200, easing = LinearEasing)), label = "drift",
     )
     Box(
         Modifier
@@ -464,7 +473,7 @@ private fun CommandDrift(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> Tex
             verticalArrangement = Arrangement.spacedBy(cq(2.4f)),
         ) {
             repeat(2) {
-                SAMPLE_COMMANDS.forEach { say ->
+                samples.forEach { say ->
                     Text(
                         "\u201c$say\u201d", color = c.onSecondaryC,
                         style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),

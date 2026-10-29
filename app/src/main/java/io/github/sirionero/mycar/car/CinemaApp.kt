@@ -97,6 +97,11 @@ import kotlin.math.absoluteValue
 @Composable
 internal fun CinemaScreen() {
     val context = LocalContext.current
+    // Leaving Cinema, the music that was playing when it opened goes on (a film stopped it).
+    DisposableEffect(Unit) {
+        val music = CinemaMusic.opened()
+        onDispose { CinemaMusic.closed(music) }
+    }
     val sites by Cinema.sites.collectAsState()
     val tvLists by TvLists.lists.collectAsState()
     LaunchedEffect(Unit) { CinemaContinue.load(context) }

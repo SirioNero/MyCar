@@ -371,14 +371,21 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
                 s?.issuer?.let { Detail("Issuer", it) }
             }
         }
-        // The public certificates: the recommended one and the spare, picked here by hand.
+        // The public certificates: the recommended one and the spares, picked here by hand.
         val present = remember(refresh) { CertCatalog.present(context) }
-        CertCatalog.entries.forEachIndexed { index, entry ->
+        // When the ones that change (CarService) run out: opening the file takes a moment.
+        val until by produceState<Map<String, java.util.Date>>(emptyMap(), refresh) {
+            value = withContext(Dispatchers.IO) {
+                CertCatalog.entries.filter { it.family != null }
+                    .mapNotNull { entry -> CertCatalog.validUntil(context, entry.id)?.let { entry.id to it } }.toMap()
+            }
+        }
+        CertCatalog.entries.forEach { entry ->
             val inUse = s?.kind == CertProvider.Kind.DOWNLOADED && s?.catalogId == entry.id
             val stored = entry.id in present
             SettingsDivider()
             SettingsRow(
-                entry.label + if (index == 0) " · Recommended" else " · Spare",
+                entry.label + " · " + entry.role,
                 Modifier.selectable(inUse, enabled = !downloading, role = Role.RadioButton) {
                     if (inUse) return@selectable
                     downloading = true
@@ -402,7 +409,8 @@ private fun CertificateSection(modifier: Modifier = Modifier) {
                         refresh++
                     }
                 },
-                subtitle = (if (index == 0) "Works in most cars tried so far. From the aasdk project." else "Valid until 2044, for cars that turn down the first one. From the Headunit Revived project.") +
+                subtitle = entry.about +
+                    (until[entry.id]?.let { " This one is valid until ${java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(it)}." } ?: "") +
                     when {
                         inUse -> " In use."
                         stored -> " Downloaded."

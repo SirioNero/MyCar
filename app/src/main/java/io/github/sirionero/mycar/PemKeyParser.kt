@@ -59,6 +59,16 @@ object PemKeyParser {
             .generateCertificate(ByteArrayInputStream(der)) as X509Certificate
     }
 
+    /** Every certificate in [pem], in order: one, then those that vouch for it. */
+    fun parseCertificates(pem: String): List<X509Certificate> {
+        val factory = CertificateFactory.getInstance("X.509")
+        val block = Regex(Regex.escape(CERT_HEADER) + "(.*?)" + Regex.escape(CERT_FOOTER), RegexOption.DOT_MATCHES_ALL)
+        return block.findAll(pem).map { match ->
+            val der = java.util.Base64.getDecoder().decode(match.groupValues[1].replace(Regex("\\s+"), ""))
+            factory.generateCertificate(ByteArrayInputStream(der)) as X509Certificate
+        }.toList()
+    }
+
     /** Parses an RSA private key, PKCS#1 or PKCS#8 (ASN.1 DER), into a key spec. */
     fun parsePrivateKey(pem: String): KeySpec {
         if (pem.contains(PKCS8_HEADER)) return parsePkcs8(pem)

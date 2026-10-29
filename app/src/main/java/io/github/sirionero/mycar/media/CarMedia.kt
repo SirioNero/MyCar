@@ -552,6 +552,7 @@ class CarMedia(private val context: Context) {
      * as soon as the microphone let go. A real pause tells the app to stay stopped.
      */
     fun pause() = controller?.transportControls?.pause()
+    fun play() = controller?.transportControls?.play()
     fun next() = controller?.transportControls?.skipToNext()
     fun previous() = controller?.transportControls?.skipToPrevious()
     fun seek(ms: Long) = controller?.transportControls?.seekTo(ms)

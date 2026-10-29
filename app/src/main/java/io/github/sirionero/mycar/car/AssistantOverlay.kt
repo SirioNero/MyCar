@@ -97,8 +97,11 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             PulsingMic(listening)
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                // In the driver's language, like the answers (AssistantLanguage).
+                val listeningLabel = AssistantLanguage.label("Listening…")
+                val waitLabel = AssistantLanguage.label("One moment…")
                 val (small, big) = when (state.phase) {
-                    CarAssistant.Phase.LISTENING -> "" to state.heard.ifBlank { if (state.ready) "Listening…" else "One moment…" }
+                    CarAssistant.Phase.LISTENING -> "" to state.heard.ifBlank { if (state.ready) listeningLabel else waitLabel }
                     CarAssistant.Phase.THINKING -> "" to state.heard.ifBlank { "…" }
                     else -> state.heard to state.reply
                 }
@@ -107,7 +110,7 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
                 }
                 Text(
                     big,
-                    color = if (big == "Listening…" || big == "One moment…" || big == "…") Color.White.copy(alpha = 0.7f) else Color.White,
+                    color = if (big == listeningLabel || big == waitLabel || big == "…") Color.White.copy(alpha = 0.7f) else Color.White,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
