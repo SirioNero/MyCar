@@ -22,6 +22,7 @@ internal object AssistantLanguage {
         VoiceLanguage.DE -> GermanPhrases
         VoiceLanguage.PT -> PortuguesePhrases
         VoiceLanguage.EL -> GreekPhrases
+        VoiceLanguage.RU -> RussianPhrases
         VoiceLanguage.ZH -> ChinesePhrases
     }
 

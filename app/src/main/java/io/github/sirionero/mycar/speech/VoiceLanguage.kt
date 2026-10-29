@@ -14,6 +14,7 @@ enum class VoiceLanguage(val code: String, /** Its own name, as the phone's sett
     DE("de", "Deutsch"),
     PT("pt", "Português"),
     EL("el", "Ελληνικά"),
+    RU("ru", "Русский"),
     ZH("zh", "中文"),
     ;
 
