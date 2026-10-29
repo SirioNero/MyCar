@@ -205,7 +205,7 @@ object Tailnet {
      */
     fun why(context: Context, urls: List<String>, failure: Failure, fallback: String, homeNetwork: String = LocalNetwork.HINT): String =
         // Through an app's bridge, that app said what went wrong (bridge/AppBridge): said as it is.
-        if (failure == Failure.OTHER || io.github.sirionero.mycar.bridge.AppBridge.THROUGH in fallback) {
+        if (failure == Failure.OTHER || io.github.sirionero.mycar.bridge.AppBridge.saidThrough(fallback)) {
             fallback
         } else {
             explain(context, urls, failure)

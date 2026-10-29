@@ -119,7 +119,7 @@ class MyCarRunner(
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO)
         SessionReport.begin(wireless)
         log.i("--- session starting ---")
-        SessionStatus.connecting("Talking to the car")
+        SessionStatus.connecting(R.string.connection_stage_talking)
         log.i("device=${Build.MANUFACTURER} ${Build.MODEL}  android=${Build.VERSION.RELEASE} (sdk ${Build.VERSION.SDK_INT})")
 
         // The head unit speaks first, and some give up if the phone doesn't read within about a
@@ -339,7 +339,7 @@ class MyCarRunner(
                 } else "",
         )
         state = State.TLS_HANDSHAKE
-        SessionStatus.connecting("Securing the connection")
+        SessionStatus.connecting(R.string.connection_stage_securing)
         log.i("awaiting ClientHello - the head unit is the TLS client, we are the server")
     }
 
@@ -363,7 +363,7 @@ class MyCarRunner(
             )
             SessionStatus.failed(
                 SessionStatus.CERT_TURNED_DOWN,
-                "The car ended the secure connection: it doesn't accept the phone's certificate.",
+                R.string.connection_cert_tls_refused,
             )
             state = State.DONE
             authenticationFailed = true
@@ -392,7 +392,7 @@ class MyCarRunner(
             0 -> {
                 log.i("STATUS_SUCCESS - certificate accepted; confirming with service discovery")
                 state = State.WAIT_SDR
-                SessionStatus.connecting("Certificate accepted: getting ready")
+                SessionStatus.connecting(R.string.connection_stage_accepted)
                 sendServiceDiscoveryRequest()
                 // After the request: the car is waiting for it, not for the bookkeeping.
                 verdict(CertVerdict.Accepted)
@@ -407,7 +407,7 @@ class MyCarRunner(
                 )
                 SessionStatus.failed(
                     SessionStatus.CERT_TURNED_DOWN,
-                    "The car refused the phone's certificate (certificate error).",
+                    R.string.connection_cert_error,
                 )
                 state = State.DONE
                 authenticationFailed = true
@@ -422,7 +422,7 @@ class MyCarRunner(
                 )
                 SessionStatus.failed(
                     SessionStatus.CERT_TURNED_DOWN,
-                    "The car doesn't trust the certificate in use.",
+                    R.string.connection_cert_untrusted,
                 )
                 state = State.DONE
                 authenticationFailed = true
@@ -438,8 +438,8 @@ class MyCarRunner(
                         "by its own clock. Its date is most likely wrong.",
                 )
                 SessionStatus.failed(
-                    "Check the car's date",
-                    "The car says the phone's certificate isn't valid on its date. Set the car's clock, then plug in again.",
+                    R.string.connection_car_date,
+                    R.string.connection_car_date_detail,
                 )
                 state = State.DONE
                 authenticationFailed = true
@@ -452,7 +452,7 @@ class MyCarRunner(
                     "Unexpected status. Check MessageStatus.proto in aasdk for the meaning " +
                         "before drawing any conclusion.",
                 )
-                SessionStatus.failed("Unexpected answer", "The car answered the certificate check with code $status.")
+                SessionStatus.failed(R.string.connection_unexpected, R.string.connection_unexpected_detail, status.toString())
                 state = State.DONE
                 authenticationFailed = true
             }
@@ -502,7 +502,7 @@ class MyCarRunner(
             log.i("no vehicle profile matched - default display settings (add one to vehicles.json)")
         }
         CarEnvironment.setVehicle(profile?.name ?: "Unknown vehicle", profile?.insets ?: Insets.NONE)
-        SessionStatus.connecting("Starting the picture")
+        SessionStatus.connecting(R.string.connection_stage_picture)
 
         startVideoChannel(body)
     }
@@ -955,7 +955,7 @@ class MyCarRunner(
                         "PHASE A FAILED (channel open rejected)",
                         "The head unit refused to open the video channel (status=$status).",
                     )
-                    SessionStatus.failed("The car refused the picture", "The car wouldn't open its screen to myCar (code $status).")
+                    SessionStatus.failed(R.string.connection_picture_refused, R.string.connection_picture_refused_detail, status.toString())
                     return
                 }
                 // Setup { required MediaCodecType type = 1 }
@@ -1113,7 +1113,7 @@ class MyCarRunner(
         }.onFailure { e ->
             log.e("encoder start failed", e)
             if (!stopped) {
-                SessionStatus.failed("No picture for the car", "The phone's video encoder wouldn't start (${e.message}). myCar closed the connection: connect again.")
+                SessionStatus.failed(R.string.connection_no_picture, R.string.connection_no_picture_detail, e.message.toString())
                 // Not left half up: with no picture the car shows nothing, and Home took the drive
                 // for over, Disconnect gone, while audio and the drive's services ran on.
                 stop()
@@ -1132,7 +1132,7 @@ class MyCarRunner(
             if (stopped) return@Thread
             if (videoRestarts >= MAX_VIDEO_RESTARTS) {
                 log.e("the encoder failed again - no more restarts")
-                SessionStatus.failed("The car's picture stopped", "The phone's video encoder keeps failing (${error.message}). myCar closed the connection: connect again.")
+                SessionStatus.failed(R.string.connection_picture_stopped, R.string.connection_picture_stopped_detail, error.message.toString())
                 stop()
                 return@Thread
             }
@@ -1349,16 +1349,16 @@ class MyCarRunner(
         when (state) {
             State.DONE -> SessionStatus.disconnected()
             State.WAIT_VERSION -> SessionStatus.failed(
-                "The car didn't answer",
-                "The connection opened but the car sent nothing. If Android asks which app to open for the car, choose myCar.",
+                R.string.connection_no_answer,
+                R.string.connection_no_answer_detail,
             )
             State.TLS_HANDSHAKE, State.WAIT_AUTH -> SessionStatus.failed(
-                "The car hung up during setup",
-                "The car ended the connection while securing it. This usually means it turned down the certificate.",
+                R.string.connection_hung_up_setup,
+                R.string.connection_hung_up_setup_detail,
             )
             State.WAIT_SDR -> SessionStatus.failed(
-                "The car hung up after the certificate",
-                "The car accepted the certificate but ended the connection before setup was done.",
+                R.string.connection_hung_up_after_cert,
+                R.string.connection_hung_up_after_cert_detail,
             )
         }
         when (state) {
