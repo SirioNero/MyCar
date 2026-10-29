@@ -219,12 +219,14 @@
     <string name="voice_model_parakeet_small_detail">更轻更快，但更容易漏听名字。NVIDIA NeMo，CC BY 4.0</string>
     <string name="voice_model_canary_detail">推荐。速度快，能准确听出人名和地名。支持英语、西班牙语、德语和法语。NVIDIA NeMo，CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">最能听准名字，但速度较慢，体积是三倍。NVIDIA NeMo，CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">意大利语、葡萄牙语、西班牙语、法语、德语和英语，另有 19 种欧洲语言。和 Parakeet 大型一样大、一样慢。NVIDIA NeMo，CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">意大利语、葡萄牙语、西班牙语、法语、德语、希腊语、俄语和英语，另有 17 种欧洲语言。和 Parakeet 大型一样大、一样慢。NVIDIA NeMo，CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper 小型</string>
+    <string name="voice_model_whisper_detail">用于中文。OpenAI Whisper，MIT</string>
 
     <string name="voice_model_language_title">语音：%1$s</string>
-    <string name="voice_model_language_ready">你的手机语言是%1$s，所以车上的助手会用%1$s听你说话并回答，使用的模型是 %2$s。</string>
-    <string name="voice_model_language_ready_try">你的手机语言是%1$s，所以车上的助手会用%1$s听你说话并回答，使用的模型是 %2$s。试试说“%3$s”。</string>
-    <string name="voice_model_language_missing">你的手机语言是%1$s。下载 %2$s（%3$d MB）后，车上的助手会用%1$s听你说话并回答；在此之前，它只听得懂英语。</string>
+    <string name="voice_model_language_ready">myCar 的语言是%1$s，所以车上的助手会用%1$s听你说话并回答，使用的模型是 %2$s。</string>
+    <string name="voice_model_language_ready_try">myCar 的语言是%1$s，所以车上的助手会用%1$s听你说话并回答，使用的模型是 %2$s。试试说“%3$s”。</string>
+    <string name="voice_model_language_missing">myCar 的语言是%1$s。下载 %2$s（%3$d MB）后，车上的助手会用%1$s听你说话并回答；在此之前，它只听得懂英语。</string>
     <string name="voice_model_language_tts">它会用手机自带的%1$s语音（文字转语音）来回答。如果听起来不对，请在 Android 的文字转语音设置中选择或下载这种语音。</string>
     <string name="voice_model_language_download">下载 %1$s</string>
 

@@ -166,8 +166,8 @@
     <string name="intro_theme_play">播放</string>
     <string name="intro_theme_navigate">导航</string>
     <string name="intro_voice_title">说出来就行。</string>
-    <string name="intro_voice_body">点按麦克风，或按下方向盘上的语音键，然后说话。手机会自己把语音转成文字，你说的话不会离开手机。在车上说“%1$s”可查看完整列表。</string>
-    <string name="intro_voice_body_language">点按麦克风，或按下方向盘上的语音键，然后说话。手机会自己把语音转成文字，你说的话不会离开手机。它会和你的手机一样，用%1$s听你说话并回答。在车上说“%2$s”可查看完整列表。</string>
+    <string name="intro_voice_body">点按麦克风，或按下方向盘上的语音键，然后说话。手机会自己把语音转成文字，你说的话会留在手机上，除非你是在问自己的 Home Assistant。在车上说“%1$s”可查看完整列表。</string>
+    <string name="intro_voice_body_language">点按麦克风，或按下方向盘上的语音键，然后说话。手机会自己把语音转成文字，你说的话会留在手机上，除非你是在问自己的 Home Assistant。它会用 myCar 的语言（%1$s）听你说话并回答。在车上说“%2$s”可查看完整列表。</string>
     <string name="intro_voice_downloading">正在下载，%1$d%%</string>
     <string name="intro_voice_failed">下载失败，点按重试</string>
     <string name="intro_voice_download">下载语音，%1$d MB</string>

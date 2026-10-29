@@ -170,8 +170,8 @@
     <string name="intro_theme_play">Tocar</string>
     <string name="intro_theme_navigate">Navegar</string>
     <string name="intro_voice_title">É só falar.</string>
-    <string name="intro_voice_body">Toque no microfone, ou aperte o botão de voz no volante, e fale. Seu telefone transforma a fala em texto sozinho, e nada do que você diz sai dele. Diga “%1$s” no carro para ver a lista completa.</string>
-    <string name="intro_voice_body_language">Toque no microfone, ou aperte o botão de voz no volante, e fale. Seu telefone transforma a fala em texto sozinho, e nada do que você diz sai dele. Ele ouve e responde em %1$s, como o seu telefone. Diga “%2$s” no carro para ver a lista completa.</string>
+    <string name="intro_voice_body">Toque no microfone, ou aperte o botão de voz no volante, e fale. Seu telefone transforma a fala em texto sozinho, e o que você diz fica nele, a não ser o que você pergunta ao seu próprio Home Assistant. Diga “%1$s” no carro para ver a lista completa.</string>
+    <string name="intro_voice_body_language">Toque no microfone, ou aperte o botão de voz no volante, e fale. Seu telefone transforma a fala em texto sozinho, e o que você diz fica nele, a não ser o que você pergunta ao seu próprio Home Assistant. Ele ouve e responde em %1$s, o idioma do myCar. Diga “%2$s” no carro para ver a lista completa.</string>
     <string name="intro_voice_downloading">Baixando, %1$d%%</string>
     <string name="intro_voice_failed">O download falhou. Tente de novo</string>
     <string name="intro_voice_download">Baixar voz, %1$d MB</string>

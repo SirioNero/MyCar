@@ -170,8 +170,8 @@
     <string name="intro_theme_play">Reproducir</string>
     <string name="intro_theme_navigate">Navegar</string>
     <string name="intro_voice_title">Solo dilo.</string>
-    <string name="intro_voice_body">Toca el micrófono, o pulsa el botón de voz del volante, y habla. Tu teléfono convierte la voz en texto por sí solo, y nada de lo que dices sale de él. Di «%1$s» en el coche para ver la lista completa.</string>
-    <string name="intro_voice_body_language">Toca el micrófono, o pulsa el botón de voz del volante, y habla. Tu teléfono convierte la voz en texto por sí solo, y nada de lo que dices sale de él. Escucha y responde en %1$s, como tu teléfono. Di «%2$s» en el coche para ver la lista completa.</string>
+    <string name="intro_voice_body">Toca el micrófono, o pulsa el botón de voz del volante, y habla. Tu teléfono convierte la voz en texto por sí solo, y lo que dices se queda en él, salvo lo que preguntes a tu propio Home Assistant. Di «%1$s» en el coche para ver la lista completa.</string>
+    <string name="intro_voice_body_language">Toca el micrófono, o pulsa el botón de voz del volante, y habla. Tu teléfono convierte la voz en texto por sí solo, y lo que dices se queda en él, salvo lo que preguntes a tu propio Home Assistant. Escucha y responde en %1$s, el idioma de myCar. Di «%2$s» en el coche para ver la lista completa.</string>
     <string name="intro_voice_downloading">Descargando, %1$d%%</string>
     <string name="intro_voice_failed">No se ha podido descargar. Reintentar</string>
     <string name="intro_voice_download">Descargar la voz, %1$d MB</string>

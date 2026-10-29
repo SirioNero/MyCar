@@ -221,12 +221,14 @@
     <string name="voice_model_parakeet_small_detail">Más ligero y rápido, se le escapan más nombres. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_canary_detail">Recomendado. Rápido, y oye bien nombres y lugares. Inglés, español, alemán y francés. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">El que mejor oye los nombres, pero más lento y tres veces más grande. NVIDIA NeMo, CC BY 4.0</string>
-    <string name="voice_model_parakeet_multi_detail">Italiano, portugués, español, francés, alemán e inglés, y 19 idiomas europeos más. Tan grande y lento como Parakeet grande. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Italiano, portugués, español, francés, alemán, griego, ruso e inglés, y 17 idiomas europeos más. Tan grande y lento como Parakeet grande. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_whisper">Whisper pequeño</string>
+    <string name="voice_model_whisper_detail">Para el chino. OpenAI Whisper, MIT</string>
 
     <string name="voice_model_language_title">Voz: %1$s</string>
-    <string name="voice_model_language_ready">Tu teléfono está en %1$s, así que el asistente del coche escucha y responde en %1$s, con %2$s.</string>
-    <string name="voice_model_language_ready_try">Tu teléfono está en %1$s, así que el asistente del coche escucha y responde en %1$s, con %2$s. Prueba «%3$s».</string>
-    <string name="voice_model_language_missing">Tu teléfono está en %1$s. Con %2$s (%3$d MB), el asistente del coche escucha y responde en %1$s; hasta entonces solo entiende inglés.</string>
+    <string name="voice_model_language_ready">myCar está en %1$s, así que el asistente del coche escucha y responde en %1$s, con %2$s.</string>
+    <string name="voice_model_language_ready_try">myCar está en %1$s, así que el asistente del coche escucha y responde en %1$s, con %2$s. Prueba «%3$s».</string>
+    <string name="voice_model_language_missing">myCar está en %1$s. Con %2$s (%3$d MB), el asistente del coche escucha y responde en %1$s; hasta entonces solo entiende inglés.</string>
     <string name="voice_model_language_tts">Responde con la voz de texto a voz del propio teléfono para el %1$s. Si no suena bien, elige o descarga esa voz en los ajustes de texto a voz de Android.</string>
     <string name="voice_model_language_download">Descargar %1$s</string>
 
