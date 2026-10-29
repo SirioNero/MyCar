@@ -40,7 +40,7 @@ internal fun VoiceModelSection() {
     VoiceLanguageNote()
     SettingsSection(title = "Voice: live words") {
         Text(
-            "The voice assistant turns speech into text on this phone, and nothing you say leaves it. " +
+            "The voice assistant turns speech into text on this phone, and nothing you say leaves it - except, with Home Assistant set up, what myCar can't do itself, sent to your Home Assistant as text. " +
                 "It needs two models, about ${SpeechModels.recommended().sumOf { it.downloadMb }} MB together, downloaded once. " +
                 "This one writes your words as you speak, in English; in another language it only hears when you stop.",
             style = MaterialTheme.typography.bodyMedium,

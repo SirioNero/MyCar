@@ -24,7 +24,7 @@ internal fun AskHomeAssistantRow() {
         subtitle = "What myCar's voice assistant can't do itself goes to the voice assistant set up in Home " +
             "Assistant (Settings > Voice assistants there): Claude, Gemini, ChatGPT, a model at home, or Home " +
             "Assistant's own, which also runs the house. With the phone locked, it answers in place of the " +
-            "phone's assistant.",
+            "phone's assistant. Only those words go to your Home Assistant, as text.",
         icon = Icons.Filled.Home,
         trailing = { Switch(checked = on, onCheckedChange = null) },
     )
