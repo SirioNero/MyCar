@@ -26,11 +26,11 @@ class SessionService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(CHANNEL, "Connected to the car", NotificationManager.IMPORTANCE_LOW))
+        manager.createNotificationChannel(NotificationChannel(CHANNEL, Words.get(R.string.channel_session), NotificationManager.IMPORTANCE_LOW))
         val open = PendingIntent.getActivity(this, 0, Intent(this, MyCarActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.sym_directions_car)
-            .setContentTitle("myCar is connected to the car")
+            .setContentTitle(Words.get(R.string.session_notification_title))
             .setContentIntent(open)
             .setOngoing(true)
             .build()

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The connection with the car (the session, the wireless start-up, the bridge to the Plancia and
+  Xonos apps), the notifications of myCar's services, and the services' names in Android's settings.
+-->
+<resources>
+    <!-- Home on the phone: the card that says how the connection with the car is going. A headline, then a line under it -->
+    <string name="session_idle">Not connected</string>
+    <string name="session_idle_detail">Plug into the car\'s USB port, or connect wirelessly. myCar opens by itself when the car answers.</string>
+    <!-- Headline while connecting; the line under it is the stage (connection_stage_*, wireless_link_*) -->
+    <string name="session_connecting">Connecting</string>
+    <string name="session_connected">Connected</string>
+    <string name="session_connected_detail">myCar is on the car\'s screen.</string>
+    <string name="session_disconnected">Disconnected</string>
+    <string name="session_disconnected_detail">The car is no longer connected.</string>
+    <!-- Headline when the car refuses the phone's certificate; the line under it is one of connection_cert_* -->
+    <string name="session_cert_turned_down">The car turned down the certificate</string>
+
+    <!-- Home on the phone, under "Connecting": how far the connection with the car got -->
+    <string name="connection_stage_talking">Talking to the car</string>
+    <string name="connection_stage_securing">Securing the connection</string>
+    <string name="connection_stage_accepted">Certificate accepted: getting ready</string>
+    <!-- The picture: what myCar shows on the car's screen -->
+    <string name="connection_stage_picture">Starting the picture</string>
+
+    <!-- Home on the phone: why the connection with the car failed. A headline, then its _detail line under it -->
+    <string name="connection_cert_tls_refused">The car ended the secure connection: it doesn\'t accept the phone\'s certificate.</string>
+    <string name="connection_cert_error">The car refused the phone\'s certificate (certificate error).</string>
+    <string name="connection_cert_untrusted">The car doesn\'t trust the certificate in use.</string>
+    <string name="connection_car_date">Check the car\'s date</string>
+    <string name="connection_car_date_detail">The car says the phone\'s certificate isn\'t valid on its date. Set the car\'s clock, then plug in again.</string>
+    <string name="connection_unexpected">Unexpected answer</string>
+    <!-- %1$s: a number, the car's answer -->
+    <string name="connection_unexpected_detail">The car answered the certificate check with code %1$s.</string>
+    <string name="connection_picture_refused">The car refused the picture</string>
+    <!-- %1$s: a number, the car's answer -->
+    <string name="connection_picture_refused_detail">The car wouldn\'t open its screen to myCar (code %1$s).</string>
+    <string name="connection_no_picture">No picture for the car</string>
+    <!-- %1$s: the error as Android says it, in English -->
+    <string name="connection_no_picture_detail">The phone\'s video encoder wouldn\'t start (%1$s). myCar closed the connection: connect again.</string>
+    <string name="connection_picture_stopped">The car\'s picture stopped</string>
+    <!-- %1$s: the error as Android says it, in English -->
+    <string name="connection_picture_stopped_detail">The phone\'s video encoder keeps failing (%1$s). myCar closed the connection: connect again.</string>
+    <string name="connection_no_answer">The car didn\'t answer</string>
+    <string name="connection_no_answer_detail">The connection opened but the car sent nothing. If Android asks which app to open for the car, choose myCar.</string>
+    <!-- Hung up: ended the connection -->
+    <string name="connection_hung_up_setup">The car hung up during setup</string>
+    <string name="connection_hung_up_setup_detail">The car ended the connection while securing it. This usually means it turned down the certificate.</string>
+    <string name="connection_hung_up_after_cert">The car hung up after the certificate</string>
+    <string name="connection_hung_up_after_cert_detail">The car accepted the certificate but ended the connection before setup was done.</string>
+
+    <!-- Home on the phone, connecting wirelessly: the stages under "Connecting". %1$s: the car's Bluetooth name -->
+    <string name="wireless_link_bt_reaching">Bluetooth: reaching %1$s</string>
+    <string name="wireless_link_bt_talking">Bluetooth: talking to %1$s</string>
+    <string name="wireless_link_bt_waiting">Waiting for %1$s. If nothing happens, disconnect the phone in the car\'s Bluetooth menu and connect it again</string>
+    <string name="wireless_link_wifi_joining">Wi-Fi: joining %1$s\'s network</string>
+    <string name="wireless_link_wifi_reaching">Wi-Fi: reaching %1$s</string>
+    <!-- Home on the phone: why the wireless connection failed. A headline, then its _detail line under it. %1$s: the car's Bluetooth name -->
+    <!-- Headline; the line under it is the error as Android says it, in English -->
+    <string name="wireless_link_failed">Wireless start-up failed</string>
+    <string name="wireless_link_bt_permission">Bluetooth permission missing</string>
+    <!-- Nearby devices: Android's name for the permission, as Android writes it in your language -->
+    <string name="wireless_link_bt_permission_detail">myCar needs the Nearby devices permission to reach %1$s. Allow it in the app\'s settings, then try again.</string>
+    <!-- Headline; the line under it is the error as Android says it, in English -->
+    <string name="wireless_link_bt_publish_failed">Couldn\'t publish the Android Auto service</string>
+    <string name="wireless_link_bt_no_car">Car didn\'t connect over Bluetooth</string>
+    <string name="wireless_link_bt_no_car_detail">%1$s didn\'t open Android Auto with the phone. Check that wireless Android Auto is on in the car\'s settings, then reconnect the phone from the car\'s Bluetooth menu.</string>
+    <string name="wireless_link_wifi_failed">Couldn\'t join the car\'s Wi-Fi</string>
+    <!-- Connect to device: the title of Android's own prompt, as Android writes it in your language -->
+    <string name="wireless_link_wifi_failed_detail">Android didn\'t connect to %1$s\'s network. If a \"Connect to device\" prompt appeared, it has to be accepted.</string>
+    <string name="wireless_link_vpn">A VPN is blocking the car</string>
+    <string name="wireless_link_vpn_detail">myCar joined %1$s\'s network, but a VPN on this phone (Tailscale, for one) won\'t let it reach the car. Connect with the cable, turn the VPN off, or leave myCar out of it in its settings - then Plancia and Xonos inside myCar can\'t use the VPN\'s addresses, like Tailscale names.</string>
+    <string name="wireless_link_no_connection">Car\'s Wi-Fi joined, but no connection</string>
+    <!-- %2$s: the car's address, like 192.168.1.1:5288 -->
+    <string name="wireless_link_no_connection_detail">myCar joined %1$s\'s network but couldn\'t reach Android Auto at %2$s.</string>
+
+    <!--
+      With Tailscale leaving myCar out, Plancia and Xonos inside myCar reach their servers through
+      the Plancia and Xonos apps (the bridge). Why such a connection failed, on the car's screen and
+      on the phone: bridge_through, with one of the reasons below in it.
+    -->
+    <!-- %1$s: the app, Plancia or Xonos. %2$s: one of the reasons below, which begin in lower case and call the app "it" -->
+    <string name="bridge_through">Through the %1$s app: %2$s</string>
+    <!-- A reason after "Through the … app:". %1$s: the app, Plancia or Xonos -->
+    <string name="bridge_no_answer">it didn\'t answer. Open the %1$s app once, then try again.</string>
+    <!-- A reason after "Through the … app:". %1$s: the app, Plancia or Xonos -->
+    <string name="bridge_unknown">it doesn\'t know this myCar\'s bridge. Update the %1$s app.</string>
+    <!-- A reason after "Through the … app:". %1$s: the app, Plancia or Xonos -->
+    <string name="bridge_not_mycar">it doesn\'t accept this myCar. Update the %1$s app.</string>
+    <!-- A reason after "Through the … app:". %1$s: the app, Plancia or Xonos -->
+    <string name="bridge_not_ours">it\'s set up with another address. Use the same address in myCar and in the %1$s app.</string>
+    <!-- A reason after "Through the … app:". %1$s: the app, Plancia or Xonos -->
+    <string name="bridge_not_understood">its answer wasn\'t understood. Update the %1$s app.</string>
+    <!-- A reason after "Through the … app:" -->
+    <string name="bridge_closed">it closed. Try again.</string>
+    <!-- A reason after "Through the … app:". %1$s: the server inside the app, Home Assistant or Music Assistant -->
+    <string name="bridge_server_starting">%1$s on this phone is still starting. myCar keeps trying.</string>
+    <!-- A reason after "Through the … app:" (it: the app). %1$s: the server, Home Assistant or Music Assistant -->
+    <string name="bridge_server_silent">%1$s doesn\'t answer it either. Check that Tailscale is on, and %1$s is running.</string>
+    <!-- A reason after "Through the … app:". %1$s: what the app said, in English -->
+    <string name="bridge_no_connection">no connection (%1$s).</string>
+
+    <!-- Notification channels: their names in Android's notification settings for myCar -->
+    <string name="channel_session">Connected to the car</string>
+    <string name="channel_audio">Car audio</string>
+    <string name="channel_mirror">Phone mirroring</string>
+    <!-- Notification while a car is connected -->
+    <string name="session_notification_title">myCar is connected to the car</string>
+    <!-- Notification while myCar sends the phone's sound to the car -->
+    <string name="audio_notification_title">Playing to the car</string>
+    <string name="audio_notification_text">myCar is sending the phone\'s audio to the car.</string>
+    <!-- Notification while the car's screen shows the phone's -->
+    <string name="mirror_notification_title">Mirroring to the car</string>
+    <string name="mirror_notification_text">The car screen is showing this phone.</string>
+    <!-- Button on those two notifications: ends the sound to the car, or the mirroring -->
+    <string name="service_notification_stop">Stop</string>
+
+    <!-- myCar's services by name, in Android's settings. In Accessibility: replays the car screen's touches on the phone -->
+    <string name="accessibility_touch_label">myCar touch</string>
+    <!-- In the apps with notification access -->
+    <string name="listener_notifications_label">myCar notifications</string>
+    <!-- Android's caller ID and spam app, among the default apps -->
+    <string name="service_calls_label">myCar calls</string>
+</resources>

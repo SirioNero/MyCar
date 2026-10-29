@@ -26,7 +26,7 @@ private fun plainly(context: Context, problem: Problem, detail: String?): String
     Problem.NETWORK -> when {
         detail == null -> context.getString(R.string.xonos_problem_unreachable)
         // Attraverso l'app Xonos: il motivo come lo dice myCar (bridge/AppBridge), senza "Network error" davanti.
-        detail.startsWith(io.github.sirionero.mycar.bridge.AppBridge.THROUGH) -> detail
+        io.github.sirionero.mycar.bridge.AppBridge.saidThrough(detail) -> detail
         else -> context.getString(R.string.xonos_problem_network, detail)
     }
     Problem.LOST -> context.getString(R.string.xonos_problem_lost)
