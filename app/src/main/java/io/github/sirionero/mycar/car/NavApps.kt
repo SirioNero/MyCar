@@ -209,8 +209,13 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
         return
     }
     val pinned by CarSettings.pinnedApps.collectAsState()
-    val isPinned = id in pinned
-    val barFull = !isPinned && pinned.size >= CarSettings.MAX_PINNED
+    val entries = rememberAllEntries()
+    // The pin this app shows for in the dock: saved as it, or as its Plancia or Xonos twin.
+    val mine = pinned.firstOrNull { pinShown(it, entries) == id }
+    val isPinned = mine != null
+    // Only pins the dock can show count: one of an app since removed took a place no one could free.
+    val shown = pinned.filter { stored -> entries.any { it.componentId == pinShown(stored, entries) } }
+    val barFull = !isPinned && shown.size >= CarSettings.MAX_PINNED
     val slot = running[id]
 
     Box(
@@ -250,7 +255,15 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                 }
                 GsButton(
                     onClick = {
-                        CarSettings.togglePin(id)
+                        if (mine != null) {
+                            CarSettings.togglePin(mine)
+                        } else {
+                            // Room the dock can't show freed first, once the phone's apps are known.
+                            if (pinned.size >= CarSettings.MAX_PINNED && LauncherCache.entries != null) {
+                                (pinned - shown.toSet()).forEach(CarSettings::togglePin)
+                            }
+                            CarSettings.togglePin(id)
+                        }
                         navigator.dismissAppMenu()
                     },
                     tone = GsTone.Tonal,

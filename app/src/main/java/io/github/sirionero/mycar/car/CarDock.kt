@@ -108,11 +108,14 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
     val mediaShown = mediaPhase == CarMedia.Phase.READY && now.isActive
 
     // A pinned app that's also open keeps its pinned place, marked with a dot. The map has its own
-    // slot, and the media app's is the song playing, so neither shows twice.
-    val pinned = pinnedIds.mapNotNull { id -> entries.find { it.componentId == id } }
+    // slot, and the media app's is the song playing, so neither shows twice. A pin saved as the
+    // Plancia or Xonos app shows as the one inside myCar, and back (see pinShown).
+    val pinned = pinnedIds.mapNotNull { id -> entries.find { it.componentId == pinShown(id, entries) } }
+        .distinctBy { it.componentId }
         .filter { running[it.componentId] != RunningSlot.NAV }
+    val pinnedShown = pinned.mapNotNullTo(HashSet()) { it.componentId }
     val open = running.keys
-        .filter { it !in pinnedIds && running[it] != RunningSlot.NAV && running[it] != RunningSlot.MEDIA }
+        .filter { it !in pinnedIds && it !in pinnedShown && running[it] != RunningSlot.NAV && running[it] != RunningSlot.MEDIA }
         .mapNotNull { id -> entries.find { it.componentId == id } }
 
     // Over a wallpaper the dock is glass: the wallpaper behind it, darkened, and a hairline of
@@ -168,6 +171,14 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * The app a pin shows as: one saved with the Plancia or Xonos app is the one inside myCar once
+ * that's set up, and the app again while it stands in for it (see InsideOrApp). Read as saved, the
+ * pin vanished from the dock and still took one of its places.
+ */
+internal fun pinShown(id: String, entries: List<Entry>): String =
+    withXonosInside(withPlanciaInside(id, entries), entries) ?: id
 
 /** One slot in the dock's middle, keyed so a slot keeps its state as others come and go above it. */
 private class DockSlot(val key: String, val content: @Composable () -> Unit)
