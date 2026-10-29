@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_ok">ОК</string>
+    <string name="common_cancel">Отмена</string>
+    <string name="common_close">Закрыть</string>
+    <string name="common_done">Готово</string>
+    <string name="common_back">Назад</string>
+    <string name="common_save">Сохранить</string>
+    <string name="common_delete">Удалить</string>
+    <string name="common_remove">Удалить</string>
+    <string name="common_add">Добавить</string>
+    <string name="common_edit">Изменить</string>
+    <string name="common_retry">Повторить</string>
+    <string name="common_allow">Разрешить</string>
+    <string name="common_skip">Пропустить</string>
+    <string name="common_next">Далее</string>
+    <string name="common_copy">Копировать</string>
+    <string name="common_open">Открыть</string>
+    <string name="common_open_settings">Открыть настройки</string>
+    <string name="common_not_now">Не сейчас</string>
+    <string name="common_more">Ещё</string>
+    <string name="common_yes">Да</string>
+    <string name="common_no">Нет</string>
+    <string name="common_on">Вкл.</string>
+    <string name="common_off">Выкл.</string>
+    <string name="common_loading">Загрузка…</string>
+    <string name="common_settings">Настройки</string>
+</resources>

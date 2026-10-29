@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="session_idle">Не подключено</string>
+    <string name="session_idle_detail">Подключите кабель к USB-порту автомобиля или подключитесь без кабеля. myCar откроется сам, когда автомобиль ответит.</string>
+    <string name="session_connecting">Подключение</string>
+    <string name="session_connected">Подключено</string>
+    <string name="session_connected_detail">myCar на экране автомобиля.</string>
+    <string name="session_disconnected">Отключено</string>
+    <string name="session_disconnected_detail">Автомобиль больше не подключён.</string>
+    <string name="session_cert_turned_down">Автомобиль отклонил сертификат</string>
+
+    <string name="connection_stage_talking">Связь с автомобилем</string>
+    <string name="connection_stage_securing">Защита соединения</string>
+    <string name="connection_stage_accepted">Сертификат принят: подготовка</string>
+    <string name="connection_stage_picture">Запуск изображения</string>
+
+    <string name="connection_cert_tls_refused">Автомобиль разорвал защищённое соединение: он не принимает сертификат телефона.</string>
+    <string name="connection_cert_error">Автомобиль отклонил сертификат телефона (ошибка сертификата).</string>
+    <string name="connection_cert_untrusted">Автомобиль не доверяет используемому сертификату.</string>
+    <string name="connection_car_date">Проверьте дату в автомобиле</string>
+    <string name="connection_car_date_detail">Автомобиль сообщает, что сертификат телефона недействителен на его дату. Установите часы автомобиля и подключитесь снова.</string>
+    <string name="connection_unexpected">Неожиданный ответ</string>
+    <string name="connection_unexpected_detail">Автомобиль ответил на проверку сертификата кодом %1$s.</string>
+    <string name="connection_picture_refused">Автомобиль отклонил изображение</string>
+    <string name="connection_picture_refused_detail">Автомобиль не открыл свой экран для myCar (код %1$s).</string>
+    <string name="connection_no_picture">Нет изображения для автомобиля</string>
+    <string name="connection_no_picture_detail">Видеокодер телефона не запустился (%1$s). myCar закрыл соединение: подключитесь снова.</string>
+    <string name="connection_picture_stopped">Изображение в автомобиле остановилось</string>
+    <string name="connection_picture_stopped_detail">Видеокодер телефона постоянно даёт сбой (%1$s). myCar закрыл соединение: подключитесь снова.</string>
+    <string name="connection_no_answer">Автомобиль не ответил</string>
+    <string name="connection_no_answer_detail">Соединение открылось, но автомобиль ничего не отправил. Если Android спросит, какое приложение открыть для автомобиля, выберите myCar.</string>
+    <string name="connection_hung_up_setup">Автомобиль разорвал соединение во время настройки</string>
+    <string name="connection_hung_up_setup_detail">Автомобиль разорвал соединение, пока оно защищалось. Обычно это значит, что он отклонил сертификат.</string>
+    <string name="connection_hung_up_after_cert">Автомобиль разорвал соединение после сертификата</string>
+    <string name="connection_hung_up_after_cert_detail">Автомобиль принял сертификат, но разорвал соединение до завершения настройки.</string>
+
+    <string name="wireless_link_bt_reaching">Bluetooth: подключение к %1$s</string>
+    <string name="wireless_link_bt_talking">Bluetooth: обмен данными с %1$s</string>
+    <string name="wireless_link_bt_waiting">Ожидание %1$s. Если ничего не происходит, отключите телефон в меню Bluetooth автомобиля и подключите снова</string>
+    <string name="wireless_link_wifi_joining">Wi-Fi: подключение к сети %1$s</string>
+    <string name="wireless_link_wifi_reaching">Wi-Fi: связь с %1$s</string>
+    <string name="wireless_link_failed">Не удалось подключиться без кабеля</string>
+    <string name="wireless_link_bt_permission">Нет разрешения на Bluetooth</string>
+    <string name="wireless_link_bt_permission_detail">Чтобы подключиться к %1$s, myCar нужно разрешение «Устройства поблизости». Дайте его в настройках приложения и попробуйте снова.</string>
+    <string name="wireless_link_bt_publish_failed">Не удалось опубликовать службу Android Auto</string>
+    <string name="wireless_link_bt_no_car">Автомобиль не подключился по Bluetooth</string>
+    <string name="wireless_link_bt_no_car_detail">%1$s не открыл Android Auto с телефоном. Убедитесь, что в настройках автомобиля включён беспроводной Android Auto, затем переподключите телефон через меню Bluetooth автомобиля.</string>
+    <string name="wireless_link_wifi_failed">Не удалось подключиться к Wi-Fi автомобиля</string>
+    <string name="wireless_link_wifi_failed_detail">Android не подключился к сети %1$s. Если появился запрос «Подключение к устройству», его нужно принять.</string>
+    <string name="wireless_link_vpn">VPN блокирует автомобиль</string>
+    <string name="wireless_link_vpn_detail">myCar подключился к сети %1$s, но VPN на этом телефоне (например, Tailscale) не даёт ему связаться с автомобилем. Подключитесь кабелем, выключите VPN или исключите из него myCar в настройках VPN — тогда Plancia и Xonos внутри myCar не смогут использовать адреса VPN, например имена Tailscale.</string>
+    <string name="wireless_link_no_connection">Wi-Fi автомобиля подключён, но соединения нет</string>
+    <string name="wireless_link_no_connection_detail">myCar подключился к сети %1$s, но не смог связаться с Android Auto по адресу %2$s.</string>
+
+    <string name="bridge_through">Через приложение %1$s: %2$s</string>
+    <string name="bridge_no_answer">оно не ответило. Откройте приложение %1$s один раз и попробуйте снова.</string>
+    <string name="bridge_unknown">оно не поддерживает мост этой версии myCar. Обновите приложение %1$s.</string>
+    <string name="bridge_not_mycar">оно не принимает эту версию myCar. Обновите приложение %1$s.</string>
+    <string name="bridge_not_ours">в нём указан другой адрес. Укажите один и тот же адрес в myCar и в приложении %1$s.</string>
+    <string name="bridge_not_understood">его ответ не удалось понять. Обновите приложение %1$s.</string>
+    <string name="bridge_closed">оно закрылось. Попробуйте снова.</string>
+    <string name="bridge_server_starting">%1$s на этом телефоне ещё запускается. myCar продолжает попытки.</string>
+    <string name="bridge_server_silent">%1$s не отвечает и ему. Проверьте, что Tailscale включён, а %1$s работает.</string>
+    <string name="bridge_no_connection">нет соединения (%1$s).</string>
+
+    <string name="channel_session">Подключение к автомобилю</string>
+    <string name="channel_audio">Звук в автомобиле</string>
+    <string name="channel_mirror">Трансляция экрана телефона</string>
+    <string name="session_notification_title">myCar подключён к автомобилю</string>
+    <string name="audio_notification_title">Звук передаётся в автомобиль</string>
+    <string name="audio_notification_text">myCar передаёт звук телефона в автомобиль.</string>
+    <string name="mirror_notification_title">Трансляция в автомобиль</string>
+    <string name="mirror_notification_text">На экране автомобиля показывается этот телефон.</string>
+    <string name="service_notification_stop">Остановить</string>
+
+    <string name="accessibility_touch_label">myCar: касания</string>
+    <string name="listener_notifications_label">myCar: уведомления</string>
+    <string name="service_calls_label">myCar: звонки</string>
+</resources>
