@@ -59,7 +59,13 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
         }
     }
     val introDue = remember { Intro.due(context) }
-    var screen by rememberSaveable { mutableStateOf(if (introDue) Screen.INTRO else afterIntro) }
+    // The debug build's CI shots open one screen straight away (car-preview.sh: --es screen settings).
+    val asked = remember {
+        if (!BuildConfig.DEBUG) null
+        else (context as? android.app.Activity)?.intent?.getStringExtra("screen")
+            ?.let { name -> Screen.entries.firstOrNull { it.name.equals(name, ignoreCase = true) } }
+    }
+    var screen by rememberSaveable { mutableStateOf(asked ?: if (introDue) Screen.INTRO else afterIntro) }
     // After an update too small for an intro: the flag run up, once, before anything else.
     var updateFlag by rememberSaveable { mutableStateOf(UpdateFlag.due(context, introDue)) }
     // A replay from About goes back to Settings; the launch one carries on into setup.

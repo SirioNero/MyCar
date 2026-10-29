@@ -643,12 +643,26 @@ setup_phone
 # language setting for the app, which `cmd locale` sets here): Home with music, the app grid and
 # the car's settings at 1920x720; Home, grid and dashboard at 800x480, where long words have the
 # least room. After the shots that tap English words, and English again at the end.
+# On the phone too: the setup list, Home, Settings, Connection help and the intro, each scrolled
+# twice (the debug build opens the screen named by --es screen).
+phone_lang() {
+    local d=previews/lang-$1/phone s
+    mkdir -p "$d"
+    for s in setup home settings help intro; do
+        adb shell am force-stop "$PKG"
+        adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity" --es screen "$s" >/dev/null
+        sleep 4; adb exec-out screencap -p > "$d/$s-1.png"
+        adb shell input swipe 160 520 160 180 400; sleep 1.5; adb exec-out screencap -p > "$d/$s-2.png"
+        adb shell input swipe 160 520 160 180 400; sleep 1.5; adb exec-out screencap -p > "$d/$s-3.png"
+    done
+}
 LANGS="it es de fr pt el ru zh-CN"
 for lang in $LANGS; do
     BEFORE="adb shell cmd locale set-app-locales $PKG --locales $lang" EXTRA="--ez demoSong true" \
         shoot "lang-$lang" 1920 720 240 "$WAIT;$GRID_BUTTON;$(at settings);$WAIT"
     BEFORE="adb shell cmd locale set-app-locales $PKG --locales $lang" \
         shoot "lang-$lang-800x480" 800 480 160 "48,436;48,44"
+    case " ${ONLY:-lang-$lang} " in *" lang-$lang "*) phone_lang "$lang" ;; esac
 done
 adb shell cmd locale set-app-locales "$PKG" --locales en-US
 
