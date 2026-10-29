@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -45,6 +46,8 @@ import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.CarFocus
+import io.github.sirionero.mycar.call.CallUiState
+import io.github.sirionero.mycar.call.CarCalls
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathParser
 
@@ -191,6 +194,10 @@ internal fun closeApp(slot: RunningSlot, navigator: CarNavigator) {
 @Composable
 internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>) {
     val id = navigator.appMenu ?: return
+    // A call ringing takes the screen: the menu, drawn over everything, goes with it, or the first
+    // tap on Answer only closed the menu.
+    val ringing = CarCalls.state.collectAsState().value is CallUiState.Ringing
+    LaunchedEffect(ringing) { if (ringing) navigator.dismissAppMenu() }
     val entry = findEntry(id)
     if (entry == null) {
         navigator.dismissAppMenu()
