@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  What changed in each release (Changelog.kt), shown on the car's screen after an update and on the
+  phone. Short plain lines, read in a parked car. Names of menus and buttons in quotes or after
+  "Settings >" are the app's own: translate them as the app's screens say them.
+-->
+<resources>
+    <!-- 0.5.21-alpha -->
+    <string-array name="changelog_34">
+        <item>The voice assistant speaks your phone\'s language: Italian, Spanish, French, German or Portuguese. It listens, answers and shows its words in it.</item>
+        <item>It needs a speech model for that language: on the phone, Settings &gt; Voice says which one, with a button to download it.</item>
+        <item>A third certificate for the newest cars: CarService, Android Auto\'s own. On the phone, Settings &gt; Certificate.</item>
+        <item>Leaving Cinema, the music that was playing before the film starts again by itself.</item>
+        <item>On the phone, after each update, the pirate flag flies with the new version. Big releases bring a ship.</item>
+    </string-array>
+    <!-- 0.5.20-alpha -->
+    <string-array name="changelog_33">
+        <item>Phone: a Recents tab with your latest calls, and Call back on a missed call\'s popup.</item>
+        <item>Voice: \"read my messages\", \"reply to…\", \"call back\", \"redial\", and \"call Mom on mobile\" calls that number.</item>
+        <item>Play - said, or on the steering wheel - starts the music app you used last when none is open.</item>
+        <item>Quick replies go out in your phone\'s language. While a call rings, the next turn stays in the dock.</item>
+        <item>Dropdowns on web pages open in the car as a list to tap, and the car\'s Back key goes back inside apps.</item>
+        <item>Stop navigating takes two taps; screens that stopped at an error now have a way on.</item>
+        <item>Cinema: Continue opens again what you were watching; a film picks up where it stopped after a network drop.</item>
+        <item>Extra large fits better: settings keep whole words, the page bar keeps Done in sight, an app\'s menu scrolls.</item>
+    </string-array>
+    <!-- 0.5.19-alpha -->
+    <string-array name="changelog_32">
+        <item>New: Cinema. Your video sites (YouTube, RaiPlay, Twitch and any you add on the phone), the videos on your phone, and TV channels from an IPTV list. Video shows only when the car is parked; the sound carries on.</item>
+        <item>Pages beside the map take new layouts: a whole page, a half beside two quarters, a strip above or below two quarters. Pencil, then Layout.</item>
+        <item>Vela\'s turn arrow changes with the turn again, on the routing card and in the dock.</item>
+        <item>A dropdown on a web page no longer closes myCar.</item>
+        <item>Cars that never confirm the audio no longer lose two seconds at the start of the music, after a call and in the middle of spoken directions.</item>
+        <item>Wireless: a car that starts its connection over comes back by itself, and only cars you allowed can make myCar connect.</item>
+        <item>Decline works on a call that\'s already ringing, and Back on Android\'s permission question no longer stops the setup from asking again.</item>
+    </string-array>
+    <!-- 0.5.18-alpha -->
+    <string-array name="changelog_31">
+        <item>Wireless connects by itself: after your first drive without the cable, Android asks once, then myCar connects to that car whenever you start it. Settings &gt; Connection turns it off.</item>
+        <item>Music playing over Bluetooth stays there: the car no longer switches to Android Auto\'s source the moment myCar connects.</item>
+        <item>Steadier car audio: fewer gaps, and cars that take only AAC get the start they expect.</item>
+        <item>The car\'s own margins stay right at every size, Small and Large included.</item>
+        <item>On the car\'s Phone screen, \"Ask on the phone\" asks for the missing permissions on the phone.</item>
+        <item>Map apps\' route options show time and distance, and a car app that never answers says so instead of \"Starting...\".</item>
+    </string-array>
+    <!-- 0.5.17-alpha -->
+    <string-array name="changelog_30">
+        <item>No Music Assistant at home? The Xonos app can now be one, on the phone itself: Xonos inside myCar plays from it, wirelessly too.</item>
+        <item>myCar wakes the Xonos app and its server as the drive starts. The first start takes a few seconds, and the car says so.</item>
+    </string-array>
+    <!-- 0.5.16-alpha -->
+    <string-array name="changelog_29">
+        <item>Plancia and Xonos now work wirelessly with Tailscale too: with myCar left out of Tailscale, they reach your servers through the Plancia and Xonos apps on the phone, which stay inside it.</item>
+        <item>Update the Plancia and Xonos apps, and keep them set to the same addresses as myCar. They open connections only for myCar, and only to their own server.</item>
+        <item>If even the apps can\'t reach your server, they take the place of the ones inside myCar for the drive, as before.</item>
+    </string-array>
+    <!-- 0.5.15-alpha -->
+    <string-array name="changelog_28">
+        <item>Plancia and Xonos keep working with Tailscale over wireless: when the ones inside myCar can\'t reach your server, the Plancia and Xonos apps on the phone take their place for the drive, by themselves.</item>
+        <item>The same when the address or the token set in myCar is wrong: the apps step in instead of an error.</item>
+        <item>Xonos connects as the drive starts, so it\'s ready when you open it.</item>
+    </string-array>
+    <!-- 0.5.14-alpha -->
+    <string-array name="changelog_27">
+        <item>Setup is one list on the phone, with one button for the next step. How to connect and Settings bring it back, with nothing reset.</item>
+        <item>A spare certificate: if your car turns down the first, myCar uses the other, and the phone says to connect again.</item>
+        <item>A car with its clock set wrong is now told apart: the phone says to check the car\'s date.</item>
+    </string-array>
+    <!-- 0.5.13-alpha -->
+    <string-array name="changelog_26">
+        <item>Plancia and Xonos say why they can\'t connect: Tailscale leaving myCar out, a Tailscale name that isn\'t found, or Android 17 keeping myCar off your home network.</item>
+        <item>The drive keeps going with the phone locked: myCar stays in the foreground, keeps the phone awake and, over wireless, the Wi-Fi at full speed.</item>
+        <item>When the car ends the session, myCar ends it too: the phone\'s sound comes back and Xonos stops, instead of playing on to nobody.</item>
+        <item>A music app that closes no longer leaves the player stuck, and a song already playing on the phone is the one the car shows.</item>
+        <item>Voice: \"call\" picks the right contact, \"stop navigation\" ends the route, and the music no longer stays paused after myCar speaks.</item>
+        <item>After screen sharing the car\'s music comes back: Android asks again for the car audio, one question at a time.</item>
+        <item>Dozens of smaller fixes: calls, messages, screen sharing, Plancia, the browser and wireless.</item>
+    </string-array>
+    <!-- 0.5.12-alpha -->
+    <string-array name="changelog_25">
+        <item>Plancia and Xonos reach your Home Assistant and Music Assistant at home again, plain http addresses included. On Android 17, myCar needs the Nearby devices permission for your home network, and now asks for it.</item>
+        <item>If that permission is missing, the car says so, rather than that Home Assistant or Music Assistant isn\'t answering.</item>
+    </string-array>
+    <!-- 0.5.11-alpha -->
+    <string-array name="changelog_24">
+        <item>Xonos is now part of myCar: your Music Assistant library among the car\'s music apps. Set it up on the phone, or bring your account over from the Xonos app with one tap.</item>
+        <item>With the car audio through myCar, Xonos plays straight into the car, and Android doesn\'t ask to share the audio while you listen to it.</item>
+    </string-array>
+    <!-- 0.5.10-alpha -->
+    <string-array name="changelog_23">
+        <item>Plancia is now part of myCar: your Home Assistant dashboards, ready the moment you open them, from the app grid, one of your pages, or beside the map.</item>
+        <item>Set Plancia up in myCar\'s settings on the phone, or bring your account over from the Plancia app with one tap.</item>
+        <item>Home Assistant\'s menu button opens Plancia\'s menu: your dashboards, the one that opens first, the size and Reload.</item>
+    </string-array>
+    <!-- 0.5.09-alpha -->
+    <string-array name="changelog_22">
+        <item>The music comes back after a call or the phone\'s assistant. Before, once the car took its speakers for a moment, the music stayed off until the next drive.</item>
+        <item>A new player: plain controls, a thin line to seek, the cover\'s colours behind it. The cover stays in sight while you browse.</item>
+        <item>With the phone locked, the microphone lights the phone and asks you to unlock it; your assistant starts listening as soon as it opens.</item>
+        <item>Android\'s question for the car audio is one tap: no app to pick, and every app\'s sound reaches the car.</item>
+    </string-array>
+    <!-- 0.5.08-alpha -->
+    <string-array name="changelog_21">
+        <item>Pages beside the map: swipe across Home, or tap the dots at its foot. Ready-made, the weather and your agenda left of the map, and Plancia\'s dashboard beside the browser right of it.</item>
+        <item>The pencil beside the dots changes a page: two halves or four parts, each the weather, the agenda, the browser or a car app such as Plancia. Add, move and delete pages there too.</item>
+    </string-array>
+    <!-- 0.5.07-alpha -->
+    <string-array name="changelog_20">
+        <item>The phone\'s music no longer stays muted if myCar was closed mid-drive while sending the sound to the car.</item>
+        <item>Saying yes to Android\'s audio or screen-sharing question after the car has gone no longer mutes the phone or leaves it sharing.</item>
+        <item>Less memory during drives without voice commands, and old logs no longer pile up on the phone.</item>
+    </string-array>
+    <!-- 0.5.06-alpha -->
+    <string-array name="changelog_19">
+        <item>myCar no longer risks closing at the end of a drive with the phone locked.</item>
+        <item>The weather finds where you are without the twelve-second wait.</item>
+        <item>Long drives with lots of music use far less memory: cover art is sized for the car\'s screen.</item>
+    </string-array>
+    <!-- 0.5.05-alpha -->
+    <string-array name="changelog_18">
+        <item>Car audio: Automatic, now the default, plays over Bluetooth when the car takes the phone\'s music that way, and through myCar otherwise, over the cable or Wi-Fi.</item>
+        <item>USB audio is now called Through myCar: it works over Wi-Fi too.</item>
+    </string-array>
+    <!-- 0.5.04-alpha -->
+    <string-array name="changelog_17">
+        <item>Beside the map: the music player while something plays, as before, or an app of your choice, such as Plancia or Xonos, always there. Pick it in the car\'s settings.</item>
+        <item>The microphone stays at the foot of the dock, just above the app grid button, however many apps are open.</item>
+        <item>The phone\'s assistant now wakes the way the swipe up from a bottom corner of the phone wakes it. Choose it under the car\'s Settings &gt; Voice assistant.</item>
+        <item>Moving wallpapers: Lava, Polar, Waves and Fireflies, under Wallpaper in the car\'s settings, below the still ones.</item>
+        <item>A new myCar icon.</item>
+        <item>Vela Maps no longer carries the yellow \"works in part\" mark: it navigates with myCar.</item>
+    </string-array>
+    <!-- 0.5.03-alpha -->
+    <string-array name="changelog_16">
+        <item>Gemini opens listening too: myCar asks the Google app, which listens for Gemini, and opens a typed chat only if no app will listen.</item>
+        <item>On the app grid, the button at the foot of the dock takes you back to the map with the music beside it.</item>
+        <item>Moving wallpapers: set Wallpaper motion to Moving in the car\'s settings, and the colours drift slowly.</item>
+    </string-array>
+    <!-- 0.5.02-alpha -->
+    <string-array name="changelog_15">
+        <item>Two smaller sizes for the car screen: Small (90%) and Extra small (83%), in the car\'s settings.</item>
+        <item>The phone\'s assistant opens listening, as from the corner of the phone\'s screen, not in its typed chat.</item>
+        <item>Screen sharing turns the phone sideways, so apps fill the car\'s wide screen. It turns back when you stop.</item>
+    </string-array>
+    <!-- 0.5.01-alpha -->
+    <string-array name="changelog_14">
+        <item>Music and map share the screen again: the player sits beside the map as soon as something plays.</item>
+        <item>Tap the song in the dock to put the player away or bring it back. Hold it for the full player.</item>
+    </string-array>
+    <!-- 0.5.00-alpha -->
+    <string-array name="changelog_13">
+        <item>Wallpapers behind the app grid and the dashboard, with the dock in glass over them. Pick one, or none, in the car\'s settings.</item>
+        <item>Icons in glass: light along the edges and a soft shine.</item>
+        <item>The player beside the map fills its side with the cover, its controls on frosted glass.</item>
+        <item>Choose the voice assistant: myCar\'s own, the phone\'s, or another assistant app.</item>
+        <item>Apps that work only in part with myCar have a yellow mark.</item>
+    </string-array>
+    <!-- 0.4.00-alpha -->
+    <string-array name="changelog_12">
+        <item>A new look: a dock down the left with the clock and your apps, and the app grid in pages.</item>
+        <item>App icons sit in a rounded square frame, and the car screen uses the Inter typeface.</item>
+        <item>Dark by default. Choose light, or follow the phone, in the car\'s settings.</item>
+        <item>Tap the song in the dock to put the player beside the map. Hold it for the full player.</item>
+        <item>Calls reach the car only over Bluetooth, USB audio or not. myCar now says when the phone isn\'t connected, and when a call is playing on the phone.</item>
+        <item>Car apps show their own icons again, instead of another app\'s.</item>
+    </string-array>
+    <!-- 0.3.02-alpha -->
+    <string-array name="changelog_11">
+        <item>Gearslip is now myCar, with a new name and icon. Updates come from github.com/sirionero/mycar.</item>
+        <item>Calls from your contacts show on the car screen, and you can answer or decline them there.</item>
+        <item>A call card no longer stays on the screen after you decline, or when the caller hangs up.</item>
+        <item>End a call from the car screen or the steering wheel.</item>
+    </string-array>
+    <!-- 0.3.00-alpha -->
+    <string-array name="changelog_9">
+        <item>Wireless Android Auto: pair the phone with the car once, and leave the cable at home.</item>
+        <item>Voice control is built in. Say \"navigate to a gas station\", \"play\" a song or artist, or open an app by name.</item>
+        <item>\"Navigate to\" picks the nearest place and stops at the map app\'s start screen, so you only tap Start.</item>
+        <item>myCar turns speech into text on the phone, with no Google account. Download the voice models once in setup.</item>
+        <item>The car\'s rotary knob moves between buttons, so cars without a touchscreen work too.</item>
+        <item>Choose how music reaches the car: Bluetooth, or USB with no delay. myCar offers to pair with the car the first time.</item>
+        <item>The car speaks each turn from your map app, and shows the directions on its own display where it can.</item>
+        <item>The car shows what\'s playing, and music apps get their own like, shuffle and repeat buttons.</item>
+        <item>Pick how the car\'s buttons look. Change it any time in the car\'s settings.</item>
+        <item>A new destination mid-route replaces the old route, and switching map apps ends the old app\'s route.</item>
+        <item>The car warns you when the phone\'s location is off.</item>
+        <item>myCar finds new versions and installs them for you.</item>
+        <item>More cars play music over USB, show a sharper picture, and put taps where you press.</item>
+        <item>On GrapheneOS, myCar no longer needs exploit protection compatibility mode.</item>
+        <item>The app is half the size it was.</item>
+    </string-array>
+    <!-- 0.2.00-alpha -->
+    <string-array name="changelog_8">
+        <item>Exit takes you to the car\'s own screen. Tap Android Auto on the car to come back.</item>
+        <item>myCar listens through the car\'s microphone when the car has one, so voice works with the phone in a pocket.</item>
+        <item>A voice reply sends when its bar runs out, even over road noise or the radio. Say \"cancel\" or \"change it\" before then.</item>
+        <item>Maps turn dark when the car switches to night mode.</item>
+        <item>A moving map no longer makes the car screen fall behind your taps.</item>
+        <item>myCar asks to send sound to the car as soon as you connect, so videos in the web browser play in the car too.</item>
+        <item>Cars that offer more than one kind of music audio, such as the 2022 Dacia Jogger, play sound again.</item>
+        <item>When the car shows a keyboard, you can type on the phone instead. The car\'s keyboard is taller too.</item>
+        <item>Every car screen has a back button.</item>
+        <item>App icons show whether an app works in myCar. Metrolist works and shows the green check.</item>
+        <item>LIVI connects again, and touch works on cars with a second screen.</item>
+        <item>The phone\'s Settings screen has a new layout, with What\'s new and the setup guide at the top.</item>
+        <item>You can choose to send short usage notes that help the project. They hold no name, account, or location, and they\'re off unless you turn them on.</item>
+        <item>Searching inside a media app moved to Settings &gt; Experimental features.</item>
+        <item>Under Settings &gt; Media audio, the choices are now Phone audio and Car audio.</item>
+        <item>Logs leave out your location and the car\'s serial number.</item>
+    </string-array>
+    <!-- 0.1.10-alpha -->
+    <string-array name="changelog_7">
+        <item>The launcher groups your apps: Phone, Maps, Music, Messaging, Web, Screen sharing, and Settings.</item>
+        <item>To move an app, press and hold it on the launcher, then tap Move left or Move right.</item>
+        <item>MapQuest and Flitsmeister work in myCar and show the green check.</item>
+        <item>Spotify has one tile. If Spotify isn\'t open on the phone, tap Open Spotify to start it.</item>
+        <item>Flick a map and it glides on, as it does in Android Auto.</item>
+        <item>The map picks up where it left off when you come back from another screen.</item>
+        <item>Search boxes in map apps are larger and easier to read.</item>
+        <item>Map apps keep the right icons on their buttons after they update.</item>
+        <item>When myCar asks \"Do you want to reply?\", a bar shows how long it will listen. The bar stops while you speak.</item>
+        <item>myCar fits its picture to wide car screens and keeps it clear of the edges the car crops.</item>
+        <item>myCar answers the car\'s connection checks correctly. Some cars, Audis among them, hung up after a second without this.</item>
+        <item>Google Maps no longer shows up as a messaging app.</item>
+    </string-array>
+    <!-- 0.1.0-alpha -->
+    <string-array name="changelog_6">
+        <item>Messaging apps such as Signal and Molly open to your recent chats.</item>
+        <item>myCar reads a message aloud, and you reply by voice. Say \"cancel\" or \"change it\" before it sends, or tap a quick reply such as your arrival time.</item>
+        <item>Voice works on any phone, GrapheneOS included. myCar turns speech into text itself, so it needs no Google account.</item>
+        <item>New messages show as a small card at the top right, even while you drive. A bar shows how long until the card closes or the reply sends.</item>
+        <item>Only messages, missed calls, alarms, and reminders pop up. Everything else waits on the dashboard.</item>
+        <item>The map stays loaded when you switch screens, so it no longer flashes black.</item>
+        <item>Map apps draw more reliably and keep their connection when the phone is locked.</item>
+        <item>The Home button shows your map app, so it no longer appears twice.</item>
+        <item>The next turn shows in the nav bar when you leave the map.</item>
+        <item>Steering wheel buttons, control knobs, and D-pads now work. If yours don\'t, open an issue on GitHub.</item>
+        <item>To see the whole song title and artist in the nav bar, choose Settings &gt; Player in the nav bar &gt; Song title.</item>
+        <item>Choose miles or kilometres under Settings &gt; Units.</item>
+        <item>Try the voice assistant and the vehicle data screen under Settings &gt; Experimental features.</item>
+        <item>Logs now say why a car ended the connection.</item>
+        <item>Spotify, Waze, and Google Messages updated to a version of Google\'s car library that only accepts Android Auto itself. Their own car screens won\'t open in myCar. Spotify still plays through the myCar player, which has the green check.</item>
+        <item>Calls go through the car\'s Bluetooth, as they do in Android Auto. Pair your phone with the car to hear calls on its speakers.</item>
+    </string-array>
+</resources>
