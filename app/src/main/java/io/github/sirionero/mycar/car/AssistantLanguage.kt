@@ -21,6 +21,7 @@ internal object AssistantLanguage {
         VoiceLanguage.FR -> FrenchPhrases
         VoiceLanguage.DE -> GermanPhrases
         VoiceLanguage.PT -> PortuguesePhrases
+        VoiceLanguage.EL -> GreekPhrases
         VoiceLanguage.ZH -> ChinesePhrases
     }
 
@@ -79,7 +80,7 @@ internal object AssistantLanguage {
      */
     internal fun plain(text: String): String =
         text.lowercase().replace('’', '\'').replace(Regex("[.,!?¿¡;:\"«»„“”-]"), " ")
-            .replace(Regex("[，。！？；：、（）《》「」『』…·]"), " ").replace(Regex("\\s+"), " ").trim()
+            .replace(Regex("[，。！？；：、（）《》「」『』…·\u037E]"), " ").replace(Regex("\\s+"), " ").trim()
             .replace(Regex("(?<=\\p{IsHan}) (?=\\p{IsHan})"), "")
 }
 

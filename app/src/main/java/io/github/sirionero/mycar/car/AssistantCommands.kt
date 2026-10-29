@@ -106,6 +106,15 @@ object AssistantCommands {
     private fun squash(s: String) = s.lowercase().filter { it.isLetterOrDigit() }
 
     /**
+     * A person's name as names are compared: lower case, without accents, Greek's final ς as σ.
+     * "Γιώργος" said finds a contact saved as "ΓΙΩΡΓΟΣ", "jose" finds "José", "Семён" "Семен".
+     */
+    private fun bare(s: String): String =
+        java.text.Normalizer.normalize(s.lowercase().trim(), java.text.Normalizer.Form.NFD).replace(MARKS, "").replace('ς', 'σ')
+
+    private val MARKS = Regex("\\p{Mn}+")
+
+    /**
      * "navigate to X [with|using|on|via Y]" - Y picks the nav app by (partial) label; without it,
      * whichever nav app was used last, or the only one installed, or the first one found. Starts
      * it straight into navigating there via [CarAppConnection]'s `ACTION_NAVIGATE` deep link -
@@ -258,12 +267,13 @@ object AssistantCommands {
             // The whole name, then a whole word of it, and only then a piece of one: "Anna" found
             // Giovanna, if she wrote last. The reply's question then says whose chat it is.
             val writers = chats.filter { it.reply != null }
+            val wanted = bare(to)
             fun tier(title: String): Int {
-                val full = title.lowercase().trim()
+                val full = bare(title)
                 return when {
-                    full == to -> 0
-                    " $full ".contains(" $to ") -> 1
-                    full.contains(to) -> 2
+                    full == wanted -> 0
+                    " $full ".contains(" $wanted ") -> 1
+                    full.contains(wanted) -> 2
                     else -> 3
                 }
             }
@@ -443,12 +453,13 @@ object AssistantCommands {
         // The whole name, then a whole word of it ("Luca" in "Luca Rossi"), and only then a piece
         // of one: "Luca" used to call "Gianluca", first in alphabetical order.
         val contacts = withContext(Dispatchers.IO) { loadContacts(context) }
+        val wanted = bare(name)
         fun tier(c: Contact): Int {
-            val full = c.name.lowercase().trim()
+            val full = bare(c.name)
             return when {
-                full == name -> 0
-                " $full ".contains(" $name ") -> 1
-                full.contains(name) -> 2
+                full == wanted -> 0
+                " $full ".contains(" $wanted ") -> 1
+                full.contains(wanted) -> 2
                 else -> 3
             }
         }
