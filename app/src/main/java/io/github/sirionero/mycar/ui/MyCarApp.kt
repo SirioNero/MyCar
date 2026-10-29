@@ -58,7 +58,10 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             else -> Screen.HOME
         }
     }
-    var screen by rememberSaveable { mutableStateOf(if (Intro.due(context)) Screen.INTRO else afterIntro) }
+    val introDue = remember { Intro.due(context) }
+    var screen by rememberSaveable { mutableStateOf(if (introDue) Screen.INTRO else afterIntro) }
+    // After an update too small for an intro: the flag run up, once, before anything else.
+    var updateFlag by rememberSaveable { mutableStateOf(UpdateFlag.due(context, introDue)) }
     // A replay from About goes back to Settings; the launch one carries on into setup.
     var introReturn by rememberSaveable { mutableStateOf(afterIntro) }
     // Home's cards open Settings at their section rather than at the top.
@@ -116,6 +119,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             LocalNetwork.askedAtStart = true
             localNetworkPermission.launch(LocalNetwork.PERMISSION)
         }
+    }
+
+    if (updateFlag) {
+        UpdateSplash(onDone = { updateFlag = false })
+        return
     }
 
     Column(
