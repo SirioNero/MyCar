@@ -300,4 +300,5 @@
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
     <string name="theme_black">Noir (AMOLED)</string>
+    <string name="settings_audio_per_car">Avec une voiture connectée, le choix est gardé pour cette voiture, et le bouton du son dans le lecteur le change aussi. Sans voiture connectée, il vaut pour toutes les voitures.</string>
 </resources>

@@ -3,6 +3,8 @@
     <string-array name="changelog_38">
         <item>Über myCar bleibt die Musik nicht mehr aus, wenn das Auto die Lautsprecher für seine eigene Ansage nimmt und vergisst, sie zurückzugeben: Nach einer Weile fragt myCar erneut danach.</item>
         <item>Bei Automatisch verlegt eine Bluetooth-Musikverbindung, die für einen Anruf oder kurz abbricht, den Ton nicht mehr mitten in der Fahrt auf myCar: myCar wartet, bis sie zurückkommt.</item>
+        <item>Der Player hat eine Ton-Taste: Sie zeigt, ob der Ton über Bluetooth oder über myCar ins Auto kommt, und ein Tippen schickt ihn den anderen Weg.</item>
+        <item>myCar merkt sich diese Wahl für jedes Auto: Ein Auto kann über myCar laufen, während die anderen auf „Automatisch“ bleiben.</item>
     </string-array>
     <string-array name="changelog_37">
         <item>Auf dem Telefon nimmt auch der Streifen unter der Statusleiste die Farbe des Designs an, mit Hell, Dunkel, Schwarz und Monokai.</item>

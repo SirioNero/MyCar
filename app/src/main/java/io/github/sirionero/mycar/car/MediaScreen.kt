@@ -570,7 +570,7 @@ private fun NowPlayingControls(now: NowPlaying, media: CarMedia, modifier: Modif
         }
         PlayerProgress(now, media, Modifier.fillMaxWidth())
         TransportRow(now, media, skip = 60.dp, modifier = Modifier.fillMaxWidth())
-        PlayModeRow(now, media, size = 56.dp, modifier = Modifier.fillMaxWidth(), maxOther = 2)
+        PlayModeRow(now, media, size = 56.dp, modifier = Modifier.fillMaxWidth(), maxOther = 2) { SoundRouteButton(56.dp) }
     }
 }
 

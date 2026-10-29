@@ -9,6 +9,8 @@
     <string-array name="changelog_38">
         <item>Through myCar, music no longer stays off when the car takes the speakers for its own voice and forgets to give them back: after a while myCar asks for them again.</item>
         <item>On Automatic, a Bluetooth music connection that drops for a call or a moment no longer moves the sound to myCar mid-drive: it waits for it to come back.</item>
+        <item>The player has a sound button: it shows whether the sound reaches the car over Bluetooth or through myCar, and a tap sends it the other way.</item>
+        <item>myCar remembers that choice for each car: one car can go through myCar while the others stay on Automatic.</item>
     </string-array>
     <!-- 0.6.1-alpha -->
     <string-array name="changelog_37">

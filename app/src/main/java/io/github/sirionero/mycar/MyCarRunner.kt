@@ -18,6 +18,7 @@ import io.github.sirionero.mycar.car.CarKeys
 import io.github.sirionero.mycar.car.CarDriving
 import io.github.sirionero.mycar.car.CarSensors
 import io.github.sirionero.mycar.car.CarServices
+import io.github.sirionero.mycar.audio.CarRoutes
 import io.github.sirionero.mycar.car.CarSettings
 import java.io.InputStream
 import java.io.OutputStream
@@ -493,6 +494,8 @@ class MyCarRunner(
         log.i("head unit: $info")
         SessionReport.headUnit(info.toString())
         SessionReport.headUnitInfo = info
+        // Before the music channel opens: a car with a route of its own gets it from the start.
+        CarSettings.carIdentified(CarRoutes.keyFor(info, ServiceDiscovery.findBluetoothService(body)?.carAddress))
         vehicleProfile = runCatching { vehicleProfileFor(info) }.getOrNull()
         val profile = vehicleProfile
         SessionReport.profile(profile?.name)

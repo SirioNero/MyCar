@@ -158,4 +158,6 @@
     <string name="car_web_home_network">Эта страница находится в вашей домашней сети</string>
     <string name="car_web_select_title">Выберите</string>
     <string name="car_web_select_chosen">Выбрано</string>
+    <string name="car_player_sound_bluetooth">Звук по Bluetooth. Нажмите, чтобы пустить его через myCar</string>
+    <string name="car_player_sound_mycar">Звук через myCar. Нажмите, чтобы пустить его по Bluetooth</string>
 </resources>

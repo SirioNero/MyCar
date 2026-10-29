@@ -449,6 +449,15 @@ Tutti i token in un solo posto, `car/design/`:
   restava sul telefono. Migrazione: il vecchio "USB" diventa Tramite myCar, il vecchio
   "Bluetooth" (quasi tutti: era il default del setup) diventa Automatico. In Automatico sul
   Bluetooth le indicazioni vocali di myCar tacciono: la voce del navigatore arriva già per quella via.
+- **Strada dell'audio per auto e tasto nel lettore** (0.6.2, richiesta dell'utente): una scelta
+  fatta con un'auto collegata (tasto dell'audio nel lettore, `car/SoundRouteButton.kt`, accanto alla
+  mappa e a tutto schermo; impostazioni dell'auto o del telefono) resta per quell'auto
+  (`audio/CarRoutes.kt`, preferenze `mycar_car_routes`, chiave l'indirizzo Bluetooth dell'auto o, se
+  non lo dà, i dati della sua unità) e torna al suo viaggio dopo (`CarSettings.carIdentified`, prima
+  che si apra il canale musicale); una scelta sul telefono senza auto vale per tutte e cancella
+  quelle per auto. In Automatico un Bluetooth della musica che cade aspetta 10 s, a chiamata finita,
+  prima di spostare l'audio (`CarAudioRoute.checkDropped`); trattenuto dall'auto (LOSS_TRANSIENT)
+  senza GAIN, dopo 20 s di suono myCar richiede il focus (`AudioLink`, `HELD_SOUND_MS`).
 - Focus audio con l'auto (`AudioLink.onFocus`, 0.5.09): LOSS_TRANSIENT (chiamata, assistente in
   Bluetooth, voce dell'auto) ferma lo stream **tenendo** il focus e il GAIN dell'auto lo riprende;
   LOSS_TRANSIENT_CAN_DUCK lascia suonare; solo LOSS (l'autista sceglie la radio) restituisce il

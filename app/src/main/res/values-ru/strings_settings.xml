@@ -304,4 +304,5 @@
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
     <string name="theme_black">Чёрная (AMOLED)</string>
+    <string name="settings_audio_per_car">Когда автомобиль подключён, выбор сохраняется для этого автомобиля, и его меняет также кнопка звука в плеере. Без подключённого автомобиля он действует для всех автомобилей.</string>
 </resources>
