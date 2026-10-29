@@ -60,8 +60,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -70,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
@@ -100,7 +103,6 @@ import kotlin.math.sqrt
 import kotlin.math.sin
 import kotlin.random.Random
 import kotlinx.coroutines.delay
-import java.util.Locale
 
 /**
  * The release intro: a few screens shown once after updating to a new release, before setup. New
@@ -212,15 +214,14 @@ fun IntroScreen(onDone: () -> Unit) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
         when (step) {
             IntroStep.WELCOME -> Welcome(c, ::cq, ::cqSp, h)
-            IntroStep.WIRELESS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Wireless.",
-                "If your car does wireless Android Auto, pair once and leave the cable at home.", step) { WifiIcon(c.onSecondaryC) }
-            IntroStep.KNOBS -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, "Knobs work.",
-                "Turn, push, done. No touchscreen? myCar doesn't need one anymore.", step) { DialIcon(c.onTertiaryC) }
+            IntroStep.WIRELESS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, stringResource(R.string.intro_wireless_title),
+                stringResource(R.string.intro_wireless_body), step) { WifiIcon(c.onSecondaryC) }
+            IntroStep.KNOBS -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, stringResource(R.string.intro_knobs_title),
+                stringResource(R.string.intro_knobs_body), step) { DialIcon(c.onTertiaryC) }
             IntroStep.VOICE -> VoiceStep(c, ::cq, ::cqSp, step)
-            IntroStep.GRAPHENE -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Protections back on.",
-                "On GrapheneOS, myCar no longer needs exploit protection compatibility mode. If you " +
-                    "turned it on for myCar, turn it off to get full protection back.", step,
-                action = "Open app settings" to {
+            IntroStep.GRAPHENE -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, stringResource(R.string.intro_graphene_title),
+                stringResource(R.string.intro_graphene_body), step,
+                action = stringResource(R.string.intro_graphene_open_settings) to {
                     runCatching {
                         context.startActivity(
                             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
@@ -229,11 +230,11 @@ fun IntroScreen(onDone: () -> Unit) {
                 },
                 outlined = true,
             ) { ShieldIcon(c.onSecondaryC, c.secondaryC) }
-            IntroStep.APPS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, "Good company.",
-                "Free, open-source apps that work well in the car. The first in each row works best. Tap one to see it on GitHub.", step,
+            IntroStep.APPS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, stringResource(R.string.intro_apps_title),
+                stringResource(R.string.intro_apps_body), step,
                 extra = { AppPicks(c, ::cq, ::cqSp, step) }) { StarIcon(c.onSecondaryC) }
-            IntroStep.THEME -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, "Your buttons.",
-                "Pick how the car's buttons look. Change it any time in the car's settings.", step,
+            IntroStep.THEME -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, stringResource(R.string.intro_theme_title),
+                stringResource(R.string.intro_theme_body), step,
                 extra = { ThemePicker(c, ::cq, ::cqSp, step) }) { ButtonsIcon(c.onTertiaryC) }
         }
         }
@@ -244,7 +245,7 @@ fun IntroScreen(onDone: () -> Unit) {
             PillRow(
                 c, ::cq, ::cqSp,
                 onBack = if (index > 0) ({ index-- }) else null,
-                label = if (index == steps.lastIndex) "Start" else "Next",
+                label = if (index == steps.lastIndex) stringResource(R.string.intro_start) else stringResource(R.string.common_next),
             ) { if (index < steps.lastIndex) index++ else finish() }
             Spacer(Modifier.height(cq(6f)))
         }
@@ -289,7 +290,7 @@ private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit
         PirateShip(key, c.onSurface, Modifier.align(Alignment.TopCenter).size(width = shipHeight / 0.74f, height = shipHeight))
 
         Column(Modifier.align(Alignment.BottomStart).padding(horizontal = cq(8f)).padding(bottom = height * 0.06f)) {
-            Text("Welcome to", color = c.onVariant, style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.SemiBold),
+            Text(stringResource(R.string.intro_welcome_to), color = c.onVariant, style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.SemiBold),
                 modifier = Modifier.up(entrance(key, 100), cq(7f)))
             Text(
                 Intro.release, color = c.primary,
@@ -297,7 +298,7 @@ private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit
                 modifier = Modifier.offset(x = -cq(1.5f)).pop(entrance(key, 250, 900)),
             )
             Text(
-                "alpha · the big one", color = c.onTertiaryC,
+                stringResource(R.string.intro_welcome_tag), color = c.onTertiaryC,
                 style = TextStyle(fontSize = cqSp(4f), fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(top = cq(4f)).up(entrance(key, 700), cq(7f))
                     .clip(RoundedCornerShape(50)).background(c.tertiaryC).padding(horizontal = cq(4.4f), vertical = cq(2.2f)),
@@ -411,18 +412,21 @@ private fun VoiceStep(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUn
     val states = needed.map { SpeechModels.state(it).collectAsState().value }
     val ready = states.all { it == SpeechModels.State.Ready }
     val label = when {
-        states.any { it is SpeechModels.State.Downloading } ->
-            "Downloading, ${needed.zip(states).sumOf { (m, st) -> m.downloadMb * percentOf(st) } / needed.sumOf { it.downloadMb }}%"
-        states.any { it is SpeechModels.State.Failed } -> "Download failed. Try again"
-        else -> "Download voice, ${needed.sumOf { it.downloadMb }} MB"
+        states.any { it is SpeechModels.State.Downloading } -> stringResource(
+            R.string.intro_voice_downloading,
+            needed.zip(states).sumOf { (m, st) -> m.downloadMb * percentOf(st) } / needed.sumOf { it.downloadMb },
+        )
+        states.any { it is SpeechModels.State.Failed } -> stringResource(R.string.intro_voice_failed)
+        else -> stringResource(R.string.intro_voice_download, needed.sumOf { it.downloadMb })
     }
     val phone = VoiceLanguages.phone()
     val helpWord = AssistantLanguage.help(phone)?.last()?.first ?: "help"
-    val inLanguage = if (phone == VoiceLanguage.EN) "" else " It listens and answers in ${phone.locale.getDisplayLanguage(Locale.ENGLISH)}, like your phone."
+    // The language's name in the words on screen.
+    val screenLocale = LocalConfiguration.current.locales[0]
     BadgeStep(
-        c, cq, cqSp, c.primaryC, "Just say it.",
-        "Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech " +
-            "into text by itself, and nothing you say leaves it.$inLanguage Say \"$helpWord\" in the car for the full list.",
+        c, cq, cqSp, c.primaryC, stringResource(R.string.intro_voice_title),
+        if (phone == VoiceLanguage.EN) stringResource(R.string.intro_voice_body, helpWord)
+        else stringResource(R.string.intro_voice_body_language, phone.locale.getDisplayLanguage(screenLocale), helpWord),
         key,
         action = if (ready) null else label to { SpeechModels.downloadRecommended(context) },
         outlined = true,
@@ -475,7 +479,7 @@ private fun CommandDrift(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> Tex
             repeat(2) {
                 samples.forEach { say ->
                     Text(
-                        "\u201c$say\u201d", color = c.onSecondaryC,
+                        stringResource(R.string.intro_voice_sample, say), color = c.onSecondaryC,
                         style = TextStyle(fontSize = cqSp(4.4f), fontWeight = FontWeight.SemiBold),
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
@@ -490,15 +494,15 @@ private fun CommandDrift(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> Tex
 
 /** Each kind of app with its picks, the first recommended most. */
 private val APP_PICKS = listOf(
-    "Maps" to listOf(
+    R.string.intro_apps_maps to listOf(
         "Organic Maps" to "https://github.com/organicmaps/organicmaps",
         "Vela" to "https://github.com/PimpinPumpkin/Vela",
     ),
-    "Music" to listOf(
+    R.string.intro_apps_music to listOf(
         "ViVi Music" to "https://github.com/vivizzz007/vivi-music",
         "Metrolist" to "https://github.com/MetrolistGroup/Metrolist",
     ),
-    "Podcasts" to listOf(
+    R.string.intro_apps_podcasts to listOf(
         "AntennaPod" to "https://github.com/AntennaPod/AntennaPod",
     ),
 )
@@ -517,7 +521,7 @@ private fun AppPicks(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUni
                     .background(c.secondaryC)
                     .padding(horizontal = cq(4f), vertical = cq(3f)),
             ) {
-                Text(kind.uppercase(), color = c.onSecondaryC.copy(alpha = 0.7f),
+                Text(stringResource(kind).uppercase(), color = c.onSecondaryC.copy(alpha = 0.7f),
                     style = TextStyle(fontSize = cqSp(3.2f), fontWeight = FontWeight.Bold, letterSpacing = cqSp(0.3f)),
                     modifier = Modifier.padding(start = cq(1f), bottom = cq(1.6f)))
                 Row(horizontalArrangement = Arrangement.spacedBy(cq(2f))) {
@@ -582,13 +586,13 @@ private fun ThemePicker(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> Text
                 horizontalArrangement = Arrangement.spacedBy(cq(3f)),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                GsIconButton(Icons.Filled.Search, "Search", onClick = {}, size = cq(15f), iconSize = cq(7f))
-                GsIconButton(Icons.Filled.PlayArrow, "Play", onClick = {}, tone = GsTone.Primary, size = cq(15f), iconSize = cq(8f))
+                GsIconButton(Icons.Filled.Search, stringResource(R.string.intro_theme_search), onClick = {}, size = cq(15f), iconSize = cq(7f))
+                GsIconButton(Icons.Filled.PlayArrow, stringResource(R.string.intro_theme_play), onClick = {}, tone = GsTone.Primary, size = cq(15f), iconSize = cq(8f))
                 GsButton(
                     onClick = {},
                     modifier = Modifier.weight(1f).height(cq(15f)),
                     tone = GsTone.Tonal,
-                ) { Text("Navigate", style = TextStyle(fontSize = cqSp(4.6f), fontWeight = FontWeight.Bold)) }
+                ) { Text(stringResource(R.string.intro_theme_navigate), style = TextStyle(fontSize = cqSp(4.6f), fontWeight = FontWeight.Bold)) }
             }
         }
     }

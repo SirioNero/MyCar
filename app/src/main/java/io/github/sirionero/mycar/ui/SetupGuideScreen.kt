@@ -45,6 +45,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.key
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.LocalNetwork
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import android.Manifest
 import android.app.AppOpsManager
 import android.app.NotificationManager
@@ -76,6 +78,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -157,7 +160,7 @@ private fun hasNotificationAccess(context: Context): Boolean {
  * who set up before the notes existed see once. Leaving it without turning them on is a no.
  */
 private fun usageNotesPage(context: Context) = GuidePage(
-    title = "Help other drivers.",
+    title = Words.get(R.string.setup_guide_usage_title),
     explanation = USAGE_STATS_INTRO,
     icon = { HeartIcon(it) },
     content = {
@@ -172,9 +175,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     // --- Safety: always first, and never skipped by an already-granted check ---------
     add(
         GuidePage(
-            title = "Drive safely.",
-            explanation = "myCar is unofficial. No carmaker made or checked it, and it can fail " +
-                "without warning. Set it up before you go, then keep your eyes on the road.",
+            title = Words.get(R.string.setup_guide_safety_title),
+            explanation = Words.get(R.string.setup_guide_safety_body),
             icon = glyph(Icons.Filled.Warning),
         ),
     )
@@ -184,9 +186,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, arrayOf(Manifest.permission.RECORD_AUDIO))) {
         add(
             GuidePage(
-                title = "Microphone.",
-                explanation = "myCar uses it to send your music to the car and to hear you when you " +
-                    "ask for something or reply to a message. What you say stays on the phone.",
+                title = Words.get(R.string.setup_guide_mic_title),
+                explanation = Words.get(R.string.setup_guide_mic_body),
                 icon = { MicIcon(it) },
                 permissions = arrayOf(Manifest.permission.RECORD_AUDIO),
             ),
@@ -195,9 +196,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))) {
         add(
             GuidePage(
-                title = "Location.",
-                explanation = "The car's map and nearby searches need it. Without it, the dashboard " +
-                    "shows no map.",
+                title = Words.get(R.string.setup_guide_location_title),
+                explanation = Words.get(R.string.setup_guide_location_body),
                 icon = glyph(Icons.Filled.LocationOn),
                 // Both, in one request: from Android 12 one asking for the precise location alone
                 // is dropped without a dialog.
@@ -208,8 +208,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, arrayOf(Manifest.permission.READ_CALENDAR))) {
         add(
             GuidePage(
-                title = "Calendar.",
-                explanation = "The car screen shows your next event. myCar only reads your calendar.",
+                title = Words.get(R.string.setup_guide_calendar_title),
+                explanation = Words.get(R.string.setup_calendar_body),
                 icon = glyph(Icons.Filled.DateRange),
                 permissions = arrayOf(Manifest.permission.READ_CALENDAR),
             ),
@@ -225,9 +225,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, callPermissions)) {
         add(
             GuidePage(
-                title = "Calls and contacts.",
-                explanation = "The car shows who's calling by name, and its Phone app can dial a " +
-                    "number or call one of your contacts. myCar only reads them.",
+                title = Words.get(R.string.setup_guide_calls_title),
+                explanation = Words.get(R.string.setup_guide_calls_body),
                 icon = glyph(Icons.Filled.Phone),
                 permissions = callPermissions,
             ),
@@ -241,15 +240,12 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, nearbyPermissions)) {
         add(
             GuidePage(
-                title = if (LocalNetwork.asked) "Nearby devices." else "Bluetooth.",
-                explanation = "The first time you plug in, myCar offers to pair your phone with the " +
-                    "car, so calls play through its speakers." +
-                    if (LocalNetwork.asked) {
-                        " The same permission lets Plancia and Xonos reach Home Assistant and Music " +
-                            "Assistant on your home network."
-                    } else {
-                        ""
-                    },
+                title = if (LocalNetwork.asked) Words.get(R.string.setup_guide_nearby_title) else "Bluetooth.",
+                explanation = if (LocalNetwork.asked) {
+                    Words.get(R.string.setup_guide_nearby_body_home)
+                } else {
+                    Words.get(R.string.setup_guide_nearby_body)
+                },
                 icon = glyph(Icons.Filled.Call),
                 permissions = nearbyPermissions,
             ),
@@ -259,9 +255,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, arrayOf(Manifest.permission.POST_NOTIFICATIONS))) {
         add(
             GuidePage(
-                title = "Notifications.",
-                explanation = "While myCar is connected, it shows a notification with a button " +
-                    "to stop. Without this, Android hides it.",
+                title = Words.get(R.string.setup_guide_notifications_title),
+                explanation = Words.get(R.string.setup_guide_notifications_body),
                 icon = glyph(Icons.Filled.Notifications),
                 permissions = arrayOf(Manifest.permission.POST_NOTIFICATIONS),
             ),
@@ -270,11 +265,10 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!hasNotificationAccess(context)) {
         add(
             GuidePage(
-                title = "Messages.",
-                explanation = "The car shows your messages, reads them aloud and lets you reply. " +
-                    "Turn myCar on in the list this opens.",
+                title = Words.get(R.string.setup_guide_messages_title),
+                explanation = Words.get(R.string.setup_guide_messages_body),
                 icon = glyph(Icons.Filled.Email),
-                actionLabel = "Open notification access",
+                actionLabel = Words.get(R.string.setup_messages_open),
                 onAction = {
                     // Phones without that screen: the app's own settings instead of a crash.
                     runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
@@ -296,11 +290,10 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (androidAutoPackage != null) {
         add(
             GuidePage(
-                title = "Turn off Android Auto.",
-                explanation = "Android Auto is still installed, and it fights myCar for the car's " +
-                    "USB connection. Disable or uninstall it on the screen this opens.",
+                title = Words.get(R.string.setup_guide_aa_title),
+                explanation = Words.get(R.string.setup_guide_aa_body),
                 icon = glyph(Icons.Filled.Close),
-                actionLabel = "Open Android Auto's app info",
+                actionLabel = Words.get(R.string.setup_guide_aa_open),
                 onAction = {
                     context.startActivity(
                         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", androidAutoPackage, null)),
@@ -313,9 +306,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     // --- Default handler ---------------------------------------------------------------
     add(
         GuidePage(
-            title = "Choose myCar.",
-            explanation = "If your phone asks which app to open when you plug into the car, pick " +
-                "myCar and tap Always.",
+            title = Words.get(R.string.setup_guide_choose_title),
+            explanation = Words.get(R.string.setup_guide_choose_body),
             icon = glyph(Icons.Filled.Check),
         ),
     )
@@ -323,8 +315,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     // --- Car audio: always asked, and it decides whether the adb pages below show ---------
     add(
         GuidePage(
-            title = "Car audio.",
-            explanation = "Pick how music reaches the car. Calls go over Bluetooth either way.",
+            title = Words.get(R.string.setup_guide_audio_title),
+            explanation = Words.get(R.string.setup_guide_audio_body),
             icon = glyph(Icons.Filled.PlayArrow),
             content = { AudioChoice() },
         ),
@@ -334,13 +326,11 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!SpeechModels.recommended().all { SpeechModels.isReady(context, it) }) {
         add(
             GuidePage(
-                title = "Voice.",
-                explanation = "Ask for directions, music, or a call by voice. Your phone turns speech " +
-                    "into text by itself, and nothing you say leaves it. It needs " +
-                    "${SpeechModels.recommended().sumOf { it.downloadMb }} MB, downloaded once. Use Wi-Fi if you can.",
+                title = Words.get(R.string.setup_guide_voice_title),
+                explanation = Words.get(R.string.setup_guide_voice_body, SpeechModels.recommended().sumOf { it.downloadMb }),
                 icon = { MicIcon(it) },
                 optional = true,
-                actionLabel = "Download voice",
+                actionLabel = Words.get(R.string.setup_guide_voice_download),
                 onAction = { SpeechModels.downloadRecommended(context) },
                 content = { VoiceDownloadStatus() },
             ),
@@ -351,9 +341,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!hasProjectMediaOp(context)) {
         add(
             GuidePage(
-                title = "No audio prompt.",
-                explanation = "Run this from a computer with USB debugging on, and Android trusts " +
-                    "myCar with your audio for good. Without it, you tap Start once each drive.",
+                title = Words.get(R.string.setup_guide_project_media_title),
+                explanation = Words.get(R.string.setup_guide_project_media_body),
                 icon = glyph(Icons.Filled.Build),
                 optional = true,
                 usbOnly = true,
@@ -364,10 +353,8 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!granted(context, arrayOf(Manifest.permission.WRITE_SECURE_SETTINGS))) {
         add(
             GuidePage(
-                title = "Readable notifications.",
-                explanation = "While audio goes to the car, Android hides what notifications say, " +
-                    "as if you were sharing your screen. This lets myCar show them during a " +
-                    "drive and hide them again after.",
+                title = Words.get(R.string.setup_guide_secure_settings_title),
+                explanation = Words.get(R.string.setup_guide_secure_settings_body),
                 icon = glyph(Icons.Filled.Build),
                 optional = true,
                 usbOnly = true,
@@ -378,13 +365,11 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (!hasCallScreeningRole(context)) {
         add(
             GuidePage(
-                title = "Screen unknown callers.",
-                explanation = "Make myCar your caller ID app, and the car can turn down a call from " +
-                    "outside your contacts before it rings. Without it, the car still shows every " +
-                    "call, and you answer or decline it there.",
+                title = Words.get(R.string.setup_guide_screening_title),
+                explanation = Words.get(R.string.setup_guide_screening_body),
                 icon = glyph(Icons.Filled.Call),
                 optional = true,
-                actionLabel = "Set up",
+                actionLabel = Words.get(R.string.setup_screening_button),
                 onAction = onRequestCallScreening,
             ),
         )
@@ -394,7 +379,7 @@ private fun pages(context: Context, onRequestCallScreening: () -> Unit): List<Gu
     if (SHOW_RECOMMENDED_APPS) {
         add(
             GuidePage(
-                title = "Good company.",
+                title = Words.get(R.string.intro_apps_title),
                 explanation = RECOMMENDED_INTRO,
                 icon = { StarIcon(it) },
                 content = { RecommendedAppsList() },
@@ -418,9 +403,9 @@ private fun VoiceDownloadStatus() {
     val progress by SpeechModels.progress.collectAsState()
     val states = SpeechModels.recommended().map { SpeechModels.state(it).collectAsState().value }
     val line = when {
-        progress != null -> "Downloading, $progress%. You can carry on; it keeps going."
-        states.all { it == SpeechModels.State.Ready } -> "Voice is ready."
-        states.any { it is SpeechModels.State.Failed } -> "The download didn't finish. Tap Download voice to try again."
+        progress != null -> stringResource(R.string.setup_guide_voice_progress, progress!!)
+        states.all { it == SpeechModels.State.Ready } -> stringResource(R.string.setup_guide_voice_ready)
+        states.any { it is SpeechModels.State.Failed } -> stringResource(R.string.setup_guide_voice_failed)
         else -> null
     }
     LaunchedEffect(Unit) { SpeechModels.init(context) }
@@ -435,18 +420,18 @@ internal fun AudioChoice() {
     val route by CarSettings.audioRoute.collectAsState()
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         AudioCard(
-            "Automatic", "Recommended",
-            "Over Bluetooth when your car takes the phone's music that way, otherwise through myCar.",
+            stringResource(R.string.setup_audio_automatic), stringResource(R.string.setup_audio_recommended),
+            stringResource(R.string.setup_audio_automatic_body),
             selected = route == AudioRoute.AUTO,
         ) { CarSettings.setAudioRoute(AudioRoute.AUTO) }
         AudioCard(
             "Bluetooth", null,
-            "No prompt each drive, and your map app's voice reaches the car. Some cars take only calls over it.",
+            stringResource(R.string.setup_audio_bluetooth_body),
             selected = route == AudioRoute.BLUETOOTH,
         ) { CarSettings.setAudioRoute(AudioRoute.BLUETOOTH) }
         AudioCard(
-            "Through myCar", null,
-            "Over the cable or Wi-Fi, as Android Auto does. Android asks to share audio once each drive.",
+            stringResource(R.string.setup_audio_through_mycar), null,
+            stringResource(R.string.setup_audio_through_mycar_body),
             selected = route == AudioRoute.CAR_LINK,
         ) { CarSettings.setAudioRoute(AudioRoute.CAR_LINK) }
     }
@@ -557,7 +542,7 @@ fun SetupGuideScreen(onRequestCallScreening: () -> Unit, onDone: () -> Unit, onl
                         Spacer(Modifier.height(cq(7f)))
                         if (page.optional) {
                             Text(
-                                "OPTIONAL", color = c.primary,
+                                stringResource(R.string.setup_guide_optional), color = c.primary,
                                 style = TextStyle(fontSize = cqSp(3.4f), fontWeight = FontWeight.Bold, letterSpacing = cqSp(0.4f)),
                                 modifier = Modifier.up(entrance(index, 150, 700), cq(7f)),
                             )
@@ -586,7 +571,7 @@ fun SetupGuideScreen(onRequestCallScreening: () -> Unit, onDone: () -> Unit, onl
                             page.content?.invoke()
                             if (page.permissions != null && alreadyGranted) {
                                 Text(
-                                    "Already allowed.", color = c.primary,
+                                    stringResource(R.string.setup_guide_already_allowed), color = c.primary,
                                     style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.SemiBold),
                                 )
                             }
@@ -604,14 +589,17 @@ fun SetupGuideScreen(onRequestCallScreening: () -> Unit, onDone: () -> Unit, onl
             val next = { index += 1 }
             when {
                 page.permissions != null && !alreadyGranted -> {
-                    PillRow(c, ::cq, ::cqSp, back, "Allow") { launcher.launch(page.permissions) }
-                    Pill(c, ::cqSp, "Skip for now", PillStyle.TEXT, Modifier.align(Alignment.CenterHorizontally), next)
+                    PillRow(c, ::cq, ::cqSp, back, stringResource(R.string.common_allow)) { launcher.launch(page.permissions) }
+                    Pill(c, ::cqSp, stringResource(R.string.setup_guide_skip_for_now), PillStyle.TEXT, Modifier.align(Alignment.CenterHorizontally), next)
                 }
                 page.onAction != null -> {
-                    Pill(c, ::cqSp, page.actionLabel ?: "Open", PillStyle.OUTLINED, Modifier.fillMaxWidth().padding(bottom = cq(3f)), page.onAction)
-                    PillRow(c, ::cq, ::cqSp, back, "Next", next)
+                    Pill(c, ::cqSp, page.actionLabel ?: stringResource(R.string.common_open), PillStyle.OUTLINED, Modifier.fillMaxWidth().padding(bottom = cq(3f)), page.onAction)
+                    PillRow(c, ::cq, ::cqSp, back, stringResource(R.string.common_next), next)
                 }
-                else -> PillRow(c, ::cq, ::cqSp, back, if (index == pages.lastIndex) "Done" else "Next", next)
+                else -> PillRow(
+                    c, ::cq, ::cqSp, back,
+                    if (index == pages.lastIndex) stringResource(R.string.common_done) else stringResource(R.string.common_next), next,
+                )
             }
             Spacer(Modifier.height(cq(6f)))
         }
@@ -654,7 +642,7 @@ internal fun PillRow(
     onBack: (() -> Unit)?, label: String, onClick: () -> Unit,
 ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(cq(3f))) {
-        if (onBack != null) Pill(c, cqSp, "Back", PillStyle.OUTLINED, Modifier.weight(1f), onBack)
+        if (onBack != null) Pill(c, cqSp, stringResource(R.string.common_back), PillStyle.OUTLINED, Modifier.weight(1f), onBack)
         Pill(c, cqSp, label, PillStyle.FILLED, Modifier.weight(if (onBack != null) 1.4f else 1f), onClick)
     }
 }
