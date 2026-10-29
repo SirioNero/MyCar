@@ -240,4 +240,7 @@
     <string name="car_web_select_title">Choose</string>
     <!-- The tick next to the option chosen, read by accessibility services -->
     <string name="car_web_select_chosen">Chosen</string>
+    <!-- The player's sound button (car/SoundRouteButton.kt): which way the sound goes, and a tap to change it -->
+    <string name="car_player_sound_bluetooth">Sound over Bluetooth. Tap to send it through myCar</string>
+    <string name="car_player_sound_mycar">Sound through myCar. Tap to send it over Bluetooth</string>
 </resources>

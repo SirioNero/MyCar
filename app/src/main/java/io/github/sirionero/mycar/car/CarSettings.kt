@@ -5,6 +5,7 @@ import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.audio.CarAudio
 import io.github.sirionero.mycar.audio.CarAudioRoute
+import io.github.sirionero.mycar.audio.CarRoutes
 import io.github.sirionero.mycar.car.theme.GsTheme
 import io.github.sirionero.mycar.car.theme.GsThemes
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -227,11 +228,9 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         uiThemeFlow.value = AppSettings.getString(app, KEY_UI_THEME, GsThemes.default.id)
         autoplayFlow.value = AppSettings.getString(app, KEY_AUTOPLAY, "false") == "true"
         playerTitleFlow.value = AppSettings.getString(app, KEY_PLAYER_TITLE, "false") == "true"
-        // Carried over from before Automatic: USB stays the route through myCar. Bluetooth, which
-        // setup picked for nearly everyone, becomes Automatic, which still plays over Bluetooth
-        // whenever the car takes the phone's music that way.
-        audioRouteFlow.value = AudioRoute.of(AppSettings.getString(app, KEY_AUDIO_ROUTE, ""))
-            ?: if (AppSettings.getString(app, KEY_PIPE_AUDIO, "") == "true") AudioRoute.CAR_LINK else AudioRoute.AUTO
+        CarRoutes.init(app)
+        // The drive's car may have a route of its own (see carIdentified).
+        audioRouteFlow.value = carRoute ?: savedRoute()
         // Automatic's pick belongs to the drive, so a second init mid-drive leaves it be.
         if (audioRouteFlow.value != AudioRoute.AUTO) pipeAudioFlow.value = audioRouteFlow.value == AudioRoute.CAR_LINK
         // Until the driver sets it, on unless the sound always goes over Bluetooth, where the map
@@ -320,7 +319,13 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
      * there and then in the car, and at the next drive otherwise.
      */
     fun setAudioRoute(route: AudioRoute) {
-        AppSettings.putString(app, KEY_AUDIO_ROUTE, route.id)
+        // With a car connected the choice is that car's; with none, every car's.
+        if (CarRoutes.keep(route)) {
+            carRoute = route
+        } else {
+            AppSettings.putString(app, KEY_AUDIO_ROUTE, route.id)
+            CarRoutes.forgetAll()
+        }
         audioRouteFlow.value = route
         if (AppSettings.getString(app, KEY_SPEAK_DIRECTIONS, "") == "") {
             speakDirectionsFlow.value = route != AudioRoute.BLUETOOTH
@@ -344,8 +349,36 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
      * itself is already being stopped with the rest of the car's services.
      */
     internal fun forgetCarLink() {
-        if (audioRouteFlow.value == AudioRoute.AUTO) pipeAudioFlow.value = false
+        CarRoutes.disconnected()
+        carRoute = null
+        val saved = savedRoute()
+        audioRouteFlow.value = saved
+        pipeAudioFlow.value = saved == AudioRoute.CAR_LINK
     }
+
+    /** The route kept for the drive's car, while it's connected. */
+    private var carRoute: AudioRoute? = null
+
+    /**
+     * The drive's car said who it is, before its music channel opens: the route kept for it, if
+     * any, is this drive's (see [CarRoutes]).
+     */
+    internal fun carIdentified(key: String) {
+        val route = CarRoutes.connected(key) ?: return
+        carRoute = route
+        if (route == audioRouteFlow.value) return
+        io.github.sirionero.mycar.MyCarLog.i("audio: this car's own route - ${route.id}")
+        audioRouteFlow.value = route
+        pipeAudioFlow.value = route == AudioRoute.CAR_LINK
+    }
+
+    /**
+     * The route chosen for every car. Carried over from before Automatic: USB stays the route
+     * through myCar. Bluetooth, which setup picked for nearly everyone, becomes Automatic, which
+     * still plays over Bluetooth whenever the car takes the phone's music that way.
+     */
+    private fun savedRoute(): AudioRoute = AudioRoute.of(AppSettings.getString(app, KEY_AUDIO_ROUTE, ""))
+        ?: if (AppSettings.getString(app, KEY_PIPE_AUDIO, "") == "true") AudioRoute.CAR_LINK else AudioRoute.AUTO
 
     fun setSpeakDirections(on: Boolean) {
         speakDirectionsFlow.value = on

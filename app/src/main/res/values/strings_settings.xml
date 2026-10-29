@@ -409,4 +409,5 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_black">Black (AMOLED)</string>
+    <string name="settings_audio_per_car">With a car connected, the choice is kept for that car, and the player\'s sound button changes it too. With no car connected, it\'s for every car.</string>
 </resources>

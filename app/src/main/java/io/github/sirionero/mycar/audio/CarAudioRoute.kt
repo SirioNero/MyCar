@@ -109,14 +109,33 @@ object CarAudioRoute {
         val callback = object : AudioDeviceCallback() {
             override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>) {
                 if (!projecting || !onBluetooth || bluetoothMusic()) return
-                log.i("route: through myCar - the Bluetooth music connection dropped")
-                SessionReport.audioRoute("auto: through myCar (the Bluetooth music connection dropped)")
-                CarSettings.useCarLink(true)
-                stopWatching()
+                // Some cars drop Bluetooth music for a call, or for a moment, and take it back:
+                // moving the sound at once opened the car's music channel and put Android's
+                // question up mid-drive. Moved only if it stays gone, once no call is on.
+                log.i("the Bluetooth music connection dropped - waiting ${DROP_MS / 1000}s before moving the sound")
+                main.removeCallbacksAndMessages(settling)
+                main.postDelayed({ checkDropped() }, settling, DROP_MS)
             }
         }
         watching = callback
         audio?.registerAudioDeviceCallback(callback, main)
+    }
+
+    private fun checkDropped() {
+        if (!projecting || !onBluetooth || bluetoothMusic()) return
+        if (inCall()) {
+            main.postDelayed({ checkDropped() }, settling, DROP_MS)
+            return
+        }
+        log.i("route: through myCar - the Bluetooth music connection dropped")
+        SessionReport.audioRoute("auto: through myCar (the Bluetooth music connection dropped)")
+        CarSettings.useCarLink(true)
+        stopWatching()
+    }
+
+    private fun inCall(): Boolean = when (audio?.mode) {
+        AudioManager.MODE_IN_CALL, AudioManager.MODE_IN_COMMUNICATION, AudioManager.MODE_RINGTONE -> true
+        else -> false
     }
 
     private fun stopWatching() {
@@ -138,4 +157,7 @@ object CarAudioRoute {
 
     /** Long enough for a car that connects Bluetooth music by itself at the start of a drive. */
     private const val SETTLE_MS = 5_000L
+
+    /** How long a dropped Bluetooth music connection may take to come back before the sound moves. */
+    private const val DROP_MS = 10_000L
 }

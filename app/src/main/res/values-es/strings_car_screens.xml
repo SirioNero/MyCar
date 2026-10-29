@@ -158,4 +158,6 @@
     <string name="car_web_home_network">Esta página está en tu red de casa</string>
     <string name="car_web_select_title">Elegir</string>
     <string name="car_web_select_chosen">Elegido</string>
+    <string name="car_player_sound_bluetooth">Sonido por Bluetooth. Toca para enviarlo a través de myCar</string>
+    <string name="car_player_sound_mycar">Sonido a través de myCar. Toca para enviarlo por Bluetooth</string>
 </resources>

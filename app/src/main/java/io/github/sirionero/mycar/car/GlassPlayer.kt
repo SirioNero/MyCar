@@ -169,7 +169,7 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                     // fit, rather than "Next" getting squeezed and Lyrics falling off the end.
                     BoxWithConstraints(Modifier.fillMaxWidth()) {
                         val skip = min(48.dp, maxWidth / 3.3f)
-                        val mode = min(44.dp, maxWidth / 4)
+                        val mode = min(44.dp, maxWidth / 5)
                         Column {
                             TransportRow(now, media, skip = skip, modifier = Modifier.fillMaxWidth())
                             Spacer(Modifier.height(8.dp))
@@ -177,6 +177,7 @@ internal fun GlassDockedPlayer(now: NowPlaying, modifier: Modifier) {
                                 PlainButton(navigator::showSideLyrics, stringResource(R.string.car_player_lyrics), mode) {
                                     Icon(painterResource(R.drawable.sym_lyrics), null, Modifier.size(mode * 0.52f))
                                 }
+                                SoundRouteButton(mode)
                             }
                         }
                     }

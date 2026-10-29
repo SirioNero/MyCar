@@ -298,4 +298,5 @@
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
     <string name="theme_black">纯黑 (AMOLED)</string>
+    <string name="settings_audio_per_car">连接车辆时，这个选择会为该车辆保留，播放器中的声音按钮也可以更改它。未连接车辆时，它适用于所有车辆。</string>
 </resources>

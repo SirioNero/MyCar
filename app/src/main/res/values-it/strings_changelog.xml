@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_38">
+        <item>Tramite myCar, la musica non resta più spenta quando l\'auto prende le casse per la sua voce e si dimentica di ridarle: dopo un po\' myCar le richiede.</item>
+        <item>In Automatico, il Bluetooth della musica che cade per una chiamata o per un attimo non sposta più l\'audio su myCar a metà viaggio: myCar aspetta che torni.</item>
+        <item>Il lettore ha un tasto dell\'audio: mostra se il suono arriva all\'auto in Bluetooth o tramite myCar, e con un tocco lo manda dall\'altra parte.</item>
+        <item>myCar ricorda la scelta per ogni auto: un\'auto può andare tramite myCar mentre le altre restano in Automatico.</item>
+        <item>Collegamento senza fili da solo: un\'auto che chiama il telefono trova myCar già pronta, e myCar la aspetta fino a cinque minuti mentre l\'Android Auto dell\'auto si avvia.</item>
+    </string-array>
     <string-array name="changelog_37">
         <item>Sul telefono anche la striscia sotto la barra di stato prende il colore del tema, con Chiaro, Scuro, Nero e Monokai.</item>
     </string-array>

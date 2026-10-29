@@ -35,6 +35,8 @@ object WirelessAuto {
     private const val KEY_ON = "on"
     /** Cars whose "Allow" the driver has answered, yes or no: not asked again. */
     private const val ANSWERED = "answered:"
+    /** Cars that called the phone's Android Auto service, rather than publishing one of their own. */
+    private const val CALLS = "calls:"
     /** A car whose Bluetooth comes and goes opens myCar once, not at every flicker. */
     private const val SETTLE_MS = 15_000L
     /** A dialog that never showed (myCar wasn't on screen) gets no answer: asked again after this. */
@@ -116,6 +118,14 @@ object WirelessAuto {
                 asking = null
             }
         }, Handler(Looper.getMainLooper()))
+    }
+
+    /** Whether the car at [address] called the phone the last time it connected wirelessly. */
+    fun callsPhone(context: Context, address: String): Boolean =
+        prefs(context).getBoolean(CALLS + address.uppercase(java.util.Locale.ROOT), false)
+
+    fun rememberCalls(context: Context, address: String, calls: Boolean) {
+        prefs(context).edit().putBoolean(CALLS + address.uppercase(java.util.Locale.ROOT), calls).apply()
     }
 
     /** The driver allowed it in Android's dialog. */

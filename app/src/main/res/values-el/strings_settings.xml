@@ -300,4 +300,5 @@
     <string name="theme_light">Φωτεινό</string>
     <string name="theme_dark">Σκούρο</string>
     <string name="theme_black">Μαύρο (AMOLED)</string>
+    <string name="settings_audio_per_car">Με συνδεδεμένο αυτοκίνητο, η επιλογή μένει για εκείνο το αυτοκίνητο, και την αλλάζει και το κουμπί ήχου στο πρόγραμμα αναπαραγωγής. Χωρίς συνδεδεμένο αυτοκίνητο, ισχύει για όλα τα αυτοκίνητα.</string>
 </resources>

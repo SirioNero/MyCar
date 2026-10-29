@@ -369,7 +369,7 @@ private fun CarAudioSection() {
             stringResource(R.string.settings_audio_footer_ask)
         } else {
             stringResource(R.string.settings_audio_footer)
-        },
+        } + " " + stringResource(R.string.settings_audio_per_car),
     ) {
         AudioRouteRow(
             AudioRoute.AUTO, route, stringResource(R.string.settings_audio_auto),
