@@ -28,6 +28,13 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 - Messages and notifications: Open on phone goes straight to myCar's switch in Android's notification access.
 - Smoother scrolling and flings: each touch from the car keeps the time it arrived at. Lighter: app pictures checked off the screen's thread, the message timer bar at the car's 30 frames a second, list thumbnails at the size they're shown.
 - Car screens above 1080p get an H.264 level that fits them (an encoder could refuse the old one).
+- An app opened when the car connects (Settings > Open on connect) now sits on Home: Back leads there (it did nothing).
+- The map's key - in the dock, on the car, or "navigate to" - also closes the changing of a page, which stayed over the map.
+- Extra large on a small screen: the page bar keeps Done in sight, the car's settings keep whole words (the choices scroll instead of breaking "Browser" in two), an app's long-press menu scrolls instead of squeezing out Close app, and the week's forecast stays on one line.
+- Ready-made pages asks for a second tap (Replace my pages) before it replaces your pages, like Delete page.
+- Browser: the car's keyboard closes once a search is sent or a link opens a new page (it stayed over the results).
+- An app's long-press menu closes when a call rings: the first tap on Answer only closed the menu.
+- Without the calendar allowed, the dashboard says so, instead of "Nothing in the next week". Settings > Beside the map lights Plancia or Xonos inside myCar when the choice was made with their apps, and Screen fit counts with the car's real height.
 
 ## Cinema
 - Continue, first among the tiles, opens again what you were watching - a site at the page it was on, a video where you left it, a channel - after a look at the map or another app.
@@ -40,6 +47,14 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 
 ## On the phone
 - The welcome's band is now a pirate flag flying in the wind: 100% LOCAL - we defend our data.
+- With three-button navigation, the setup's and the welcome's buttons (Finish later, Done, Next, Start) sit above Android's bar instead of under it. With large text, Connect wirelessly and the setup's big button grow instead of cutting their second line.
+- Settings: the keyboard no longer covers the field you type in (Plancia's token, Xonos's password, a Cinema site or TV list).
+- Plancia: Save and test with the address or token left empty no longer replaces the account that works - it says what's missing.
+- Removing a TV list, one of your own Cinema sites or a voice model asks first. Videos on this phone > Allow opens Android's settings when Android no longer asks.
+- The certificate notice on Home goes away once it's done. Disconnect asks first during a drive: one stray tap on the phone ended it.
+- Connect wirelessly with myCar switched off for the car says so, with Turn it on (it joined the car's Wi-Fi and spun for ever).
+- Initial setup names the permissions as Android does (Phone, Call logs), and How to connect no longer says "Everything's set up" while calls, map and music are off. Back on the replayed welcome returns to Settings.
+- Cinema: an address at home typed without http (192.168.1.10:8096, jellyfin.local:8096) opens as http, as such servers expect.
 - Removing the certificates, Plancia's account or Xonos's account asks first, and says what happens (the certificates need the internet to come back).
 - Cinema: resetting the list of sites asks first and says which of yours go; the button shows only when there's something to reset.
 - Calendar, Notifications and the call filter: when Android no longer asks, the button opens the right page of Android's settings instead of doing nothing.

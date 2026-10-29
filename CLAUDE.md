@@ -73,7 +73,8 @@ Rispondi sempre in **italiano**.
   sessione vera: le app (mappa di Vela, Plancia) disegnano alla densità dell'auto.
   Pagine della Home: `pages/` (dal tasto mappa del dock, che risveglia i puntini, alla pagina di
   sinistra e poi a quella di destra), `pages-800x480/`, `pages-edit/` (matita e elenco delle
-  scelte), `pages-layouts/` (matita, "Layout", elenco dei formati, "Half left"), `layout-<formato>/`
+  scelte; parte con un'attesa: il primo tocco subito dopo l'avvio diventava una pressione lunga),
+  `pages-layouts/` (matita, "Layout", elenco dei formati, "Half left"), `layout-<formato>/`
   e `layout-800x480/` (la pagina a sinistra della mappa in quel formato, `--es pageLayout <id>`); l'anteprima riparte ogni volta dalle pagine pronte (`HomePages.reset()`).
   Assistente: `assistant/` (Impostazioni al posto di un assistente-activity, `phone-screen.png`),
   `assistant-google/` (l'app Google dell'emulatore: schermo del telefono dopo il microfono e dopo lo
@@ -701,6 +702,22 @@ Tutti i token in un solo posto, `car/design/`:
   `doUpdateVisitedHistory`; Telefono su Contatti senza registro, linguette strette sotto 600 dp; testi
   delle canzoni "non raggiunti" con Try again. Da decidere con l'utente: "Fuck you too." detto ad alta
   voce dall'assistente (anche con passeggeri).
+- **Setaccio 4** (notte, 0.5.20, `fix/bug-scan-4`): app del telefono e schermate dell'auto meno
+  guardate, ogni punto verificato nel codice. Telefono: tasti sopra la barra a tre tasti e che crescono
+  coi caratteri grandi, tastiera che non copre i campi delle Impostazioni (`imePadding`), Plancia che
+  non perde l'account con un campo vuoto, avviso del certificato che va via, Disconnect con conferma a
+  viaggio avviato, conferme per liste TV, siti propri di Cinema e modelli vocali, "Connect wirelessly"
+  con myCar spenta, gruppi "Phone" e "Call logs" nel setup (come li chiama Android), Indietro
+  dall'intro rivista, http per gli indirizzi di casa scritti senza schema in Cinema. Auto:
+  `CarNavigator.close()` per Stop e "Close app" (il tasto Indietro di un'app, `AppBackKey`, si prendeva
+  il passo e lasciava uno schermo nero), "Open on connect" sopra Home, tasto mappa che chiude la
+  modifica delle pagine, Done sempre in vista e menu dell'app che scorre a Extra large, `ChoiceRow` che
+  scorre sotto 110 dp a scelta, secondo tocco per "Ready-made pages", tastiera del browser chiusa a
+  pagina nuova (`onPageStarted`), menu dell'app chiuso allo squillo, agenda senza permesso, "Beside the
+  map" acceso con Plancia/Xonos dentro myCar. Da decidere con l'utente: i puntini delle pagine sempre
+  sopra il fondo di browser, Plancia e app (svanire come sulla mappa, o una striscia riservata).
+  Lasciati: icone fissate nel dock che spariscono nel passaggio dentro↔app e contano per il limite
+  (logica dei pin, da provare), lavoro in più di dock e griglia a ogni aggiornamento della navigazione.
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial

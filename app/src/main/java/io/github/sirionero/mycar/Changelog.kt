@@ -20,6 +20,7 @@ object Changelog {
                 "Dropdowns on web pages open in the car as a list to tap, and the car's Back key goes back inside apps.",
                 "Stop navigating takes two taps; screens that stopped at an error now have a way on.",
                 "Cinema: Continue opens again what you were watching; a film picks up where it stopped after a network drop.",
+                "Extra large fits better: settings keep whole words, the page bar keeps Done in sight, an app's menu scrolls.",
             ),
         ),
         Release(
