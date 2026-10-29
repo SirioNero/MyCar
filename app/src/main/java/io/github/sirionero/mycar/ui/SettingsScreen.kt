@@ -64,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.car.PhoneTyping
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
@@ -108,6 +109,7 @@ fun SettingsScreen(
             scroll.scrollTo(y)
         }
     }
+    val typingForCar by PhoneTyping.field.collectAsState()
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -126,9 +128,10 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
                 // Edge to edge, the window no longer shrinks for the keyboard: without this, a field
-                // in the lower half (Plancia's token, Xonos's password) stays under it.
+                // in the lower half (Plancia's token, Xonos's password) stays under it. Not while the
+                // bar for typing for the car is up: that one already sits above the keyboard.
                 .consumeWindowInsets(padding)
-                .imePadding()
+                .then(if (typingForCar == null) Modifier.imePadding() else Modifier)
                 .padding(horizontal = 24.dp)
                 .verticalScroll(scroll),
             verticalArrangement = Arrangement.spacedBy(24.dp),
