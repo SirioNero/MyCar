@@ -1,0 +1,15 @@
+Plancia
+Home Assistant on your car screen, through Gearslip.
+Language
+English
+Home address
+http://umbrel:8123
+Address away from home (optional)
+https://…ui.nabu.casa or your VPN address
+In the car your phone is off your home network: Plancia tries the home address first, then the remote one.
+Long-lived access token
+•••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+Create it in Home Assistant: your profile, Security tab, Long-lived access tokens.
+SAVE AND TEST THE CONNECTION
+✓ Home: Home Assistant 2026.10.4, 17 entities
+In the car, open Gearslip: Plancia appears among the apps.

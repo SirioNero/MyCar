@@ -1,0 +1,17 @@
+http://umbrel:8095
+Address away (optional)
+mycar
+Username
+Password
+Sign in
+Remove
+At home: Music Assistant 2.10.8, playing as myCar
+Your Music Assistant library among the car's music apps. With the car audio through myCar, its music goes straight to the car, and Android doesn't ask to share the audio while you listen to it.
+Cinema
+Video only when parked
+While the car moves the picture is covered, and the sound carries on
+Videos on this phone
+Allow myCar to show them in the car, under "On this phone"
+Allow
+Back
+Settings

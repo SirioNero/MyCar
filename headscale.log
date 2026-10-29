@@ -1,0 +1,39 @@
+2026-10-29T06:45:53Z INF no private key file at path, creating... path=/home/runner/work/_temp/headscale/noise_private.key
+2026-10-29T06:45:53Z INF Opening database database=sqlite3 path=/home/runner/work/_temp/headscale/db.sqlite
+2026-10-29T06:45:53Z INF starting headscale commit=a2b1d7863926834e94479dcdd91ab344a9356bd0 version=v0.29.6+dirty
+2026-10-29T06:45:53Z INF Clients with a lower minimum version will be rejected minimum_version=v1.80
+2026-10-29T06:45:53Z INF HA subnet router health probing enabled interval=10000 timeout=5000
+2026-10-29T06:45:53Z INF listening and serving HTTP on: 0.0.0.0:8080
+2026-10-29T06:45:53Z INF listening and serving debug and metrics on: 127.0.0.1:9090
+2026-10-29T06:45:54Z INF http request bytes=18 elapsed=0.14235 method=GET path=/health proto=HTTP/1.1 remote=10.0.2.2:35924 status=200
+2026-10-29T06:45:54Z INF http request bytes=18 elapsed=0.054711 method=GET path=/health proto=HTTP/1.1 remote=10.0.2.2:35938 status=200
+2026-10-29T06:45:54Z INF user created user.name=driver
+2026-10-29T06:46:02Z INF http request bytes=176 elapsed=0.193065 method=GET path=/key proto=HTTP/1.1 remote=10.0.2.2:35954 status=200
+2026-10-29T06:46:03Z INF http request bytes=255 elapsed=566.3798 method=POST path=/machine/register proto=HTTP/2.0 remote=10.0.2.2:35958 status=200
+2026-10-29T06:46:03Z INF http request bytes=0 elapsed=500.220521 method=POST path=/machine/map proto=HTTP/2.0 remote=10.0.2.2:35958 status=200
+2026-10-29T06:46:04Z INF node connected machine.key=[ZpDOP] node.expired=false node.id=1 node.is_tagged=false node.key=[D2s5p] node.name=umbrel node.online=true user.name=driver
+2026-10-29T06:46:04Z INF ../../headscale/headscale/hscontrol/poll.go:293 > node has connected chan=0x62ec489f1f0 component=poll machine.key=[ZpDOP] node.expired=false node.id=1 node.is_tagged=false node.key=[D2s5p] node.name=umbrel node.online=false omit_peers=false stream=true user.name=driver
+2026-10-29T06:46:04Z INF http request bytes=0 elapsed=365.64487 method=POST path=/machine/map proto=HTTP/2.0 remote=10.0.2.2:35958 status=200
+2026-10-29T06:46:05Z INF http request bytes=0 elapsed=499.162228 method=POST path=/machine/map proto=HTTP/2.0 remote=10.0.2.2:35958 status=200
+2026-10-29T06:49:01Z INF http request bytes=176 elapsed=0.124414 method=GET path=/key proto=HTTP/1.1 remote=127.0.0.1:49674 status=200
+2026-10-29T06:49:02Z INF starting node registration using auth id: hskey-authreq-2egNyJ1-Jgvi_ZWd4khwz4xy
+2026-10-29T06:49:02Z INF http request bytes=263 elapsed=0.444311 method=POST path=/machine/register proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:49:02Z INF http request bytes=176 elapsed=0.106467 method=GET path=/key proto=HTTP/1.1 remote=127.0.0.1:49692 status=200
+2026-10-29T06:49:11Z INF http request bytes=255 elapsed=8957.885459 method=POST path=/machine/register proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:49:12Z INF http request bytes=0 elapsed=495.780674 method=POST path=/machine/map proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:49:12Z INF node registered successfully machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=false registration_key=hskey-reg-3Xorbkasw6OSQIe7TfKZeJBpuvo1ZW9Tx0c8NEG1dFPWocUjDtiSz9cmDOKBIhNl user.name=driver
+2026-10-29T06:49:12Z INF node connected machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=true user.name=driver
+2026-10-29T06:49:12Z INF ../../headscale/headscale/hscontrol/poll.go:293 > node has connected chan=0x62ec4a99880 component=poll machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=false omit_peers=false stream=true user.name=driver
+2026-10-29T06:49:13Z INF http request bytes=0 elapsed=435.26623 method=POST path=/machine/map proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:49:13Z INF http request bytes=0 elapsed=498.313221 method=POST path=/machine/map proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:50:52Z INF http request bytes=176 elapsed=0.126668 method=GET path=/key proto=HTTP/1.1 remote=127.0.0.1:53526 status=200
+2026-10-29T06:50:53Z INF http request bytes=255 elapsed=0.638103 method=POST path=/machine/register proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:50:53Z INF http request bytes=0 elapsed=16.620519 method=POST path=/machine/map proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:50:53Z INF node connected machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=true user.name=driver
+2026-10-29T06:50:53Z INF ../../headscale/headscale/hscontrol/poll.go:293 > node has connected chan=0x62ec4c193b0 component=poll machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=true omit_peers=false stream=true user.name=driver
+2026-10-29T06:50:53Z INF node connected machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=true user.name=driver
+2026-10-29T06:50:53Z INF ../../headscale/headscale/hscontrol/poll.go:293 > node has connected chan=0x62ec49bc9a0 component=poll machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=true omit_peers=false stream=true user.name=driver
+2026-10-29T06:50:53Z ERR ../../headscale/headscale/hscontrol/poll.go:349 > cannot write update to client error="http2: stream closed" component=poll machine.key=[8kW7N] node.expired=false node.id=2 node.is_tagged=false node.key=[neKwl] node.name=sdk_gphone64_x86_64 node.online=true omit_peers=false stream=true user.name=driver
+2026-10-29T06:50:54Z INF http request bytes=6237 elapsed=102148.739926 method=POST path=/machine/map proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:50:54Z INF http request bytes=0 elapsed=1050.523046 method=POST path=/machine/map proto=HTTP/2.0 remote=127.0.0.1:49676 status=200
+2026-10-29T06:53:29Z INF http request bytes=0 elapsed=267561.607512 method=POST path=/ts2021 proto=HTTP/1.1 remote=127.0.0.1:49676 status=101

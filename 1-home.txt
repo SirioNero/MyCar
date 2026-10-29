@@ -1,0 +1,13 @@
+myCar
+Settings
+v0.5.22-alpha
+Not connected
+Plug into the car's USB port, or connect wirelessly. myCar opens by itself when the car answers.
+Connect wirelessly
+Finish setting up
+Left before your first drive: car certificate, Android Auto.
+Continue setup
+Not now
+What's new in 0.5
+How to connect
+Which cars work, and what's left to set up

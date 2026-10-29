@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="ha_url_remote"></string>
+    <string name="ha_dashboard"></string>
+    <string name="ha_import_off"></string>
+    <string name="xonos_import_off"></string>
+    <boolean name="skipped_cert_setup" value="true" />
+    <string name="ha_token">(hidden)</string>
+    <string name="car_whats_new_seen_code">35</string>
+    <string name="ha_zoom">100</string>
+    <string name="ha_url_home">http://umbrel:8123</string>
+    <boolean name="seen_permissions_setup" value="true" />
+</map>
