@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.home.HomeAssistant
@@ -92,6 +93,10 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     // Reads the certificate once in the background, so Settings has it ready when opened.
     LaunchedEffect(Unit) {
         kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { runCatching { CertSummary.read(context) } }
+    }
+    // CarService lasts a few months: the new one is fetched before the one on the phone runs out.
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { runCatching { CertCatalog.refreshIfDue(context) } }
     }
 
     // Android 17 keeps myCar off the home network until it's allowed (see LocalNetwork), and

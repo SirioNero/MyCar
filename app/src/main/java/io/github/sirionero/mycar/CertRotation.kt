@@ -51,7 +51,11 @@ object CertRotation {
         runCatching { CertCatalog.adoptLegacy(context) }
         val presented = if (identity.kind == CertProvider.Kind.DOWNLOADED) CertCatalog.idOf(identity.certificate) else null
         val own = identity.kind == CertProvider.Kind.IMPORTED || identity.kind == CertProvider.Kind.ADB_STAGED
-        val outcome = CertRotationPolicy.decide(read(context), verdict, presented, own, CertCatalog.present(context))
+        // Past its end by the phone's clock too (CarService lasts a few months): not the car's date.
+        // It counts as turned down, so the next one goes in use, and a new one is fetched.
+        val expired = presented != null && identity.certificate.notAfter.time < System.currentTimeMillis()
+        val seen = if (verdict == CertVerdict.Clock && expired) CertVerdict.Refused(hard = true, why = "expired") else verdict
+        val outcome = CertRotationPolicy.decide(read(context), seen, presented, own, CertCatalog.present(context))
         write(context, outcome.state)
         outcome.switchTo?.let { id ->
             runCatching { CertCatalog.activate(context, id) }.onFailure { log.e("couldn't put $id in use", it) }
@@ -59,8 +63,9 @@ object CertRotation {
         setNotice(context, Notice(outcome.notice, outcome.switchTo ?: presented))
         log.i(
             "the car's verdict on ${presented ?: identity.kind.name.lowercase()}: $verdict -> ${outcome.notice}" +
-                (outcome.switchTo?.let { ", $it next" } ?: ""),
+                (outcome.switchTo?.let { ", $it next" } ?: "") + (if (expired) " (it had run out)" else ""),
         )
+        if (expired) runCatching { CertCatalog.refreshIfDue(context, force = true) }
     }
 
     /** "Try again from the first": every certificate may be tried again. */

@@ -189,8 +189,8 @@ internal fun AboutLinkRows() {
     SettingsDivider()
     SettingsRow(
         "Certificate credits",
-        subtitle = "The car certificates come from aasdk (GPL-3.0) and Headunit Revived (AGPL-3.0), " +
-            "downloaded only when you ask",
+        subtitle = "The car certificates come from aasdk (GPL-3.0), Headunit Revived (AGPL-3.0) and the " +
+            "android-auto-certificates archive (CarService, Android Auto's own), downloaded only when you ask",
         icon = Icons.Filled.Favorite,
     )
 }

@@ -138,7 +138,7 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                     "A downloaded file wasn't the expected certificate, so myCar left it out. Try again later."
                 ready.isEmpty() -> "Couldn't download the certificates. Check your internet connection, then try again."
                 ready.size < CertCatalog.entries.size ->
-                    "Got ${ready.size} of ${CertCatalog.entries.size}. ${label(ready.first())} is ready; you can get the spare later in Settings."
+                    "Got ${ready.size} of ${CertCatalog.entries.size}. ${label(ready.first())} is ready; you can get the others later in Settings."
                 else -> null
             }
             refresh()
@@ -386,7 +386,8 @@ private fun certificateSummary(context: android.content.Context): String {
     if (CertProvider.hasImported(context)) return "Ready: your own certificate."
     val present = CertCatalog.present(context)
     return when {
-        present.size >= 2 -> "Ready: ${label(present[0])}. Spare: ${label(present[1])}."
+        present.size >= 2 -> "Ready: ${label(present[0])}. " + (if (present.size == 2) "Spare: " else "Spares: ") +
+            present.drop(1).joinToString { label(it) } + "."
         present.size == 1 -> "Ready: ${label(present[0])}."
         else -> "Ready."
     }

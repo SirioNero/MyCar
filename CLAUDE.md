@@ -742,11 +742,23 @@ Tutti i token in un solo posto, `car/design/`:
   dell'emulatore 320×640). Verificato (0.5.14): lista dal titolo, certificati scaricati e
   controllati, Android Auto tenuto, un "Allow" con sei domande di Android in fila, tutto spuntato,
   Home senza "Finish setting up", ritorno dalla Guida, e con i contatti tolti di nuovo "Allow".
-- **Certificati** (`CertCatalog`, `CertChecks`, `CertRotation`, `CertRotationPolicy`): due
-  certificati pubblici, scaricati solo dopo un tocco e mai dentro l'APK: aasdk (consigliato, chiave
-  PKCS#1, SHA-256 `1C0E0EF9…3C35`) e Headunit Revived (riserva, valido fino al 2044, chiave PKCS#8,
-  `E323CC6D…ED6D`), da `raw.githubusercontent.com` a un commit fissato, poi dai rami. Prima di
-  tenerli: impronta, chiave che corrisponde, RSA ≥ 2048, validità, stretta di mano TLS sul
+- **Certificati** (`CertCatalog`, `CertChecks`, `CertRotation`, `CertRotationPolicy`): tre
+  certificati pubblici, scaricati solo dopo un tocco e mai dentro l'APK, tutti firmati dalla radice
+  Google Automotive Link: aasdk (consigliato, chiave PKCS#1, SHA-256 `1C0E0EF9…3C35`, fino al 2045),
+  Headunit Revived (riserva, fino al 2044, chiave PKCS#8, `E323CC6D…ED6D`), da
+  `raw.githubusercontent.com` a un commit fissato, poi dai rami; e **CarService** (0.5.21, "Newest
+  cars", richiesta dell'utente: va sulla sua Tayron), quello di Android Auto stesso, dall'archivio
+  `Iscle/android-auto-certificates` (`android-auto/latest/`, `certificate.pem` con la radice dopo e
+  `private-key.pem` PKCS#8; prima il ramo `main`, poi il commit `c20cc85`). Android Auto lo cambia a
+  ogni versione e dura pochi mesi (quello di ottobre 2026 fino al 3/2/2027), e l'archivio si aggiorna
+  da solo ogni ~10 giorni: niente impronta fissa ma una **famiglia** (`CertCatalog.Family`): soggetto
+  O=CarService, emesso e firmato (`verify`) dalla radice che sta nel file dopo di lui e che deve avere
+  l'impronta fissata `49E52EFC…D17F`. Riconosciuto per nomi (`CertChecks.inFamily`, per dire quale è
+  in uso). A un mese dalla fine si riscarica da solo (`refreshIfDue`, una volta per avvio da
+  `MyCarApp`) e, se era in uso, il nuovo va nello slot; un'auto che lo trova scaduto (−23/−24 con il
+  certificato scaduto anche per il telefono) conta come rifiuto e si riscarica. Test con certificati
+  fatti nei test (`TestChain`, `CertFamilyTest`), mai quelli veri. Prima di tenerli: impronta (o
+  famiglia), chiave che corrisponde, RSA ≥ 2048, validità, stretta di mano TLS sul
   telefono. Ognuno in `identity-catalog/<id>.p12`; quello in uso si copia nello slot che
   `CertProvider` legge (`identity-downloaded/phone.p12`). `MyCarRunner` manda il verdetto
   dell'auto (`onCertVerdict`) solo dopo averle mostrato il certificato: accettato, rifiutato
@@ -754,7 +766,8 @@ Tutti i token in un solo posto, `car/design/`:
   (−23/−24, "Check the car's date"). Rifiutato: si passa al successivo; tutti rifiutati: si torna al
   primo e ci si ferma fino a "Try again from the first"; un riaggancio non conta per un certificato
   già accettato; quello del guidatore non si cambia mai. Avvisi su Home (`CertNoticeCard`), scelta a
-  mano in Impostazioni (aasdk · Recommended, Headunit Revived · Spare). jsDelivr come terza fonte non
+  mano in Impostazioni (aasdk · Recommended, Headunit Revived · Spare, CarService · Newest cars, con la
+  data di scadenza). jsDelivr come terza fonte non
   usato: non raggiungibile dalla sessione cloud per verificarlo. Senza fili non riprova da solo col
   successivo: va provato in auto.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`

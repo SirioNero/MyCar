@@ -14,8 +14,8 @@ import java.security.cert.X509Certificate
  *
  *  1. **Imported** in the app (Settings > Certificate): a PKCS#12 file plus its password,
  *     copied into the app's private storage.
- *  2. **Downloaded**: one of the public certificates of [CertCatalog] (aasdk, or the spare from
- *     Headunit Revived). Fetched only when the user asks; the app never ships or hosts them.
+ *  2. **Downloaded**: one of the public certificates of [CertCatalog] (aasdk, or a spare: Headunit
+ *     Revived's, or Android Auto's own CarService). Fetched only when the user asks; the app never ships or hosts them.
  *  3. **Staged over adb** into the app's external files directory, the way the spike has
  *     always done it. Still honoured, so existing setups keep working untouched:
  *
