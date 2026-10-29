@@ -194,22 +194,13 @@ private fun DrawScope.drawGlitter(t: Float, behind: Boolean, night: Boolean) {
     }
 }
 
-/**
- * A round glow, drawn a little wider than its gradient: the circle's edge falls where the gradient
- * has already faded to nothing, so there's no rim to smooth. On the emulator's GPU the sun's rim,
- * where the gradient reached nothing, came out as bright orange specks. (Drawn as the square
- * around it instead, the emulator went down as the ship sailed in.)
- */
-internal fun DrawScope.drawGlow(brush: Brush, center: Offset, radius: Float) =
-    drawCircle(brush, radius = radius * 1.05f, center = center)
-
 /** The sun, or by night the moon with its halo. */
 private fun DrawScope.drawSun(t: Float, night: Boolean) {
     val c = Offset(size.width * SUN_X, size.height * 0.22f)
     val breathe = 1f + 0.03f * sin(TWO_PI * t / 6f)
     if (night) {
         val r = size.width * 0.15f * breathe
-        drawGlow(Brush.radialGradient(0f to Color(0x66C9D8FF), 0.35f to Color(0x22A9BFFF), 1f to Color(0x00A9BFFF), center = c, radius = r), c, r)
+        drawGlow(c, r, 0f to Color(0x66C9D8FF), 0.35f to Color(0x22A9BFFF), 1f to Color(0x00A9BFFF))
         val disc = size.width * 0.045f
         drawCircle(Brush.radialGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE3E9F7)), center = c - Offset(disc * 0.3f, disc * 0.3f), radius = disc * 1.4f), radius = disc, center = c)
         // Its seas, faintly.
@@ -220,13 +211,7 @@ private fun DrawScope.drawSun(t: Float, night: Boolean) {
     }
     val r = size.width * 0.15f * breathe
     // Out to a clear orange, not a clear black, which turned the edge brown.
-    drawGlow(
-        Brush.radialGradient(
-            0f to Color(0xFFFFF1C4), 0.28f to Color(0xFFFFD27A), 0.5f to Color(0x99FFB347), 1f to Color(0x00FFB347),
-            center = c, radius = r,
-        ),
-        c, r,
-    )
+    drawGlow(c, r, 0f to Color(0xFFFFF1C4), 0.28f to Color(0xFFFFD27A), 0.5f to Color(0x99FFB347), 1f to Color(0x00FFB347))
 }
 
 /** A night sky's stars, twinkling slowly. */
@@ -380,7 +365,7 @@ private fun DrawScope.drawHull(hull: Path, sheer: Path, planks: List<Path>, nigh
     // The stern lantern, glowing; more so by night.
     drawLine(Color(0xFF3A2414), Offset(-33.6f, -15f), Offset(-33.6f, -17.6f), strokeWidth = 0.35f)
     val glow = if (night) 5f else 2.6f
-    drawGlow(Brush.radialGradient(listOf(Color(0xCCFFD27A), Color(0x00FFD27A)), center = Offset(-33.6f, -18.4f), radius = glow), Offset(-33.6f, -18.4f), glow)
+    drawGlow(Offset(-33.6f, -18.4f), glow, 0f to Color(0xCCFFD27A), 1f to Color(0x00FFD27A))
     drawCircle(Color(0xFFFFE3A0), radius = 0.7f, center = Offset(-33.6f, -18.4f))
     // The bowsprit.
     drawLine(Color(0xFF5E3B1F), Offset(31f, -10.5f), Offset(44f, -20f), strokeWidth = 1.1f, cap = StrokeCap.Round)
