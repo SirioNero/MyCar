@@ -28,7 +28,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 object AssistantCommands {
 
     suspend fun handle(context: Context, navigator: CarNavigator, frame: CarEnvironment.Frame, heardRaw: String): String {
-        val heard = natural(heardRaw)
+        // Said in another language: the English command it means (AssistantLanguage).
+        val heard = natural(AssistantLanguage.toEnglish(heardRaw))
         VoiceHelp.hide()
         if (heard in HELP_WORDS || heard.startsWith("what can i say") || heard.startsWith("what can you do")) {
             VoiceHelp.show()
@@ -135,7 +136,7 @@ object AssistantCommands {
         // place like "Starbucks on Main Street" stays whole.
         var chosenApp = leadingApp?.let { name -> bestMatch(navApps, name) { it.label } ?: return "I couldn't find a navigation app called $name." }
         if (chosenApp == null) {
-            for (sep in listOf(" with ", " using ", " on ", " via ", " in ", " through ")) {
+            for (sep in listOf(" with ", " using ", " on ", " via ", " in ", " through ") + AssistantLanguage.appWords()) {
                 val at = destination.lastIndexOf(sep)
                 if (at <= 0) continue
                 val app = bestMatch(navApps, destination.substring(at + sep.length)) { it.label } ?: continue
@@ -190,7 +191,7 @@ object AssistantCommands {
         val media = CarServices.media
 
         // "play Daft Punk on Metrolist": switch to that app first, if it's one we know.
-        for (sep in listOf(" on ", " in ", " from ", " with ", " using ")) {
+        for (sep in listOf(" on ", " in ", " from ", " with ", " using ") + AssistantLanguage.appWords()) {
             val at = query.lastIndexOf(sep)
             if (at <= 0) continue
             val apps = withContext(Dispatchers.IO) { io.github.sirionero.mycar.media.MediaCatalog.installed(context) }

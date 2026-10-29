@@ -17,6 +17,8 @@ import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.speech.SpeechEngine
 import io.github.sirionero.mycar.speech.VoiceFocus
+import io.github.sirionero.mycar.speech.VoiceLanguage
+import io.github.sirionero.mycar.speech.VoiceLanguages
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -54,11 +56,34 @@ object CarAssistant {
     private var recognizer: SpeechRecognizer? = null
     private var tts: TextToSpeech? = null
     private var ttsReady = false
+    /** The language the voice was last set to, so it's set again only when that changes. */
+    private var voiceIn: VoiceLanguage? = null
+
+    /**
+     * The phone's language for the assistant, once a model hears it (VoiceLanguages.effective):
+     * what it listens for, what it answers in, and the voice it answers with. Checked at every
+     * press and answer, so a model downloaded mid-drive counts at once.
+     */
+    internal fun syncLanguage() {
+        val context = appContext ?: return
+        val language = VoiceLanguages.effective(context, CarSettings.systemSpeech.value)
+        AssistantLanguage.language = language
+        val engine = tts ?: return
+        if (!ttsReady || voiceIn == language) return
+        voiceIn = language
+        val locale = VoiceLanguages.speakingLocale(language)
+        val result = runCatching { engine.setLanguage(locale) }.getOrDefault(TextToSpeech.LANG_NOT_SUPPORTED)
+        if (result < TextToSpeech.LANG_AVAILABLE) MyCarLog.w("assistant: the phone's speech engine has no voice for $locale ($result)")
+    }
 
     fun init(context: Context) {
         appContext = context.applicationContext
         if (tts != null) return
-        tts = TextToSpeech(appContext) { status -> ttsReady = status == TextToSpeech.SUCCESS }
+        tts = TextToSpeech(appContext) { status ->
+            ttsReady = status == TextToSpeech.SUCCESS
+            if (ttsReady) mainHandler.post(::syncLanguage)
+        }
+        syncLanguage()
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -77,6 +102,7 @@ object CarAssistant {
     private fun startOnMainThread() {
         val context = appContext ?: return
         if (_state.value.phase == Phase.LISTENING || _state.value.phase == Phase.THINKING) return
+        syncLanguage()
         // A message being read or answered gives way: the driver asked for the assistant instead,
         // and the reply left waiting would keep the car's voice key for itself. A reply counting
         // down goes now, as the wheel's voice key sends it: dropping it lost it without a word.
@@ -89,12 +115,12 @@ object CarAssistant {
         if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) !=
             PackageManager.PERMISSION_GRANTED
         ) {
-            _state.value = State(Phase.ERROR, reply = "Needs the microphone permission.", missingPermission = true)
+            _state.value = State(Phase.ERROR, reply = AssistantLanguage.answer("Needs the microphone permission."), missingPermission = true)
             return
         }
         // Android hands every app but the dialer a silent microphone during a call.
         if (CarCalls.state.value is CallUiState.Active) {
-            _state.value = State(Phase.ERROR, reply = "Voice commands work once the call ends.")
+            _state.value = State(Phase.ERROR, reply = AssistantLanguage.answer("Voice commands work once the call ends."))
             return
         }
         tts?.stop()
@@ -128,8 +154,11 @@ object CarAssistant {
      * Called once [pendingCommand] has been turned into an answer - from [CarUi], the one place
      * that actually has a [CarNavigator] to have acted on it with.
      */
-    fun reply(text: String) {
+    fun reply(english: String) {
         _pendingCommand.value = null
+        syncLanguage()
+        // AssistantCommands answers in English; the driver hears and reads it in their language.
+        val text = AssistantLanguage.answer(english)
         _state.value = _state.value.copy(phase = Phase.SPEAKING, reply = text)
 
         val engine = tts
@@ -159,9 +188,11 @@ object CarAssistant {
 
     /**
      * Speaks [text] for someone other than the assistant (a message read aloud), then runs
-     * [onDone] on the main thread - straight away if speech isn't available.
+     * [onDone] on the main thread - straight away if speech isn't available. [text] is said as it
+     * is: what the assistant itself says in it is already in the driver's language (VoiceReply).
      */
     fun say(text: String, onDone: () -> Unit) {
+        syncLanguage()
         val engine = tts
         val context = appContext
         if (engine == null || context == null || !ttsReady || text.isBlank()) {
@@ -227,6 +258,7 @@ object CarAssistant {
         onSpeaking: () -> Unit = {},
     ) {
         cancel()
+        syncLanguage()
         listenOnce(onPartial, onHeard = {}, onResult = onResult, onError = onError, cue = cue, onSpeaking = onSpeaking)
     }
 
@@ -243,19 +275,22 @@ object CarAssistant {
         cue: Boolean = true,
         onSpeaking: () -> Unit = {},
     ) {
-        val context = appContext ?: return onError("Speech isn't ready yet.")
+        // Every error is shown and said in the driver's language.
+        val failed: (String) -> Unit = { onError(AssistantLanguage.answer(it)) }
+        val context = appContext ?: return failed("Speech isn't ready yet.")
         if (CarSettings.systemSpeech.value && SpeechRecognizer.isRecognitionAvailable(context)) {
-            return systemListen(context, onListening, onPartial, onHeard, onResult, onError)
+            return systemListen(context, onListening, onPartial, onHeard, onResult, failed)
         }
         SpeechEngine.listen(
             context,
+            language = AssistantLanguage.language,
             cue = cue,
             onSpeaking = onSpeaking,
             onPartial = onPartial,
             onListening = onListening,
             onHeard = onHeard,
             onResult = onResult,
-            onError = onError,
+            onError = failed,
         )
     }
 
@@ -297,6 +332,7 @@ object CarAssistant {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
                 putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, VoiceLanguages.speakingLocale(AssistantLanguage.language).toLanguageTag())
             },
         )
     }

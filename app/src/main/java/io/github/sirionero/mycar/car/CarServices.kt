@@ -114,7 +114,10 @@ object CarServices {
         // The Plancia and Xonos apps in place of the ones inside myCar, if those can't connect.
         InsideOrApp.start(appContext)
         // Loaded now, while nothing's waiting on it, so the first reply isn't slower than the rest.
-        io.github.sirionero.mycar.speech.SpeechEngine.warm(appContext)
+        io.github.sirionero.mycar.speech.SpeechEngine.warm(
+            appContext,
+            io.github.sirionero.mycar.speech.VoiceLanguages.effective(appContext, CarSettings.systemSpeech.value),
+        )
     }
 
     // --- map -----------------------------------------------------------------------------
