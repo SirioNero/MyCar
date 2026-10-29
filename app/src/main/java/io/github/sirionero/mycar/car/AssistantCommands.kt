@@ -52,8 +52,16 @@ object AssistantCommands {
         callCommand(context, heard)?.let { return it }
         openAppCommand(context, navigator, frame, heard)?.let { return it }
 
-        return "I don't know how to do that yet."
+        return UNKNOWN
     }
+
+    const val UNKNOWN = "I don't know how to do that yet."
+
+    /**
+     * Whether [reply] means none of myCar's commands fitted: nothing at all, or no app by the name
+     * after "open" - "open the gate" is for the house, which Home Assistant may run (AssistantBrain).
+     */
+    fun missed(reply: String) = reply == UNKNOWN || Said.NO_APP_CALLED.regex.matches(reply)
 
     /**
      * What was said, minus the padding people wrap a command in: "hey", "can you", "I want to",

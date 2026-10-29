@@ -251,7 +251,10 @@ class AssistantLanguageTest {
     @Test
     fun `labels, help and replies in every language`() {
         for (l in VoiceLanguage.entries.filter { it != EN }) {
-            for (label in listOf("Listening…", "One moment…", "You can say", "Say “cancel” or “change it”", "Say your reply")) {
+            for (label in listOf(
+                "Listening…", "One moment…", "You can say", "Say “cancel” or “change it”", "Say your reply", "Anything else",
+                "Home Assistant answers it: your home, and any question its voice assistant knows.",
+            )) {
                 assertTrue("$l has no label for $label", AssistantLanguage.label(label, l) != label)
             }
             assertEquals(14, AssistantLanguage.help(l)!!.size)
@@ -319,6 +322,8 @@ class AssistantLanguageTest {
         Said.CALLING -> "Calling Anna."
         Said.NO_APP_CALLED -> "I couldn't find an app called foo."
         Said.SOMETHING_WRONG -> "Something went wrong. Try again."
+        Said.DONE -> "Done."
+        Said.HOME_ASSISTANT_SILENT -> "Home Assistant didn't answer."
         Said.NEEDS_MIC -> "Needs the microphone permission."
         Said.AFTER_CALL -> "Voice commands work once the call ends."
         Said.DIDNT_CATCH -> "Didn't catch that."

@@ -266,6 +266,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         }
         io.github.sirionero.mycar.car.design.WallpaperSetting.init(app)
         AssistantChoice.init(app)
+        AssistantBrain.init(app)
         SidePaneChoice.init(app)
         HomePages.init(app)
         io.github.sirionero.mycar.home.HomeAssistant.init(app)

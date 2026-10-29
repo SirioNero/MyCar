@@ -53,6 +53,8 @@ object VoiceHelp {
     )
 }
 
+private val ASK_HOME_ASSISTANT = "Anything else" to "Home Assistant answers it: your home, and any question its voice assistant knows."
+
 /** The command list over the car screen: read it at a glance, tap the cross or wait to dismiss. */
 @Composable
 fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
@@ -86,7 +88,10 @@ fun VoiceHelpOverlay(modifier: Modifier = Modifier) {
                 Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                (AssistantLanguage.help() ?: VoiceHelp.COMMANDS).forEach { (say, does) ->
+                // What isn't on the list goes to Home Assistant, when it's there to ask (AssistantBrain).
+                val (asked, answered) = ASK_HOME_ASSISTANT
+                val rest = if (AssistantBrain.ready) listOf(AssistantLanguage.label(asked) to AssistantLanguage.label(answered)) else emptyList()
+                ((AssistantLanguage.help() ?: VoiceHelp.COMMANDS) + rest).forEach { (say, does) ->
                     Column(Modifier.fillMaxWidth()) {
                         Text(say, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         Text(does, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)

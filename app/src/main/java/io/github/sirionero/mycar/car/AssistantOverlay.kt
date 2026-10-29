@@ -108,13 +108,15 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
                 if (small.isNotBlank()) {
                     Text(small, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
+                // A long answer (Home Assistant's model, AssistantBrain) smaller, on more lines.
+                val long = big.length > LONG_REPLY
                 Text(
                     big,
                     color = if (big == listeningLabel || big == waitLabel || big == "…") Color.White.copy(alpha = 0.7f) else Color.White,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = if (long) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
-                    maxLines = 2,
+                    maxLines = if (long) 4 else 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
@@ -151,3 +153,6 @@ fun MicGlyph(modifier: Modifier = Modifier) {
 
 private const val ERROR_MS = 6_000L
 private const val ERROR_WITH_ACTION_MS = 15_000L
+
+/** Characters past which an answer no longer fits two big lines. */
+private const val LONG_REPLY = 110

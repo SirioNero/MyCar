@@ -143,6 +143,13 @@ if [ -n "${HA_TOKEN:-}" ]; then
     EXTRA="$HA --es sidePane mycar:plancia" shoot plancia-side 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
     echo "--- Plancia inside myCar ---"
     grep -h "plancia:\|web:" previews/plancia-app/log.txt 2>/dev/null || echo "plancia-app: nothing in the log"
+    # What isn't one of myCar's commands goes to Home Assistant's Assist (car/AssistantBrain), as if
+    # said 8s in: the date; then in Italian, which the run's English pipeline doesn't speak, so its
+    # agent is asked in Italian.
+    EXTRA="$HA --es voiceHeard 'what is the date today'" shoot brain-ha 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
+    EXTRA="$HA --es voiceLang it --es voiceHeard 'che giorno è oggi'" shoot brain-ha-it 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
+    echo "--- Home Assistant's Assist, from myCar's assistant ---"
+    grep -h "assistant:\|preview: heard" previews/brain-ha/log.txt previews/brain-ha-it/log.txt 2>/dev/null || echo "brain: nothing in the log"
 else
     echo "--- no Home Assistant: Plancia's shots left out ---"
 fi
@@ -493,6 +500,22 @@ adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG"
 echo "--- the microphone with the phone locked ---"
 grep -h "assistant:\|test assistant: shown" previews/assistant-locked/log.txt 2>/dev/null ||
     echo "assistant-locked: nothing in the log"
+
+# The same with Home Assistant set up in myCar (car/AssistantBrain): the phone stays locked, myCar
+# listens itself and says so on the car's screen, and nothing on the phone asks to be unlocked.
+if [ -n "${HA_TOKEN:-}" ]; then
+    EXTRA="$HA --es assistant phone" shoot brain-locked 1920 720 240 \
+        "$WAIT;$WAIT;$WAIT;$GRID_BUTTON;$MIC_BUTTON;$WAIT;$WAIT" \
+        "lock_phone; sleep 10; mkdir -p previews/brain-locked; \
+         adb exec-out screencap -p > previews/brain-locked/phone.png"
+    adb shell locksettings clear --old $PIN || true
+    adb shell input keyevent KEYCODE_WAKEUP
+    adb shell wm dismiss-keyguard || true
+    adb shell cmd role remove-role-holder --user 0 android.app.role.ASSISTANT "$PKG" || true
+    echo "--- the microphone with the phone locked, Home Assistant set up ---"
+    grep -h "assistant:\|test assistant: shown\|plancia: connected" previews/brain-locked/log.txt 2>/dev/null ||
+        echo "brain-locked: nothing in the log"
+fi
 
 # The assistant in another language on the car's screen (--es voiceLang, as with its model on the
 # phone): its help in Italian, in German (the longest words), at 800x480, and an answer in German.

@@ -167,7 +167,8 @@ fun CarUi() {
             if (heard != null) {
                 // Whatever a command meets (a provider that fails, an app that throws), the drive
                 // goes on: an exception here used to end myCar.
-                val reply = try {
+                // Home Assistant asked something back: the answer is for it, not a command of myCar's.
+                val reply = if (AssistantBrain.asked) AssistantCommands.UNKNOWN else try {
                     AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
@@ -175,7 +176,9 @@ fun CarUi() {
                     MyCarLog.e("assistant: \"$heard\" failed", e)
                     "Something went wrong. Try again."
                 }
-                CarAssistant.reply(reply)
+                // None of myCar's commands: the driver's Home Assistant may know, or run it.
+                val answer = if (AssistantCommands.missed(reply)) AssistantBrain.ask(heard) else null
+                if (answer != null) CarAssistant.replyAsSaid(heard, answer.text, answer.goOn) else CarAssistant.reply(reply)
             }
         }
     }

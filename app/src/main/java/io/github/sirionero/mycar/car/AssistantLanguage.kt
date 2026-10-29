@@ -135,6 +135,9 @@ internal enum class Said(pattern: String) {
     CALLING("""Calling (.+)\."""),
     NO_APP_CALLED("""I couldn't find an app called (.+)\."""),
     SOMETHING_WRONG("""Something went wrong\. Try again\."""),
+    // Home Assistant's Assist, for what isn't one of myCar's commands (AssistantBrain).
+    DONE("""Done\."""),
+    HOME_ASSISTANT_SILENT("""Home Assistant didn't answer\."""),
     // The microphone and the speech engine.
     NEEDS_MIC("""Needs the microphone permission\."""),
     AFTER_CALL("""Voice commands work once the call ends\."""),

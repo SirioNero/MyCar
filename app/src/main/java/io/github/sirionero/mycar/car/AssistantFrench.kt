@@ -231,6 +231,8 @@ internal object FrenchPhrases : Phrasebook() {
         Said.CALLING to t("J'appelle $1."),
         Said.NO_APP_CALLED to t("Je ne trouve pas d'application appelée $1."),
         Said.SOMETHING_WRONG to t("Un problème est survenu. Réessayez."),
+        Said.DONE to t("C'est fait."),
+        Said.HOME_ASSISTANT_SILENT to t("Home Assistant n'a pas répondu."),
         Said.NEEDS_MIC to t("Il faut l'autorisation du micro."),
         Said.AFTER_CALL to t("Les commandes vocales fonctionnent une fois l'appel terminé."),
         Said.DIDNT_CATCH to t("Je n'ai pas compris."),
@@ -309,5 +311,7 @@ internal object FrenchPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Voulez-vous répondre ? Dites oui ou non.",
         "Get ready to say your reply." to "Préparez-vous à dire votre réponse.",
         "Say your reply" to "Dites votre réponse",
+        "Anything else" to "Tout le reste",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Home Assistant répond : la maison, et les questions que connaît son assistant vocal.",
     )
 }
