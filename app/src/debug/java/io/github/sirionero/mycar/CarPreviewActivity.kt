@@ -197,6 +197,15 @@ class CarPreviewActivity : ComponentActivity() {
             }
             main.post(::tryDemo)
         }
+        // --es voiceLang it: the assistant in that language, as with its model on the phone (no model
+        // runs here: the speech library is arm64 only). --ez voiceHelp true opens its help, --es
+        // voiceReply "Around 14:30." shows one of its answers. Set every run, so other shots are in English.
+        io.github.sirionero.mycar.speech.VoiceLanguages.override = intent.getStringExtra("voiceLang")
+            ?.let { code -> io.github.sirionero.mycar.speech.VoiceLanguage.entries.firstOrNull { it.code == code } }
+        if (intent.getBooleanExtra("voiceHelp", false)) {
+            main.postDelayed({ io.github.sirionero.mycar.car.CarAssistant.syncLanguage(); io.github.sirionero.mycar.car.VoiceHelp.show() }, 1_000)
+        }
+        intent.getStringExtra("voiceReply")?.let { english -> main.postDelayed({ io.github.sirionero.mycar.car.CarAssistant.reply(english) }, 1_000) }
         MyCarLog.i("preview: displayId=${p.displayId}")
         if (intent.getBooleanExtra("hide", false)) p.setOverlayVisible(false)
 

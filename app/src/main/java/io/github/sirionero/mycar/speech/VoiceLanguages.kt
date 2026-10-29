@@ -5,6 +5,9 @@ import java.util.Locale
 
 object VoiceLanguages {
 
+    /** The debug build's car preview: the language, whatever the phone and its models (none runs there). */
+    @Volatile var override: VoiceLanguage? = null
+
     /** The phone's language, for the assistant, whether or not a model on the phone hears it yet. */
     fun phone(): VoiceLanguage = VoiceLanguage.of(Locale.getDefault())
 
@@ -14,6 +17,7 @@ object VoiceLanguages {
      * then, as it always was: a phone in Italian without the model for it keeps English commands.
      */
     fun effective(context: Context, systemRecognizer: Boolean): VoiceLanguage {
+        override?.let { return it }
         val phone = phone()
         if (phone == VoiceLanguage.EN || systemRecognizer) return phone
         return if (SpeechModels.finalFor(context, phone) != null) phone else VoiceLanguage.EN
