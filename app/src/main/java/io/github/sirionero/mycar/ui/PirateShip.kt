@@ -200,7 +200,7 @@ private fun DrawScope.drawSun(t: Float, night: Boolean) {
     val breathe = 1f + 0.03f * sin(TWO_PI * t / 6f)
     if (night) {
         val r = size.width * 0.15f * breathe
-        drawCircle(Brush.radialGradient(0f to Color(0x66C9D8FF), 0.35f to Color(0x22A9BFFF), 1f to Color.Transparent, center = c, radius = r), radius = r, center = c)
+        drawCircle(Brush.radialGradient(0f to Color(0x66C9D8FF), 0.35f to Color(0x22A9BFFF), 1f to Color(0x00A9BFFF), center = c, radius = r), radius = r, center = c)
         val disc = size.width * 0.045f
         drawCircle(Brush.radialGradient(listOf(Color(0xFFFFFFFF), Color(0xFFE3E9F7)), center = c - Offset(disc * 0.3f, disc * 0.3f), radius = disc * 1.4f), radius = disc, center = c)
         // Its seas, faintly.
@@ -210,9 +210,11 @@ private fun DrawScope.drawSun(t: Float, night: Boolean) {
         return
     }
     val r = size.width * 0.15f * breathe
+    // Out to a clear orange, not a clear black: between them the edge turned brown, and dithered
+    // into specks around the sun.
     drawCircle(
         Brush.radialGradient(
-            0f to Color(0xFFFFF1C4), 0.28f to Color(0xFFFFD27A), 0.5f to Color(0x99FFB347), 1f to Color.Transparent,
+            0f to Color(0xFFFFF1C4), 0.28f to Color(0xFFFFD27A), 0.5f to Color(0x99FFB347), 1f to Color(0x00FFB347),
             center = c, radius = r,
         ),
         radius = r, center = c,
@@ -370,7 +372,7 @@ private fun DrawScope.drawHull(hull: Path, sheer: Path, planks: List<Path>, nigh
     // The stern lantern, glowing; more so by night.
     drawLine(Color(0xFF3A2414), Offset(-33.6f, -15f), Offset(-33.6f, -17.6f), strokeWidth = 0.35f)
     val glow = if (night) 5f else 2.6f
-    drawCircle(Brush.radialGradient(listOf(Color(0xCCFFD27A), Color.Transparent), center = Offset(-33.6f, -18.4f), radius = glow), radius = glow, center = Offset(-33.6f, -18.4f))
+    drawCircle(Brush.radialGradient(listOf(Color(0xCCFFD27A), Color(0x00FFD27A)), center = Offset(-33.6f, -18.4f), radius = glow), radius = glow, center = Offset(-33.6f, -18.4f))
     drawCircle(Color(0xFFFFE3A0), radius = 0.7f, center = Offset(-33.6f, -18.4f))
     // The bowsprit.
     drawLine(Color(0xFF5E3B1F), Offset(31f, -10.5f), Offset(44f, -20f), strokeWidth = 1.1f, cap = StrokeCap.Round)
