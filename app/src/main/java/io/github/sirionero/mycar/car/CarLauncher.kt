@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -91,6 +92,7 @@ import io.github.sirionero.mycar.notify.MessagingApp
 import io.github.sirionero.mycar.notify.MessagingCatalog
 import io.github.sirionero.mycar.xonos.Xonos
 import io.github.sirionero.mycar.home.HomeAssistant
+import io.github.sirionero.mycar.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -123,7 +125,19 @@ internal class Entry(
 
     val packageName: String?
         get() = template?.component?.packageName ?: media?.component?.packageName ?: messaging?.packageName
+
+    /**
+     * What the car's screen calls it: one of myCar's own apps in myCar's language, an installed one
+     * by its own name. [label] stays as it is, in English for myCar's apps and their "· Browse": the
+     * voice assistant matches what the driver says against it.
+     */
+    val shownLabel: String
+        @Composable get() = builtIn?.title?.let { stringResource(it) }
+            ?: if (label.endsWith(BROWSE_SUFFIX)) stringResource(R.string.car_apps_browse_label, label.removeSuffix(BROWSE_SUFFIX)) else label
 }
+
+/** Added to the label of a car app's "· Browse" tile, beside its player's (see [LauncherCache]). */
+private const val BROWSE_SUFFIX = " · Browse"
 
 /** A messaging app has no component of its own to open, so its pin carries the package instead. */
 internal const val MESSAGING_PREFIX = "messages:"
@@ -170,7 +184,7 @@ internal object LauncherCache {
             // that the car screen isn't supported.
             .filter { !(KnownApps.screenBroken(it.component.packageName) && KnownApps.playerWorks(it.component.packageName)) }
             .map {
-                val label = if (it.component.packageName in mediaPackages) "${it.label} · Browse" else it.label
+                val label = if (it.component.packageName in mediaPackages) it.label + BROWSE_SUFFIX else it.label
                 Entry(label, iconOf(it.component.packageName), template = it)
             }
         val xonosIcon = runCatching { Xonos.icon(context)?.let { squareAppIcon(it, ICON_PX).asImageBitmap() } }.getOrNull()
@@ -402,8 +416,9 @@ private fun PageDots(count: Int, current: Int, modifier: Modifier = Modifier) {
 /** A yellow disc with a "!": marks a tile that works with myCar, but only in part. */
 @Composable
 private fun PartialBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
+    val description = stringResource(R.string.car_apps_partial)
     Box(
-        modifier.size(size).background(MyCarPalette.Warning, CircleShape).semantics { contentDescription = "Works only in part with myCar" },
+        modifier.size(size).background(MyCarPalette.Warning, CircleShape).semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
         Text("!", color = Color.Black, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
@@ -417,7 +432,7 @@ private fun BrokenBadge(size: androidx.compose.ui.unit.Dp, modifier: Modifier = 
         modifier.size(size).background(Color(0xFFD32F2F), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(Icons.Filled.Close, contentDescription = "Doesn't work with myCar", tint = Color.White, modifier = Modifier.size(size * 0.66f))
+        Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.car_apps_broken), tint = Color.White, modifier = Modifier.size(size * 0.66f))
     }
 }
 
@@ -473,8 +488,10 @@ private fun AppCell(tile: Tile, iconSize: Dp) {
         Spacer(Modifier.height(MyCarSpace.S))
         // "YouTube Music · Browse" won't fit on one line under an icon, and cut short it reads
         // just like the player tile beside it: the name goes on top, the "Browse" part under it.
-        val name = tile.label.substringBefore(" · ")
-        val detail = tile.label.substringAfter(" · ", "")
+        val browse = tile.label.endsWith(BROWSE_SUFFIX)
+        val shown = if (browse) tile.label.removeSuffix(BROWSE_SUFFIX) else tile.entry.shownLabel
+        val name = shown.substringBefore(" · ")
+        val detail = if (browse) stringResource(R.string.car_apps_browse) else shown.substringAfter(" · ", "")
         Text(
             name,
             modifier = Modifier.widthIn(max = iconSize + MyCarSpace.XXL),

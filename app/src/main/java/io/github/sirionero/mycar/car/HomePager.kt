@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -382,13 +383,14 @@ private fun carAppIn(content: String?, entries: List<Entry>): TemplateApp? =
     content?.let { id -> entries.find { it.componentId == id && it.fitsBesideMap }?.template }
 
 /** What a part holds, in a word or two, for the card that covers it while the page is changed. */
+@Composable
 private fun partName(content: String?, entries: List<Entry>): String = when (content) {
-    null -> "Nothing yet"
-    PageContent.WEATHER -> "Weather"
-    PageContent.AGENDA -> "Agenda"
-    PageContent.BROWSER -> "Browser"
+    null -> stringResource(R.string.car_pages_nothing_yet)
+    PageContent.WEATHER -> stringResource(R.string.car_weather_title)
+    PageContent.AGENDA -> stringResource(R.string.car_pages_agenda)
+    PageContent.BROWSER -> stringResource(R.string.car_apps_browser)
     PageContent.PLANCIA -> "Plancia"
-    else -> entries.find { it.componentId == withPlanciaInside(content, entries) }?.label ?: "App not on the phone"
+    else -> entries.find { it.componentId == withPlanciaInside(content, entries) }?.shownLabel ?: stringResource(R.string.car_pages_app_missing)
 }
 
 /**
@@ -399,7 +401,7 @@ private fun partName(content: String?, entries: List<Entry>): String = when (con
 @Composable
 private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () -> Unit, modifier: Modifier) {
     if (!runs) {
-        AppPlaceholder(entry.label, entry.icon, modifier, onHold)
+        AppPlaceholder(entry.shownLabel, entry.icon, modifier, onHold)
         return
     }
     val frame by CarEnvironment.frame.collectAsState()
@@ -414,7 +416,7 @@ private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () ->
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {
         if (status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
             Text(
-                "${app.label} would not start.",
+                stringResource(R.string.car_home_app_failed, app.label),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(MyCarSpace.XL),
@@ -422,7 +424,7 @@ private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () ->
         } else if (started && (status.phase == CarAppConnection.Phase.IDLE || app.component in CarServices.closedBrowse)) {
             // Closed from the dock's app menu: it waits to be asked back.
             GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) {
-                Text("Open ${app.label}")
+                Text(stringResource(R.string.car_home_open_app, app.label))
             }
         } else {
             CarAppStage(CarServices.browse, status, frame, endLabel = null, onDisconnect = {})
@@ -475,7 +477,7 @@ private fun BrowserPart(inView: Boolean, onHold: () -> Unit, keyboard: MutableSt
     var opened by remember { mutableStateOf(false) }
     LaunchedEffect(inView) { if (inView) opened = true }
     if (!opened) {
-        AppPlaceholder(BuiltInApps.Web.label, null, modifier, onHold, builtInId = BuiltInApps.Web.id)
+        AppPlaceholder(stringResource(R.string.car_apps_browser), null, modifier, onHold, builtInId = BuiltInApps.Web.id)
         return
     }
     val context = LocalContext.current
@@ -508,7 +510,7 @@ internal fun TileBar(title: String, onBack: () -> Unit, onHold: () -> Unit) {
                 Modifier.fillMaxHeight().width(CHROME_BAR + MyCarSpace.S).clickable(onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back a page", Modifier.size(22.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.car_pages_back_a_page), Modifier.size(22.dp))
             }
             Text(
                 title,
@@ -539,7 +541,7 @@ private fun EmptyPart(onChoose: () -> Unit, onHold: () -> Unit, modifier: Modifi
         if (hint) {
             Icon(painterResource(R.drawable.sym_add), null, Modifier.size(40.dp), tint = scheme.onSurfaceVariant)
             Text(
-                "Tap to choose what goes here",
+                stringResource(R.string.car_pages_tap_to_choose),
                 style = MaterialTheme.typography.titleSmall,
                 color = scheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -553,7 +555,7 @@ private fun EmptyPart(onChoose: () -> Unit, onHold: () -> Unit, modifier: Modifi
 private fun MissingPart(onChoose: () -> Unit, onHold: () -> Unit, modifier: Modifier) {
     WidgetCard(onClick = onChoose, onHold = onHold, modifier = modifier) {
         Text(
-            "This app isn't on the phone any more. Tap to choose something else.",
+            stringResource(R.string.car_pages_app_gone),
             Modifier.align(Alignment.Center).padding(MyCarSpace.XL),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -614,12 +616,13 @@ private fun PageDots(pages: List<HomePage>, current: Int, onPage: (Int) -> Unit,
         ) {
             pages.forEachIndexed { index, page ->
                 val tint = Color.White.copy(alpha = if (index == current) 1f else 0.45f)
+                val name = if (page.layout == PageLayout.MAP) stringResource(R.string.car_pages_dot_map) else stringResource(R.string.car_pages_dot_page, index + 1)
                 Box(
                     Modifier
                         .size(DotSize)
                         .clip(CircleShape)
                         .clickable { onPage(index) }
-                        .semantics { contentDescription = if (page.layout == PageLayout.MAP) "Map" else "Page ${index + 1}" },
+                        .semantics { contentDescription = name },
                     contentAlignment = Alignment.Center,
                 ) {
                     if (page.layout == PageLayout.MAP) {
@@ -635,7 +638,7 @@ private fun PageDots(pages: List<HomePage>, current: Int, onPage: (Int) -> Unit,
                     Modifier.size(DotSize).clip(CircleShape).clickable(onClick = onEdit),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(painterResource(R.drawable.sym_edit), "Change this page", Modifier.size(20.dp), tint = Color.White)
+                    Icon(painterResource(R.drawable.sym_edit), stringResource(R.string.car_pages_change), Modifier.size(20.dp), tint = Color.White)
                 }
             }
         }
@@ -683,23 +686,23 @@ private fun EditBar(
       ) {
         LayoutButton(page.layout, onLayout)
         Spacer(Modifier.width(MyCarSpace.S))
-        BarButton(R.drawable.sym_chevron_left, "Move left", enabled = canMoveLeft) { onMove(-1) }
-        BarButton(R.drawable.sym_chevron_right, "Move right", enabled = canMoveRight) { onMove(1) }
+        BarButton(R.drawable.sym_chevron_left, stringResource(R.string.car_pages_move_left), enabled = canMoveLeft) { onMove(-1) }
+        BarButton(R.drawable.sym_chevron_right, stringResource(R.string.car_pages_move_right), enabled = canMoveRight) { onMove(1) }
         Spacer(Modifier.width(MyCarSpace.S))
-        BarButton(R.drawable.sym_add, "Add a page") { onAdd() }
+        BarButton(R.drawable.sym_add, stringResource(R.string.car_pages_add)) { onAdd() }
         if (deleting) {
             GsButton(onClick = onDelete, tone = GsTone.Danger, modifier = Modifier.height(MyCarSize.TouchTarget)) {
-                Text("Delete page", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.car_pages_delete_confirm), style = MaterialTheme.typography.titleMedium)
             }
         } else {
-            BarButton(R.drawable.sym_delete, "Delete this page") { deleting = true }
+            BarButton(R.drawable.sym_delete, stringResource(R.string.car_pages_delete)) { deleting = true }
         }
       }
         Spacer(Modifier.width(MyCarSpace.S))
         GsButton(onClick = onDone, modifier = Modifier.height(MyCarSize.TouchTarget)) {
             Icon(painterResource(R.drawable.sym_check), null, Modifier.size(24.dp))
             Spacer(Modifier.width(MyCarSpace.S))
-            Text("Done", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.common_done), style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -758,12 +761,12 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    "Show here",
+                    stringResource(R.string.car_pages_show_here),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                GsIconButton(Icons.Filled.Close, "Close", onClose, size = MyCarSize.TouchTarget)
+                GsIconButton(Icons.Filled.Close, stringResource(R.string.common_close), onClose, size = MyCarSize.TouchTarget)
             }
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(ChoiceWidth),
@@ -772,17 +775,17 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
                 verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
             ) {
                 item {
-                    Choice("Weather", current == PageContent.WEATHER, onClick = { onChoose(PageContent.WEATHER) }) {
+                    Choice(stringResource(R.string.car_weather_title), current == PageContent.WEATHER, onClick = { onChoose(PageContent.WEATHER) }) {
                         GlassTile(MyCarPalette.Accent, R.drawable.sym_partly_cloudy_day, ChoiceIcon)
                     }
                 }
                 item {
-                    Choice("Agenda", current == PageContent.AGENDA, onClick = { onChoose(PageContent.AGENDA) }) {
+                    Choice(stringResource(R.string.car_pages_agenda), current == PageContent.AGENDA, onClick = { onChoose(PageContent.AGENDA) }) {
                         GlassTile(MyCarPalette.Negative, R.drawable.sym_calendar_month, ChoiceIcon)
                     }
                 }
                 item {
-                    Choice("Browser", current == PageContent.BROWSER, onClick = { onChoose(PageContent.BROWSER) }) {
+                    Choice(stringResource(R.string.car_apps_browser), current == PageContent.BROWSER, onClick = { onChoose(PageContent.BROWSER) }) {
                         AppIcon(null, BuiltInApps.Web.id, ChoiceIcon)
                     }
                 }
@@ -796,7 +799,7 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
                 items(apps, key = { it.componentId!! }) { app ->
                     val id = app.componentId!!
                     Choice(
-                        app.label,
+                        app.shownLabel,
                         current == id,
                         enabled = otherApp == null || otherApp == id,
                         onClick = { onChoose(id) },
@@ -805,7 +808,7 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
                     }
                 }
                 item {
-                    Choice("Nothing", current == null, onClick = { onChoose(null) }) {
+                    Choice(stringResource(R.string.car_pages_nothing), current == null, onClick = { onChoose(null) }) {
                         Box(
                             Modifier.size(ChoiceIcon).border(1.5.dp, scheme.onSurfaceVariant, RoundedCornerShape(MyCarRadius.Button)),
                         )
@@ -814,7 +817,7 @@ private fun ContentChooser(page: HomePage, slot: Int, onChoose: (String?) -> Uni
             }
             if (otherApp != null) {
                 Text(
-                    "A page runs one car app at a time: ${partName(otherApp, entries)} is already on this one.",
+                    stringResource(R.string.car_pages_one_app, partName(otherApp, entries)),
                     style = MaterialTheme.typography.bodyMedium,
                     color = scheme.onSurfaceVariant,
                 )
@@ -857,10 +860,9 @@ internal fun HomePagesSettings() {
     val pages = rememberHomePages()
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Pages beside the map", style = MaterialTheme.typography.titleMedium, color = scheme.primary)
+        Text(stringResource(R.string.car_pages_settings_title), style = MaterialTheme.typography.titleMedium, color = scheme.primary)
         Text(
-            "Swipe across Home, or tap the dots at its foot, for your pages: the weather, the agenda, the browser " +
-                "or a car app such as Plancia, as a whole page, halves, quarters or a mix. The pencil beside the dots changes the page in view.",
+            stringResource(R.string.car_pages_settings_explained),
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,
         )
@@ -877,7 +879,7 @@ internal fun HomePagesSettings() {
                 tone = GsTone.Tonal,
                 modifier = Modifier.height(MyCarSize.TouchTarget),
             ) {
-                Text("Add a page", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.car_pages_add), style = MaterialTheme.typography.titleMedium)
             }
             // All the driver's pages go: a second tap, as for "Delete page".
             val saved by HomePages.saved.collectAsState()
@@ -901,7 +903,7 @@ internal fun HomePagesSettings() {
                 enabled = saved != null,
                 modifier = Modifier.height(MyCarSize.TouchTarget),
             ) {
-                Text(if (replacing) "Replace my pages" else "Ready-made pages", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(if (replacing) R.string.car_pages_replace else R.string.car_pages_ready_made), style = MaterialTheme.typography.titleMedium)
             }
         }
     }

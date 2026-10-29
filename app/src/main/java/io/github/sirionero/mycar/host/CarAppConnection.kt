@@ -38,6 +38,8 @@ import androidx.car.app.navigation.INavigationManager
 import androidx.car.app.serialization.Bundleable
 import androidx.car.app.versioning.CarAppApiLevels
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -135,12 +137,12 @@ class CarAppConnection(private val context: Context) {
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
-                main.post { if (binding === this) fail(Phase.FAILED, "the app's service disconnected") }
+                main.post { if (binding === this) fail(Phase.FAILED, Words.get(R.string.car_host_service_disconnected)) }
             }
 
             override fun onNullBinding(name: ComponentName) {
                 // A templated app that refuses a host returns no binder at all.
-                main.post { if (binding === this) fail(Phase.REJECTED, "the app refused to bind - host not accepted") }
+                main.post { if (binding === this) fail(Phase.REJECTED, Words.get(R.string.car_host_refused_bind)) }
             }
         }
         binding = connection
@@ -198,32 +200,32 @@ class CarAppConnection(private val context: Context) {
      * name one that only Google's own Android Auto host holds, and no other app can be granted.
      */
     private fun explainBindFailure(component: ComponentName, error: Throwable?): String {
-        if (error !is SecurityException) return "the app would not let myCar connect"
+        if (error !is SecurityException) return Words.get(R.string.car_host_would_not_connect)
         val needed = runCatching { context.packageManager.getServiceInfo(component, 0).permission }.getOrNull()
         return if (needed != null) {
-            "It only accepts Google's own Android Auto: its service requires the permission $needed, which myCar can't hold."
+            Words.get(R.string.car_host_needs_permission, needed)
         } else {
-            "It only accepts Google's own Android Auto host."
+            Words.get(R.string.car_host_only_android_auto)
         }
     }
 
     /** The app's own account of why it said no, in words rather than an object id. */
     private fun describeFailure(step: String, value: Any?): String {
         val failure = value as? androidx.car.app.FailureResponse
-            ?: return "$step failed: ${value ?: "no reason given"}"
+            ?: return if (value != null) Words.get(R.string.car_host_step_failed, step, value) else Words.get(R.string.car_host_step_failed_no_reason, step)
         val firstLine = failure.stackTrace.lineSequence().firstOrNull { it.isNotBlank() }.orEmpty()
         MyCarLog.w("host: $step failed: type=${failure.errorType}\n${failure.stackTrace.lineSequence().take(6).joinToString("\n")}")
         // The Car App Library's own host check: the app keeps a list of hosts it trusts by signature.
         if (firstLine.contains("Unrecognized host")) {
-            return "It only trusts hosts on its own allow-list (Google's Android Auto and a few others), and myCar isn't on it."
+            return Words.get(R.string.car_host_not_allowed)
         }
         val kind = when (failure.errorType) {
-            androidx.car.app.FailureResponse.SECURITY_EXCEPTION -> "It rejected myCar as a host"
-            androidx.car.app.FailureResponse.ILLEGAL_STATE_EXCEPTION -> "It reported a state error"
-            androidx.car.app.FailureResponse.INVALID_PARAMETER_EXCEPTION -> "It reported an invalid parameter"
-            else -> "It failed"
+            androidx.car.app.FailureResponse.SECURITY_EXCEPTION -> R.string.car_host_rejected_at
+            androidx.car.app.FailureResponse.ILLEGAL_STATE_EXCEPTION -> R.string.car_host_state_error_at
+            androidx.car.app.FailureResponse.INVALID_PARAMETER_EXCEPTION -> R.string.car_host_invalid_parameter_at
+            else -> R.string.car_host_failed_at
         }
-        return "$kind at $step: ${firstLine.substringAfterLast("Exception: ", firstLine)}"
+        return Words.get(kind, step, firstLine.substringAfterLast("Exception: ", firstLine))
     }
 
     fun disconnect() = disconnect(keepLocation = false)
@@ -273,7 +275,7 @@ class CarAppConnection(private val context: Context) {
      */
     private val handshakeTimeout = Runnable {
         if (_status.value.phase == Phase.HANDSHAKE) {
-            fail(Phase.REJECTED, "It didn't answer myCar. Apps built for newer versions of Android Auto only run on Google's.")
+            fail(Phase.REJECTED, Words.get(R.string.car_host_no_answer))
         }
     }
 
@@ -293,7 +295,7 @@ class CarAppConnection(private val context: Context) {
         main.postDelayed(handshakeTimeout, HANDSHAKE_TIMEOUT_MS)
 
         call("getAppInfo", onValue = { value ->
-            val info = value as? AppInfo ?: return@call fail(Phase.FAILED, "app info was ${value?.javaClass?.simpleName}")
+            val info = value as? AppInfo ?: return@call fail(Phase.FAILED, Words.get(R.string.car_host_bad_app_info, "${value?.javaClass?.simpleName}"))
             onAppInfo(info)
         }) { app.getAppInfo(it) }
     }
@@ -310,14 +312,14 @@ class CarAppConnection(private val context: Context) {
                 "(library ${info.libraryDisplayVersion}), host $HOST_API_LEVEL -> $negotiated"
         )
         if (negotiated < info.minCarAppApiLevel) {
-            fail(Phase.FAILED, "app needs car api ${info.minCarAppApiLevel}, host offers $HOST_API_LEVEL")
+            fail(Phase.FAILED, Words.get(R.string.car_host_api_too_old, info.minCarAppApiLevel, HOST_API_LEVEL))
             return
         }
         val app = carApp ?: return
         update { it.copy(apiLevel = negotiated, detail = "handshake") }
 
         val handshake = runCatching { Bundleable.create(HandshakeInfo(context.packageName, negotiated)) }
-            .getOrElse { return fail(Phase.FAILED, "could not bundle the handshake: ${it.message}") }
+            .getOrElse { return fail(Phase.FAILED, Words.get(R.string.car_host_handshake_failed, "${it.message}")) }
 
         call("onHandshakeCompleted", onValue = { onHandshakeAccepted() }) {
             app.onHandshakeCompleted(handshake, it)
@@ -824,7 +826,7 @@ class CarAppConnection(private val context: Context) {
             }
         }
         runCatching { send(callback) }
-            .onFailure { fail(Phase.REJECTED, "$name threw: ${it.javaClass.simpleName} ${it.message}") }
+            .onFailure { fail(Phase.REJECTED, Words.get(R.string.car_host_threw, name, it.javaClass.simpleName, "${it.message}")) }
     }
 
     private fun noop(name: String) = object : IOnDoneCallback.Stub() {

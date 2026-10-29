@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
@@ -57,7 +59,7 @@ private fun CharSequence.withSpansFilledIn(): String {
         out.append(this, at, start)
         out.append(
             when (span) {
-                is androidx.car.app.model.DurationSpan -> remainingTime(span.durationSeconds)
+                is androidx.car.app.model.DurationSpan -> remainingTimeShown(span.durationSeconds)
                 is androidx.car.app.model.DistanceSpan -> span.distance.display()
                 else -> ""
             },
@@ -164,8 +166,9 @@ fun CarColor?.color(dark: Boolean, default: Color): Color = when (this?.type) {
 }
 
 /**
- * "500 ft", "2.4 mi". The app picks the unit and its rounding; when that's the other system from
- * the one chosen in myCar's settings, the distance is converted and rounded here instead.
+ * "500 ft", "2.4 mi", in myCar's language. The app picks the unit and its rounding; when that's the
+ * other system from the one chosen in myCar's settings, the distance is converted and rounded here
+ * instead.
  */
 fun Distance?.display(): String {
     val distance = this ?: return ""
@@ -174,19 +177,20 @@ fun Distance?.display(): String {
     val imperial = io.github.sirionero.mycar.car.CarSettings.imperial()
     if ((imperial && appMetric) || (!imperial && appImperial)) return convertDistance(distance.meters(), imperial)
     val unit = when (displayUnit) {
-        Distance.UNIT_METERS -> "m"
-        Distance.UNIT_KILOMETERS, Distance.UNIT_KILOMETERS_P1 -> "km"
-        Distance.UNIT_MILES, Distance.UNIT_MILES_P1 -> "mi"
-        Distance.UNIT_FEET -> "ft"
-        Distance.UNIT_YARDS -> "yd"
-        else -> ""
+        Distance.UNIT_METERS -> R.string.car_nav_meters
+        Distance.UNIT_KILOMETERS, Distance.UNIT_KILOMETERS_P1 -> R.string.car_nav_kilometers
+        Distance.UNIT_MILES, Distance.UNIT_MILES_P1 -> R.string.car_nav_miles
+        Distance.UNIT_FEET -> R.string.car_nav_feet
+        Distance.UNIT_YARDS -> R.string.car_nav_yards
+        else -> null
     }
     val decimals = when (displayUnit) {
         Distance.UNIT_KILOMETERS_P1, Distance.UNIT_MILES_P1 -> 1
         Distance.UNIT_KILOMETERS, Distance.UNIT_MILES -> if (displayDistance < 10) 1 else 0
         else -> 0
     }
-    return "%.${decimals}f $unit".format(distance.displayDistance)
+    val number = "%.${decimals}f".format(distance.displayDistance)
+    return unit?.let { Words.get(it, number) } ?: number
 }
 
 internal fun Distance.meters(): Double = displayDistance * when (displayUnit) {
@@ -204,23 +208,34 @@ internal fun Distance.meters(): Double = displayDistance * when (displayUnit) {
 private fun convertDistance(meters: Double, imperial: Boolean): String {
     if (imperial) {
         val miles = meters / 1609.344
-        if (miles < 0.1) return "${(meters / 0.3048 / 50).roundToInt() * 50} ft"
-        return if (miles < 10) "%.1f mi".format(miles) else "%.0f mi".format(miles)
+        if (miles < 0.1) return Words.get(R.string.car_nav_feet, "${(meters / 0.3048 / 50).roundToInt() * 50}")
+        return Words.get(R.string.car_nav_miles, if (miles < 10) "%.1f".format(miles) else "%.0f".format(miles))
     }
     if (meters < 1000) {
         val step = if (meters < 300) 10 else 50
-        return "${(meters / step).roundToInt() * step} m"
+        return Words.get(R.string.car_nav_meters, "${(meters / step).roundToInt() * step}")
     }
     val km = meters / 1000
-    return if (km < 10) "%.1f km".format(km) else "%.0f km".format(km)
+    return Words.get(R.string.car_nav_kilometers, if (km < 10) "%.1f".format(km) else "%.0f".format(km))
 }
 
-/** "18 min" from the app's remaining-time estimate. */
+/**
+ * "18 min" from the app's remaining-time estimate, in English: the time a quick reply sends (see
+ * QuickReplyTexts). The car's screen shows [remainingTimeShown].
+ */
 fun remainingTime(seconds: Long): String {
     if (seconds <= 0) return ""
     val hours = TimeUnit.SECONDS.toHours(seconds)
     val minutes = TimeUnit.SECONDS.toMinutes(seconds) % 60
     return if (hours > 0) "$hours hr $minutes min" else "$minutes min"
+}
+
+/** [remainingTime] as the car's screen shows it, in myCar's language. */
+fun remainingTimeShown(seconds: Long): String {
+    if (seconds <= 0) return ""
+    val hours = TimeUnit.SECONDS.toHours(seconds)
+    val minutes = TimeUnit.SECONDS.toMinutes(seconds) % 60
+    return if (hours > 0) Words.get(R.string.car_nav_hours_minutes, hours, minutes) else Words.get(R.string.car_nav_minutes, minutes)
 }
 
 /** "1:10 AM" - the clock at the destination, not the phone's own, in case a route crosses a zone. */

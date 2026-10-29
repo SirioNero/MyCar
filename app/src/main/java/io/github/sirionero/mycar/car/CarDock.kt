@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -161,7 +162,7 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
         DockItem(
             selected = false,
             onClick = { if (onGrid) navigator.homeWithPlayer() else navigator.apps() },
-            description = if (onGrid) "Map and music" else "All apps",
+            description = stringResource(if (onGrid) R.string.car_dock_map_and_music else R.string.car_dock_all_apps),
         ) {
             Icon(
                 painterResource(if (onGrid) R.drawable.sym_space_dashboard else R.drawable.sym_grid_view),
@@ -262,7 +263,7 @@ private fun DockClock(navigator: CarNavigator) {
     DockItem(
         selected = navigator.current == CarScreen.Dashboard || navigator.current is CarScreen.Notifications,
         onClick = { navigator.dashboard() },
-        description = "Dashboard",
+        description = stringResource(R.string.car_dock_dashboard),
         width = MyCarSize.DockWidth - MyCarSpace.S,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -275,7 +276,7 @@ private fun DockClock(navigator: CarNavigator) {
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (battery.percent >= 0) {
-                    Text("${battery.percent}%", style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+                    Text(stringResource(R.string.car_dock_battery, battery.percent), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
                     if (battery.charging) ChargingGlyph(Modifier.size(11.dp))
                 }
                 temp?.let {
@@ -312,7 +313,7 @@ private fun DockMap(navigator: CarNavigator, entries: List<Entry>, running: Map<
     DockItem(
         selected = navigator.current == CarScreen.Home && navigator.onMapPage,
         onClick = { navigator.home() },
-        description = navEntry?.label ?: "Map",
+        description = navEntry?.shownLabel ?: stringResource(R.string.car_dock_map),
         running = navEntry != null,
         onLongClick = navId?.let { id -> { navigator.showAppMenu(id) } },
     ) {
@@ -341,11 +342,12 @@ private fun DockNowPlaying(navigator: CarNavigator) {
     // the song used to hide it and leave the map alone.
     val sideApp = rememberSidePaneApp()
     val appBesideMap = sideApp?.template != null || sideApp?.builtIn == BuiltInApps.Plancia
+    val nowPlaying = stringResource(R.string.car_dock_now_playing)
     DockItem(
         selected = navigator.current == CarScreen.Media ||
             (!appBesideMap && navigator.current == CarScreen.Home && navigator.onMapPage && navigator.sidePanel == SidePanel.CONTROLS),
         onClick = { if (appBesideMap) navigator.media() else navigator.togglePlayerDock() },
-        description = listOf(now.title, now.artist).filter { it.isNotBlank() }.joinToString(" - ").ifEmpty { "Now playing" },
+        description = listOf(now.title, now.artist).filter { it.isNotBlank() }.joinToString(" - ").ifEmpty { nowPlaying },
         onLongClick = { navigator.media() },
     ) {
         Box(Modifier.size(MyCarSize.DockIcon)) {
@@ -393,7 +395,7 @@ private fun DockApp(entry: Entry, running: Map<String, RunningSlot>, navigator: 
     DockItem(
         selected = slot != null && slot.isShowing(navigator.current),
         onClick = { openApp(entry, slot, navigator, frame) },
-        description = entry.label,
+        description = entry.shownLabel,
         running = slot != null,
         onLongClick = { navigator.showAppMenu(id) },
     ) {
@@ -406,7 +408,7 @@ private fun DockApp(entry: Entry, running: Map<String, RunningSlot>, navigator: 
 private fun DockAssistant() {
     val state by CarAssistant.state.collectAsState()
     val active = state.phase != CarAssistant.Phase.IDLE
-    DockItem(selected = active, onClick = { CarAssistant.start() }, description = "Voice assistant") {
+    DockItem(selected = active, onClick = { CarAssistant.start() }, description = stringResource(R.string.car_dock_assistant)) {
         Icon(painterResource(R.drawable.sym_mic), contentDescription = null, modifier = Modifier.size(DockGlyph))
     }
 }
@@ -415,10 +417,11 @@ private fun DockAssistant() {
 @Composable
 private fun DockTurn(turn: NextTurn, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
+    val nextTurn = stringResource(R.string.car_dock_next_turn)
     DockItem(
         selected = false,
         onClick = onClick,
-        description = listOf(turn.distance, turn.road).filter { it.isNotBlank() }.joinToString(", ").ifEmpty { "Next turn" },
+        description = listOf(turn.distance, turn.road).filter { it.isNotBlank() }.joinToString(", ").ifEmpty { nextTurn },
         width = MyCarSize.DockWidth - MyCarSpace.S,
         container = scheme.primary,
     ) {

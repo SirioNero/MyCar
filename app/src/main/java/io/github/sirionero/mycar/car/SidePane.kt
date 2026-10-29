@@ -26,10 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarRadius
 import io.github.sirionero.mycar.car.theme.GsButton
 import io.github.sirionero.mycar.car.theme.GsColors
@@ -108,23 +110,23 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text("${app.label} would not start.", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                Text(stringResource(R.string.car_home_app_failed, app.label), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
                 status.detail?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) { Text("Try again") }
-                    GsButton(onClick = navigator::closeSidePanel, tone = GsTone.Neutral) { Text("Close") }
+                    GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) { Text(stringResource(R.string.common_retry)) }
+                    GsButton(onClick = navigator::closeSidePanel, tone = GsTone.Neutral) { Text(stringResource(R.string.common_close)) }
                 }
             }
         } else if (started && (status.phase == CarAppConnection.Phase.IDLE || app.component in CarServices.closedBrowse)) {
             // Closed from the dock's app menu: the pane waits to be asked, rather than starting
             // the app straight back up against the driver's wishes.
             GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) {
-                Text("Open ${app.label}")
+                Text(stringResource(R.string.car_home_open_app, app.label))
             }
         } else {
-            CarAppStage(CarServices.browse, status, frame, endLabel = "Close", onDisconnect = navigator::closeSidePanel)
+            CarAppStage(CarServices.browse, status, frame, endLabel = stringResource(R.string.common_close), onDisconnect = navigator::closeSidePanel)
         }
     }
 }
@@ -164,7 +166,7 @@ internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
                     .padding(10.dp)
                     .size(52.dp)
                     .clip(CircleShape)
-                    .clickable(onClickLabel = "Close the player", onClick = navigator::closeSidePanel),
+                    .clickable(onClickLabel = stringResource(R.string.car_side_close_player), onClick = navigator::closeSidePanel),
             )
         }
     }
@@ -181,10 +183,10 @@ internal fun SidePanePicker() {
     // Lit as beside the map: a choice saved with the Plancia or Xonos app is the one inside myCar now
     // (and back, while the app stands in); compared as saved, nothing was lit.
     val shown = withXonosInside(withPlanciaInside(current, entries), entries)
-    val options = listOf(SidePaneChoice.MUSIC to "Music") + apps.mapNotNull { e -> e.componentId?.let { it to e.label } }
+    val options = listOf(SidePaneChoice.MUSIC to stringResource(R.string.car_side_music)) + apps.mapNotNull { e -> e.componentId?.let { it to e.shownLabel } }
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Beside the map", style = MaterialTheme.typography.titleMedium, color = scheme.primary)
+        Text(stringResource(R.string.car_side_title), style = MaterialTheme.typography.titleMedium, color = scheme.primary)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             options.forEach { (id, label) ->
                 val on = id == shown
@@ -205,8 +207,7 @@ internal fun SidePanePicker() {
             }
         }
         Text(
-            "Music puts the player beside the map while something plays. An app stays beside the map; " +
-                "close it for the drive, and the button at the foot of the dock brings it back from the app grid.",
+            stringResource(R.string.car_side_explained),
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,
         )

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.car.app.CarToast
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * A link a page in the car can't open as a page: intent://, market://, tel: and the other app
@@ -33,7 +35,7 @@ internal fun WebView.handledAppLink(request: WebResourceRequest?): Boolean {
             }
         }
     }
-    CarToasts.show(this, "This link opens an app on the phone", CarToast.LENGTH_SHORT)
+    CarToasts.show(this, Words.get(R.string.car_ui_link_opens_app), CarToast.LENGTH_SHORT)
     return true
 }
 
