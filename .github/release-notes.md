@@ -34,6 +34,9 @@ myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by v
 - Ready-made pages asks for a second tap (Replace my pages) before it replaces your pages, like Delete page.
 - Browser: the car's keyboard closes once a search is sent or a link opens a new page (it stayed over the results).
 - An app's long-press menu closes when a call rings: the first tap on Answer only closed the menu.
+- Icons pinned to the dock with the Plancia or Xonos app stay once those are set up inside myCar (and the other way, while the apps stand in): they vanished and still took a place, so the dock said it was full with two icons in sight.
+- The dashboard's Clear all takes a second tap, on a button sized for the car: it also empties what the Messages screens and "read my messages" can read.
+- Less work while you drive: the dock no longer redraws at every update of the route with the map in view, nor the app grid at every change of the song.
 - Without the calendar allowed, the dashboard says so, instead of "Nothing in the next week". Settings > Beside the map lights Plancia or Xonos inside myCar when the choice was made with their apps, and Screen fit counts with the car's real height.
 
 ## Cinema

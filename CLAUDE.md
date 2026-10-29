@@ -714,10 +714,13 @@ Tutti i token in un solo posto, `car/design/`:
   modifica delle pagine, Done sempre in vista e menu dell'app che scorre a Extra large, `ChoiceRow` che
   scorre sotto 110 dp a scelta, secondo tocco per "Ready-made pages", tastiera del browser chiusa a
   pagina nuova (`onPageStarted`), menu dell'app chiuso allo squillo, agenda senza permesso, "Beside the
-  map" acceso con Plancia/Xonos dentro myCar. Da decidere con l'utente: i puntini delle pagine sempre
+  map" acceso con Plancia/Xonos dentro myCar, icone fissate lette come quelle mostrate (`pinShown`, la
+  regola di pagine e "Beside the map"; il limite conta solo quelle visibili), "Clear all" della
+  Dashboard col secondo tocco, svolta del dock e app aperte lette solo quando servono (meno
+  ricomposizioni in guida). Da decidere con l'utente: i puntini delle pagine sempre
   sopra il fondo di browser, Plancia e app (svanire come sulla mappa, o una striscia riservata).
-  Lasciati: icone fissate nel dock che spariscono nel passaggio dentro↔app e contano per il limite
-  (logica dei pin, da provare), lavoro in più di dock e griglia a ogni aggiornamento della navigazione.
+  Lasciati: il conto alla rovescia di "Start" che continua con la mappa fuori vista (scelta di
+  design), le schede di `TabTemplate` senza scorrimento (non visto con un'app vera).
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial
