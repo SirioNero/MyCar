@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_ok">Aceptar</string>
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_close">Cerrar</string>
+    <string name="common_done">Hecho</string>
+    <string name="common_back">Atrás</string>
+    <string name="common_save">Guardar</string>
+    <string name="common_delete">Eliminar</string>
+    <string name="common_remove">Quitar</string>
+    <string name="common_add">Añadir</string>
+    <string name="common_edit">Editar</string>
+    <string name="common_retry">Reintentar</string>
+    <string name="common_allow">Permitir</string>
+    <string name="common_skip">Omitir</string>
+    <string name="common_next">Siguiente</string>
+    <string name="common_copy">Copiar</string>
+    <string name="common_open">Abrir</string>
+    <string name="common_open_settings">Abrir ajustes</string>
+    <string name="common_not_now">Ahora no</string>
+    <string name="common_more">Más</string>
+    <string name="common_yes">Sí</string>
+    <string name="common_no">No</string>
+    <string name="common_on">Activado</string>
+    <string name="common_off">Desactivado</string>
+    <string name="common_loading">Cargando…</string>
+    <string name="common_settings">Ajustes</string>
+</resources>
