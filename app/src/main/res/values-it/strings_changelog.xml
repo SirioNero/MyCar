@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_36">
+        <item>myCar parla la tua lingua, sul telefono e sullo schermo dell\'auto: italiano, inglese, spagnolo, tedesco, francese, portoghese, greco, russo o cinese.</item>
+        <item>Segue la lingua del telefono; per sceglierne un\'altra, Impostazioni &gt; Lingua sul telefono.</item>
+        <item>L\'assistente vocale parla tutte e nove. Il greco e il russo li sente il modello Parakeet multilingue, il cinese Whisper: Impostazioni &gt; Voce dice quale scaricare.</item>
+        <item>Xonos dentro myCar parla la tua lingua, e chiede anche a Music Assistant le sue parole in quella lingua.</item>
+    </string-array>
     <string-array name="changelog_35">
         <item>Con Home Assistant configurato sul telefono (Impostazioni &gt; Plancia), quello che l\'assistente vocale non sa fare da solo va all\'assistente vocale che hai scelto in Home Assistant: Claude, Gemini, ChatGPT, un modello che gira in casa o quello di Home Assistant, che comanda la casa.</item>
         <item>«Apri il cancello», «che giorno è oggi?», «e domani?»: risponde nella tua lingua, e quando gli serve ti fa una domanda.</item>

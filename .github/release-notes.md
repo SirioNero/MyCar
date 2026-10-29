@@ -1,12 +1,23 @@
-myCar 0.5.22-alpha: Home Assistant answers what myCar's voice assistant can't do itself - your home, and any question - in your language, and with the phone locked in your pocket.
+myCar 0.6.0-alpha: myCar in your language - English, Italian, Spanish, German, French, Portuguese, Greek, Russian or Chinese - on the phone, on the car's screen and in the voice assistant.
 
-## Home Assistant in the voice assistant
-- With Home Assistant set up in myCar (Settings > Plancia on the phone), what the car's voice assistant doesn't know goes to the voice assistant you set up in Home Assistant (Settings > Voice assistants there): Claude with the Anthropic integration, Gemini, ChatGPT, a model at home such as Ollama, or Home Assistant's own, which runs the house. "Open the gate" and "turn on the heating" reach your home; "what's the date?" or any other question gets its answer, spoken in the car and written on its screen. myCar's own commands (navigate, call, music, messages) work as before.
-- In your language: myCar picks the Home Assistant voice assistant that speaks it, or asks the one you prefer in your language. Home Assistant's own agent understood no Italian through an English voice assistant; asked in Italian, it answers in Italian.
-- A conversation: a question within five minutes of the last carries on with it ("and tomorrow?"), and when Home Assistant asks something back, the microphone opens again for your answer.
-- The phone locked in your pocket: with the phone's assistant (Gemini, Claude...) chosen in the car's settings, myCar used to ask you to unlock the phone first, since no app can open an assistant over the lock screen. With Home Assistant connected, myCar now listens itself and Home Assistant answers - nothing to unlock. The car says so.
-- It goes through the same connection as Plancia, through the Plancia app when Tailscale leaves myCar out. No key or password in myCar: the agent and its key live in your Home Assistant.
-- "You can say" lists it at the bottom when Home Assistant is connected. Long answers are written smaller, on more lines. Settings > Plancia > Ask Home Assistant in the car turns it off.
+## myCar in your language
+- Everything on the phone and on the car's screen - setup, settings, help, the car's apps and screens, notices, what's new - in English, Italian, Spanish, German, French, Portuguese (Brazilian), Greek, Russian or Simplified Chinese: the languages of the Xonos app.
+- myCar follows the phone's language. To pick another: Settings > Language on the phone, or the Your language page shown once after this update. On Android 13 and later Android's own settings for the app (App languages) set it too.
+- A new language shows at once on the phone, and on the car's screen at the next drive at the latest. On Android 12 the phone's screen starts again with it, unless a drive is on.
+- Times of arrival, the time in quick replies and the dates in the logs are written the way your language writes them.
+- Xonos inside myCar speaks your language, and Music Assistant gets it too, for its own words (labels, errors, titles).
+
+## The voice assistant in nine languages
+- The voice assistant follows myCar's language, now in Greek, Russian and Chinese too: commands and answers written for each, Greek and Russian names and places understood in the forms they take in a sentence, Chinese with or without traditional characters.
+- Listening: Greek and Russian with the multilingual Parakeet model, as Italian and Portuguese; Chinese with Whisper small (358 MB), which is told the language rather than guessing it. Settings > Voice says which one to download.
+- Contacts and chats are found without minding accents: "Γιώργος" finds "ΓΙΩΡΓΟΣ", "Семён" finds "Семен".
+- Quick replies to messages go out in Greek, Russian and Chinese too.
+- Listening in Greek, Russian and Chinese hasn't been tried on a real phone yet.
+
+## Also in 0.5.22-alpha
+- With Home Assistant set up in myCar (Settings > Plancia on the phone), what the car's voice assistant doesn't know goes to the voice assistant you set up in Home Assistant: Claude, Gemini, ChatGPT, a model at home, or Home Assistant's own, which runs the house. It answers in your language, carries on a conversation ("and tomorrow?") and asks back when it needs to.
+- With the phone locked in your pocket and the phone's assistant chosen, myCar listens itself and Home Assistant answers: nothing to unlock.
+- Settings > Plancia > Ask Home Assistant in the car turns it off.
 
 ## Also in 0.5.21-alpha
 - The voice assistant in your phone's language: Italian, Spanish, French, German or Portuguese, with the speech model that knows it (Settings > Voice).

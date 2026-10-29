@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_36">
+        <item>myCar 会说你的语言，手机上和车机屏幕上都是：中文、英语、意大利语、西班牙语、德语、法语、葡萄牙语、希腊语或俄语。</item>
+        <item>默认跟随手机语言；要选择其他语言，请在手机上进入“设置 &gt; 语言”。</item>
+        <item>语音助手九种语言都会说。希腊语和俄语由多语言 Parakeet 模型识别，中文由 Whisper 识别：“设置 &gt; 语音”会告诉你下载哪一个。</item>
+        <item>myCar 内置的 Xonos 也使用你的语言，并向 Music Assistant 获取该语言的文字。</item>
+    </string-array>
     <string-array name="changelog_35">
         <item>在手机上设置好 Home Assistant（设置 &gt; Plancia）后，语音助手自己做不到的事会交给你在 Home Assistant 中选择的语音助手：Claude、Gemini、ChatGPT、家中运行的模型，或 Home Assistant 自带的助手，它能控制家里的设备。</item>
         <item>“打开大门”、“今天几号？”、“那明天呢？”：它会用你的语言回答，需要时还会反问你。</item>
