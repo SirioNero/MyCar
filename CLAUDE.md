@@ -165,7 +165,10 @@ Rispondi sempre in **italiano**.
 ## Rilasci
 
 - Versione in `app/build.gradle.kts` (`versionCode`, `versionName` di default), novità in
-  `Changelog.kt` (schermata "Novità" sull'auto) e in `.github/release-notes.md` (testo del rilascio).
+  `res/values/strings_changelog.xml` (un `string-array` `changelog_<versionCode>` per versione, scritto
+  anche nelle 8 cartelle `values-xx`, più la riga `Release(code, nome, R.array.changelog_<code>)` in
+  `Changelog.kt`: schermata "Novità" sull'auto e sul telefono) e in `.github/release-notes.md` (testo
+  del rilascio, in inglese).
 - Il workflow **Release** parte dai tag `v*`, firma l'APK con i secret e lo allega al rilascio
   (non pre-release, così Obtainium lo trova).
 - Dalla sessione cloud di Claude il push dei tag è rifiutato (403): il rilascio lo crea l'utente su
@@ -188,10 +191,10 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 
 | Package | Ruolo |
 |---|---|
-| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `AssistantLanguage` + frasari (l'assistente nella lingua del telefono), `AssistantBrain` (quello che non è un comando va a Home Assistant), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen` / `PhoneRecents` (Telefono: Recenti, contatti, tastierino), `QuickReplyTexts` (risposte rapide nella lingua del telefono), `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` / `CinemaContinue` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `WebSelect` (menu a tendina delle pagine), `AppLinks` (link alle app nelle pagine), `TemplateBack` / `BackCloses` (tasto Indietro dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog`, `AppLanguage` (la lingua di myCar) e `Words` (i suoi testi fuori dalle schermate), `MyCarApplication` |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `AssistantLanguage` + frasari (l'assistente nella lingua di myCar), `AssistantBrain` (quello che non è un comando va a Home Assistant), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen` / `PhoneRecents` (Telefono: Recenti, contatti, tastierino), `QuickReplyTexts` (risposte rapide nella lingua di myCar), `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` / `CinemaContinue` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `WebSelect` (menu a tendina delle pagine), `AppLinks` (link alle app nelle pagine), `TemplateBack` / `BackCloses` (tasto Indietro dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
-| `ui/` | **UI sul telefono**: onboarding (`IntroScreen` col veliero `PirateShip`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `UpdateSplash` (la bandiera dopo ogni aggiornamento), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
+| `ui/` | **UI sul telefono**: onboarding (`IntroScreen` col veliero `PirateShip`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `UpdateSplash` (la bandiera dopo ogni aggiornamento), `HomeScreen`, `SettingsScreen`, `LanguageSettings` (la lingua), `IntroLanguage` (la pagina della lingua nell'introduzione), `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
 | `cinema/` | Cinema: `Cinema` (i siti, "solo a macchina ferma", `MORE` suggeriti), `SiteIcons` (l'icona che ogni sito dà di sé, scaricata e tenuta sul telefono), `PhoneVideos` (video del telefono), `TvLists` + `M3u` (liste IPTV), `ChannelLogos` |
 | `home/` | Home Assistant di Plancia integrata: `HomeAssistant` (account, collegamento per tutto il viaggio, plance, import dall'app Plancia), `HaClient` (WebSocket, OkHttp), `Panels` (plance e titoli), `Assist` + `AssistPlan` (le domande all'assistente vocale di Home Assistant) |
@@ -321,8 +324,8 @@ Tutti i token in un solo posto, `car/design/`:
   configurata, all'avvio e a ogni viaggio; sul telefono c'è "Use the Plancia app's account".
 - **Xonos integrato** (0.5.11; `xonos/`): Music Assistant dentro myCar, col nome Xonos. Lo stesso
   motore dell'app Xonos (`SirioNero/Music-Assistant-on-Gearslip`: `data/`, `sendspin/`, `playback/`
-  copiati, senza le schermate del telefono di Xonos; le correzioni fatte là vanno portate qui), in
-  inglese come il resto dello schermo dell'auto, lettore "myCar" in Music Assistant, servizio Media3
+  copiati, senza le schermate del telefono di Xonos; le correzioni fatte là vanno portate qui), nella
+  lingua di myCar come il resto (anche Music Assistant la riceve, `AppLanguage.maLocale`), lettore "myCar" in Music Assistant, servizio Media3
   `PlaybackService` e provider delle copertine `${applicationId}.xonos.art` non esportati. In auto è
   una delle app musicali (`MediaCatalog` lo aggiunge solo se configurato, e allora toglie l'app Xonos;
   la scelta "accanto alla mappa" e l'ultima app musicale salvate con l'app passano a lui:
@@ -528,6 +531,49 @@ Tutti i token in un solo posto, `car/design/`:
   Parakeet multilingue: 622 + 11 + 6 MB) e le voci della sintesi (it, es, fr, de, pt disponibili
   nell'emulatore); aiuto e risposte in auto negli scatti `voice-*`. Non provato: il riconoscimento sul
   telefono vero in un'altra lingua (la libreria è solo arm64).
+- **Lingue** (0.6.0, richiesta dell'utente: "tutta l'applicazione, non solo l'assistente", le lingue
+  di Xonos): myCar in inglese, italiano, spagnolo, tedesco, francese, portoghese (brasiliano, come
+  Xonos), greco, russo e cinese semplificato (`AppLanguage`): quella del telefono finché non se ne
+  sceglie una in Impostazioni > Lingua (`ui/LanguageSettings.kt`) o nella pagina "La tua lingua."
+  dell'introduzione della 0.6 (`ui/IntroLanguage.kt`). Da Android 13 la tiene Android
+  (`LocaleManager`, `res/xml/locales_config.xml`: si sceglie anche dalle impostazioni di Android per
+  l'app) e vale per tutto il processo senza riavvii (MyCarActivity gestisce il cambio di `locale`); su
+  Android 12 la applica myCar (`MyCarApplication` → `applyToProcess`, `wrap` nelle activity,
+  `localized` per lo schermo dell'auto, che è un display a sé, `resources` per `Words`), e la
+  schermata riparte solo senza un viaggio in corso. **Testi**: tutti in `res/values/strings_*.xml`
+  (common, setup, phone, settings, car_home, car_screens, car_apps, service, changelog, xonos,
+  language), tradotti in `values-{it,es,de,fr,pt,el,ru,zh}`; nelle composable `stringResource`,
+  altrove `Words.get/plural` (mai `context.getString` nel codice nuovo: su Android 12 darebbe la
+  lingua del telefono); nei test JVM `TestWords.install()` dà a `Words` l'inglese di res/values.
+  Restano in inglese log, report di diagnosi e i valori confrontati o salvati ("Unknown vehicle" di
+  MyCarRunner, `BuiltInApp.label` e `CarApp.label` per la voce, accanto a `title`/`shownLabel`,
+  `Weather.describe` per l'assistente, `remainingTime` per le risposte rapide inglesi).
+  `tools/check_strings.py` (anche in CI, dopo la compilazione): stesse chiavi, segnaposto, plurali
+  (ru one/few/many/other, zh solo other), apostrofi, percentuali che aapt prenderebbe per segnaposto,
+  chiavi doppie. **Un testo nuovo o cambiato va scritto in tutte e 9 le lingue**, col registro di
+  Xonos (it tu, es tú, de du, fr vous, pt você, el e ru di cortesia, zh 你) e i termini già usati
+  (glossari dei traduttori nei messaggi dei commit `Lingue: myCar in …`). Bluetooth e il separatore
+  degli elenchi da risorse (蓝牙 e "、" in cinese); ore d'arrivo e date dei log nel formato della
+  lingua. Fatto in 0.6.0 da agenti in parallelo: 7 parti di estrazione (1433 testi, 25 plurali, 153
+  righe di novità) e un traduttore per lingua. Anteprima in CI: scatti `lang-<lingua>` (Home con la
+  musica, griglia, impostazioni dell'auto a 1920x720; `lang-<lingua>-800x480`; sul telefono setup,
+  Home, impostazioni, aiuto e introduzione in `phone/`, aperti con `--es screen <nome>` della build
+  debug), con la lingua messa da `cmd locale set-app-locales`.
+- **L'assistente in 9 lingue** (0.6.0): segue la lingua di myCar (`VoiceLanguages.phone()` legge
+  `Locale.getDefault()`, che Android 13 mette alla lingua scelta per l'app e MyCarApplication su
+  Android 12). Frasari nuovi, scritti e provati sul banco JVM (`AssistantLanguage` + frasari +
+  `VoiceLanguage` + i test, 49 in tutto): greco (`AssistantGreek.kt`, cortesia; regole tolleranti
+  agli accenti e alla ς finale, che Parakeet v3 non scrive; nomi all'accusativo riportati al
+  nominativo), russo (`AssistantRussian.kt`, "вы"; nomi e luoghi da dativo/accusativo/genitivo al
+  nominativo o a una radice), cinese (`AssistantChinese.kt`: `wordGap` vuoto perché il cinese non ha
+  spazi, parole dei comandi anche in caratteri tradizionali, "给妈妈打电话" e "打电话给妈妈").
+  `plain()` toglie la punteggiatura cinese e il punto interrogativo greco. Ascolto: Parakeet
+  multilingue per greco e russo; **Whisper small** (sherpa-onnx, OpenAI, MIT, 358 MB: encoder 107 +
+  decoder 250; base 153 MB è debole sul cinese, medium 902, turbo 989) per il cinese, con la lingua
+  detta a Whisper (`modelType = "whisper"`, token `small-tokens.txt`). Contatti e chat si confrontano
+  senza accenti (NFD, ς come σ: "Γιώργος" trova "ΓΙΩΡΓΟΣ", "Семён" "Семен"); un nome d'app cinese di
+  due caratteri si trova anche a metà. Non provato: il riconoscimento vero in greco, russo e cinese
+  (la libreria è solo arm64, le voci sintetiche non bastano a giudicarlo).
 - **L'assistente col telefono bloccato: Home Assistant al posto dell'app** (richiesta dell'utente:
   "walk around del limite del telefono sbloccato per far partire l'assistente digitale", suggerendo
   "un ponte stile Xonos"). L'app di un assistente (Claude, Gemini…) col telefono bloccato da PIN non si
@@ -774,7 +820,7 @@ Tutti i token in un solo posto, `car/design/`:
   `reopenLastMedia(autoplay)`, `ScreenKey.PLAY` solo dopo `mediaDecided`), "play the next song" / "play
   it again" non sono ricerche e "call Skip" non salta il brano, errori che vanno via in 6 s, risposte
   senza sintesi vocale visibili 5 s, "play X" ignorato detto anche fuori dal player. Risposte rapide
-  nella lingua del telefono (`car/QuickReplyTexts.kt`: it, es, fr, de, pt; orario come lo scrive il
+  nella lingua del telefono (`car/QuickReplyTexts.kt`: it, es, fr, de, pt, da 0.6 el, ru, zh; orario come lo scrive il
   telefono). Svolta nel dock durante lo squillo; Reply senza "Do you want to reply?"; pallino dei non
   letti per chat (`CarNotifications.seen`); un passo in ogni schermata d'errore (app accanto alla
   mappa, elenco musicale, app che rifiuta, ricerca vuota); linguette del player su due righe sotto
