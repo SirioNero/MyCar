@@ -16,6 +16,13 @@ class QuickReplyTextsTest {
     }
 
     @Test
+    fun `Greek, Russian and Chinese write the time left their own way`() {
+        assertEquals("Οδηγώ, θα είμαι εκεί σε περίπου 1 ώρ. 5 λεπ.", QuickReplyTexts.forPhone(Locale.forLanguageTag("el")).inAbout.format(QuickReplyTexts.left(3_900, Locale.forLanguageTag("el"))))
+        assertEquals("Я за рулём, буду примерно через 25 мин.", QuickReplyTexts.forPhone(Locale.forLanguageTag("ru")).inAbout.format(QuickReplyTexts.left(1_500, Locale.forLanguageTag("ru"))))
+        assertEquals("正在开车，大约1小时5分钟后到。", QuickReplyTexts.forPhone(Locale.SIMPLIFIED_CHINESE).inAbout.format(QuickReplyTexts.left(3_900, Locale.SIMPLIFIED_CHINESE)))
+    }
+
+    @Test
     fun `a language not there sends English`() {
         assertEquals("On my way.", QuickReplyTexts.forPhone(Locale.JAPAN).onMyWay)
         assertEquals("1 hr 5 min", QuickReplyTexts.left(3_900, Locale.US))
