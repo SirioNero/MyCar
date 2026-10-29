@@ -34,9 +34,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
 import io.github.sirionero.mycar.notify.ChatLine
@@ -58,7 +61,7 @@ fun MessagesScreen(packageName: String) {
     val navigator = LocalCarNavigator.current
     val context = LocalContext.current.applicationContext
     val entry = remember(packageName) { findEntry(MESSAGING_PREFIX + packageName) }
-    val label = entry?.label ?: history.firstOrNull { it.packageName == packageName }?.appLabel ?: "Messages"
+    val label = entry?.label ?: history.firstOrNull { it.packageName == packageName }?.appLabel ?: stringResource(R.string.message_screen_title)
     val threads = history.filter { it.packageName == packageName }
 
     LaunchedEffect(history) {
@@ -68,7 +71,7 @@ fun MessagesScreen(packageName: String) {
 
     Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", navigator::back)
+            GsIconButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.common_back), navigator::back)
             entry?.icon?.let { Image(it, contentDescription = null, modifier = Modifier.size(36.dp).clip(RoundedCornerShape(8.dp))) }
             Text(label, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }
@@ -79,7 +82,7 @@ fun MessagesScreen(packageName: String) {
 
         if (threads.isEmpty()) {
             Text(
-                "No recent messages. New $label messages appear here as they arrive on the phone.",
+                stringResource(R.string.message_empty, label),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -143,7 +146,7 @@ private fun ConversationCard(n: CarNotification, onRead: () -> Unit, onReply: ()
                 }
                 if (!expanded && lines.size > COLLAPSED_LINES) {
                     Text(
-                        "${lines.size - COLLAPSED_LINES} earlier",
+                        (lines.size - COLLAPSED_LINES).let { pluralStringResource(R.plurals.message_earlier, it, it) },
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -153,25 +156,25 @@ private fun ConversationCard(n: CarNotification, onRead: () -> Unit, onReply: ()
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (n.replied) {
-                    Icon(Icons.Filled.Check, contentDescription = "Replied", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Filled.Check, contentDescription = stringResource(R.string.message_replied), tint = MaterialTheme.colorScheme.primary)
                 }
                 GsButton(onClick = onRead, tone = GsTone.Neutral) {
                     ReadGlyph(Modifier.size(20.dp))
-                    Text("Read", Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.message_read), Modifier.padding(start = 8.dp))
                 }
                 if (n.reply != null) {
                     GsButton(onClick = onReply, tone = GsTone.Tonal) {
                         ReplyGlyph(Modifier.size(20.dp))
-                        Text("Reply", Modifier.padding(start = 8.dp))
+                        Text(stringResource(R.string.message_reply), Modifier.padding(start = 8.dp))
                     }
                 }
                 if (n.reply != null) {
                     GsButton(onClick = { quick = !quick }, tone = GsTone.Neutral) {
-                        Text(if (quick) "Hide quick replies" else "Quick reply")
+                        Text(stringResource(if (quick) R.string.message_quick_replies_hide else R.string.message_quick_reply))
                     }
                 }
                 if (n.markRead != null) {
-                    GsButton(onClick = onMarkRead, tone = GsTone.Neutral) { Text("Mark read") }
+                    GsButton(onClick = onMarkRead, tone = GsTone.Neutral) { Text(stringResource(R.string.message_mark_read)) }
                 }
             }
         }
@@ -180,13 +183,14 @@ private fun ConversationCard(n: CarNotification, onRead: () -> Unit, onReply: ()
 
 @Composable
 private fun MessageLine(line: ChatLine, showSender: Boolean) {
-    val who = when {
-        line.sender == null -> "You: "
-        showSender -> "${line.sender}: "
-        else -> ""
+    val sender = line.sender
+    val text = when {
+        sender == null -> stringResource(R.string.message_line_you, line.text)
+        showSender -> stringResource(R.string.message_line_from, sender, line.text)
+        else -> line.text
     }
     Text(
-        who + line.text,
+        text,
         style = MaterialTheme.typography.bodyLarge,
         color = if (line.sender == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
         maxLines = 3,

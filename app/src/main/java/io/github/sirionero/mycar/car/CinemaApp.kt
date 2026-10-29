@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -178,10 +179,10 @@ private fun CinemaHome(
         ) {
             // First, what was on last: a look at the map no longer loses it.
             if (last != null) item(key = "continue") {
-                ShelfTile("Continue: ${last.title}", MyCarPalette.Positive, R.drawable.sym_play_arrow, IconSize, onContinue)
+                ShelfTile(stringResource(R.string.cinema_continue, last.title), MyCarPalette.Positive, R.drawable.sym_play_arrow, IconSize, onContinue)
             }
             item(key = PHONE_SHELF) {
-                ShelfTile("On this phone", MyCarPalette.Warning, R.drawable.sym_video_library, IconSize) { onShelf(PHONE_SHELF) }
+                ShelfTile(stringResource(R.string.cinema_on_this_phone), MyCarPalette.Warning, R.drawable.sym_video_library, IconSize) { onShelf(PHONE_SHELF) }
             }
             items(tvLists, key = { "tv:" + it.url }) { list ->
                 ShelfTile(list.name, MyCarPalette.Accent, R.drawable.sym_live_tv, IconSize) { onShelf(list.url) }
@@ -191,7 +192,7 @@ private fun CinemaHome(
             }
             if (sites.isEmpty() && tvLists.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
-                    "Add video sites and TV lists in myCar's settings on the phone, under Cinema.",
+                    stringResource(R.string.cinema_empty),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -220,7 +221,7 @@ private fun SiteTile(site: CinemaSite, icon: androidx.compose.ui.graphics.ImageB
         Text(site.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (Cinema.isProtected(site)) {
             Text(
-                "Protected video: likely black",
+                stringResource(R.string.cinema_protected),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -386,7 +387,7 @@ private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Un
                     web?.reload()
                 })
             } else if (unreachable) {
-                PageCover("The page didn't load", "Check the phone's connection: it loads again by itself when it's back.\nTap to try again.") {
+                PageCover(stringResource(R.string.cinema_page_failed_title), stringResource(R.string.cinema_page_failed_text)) {
                     unreachable = false
                     web?.reload()
                 }
@@ -429,7 +430,7 @@ internal fun CinemaBar(title: String, onBack: () -> Unit, onClose: () -> Unit) {
                 Modifier.fillMaxHeight().width(CHROME_BAR + MyCarSpace.S).clickable(onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back a page", Modifier.size(22.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.cinema_back_page), Modifier.size(22.dp))
             }
             Text(
                 title,
@@ -443,7 +444,7 @@ internal fun CinemaBar(title: String, onBack: () -> Unit, onClose: () -> Unit) {
                 Modifier.fillMaxHeight().width(CHROME_BAR + MyCarSpace.S).clickable(onClick = onClose),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(Icons.Filled.Close, "Close", Modifier.size(22.dp))
+                Icon(Icons.Filled.Close, stringResource(R.string.common_close), Modifier.size(22.dp))
             }
         }
     }
@@ -462,9 +463,9 @@ internal fun ParkedCover() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(painterResource(R.drawable.sym_movie), null, Modifier.size(56.dp), tint = Color.White.copy(alpha = 0.7f))
-        Text("Video only when parked", color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.cinema_parked_title), color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(
-            "The sound carries on. The picture comes back when the car stops.",
+            stringResource(R.string.cinema_parked_text),
             color = Color.White.copy(alpha = 0.7f),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
@@ -476,7 +477,7 @@ internal fun ParkedCover() {
 /** Over a page at home that Android keeps myCar from: what to allow on the phone; a tap tries again. */
 @Composable
 private fun HomeNetworkCover(onRetry: () -> Unit) =
-    PageCover("This site is on your home network", LocalNetwork.HINT + "\nTap to try again.", onRetry)
+    PageCover(stringResource(R.string.cinema_home_network_title), LocalNetwork.HINT + "\n" + stringResource(R.string.cinema_tap_to_retry), onRetry)
 
 /** Over a page that couldn't load: why, and a tap anywhere tries again. */
 @Composable

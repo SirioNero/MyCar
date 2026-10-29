@@ -1,5 +1,7 @@
 package io.github.sirionero.mycar.home
 
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import org.json.JSONObject
 import java.text.Collator
 import java.util.Locale
@@ -19,24 +21,24 @@ object Panels {
 
     private val BUILT_IN_ORDER = mapOf("energy" to 1, "map" to 2, "logbook" to 3, "history" to 4)
 
-    /** Built-in panels have a translation key of the frontend for a title. */
+    /** Built-in panels have a translation key of the frontend for a title: myCar's own words for them. */
     private val TITLES = mapOf(
-        "home" to "Overview",
-        "states" to "Overview",
-        "energy" to "Energy",
-        "map" to "Map",
-        "logbook" to "Logbook",
-        "history" to "History",
-        "calendar" to "Calendar",
-        "todo" to "To-do lists",
-        "shopping_list" to "Shopping list",
-        "media_browser" to "Media",
-        "light" to "Lights",
-        "security" to "Security",
-        "climate" to "Climate",
-        "maintenance" to "Maintenance",
-        "apps" to "Apps",
-        "hassio" to "Supervisor",
+        "home" to R.string.ha_panel_overview,
+        "states" to R.string.ha_panel_overview,
+        "energy" to R.string.ha_panel_energy,
+        "map" to R.string.ha_panel_map,
+        "logbook" to R.string.ha_panel_logbook,
+        "history" to R.string.ha_panel_history,
+        "calendar" to R.string.ha_panel_calendar,
+        "todo" to R.string.ha_panel_todo,
+        "shopping_list" to R.string.ha_panel_shopping_list,
+        "media_browser" to R.string.ha_panel_media,
+        "light" to R.string.ha_panel_lights,
+        "security" to R.string.ha_panel_security,
+        "climate" to R.string.ha_panel_climate,
+        "maintenance" to R.string.ha_panel_maintenance,
+        "apps" to R.string.ha_panel_apps,
+        "hassio" to R.string.ha_panel_supervisor,
     )
 
     /** The dashboard Home Assistant opens by itself. */
@@ -88,8 +90,8 @@ object Panels {
     }
 
     fun title(urlPath: String, rawTitle: String?): String = when {
-        rawTitle != null -> TITLES[rawTitle] ?: rawTitle
-        urlPath == "lovelace" -> "Overview"
+        rawTitle != null -> TITLES[rawTitle]?.let { Words.get(it) } ?: rawTitle
+        urlPath == "lovelace" -> Words.get(R.string.ha_panel_overview)
         else -> urlPath.replace('-', ' ').replace('_', ' ').replaceFirstChar { it.uppercase() }
     }
 

@@ -45,6 +45,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -116,19 +118,19 @@ internal fun PhoneVideosShelf(onPlay: (CinemaMedia) -> Unit, onClose: () -> Unit
         onDispose { navigator.backInterceptor = null }
     }
     Column(Modifier.fillMaxSize()) {
-        ScreenHeader("On this phone", Modifier.padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.S))
+        ScreenHeader(stringResource(R.string.cinema_on_this_phone), Modifier.padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.S))
         val list = videos
         when {
             !allowed -> ShelfMessage(
-                "To show the phone's videos here, myCar needs Android's permission for them.",
-                button = "Ask on the phone",
+                stringResource(R.string.cinema_videos_permission),
+                button = stringResource(R.string.cinema_ask_on_phone),
             ) { PermissionActivity.ask(context, PhoneVideos.permissions) }
             list == null -> ShelfLoading()
             list.isEmpty() -> ShelfMessage(
                 if (PhoneVideos.limited(context)) {
-                    "No videos picked for myCar. On the phone, in myCar's settings under Cinema, choose which ones it may see."
+                    stringResource(R.string.cinema_videos_none_picked)
                 } else {
-                    "No videos on this phone."
+                    stringResource(R.string.cinema_videos_none)
                 },
             )
             else -> LazyVerticalGrid(
@@ -230,18 +232,18 @@ internal fun TvShelf(list: TvList, onPlay: (CinemaMedia) -> Unit, onClose: () ->
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(group?.takeIf { it != ALL } ?: list.name, Modifier.padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.S)) {
             if (state.channels.size > SEARCH_FROM) {
-                GsIconButton(Icons.Filled.Search, "Find a channel", { searching = !searching })
+                GsIconButton(Icons.Filled.Search, stringResource(R.string.cinema_find_channel), { searching = !searching })
             }
             if (state.loading) {
                 CircularProgressIndicator(Modifier.size(28.dp), strokeWidth = 3.dp)
             } else {
-                GsIconButton(Icons.Filled.Refresh, "Download the list again", { TvLists.load(context, list, force = true) })
+                GsIconButton(Icons.Filled.Refresh, stringResource(R.string.cinema_reload_list), { TvLists.load(context, list, force = true) })
             }
         }
         val problem = state.problem
         if (problem != null && state.channels.isNotEmpty()) {
             Text(
-                "$problem Showing the channels from the last time.",
+                stringResource(R.string.cinema_tv_old_channels, problem),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = MyCarSpace.L),
@@ -255,7 +257,7 @@ internal fun TvShelf(list: TvList, onPlay: (CinemaMedia) -> Unit, onClose: () ->
             when {
                 found != null -> Column(Modifier.fillMaxSize()) {
                     Text(
-                        "Channels with “${query.trim()}”: ${found.size}",
+                        stringResource(R.string.cinema_tv_found, query.trim(), found.size),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = MyCarSpace.L),
@@ -271,7 +273,10 @@ internal fun TvShelf(list: TvList, onPlay: (CinemaMedia) -> Unit, onClose: () ->
                     }
                 }
                 state.channels.isEmpty() && state.loading -> ShelfLoading()
-                state.channels.isEmpty() -> ShelfMessage(problem ?: "No channels in this list.", button = "Try again") {
+                state.channels.isEmpty() -> ShelfMessage(
+                    problem ?: stringResource(R.string.cinema_tv_no_channels),
+                    button = stringResource(R.string.common_retry),
+                ) {
                     TvLists.load(context, list, force = true)
                 }
                 groups.size > 1 && group == null -> LazyVerticalGrid(
@@ -282,7 +287,7 @@ internal fun TvShelf(list: TvList, onPlay: (CinemaMedia) -> Unit, onClose: () ->
                     verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    item(key = ALL) { GroupTile("All channels", state.channels.size) { group = ALL } }
+                    item(key = ALL) { GroupTile(stringResource(R.string.cinema_tv_all_channels), state.channels.size) { group = ALL } }
                     items(groups, key = { it }) { name ->
                         GroupTile(name, counts[name] ?: 0) { group = name }
                     }
@@ -334,7 +339,7 @@ private fun GroupTile(name: String, count: Int, onClick: () -> Unit) {
     ) {
         Text(name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Text(
-            if (count == 1) "1 channel" else "$count channels",
+            pluralStringResource(R.plurals.cinema_tv_channels, count, count),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

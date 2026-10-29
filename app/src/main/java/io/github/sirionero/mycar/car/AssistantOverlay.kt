@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import io.github.sirionero.mycar.R
 import androidx.compose.ui.platform.LocalContext
@@ -121,9 +122,9 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
                 )
             }
             if (state.missingPermission) {
-                GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text("Grant") }
+                GsButton(tone = GsTone.Tonal, onClick = { openAppSettings(context) }) { Text(stringResource(R.string.assistant_grant)) }
             }
-            GsIconButton(Icons.Filled.Close, "Dismiss", CarAssistant::cancel)
+            GsIconButton(Icons.Filled.Close, stringResource(R.string.assistant_dismiss), CarAssistant::cancel)
         }
     }
 }
@@ -148,7 +149,7 @@ private fun PulsingMic(listening: Boolean, modifier: Modifier = Modifier) {
 /** The assistant's mic, from `R.drawable.mic_24`, tinted with the current content colour. */
 @Composable
 fun MicGlyph(modifier: Modifier = Modifier) {
-    Icon(ImageVector.vectorResource(R.drawable.mic_24), contentDescription = "Assistant", modifier = modifier)
+    Icon(ImageVector.vectorResource(R.drawable.mic_24), contentDescription = stringResource(R.string.assistant_mic), modifier = modifier)
 }
 
 private const val ERROR_MS = 6_000L

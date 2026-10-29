@@ -31,11 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.car.theme.GsButton
 import io.github.sirionero.mycar.car.theme.GsIconButton
 import io.github.sirionero.mycar.car.theme.GsProgressBar
@@ -85,7 +87,7 @@ internal fun ReplyGlyph(modifier: Modifier = Modifier) =
 /** "Alex", or "Alex · 3 new" when a burst of messages from one chat has been merged. */
 private fun CarNotification.heading(): String {
     val who = title.ifBlank { appLabel }
-    return if (burst > 1) "$who · $burst new" else who
+    return if (burst > 1) Words.plural(R.plurals.message_new_count, burst, who, burst) else who
 }
 
 /** The card. It shows the voice reply too, wherever that was started from. */
@@ -108,17 +110,17 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
                 Text(n.heading(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(n.text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            GsIconButton(Icons.Filled.Close, "Dismiss", { CarNotifications.dismissPopup(n.id) }, size = 52.dp, iconSize = 24.dp)
+            GsIconButton(Icons.Filled.Close, stringResource(R.string.message_dismiss), { CarNotifications.dismissPopup(n.id) }, size = 52.dp, iconSize = 24.dp)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             GsButton(onClick = { VoiceReply.read(n) }, tone = GsTone.Neutral, modifier = Modifier.weight(1f)) {
                 ReadGlyph(Modifier.size(20.dp))
-                Text("Read", Modifier.padding(start = 8.dp))
+                Text(stringResource(R.string.message_read), Modifier.padding(start = 8.dp))
             }
             if (n.reply != null) {
                 GsButton(onClick = { VoiceReply.reply(n) }, modifier = Modifier.weight(1f)) {
                     ReplyGlyph(Modifier.size(20.dp))
-                    Text("Reply", Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.message_reply), Modifier.padding(start = 8.dp))
                 }
             } else if (n.missedCall && n.fromPhone) {
                 // Calling back is what a missed call is for: from the call log, or the Phone's
@@ -135,7 +137,7 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
                     modifier = Modifier.weight(1f),
                 ) {
                     Icon(ImageVector.vectorResource(R.drawable.sym_call), contentDescription = null, Modifier.size(20.dp))
-                    Text("Call back", Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.message_call_back), Modifier.padding(start = 8.dp))
                 }
             }
         }
@@ -217,36 +219,36 @@ private fun VoiceReplyBody(s: VoiceReply.State, n: CarNotification) {
         when (s.phase) {
             VoiceReply.Phase.READING, VoiceReply.Phase.READ -> {
                 GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) {
-                    Text(if (s.phase == VoiceReply.Phase.READING) "Stop" else "Close")
+                    Text(stringResource(if (s.phase == VoiceReply.Phase.READING) R.string.message_stop else R.string.common_close))
                 }
                 if (n.reply != null) {
                     GsButton(onClick = { VoiceReply.reply(n, readFirst = false) }, modifier = wide) {
                         ReplyGlyph(Modifier.size(20.dp))
-                        Text("Reply", Modifier.padding(start = 8.dp))
+                        Text(stringResource(R.string.message_reply), Modifier.padding(start = 8.dp))
                     }
                 }
             }
             VoiceReply.Phase.OFFERING -> {
-                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text("No") }
+                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text(stringResource(R.string.common_no)) }
                 GsButton(onClick = { VoiceReply.reply(n, readFirst = false) }, modifier = wide) {
                     ReplyGlyph(Modifier.size(20.dp))
-                    Text("Reply", Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.message_reply), Modifier.padding(start = 8.dp))
                 }
             }
             VoiceReply.Phase.ASKING, VoiceReply.Phase.LISTENING ->
-                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text("Cancel") }
+                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text(stringResource(R.string.common_cancel)) }
             VoiceReply.Phase.CONFIRMING -> {
-                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text("Cancel") }
-                GsButton(onClick = VoiceReply::sendNow, modifier = wide) { Text("Send now") }
+                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text(stringResource(R.string.common_cancel)) }
+                GsButton(onClick = VoiceReply::sendNow, modifier = wide) { Text(stringResource(R.string.message_send_now)) }
             }
             VoiceReply.Phase.ERROR -> {
-                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text("Close") }
+                GsButton(onClick = VoiceReply::cancel, tone = GsTone.Neutral, modifier = wide) { Text(stringResource(R.string.common_close)) }
                 if (n.reply != null) {
-                    GsButton(onClick = { VoiceReply.reply(n, readFirst = false) }, tone = GsTone.Tonal, modifier = wide) { Text("Try again") }
+                    GsButton(onClick = { VoiceReply.reply(n, readFirst = false) }, tone = GsTone.Tonal, modifier = wide) { Text(stringResource(R.string.common_retry)) }
                     GsButton(
                         onClick = { VoiceReply.cancel(); navigator.notifications(replyTo = n.key) },
                         tone = GsTone.Neutral, modifier = wide,
-                    ) { Text("Type") }
+                    ) { Text(stringResource(R.string.message_type)) }
                 }
             }
             VoiceReply.Phase.SENT, VoiceReply.Phase.IDLE -> Unit
@@ -256,11 +258,11 @@ private fun VoiceReplyBody(s: VoiceReply.State, n: CarNotification) {
 
 private fun voiceHeading(s: VoiceReply.State, who: String): String = when (s.phase) {
     VoiceReply.Phase.READING, VoiceReply.Phase.READ -> who
-    VoiceReply.Phase.OFFERING, VoiceReply.Phase.ASKING -> "Reply to $who"
-    VoiceReply.Phase.LISTENING -> "Listening"
-    VoiceReply.Phase.CONFIRMING -> "Sending to $who"
-    VoiceReply.Phase.SENT -> "Sent to $who"
-    VoiceReply.Phase.ERROR -> "Couldn't reply"
+    VoiceReply.Phase.OFFERING, VoiceReply.Phase.ASKING -> Words.get(R.string.message_reply_to, who)
+    VoiceReply.Phase.LISTENING -> Words.get(R.string.message_listening)
+    VoiceReply.Phase.CONFIRMING -> Words.get(R.string.message_sending_to, who)
+    VoiceReply.Phase.SENT -> Words.get(R.string.message_sent_to, who)
+    VoiceReply.Phase.ERROR -> Words.get(R.string.message_reply_failed)
     VoiceReply.Phase.IDLE -> ""
 }
 
@@ -270,7 +272,7 @@ private fun voiceDetail(s: VoiceReply.State, n: CarNotification): String? = when
     VoiceReply.Phase.OFFERING -> s.heard.ifBlank { AssistantLanguage.label("Do you want to reply? Say yes or no.") }
     VoiceReply.Phase.ASKING -> AssistantLanguage.label("Get ready to say your reply.")
     VoiceReply.Phase.LISTENING -> s.heard.ifBlank { AssistantLanguage.label("Say your reply") }
-    VoiceReply.Phase.CONFIRMING, VoiceReply.Phase.SENT -> "“${s.heard}”"
+    VoiceReply.Phase.CONFIRMING, VoiceReply.Phase.SENT -> Words.get(R.string.message_quoted, s.heard)
     VoiceReply.Phase.ERROR -> s.error
     VoiceReply.Phase.IDLE -> null
 }

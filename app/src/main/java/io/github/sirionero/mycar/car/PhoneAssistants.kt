@@ -23,10 +23,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.car.theme.GsColors
 import io.github.sirionero.mycar.car.theme.GsIconBox
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -82,7 +85,7 @@ object PhoneAssistants {
     /** The name to show for [choice]: myCar, the phone's assistant, or the app's own. */
     fun label(context: Context, choice: String): String = when (choice) {
         MYCAR -> "myCar"
-        PHONE -> "the phone's assistant"
+        PHONE -> Words.get(R.string.assistant_phone_inline)
         else -> runCatching {
             context.packageManager.let { it.getApplicationLabel(it.getApplicationInfo(choice, 0)).toString() }
         }.getOrDefault(choice)
@@ -191,17 +194,21 @@ object AssistantChoice {
         if (AssistantUnlock.needed(context)) {
             if (AssistantBrain.ready) {
                 MyCarLog.i("assistant: the phone is locked, myCar listens and Home Assistant answers")
-                CarToasts.show(this, "The phone is locked: myCar is listening, and Home Assistant answers.", CarToast.LENGTH_LONG)
+                CarToasts.show(this, Words.get(R.string.assistant_locked_brain), CarToast.LENGTH_LONG)
                 return false
             }
             AssistantUnlock.start(context, name)
             return true
         }
         if (!PhoneAssistants.launch(context, choice)) {
-            CarToasts.show(this, "Couldn't start $name. myCar is listening instead.", CarToast.LENGTH_LONG)
+            CarToasts.show(this, Words.get(R.string.assistant_start_failed, name), CarToast.LENGTH_LONG)
             return false
         }
-        val where = if (choice == PhoneAssistants.PHONE) "Listening on the phone" else "$name is listening on the phone"
+        val where = if (choice == PhoneAssistants.PHONE) {
+            Words.get(R.string.assistant_listening_on_phone)
+        } else {
+            Words.get(R.string.assistant_app_listening_on_phone, name)
+        }
         CarToasts.show(this, where, CarToast.LENGTH_LONG)
         return true
     }
@@ -216,11 +223,11 @@ internal fun AssistantPicker() {
     val context = LocalContext.current
     val current by AssistantChoice.current.collectAsState()
     val apps = remember { PhoneAssistants.installed(context) }
-    val options = listOf(PhoneAssistants.MYCAR to "myCar", PhoneAssistants.PHONE to "Phone's assistant") +
+    val options = listOf(PhoneAssistants.MYCAR to "myCar", PhoneAssistants.PHONE to stringResource(R.string.assistant_choice_phone)) +
         apps.map { it.packageName to it.label }
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Voice assistant", style = MaterialTheme.typography.titleMedium, color = scheme.primary)
+        Text(stringResource(R.string.assistant_picker_title), style = MaterialTheme.typography.titleMedium, color = scheme.primary)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             options.forEach { (id, label) ->
                 val on = id == current
@@ -241,12 +248,7 @@ internal fun AssistantPicker() {
             }
         }
         Text(
-            "The phone's assistant wakes as with the swipe up from a bottom corner of the phone's screen. " +
-                "Another assistant listens and answers on the phone, and its voice reaches the car only " +
-                "over Bluetooth; with the phone locked, it starts once the phone is unlocked - or, with Home " +
-                "Assistant set up in myCar, myCar listens instead and Home Assistant answers. myCar's own " +
-                "works offline, locked or not, and shows on the car screen; with Home Assistant set up, what " +
-                "it can't do itself goes to Home Assistant's voice assistant.",
+            stringResource(R.string.assistant_picker_footer),
             style = MaterialTheme.typography.bodySmall,
             color = scheme.onSurfaceVariant,
         )

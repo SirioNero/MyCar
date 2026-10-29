@@ -11,6 +11,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * Debug builds only: posts a chat message from myCar to itself, shaped like Signal's or
@@ -27,16 +29,17 @@ object TestMessage {
     private const val ACTION_READ = "io.github.sirionero.mycar.TEST_READ"
 
     private val SAMPLES = listOf(
-        "Alex" to "Running ten minutes late, save me a seat?",
-        "Sam" to "Are you still coming over tonight?",
-        "Jordan" to "Can you grab milk on the way home?",
-        "Riley" to "Call me when you're parked.",
+        "Alex" to R.string.message_test_late,
+        "Sam" to R.string.message_test_tonight,
+        "Jordan" to R.string.message_test_milk,
+        "Riley" to R.string.message_test_parked,
     )
     private var next = 0
-    private val me = Person.Builder().setName("You").build()
+    private val me: Person get() = Person.Builder().setName(Words.get(R.string.message_test_you)).build()
 
     fun post(context: Context) {
-        val (name, text) = SAMPLES[next++ % SAMPLES.size]
+        val (name, words) = SAMPLES[next++ % SAMPLES.size]
+        val text = Words.get(words)
         val sender = Person.Builder().setName(name).build()
         val style = NotificationCompat.MessagingStyle(me)
             .addMessage(text, System.currentTimeMillis(), sender)
@@ -48,18 +51,18 @@ object TestMessage {
         val manager = context.getSystemService(NotificationManager::class.java)
         // High importance, like a real messaging app's chats: lower ones never pop up in the car.
         manager.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Test messages", NotificationManager.IMPORTANCE_HIGH),
+            NotificationChannel(CHANNEL, Words.get(R.string.message_test_channel), NotificationManager.IMPORTANCE_HIGH),
         )
         val replyAction = NotificationCompat.Action.Builder(
-            android.R.drawable.ic_menu_send, "Reply",
+            android.R.drawable.ic_menu_send, Words.get(R.string.message_reply),
             broadcast(context, ACTION_REPLY, mutable = true),
         )
-            .addRemoteInput(RemoteInput.Builder(KEY_REPLY).setLabel("Reply").build())
+            .addRemoteInput(RemoteInput.Builder(KEY_REPLY).setLabel(Words.get(R.string.message_reply)).build())
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_REPLY)
             .setShowsUserInterface(false)
             .build()
         val readAction = NotificationCompat.Action.Builder(
-            android.R.drawable.ic_menu_view, "Mark as read",
+            android.R.drawable.ic_menu_view, Words.get(R.string.message_test_mark_as_read),
             broadcast(context, ACTION_READ, mutable = false),
         )
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_MARK_AS_READ)
