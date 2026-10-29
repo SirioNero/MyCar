@@ -68,6 +68,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -164,8 +165,28 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         CarAssistant.pendingCommand.collect { heard ->
             if (heard != null) {
-                val reply = AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
+                // Whatever a command meets (a provider that fails, an app that throws), the drive
+                // goes on: an exception here used to end myCar.
+                val reply = try {
+                    AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    MyCarLog.e("assistant: \"$heard\" failed", e)
+                    "Something went wrong. Try again."
+                }
                 CarAssistant.reply(reply)
+            }
+        }
+    }
+
+    // A "play X" the music app played nothing for (Spotify ignores most): said here when the
+    // player's screen isn't up to say it. On Home, "Looking for X on Spotify." was the last word.
+    LaunchedEffect(navigator) {
+        CarServices.media.search.collect { search ->
+            if (search != null && search.ignored && navigator.current != CarScreen.Media) {
+                val app = CarServices.media.appLabel ?: "The music app"
+                CarToasts.show(CarServices, "$app didn't play anything for “${search.query}”", androidx.car.app.CarToast.LENGTH_LONG)
             }
         }
     }
@@ -174,9 +195,15 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         CarKeys.screenKeys.collect { key ->
             when (key) {
+                // What's open over the screens goes first: Back closed the screen under it and left
+                // the call question, the assistant or its help up.
                 CarKeys.ScreenKey.BACK -> when {
+                    WebSelect.asked.value != null -> WebSelect.cancel()
                     navigator.appMenu != null -> navigator.dismissAppMenu()
                     VoiceReply.state.value.phase != VoiceReply.Phase.IDLE -> VoiceReply.cancel()
+                    CallPrompt.pending.value != null -> CallPrompt.pending.value = null
+                    VoiceHelp.shown.value -> VoiceHelp.hide()
+                    CarAssistant.state.value.phase != CarAssistant.Phase.IDLE -> CarAssistant.cancel()
                     else -> navigator.back()
                 }
                 // Home is the dashboard, over the map, so Back from it lands on the map.
@@ -186,6 +213,7 @@ fun CarUi() {
                     if (CarServices.mediaApp.value != null || CarServices.reopenLastMedia()) navigator.media()
                     else navigator.apps()
                 CarKeys.ScreenKey.PHONE -> BuiltInApps.Phone.open(navigator)
+                CarKeys.ScreenKey.PLAY -> CarServices.reopenLastMedia(autoplay = true)
             }
         }
     }
@@ -233,6 +261,8 @@ fun CarUi() {
                     )
                 }
                 val screen = navigator.current
+                // A page's dropdown belongs to the screen it was opened on.
+                LaunchedEffect(screen) { WebSelect.cancel() }
                 val safetyWarningSeen by CarSettings.hasSeenSafetyWarning.collectAsState()
                 Box(Modifier.fillMaxSize().padding(pad)) {
                 Row(Modifier.fillMaxSize()) {
@@ -291,6 +321,8 @@ fun CarUi() {
                             }
                         }
                         CarToastOverlay(Modifier.align(Alignment.BottomCenter))
+                        // A page's dropdown (see WebSelect): under a call's question.
+                        WebSelectSheet()
                         CallPromptOverlay()
                         BluetoothPairOverlay()
                         PopupTimer()
@@ -376,7 +408,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
     val template by CarServices.browse.template.collectAsState()
     val leave = {
         CarServices.stopBrowse()
-        navigator.back()
+        navigator.close()
     }
     // An app that never answers is as stuck as one that says no; don't leave the driver on "Loading".
     var timedOut by remember { mutableStateOf(false) }
@@ -392,6 +424,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
         AppWontStart(status.app ?: "This app", leave)
         return
     }
+    AppBackKey(CarServices.browse, active = true)
     CarAppStage(CarServices.browse, status, frame, onDisconnect = leave)
 }
 

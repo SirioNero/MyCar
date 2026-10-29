@@ -20,6 +20,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.activity.enableEdgeToEdge
@@ -164,8 +165,15 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     /** Setting myCar as the phone's caller ID and spam app - what lets it decline a ringing call. */
+    private var roleAskedAt = 0L
     private val callScreeningRole = registerForActivityResult(StartActivityForResult()) { result ->
-        if (result.resultCode != RESULT_OK) MyCarLog.w("calls: call screening role declined")
+        if (result.resultCode == RESULT_OK) return@registerForActivityResult
+        MyCarLog.w("calls: call screening role declined")
+        // Declined before a person could tap: Android no longer asks. Its default apps page has
+        // "Caller ID & spam app", where the driver can still choose myCar.
+        if (android.os.SystemClock.uptimeMillis() - roleAskedAt < 400) {
+            runCatching { startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)) }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -190,7 +198,6 @@ class MyCarActivity : ComponentActivity(), Projection {
         // is both a bad first impression and unreliable: Android does not consistently show more
         // than one system permission dialog fired back-to-back, which was silently dropping some.
         enableEdgeToEdge()
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         MyCarLog.init(this)
         MyCarLog.installCrashHandler()
@@ -205,6 +212,9 @@ class MyCarActivity : ComponentActivity(), Projection {
             }
         }
         CarSettings.init(this)
+        // Before the car lists its services, which comes before the car's screen starts the drive's
+        // services: the first drive of a process never offered to pair (no context to look with).
+        io.github.sirionero.mycar.car.CarBluetooth.init(applicationContext)
         CertRotation.init(this)
         AppSettings.applyMyCarEnabled(this)
         // A capture that died without tidying up would leave notifications exposed to every
@@ -234,6 +244,17 @@ class MyCarActivity : ComponentActivity(), Projection {
         })
 
         setContent {
+            // The phone's screen stays on while a car connects or shows myCar, not the rest of the
+            // time: left open after a drive, myCar kept it lit in the pocket.
+            val session by SessionStatus.state.collectAsState()
+            val live = session.phase == SessionStatus.Phase.CONNECTING || session.phase == SessionStatus.Phase.PROJECTING
+            LaunchedEffect(live) {
+                if (live) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+            }
             MyCarTheme {
                 MyCarApp(onDisconnect = { closeAccessory() }, onRequestCallScreening = ::requestCallScreeningRole)
                 val offer by offerBluetooth.collectAsState()
@@ -345,9 +366,14 @@ class MyCarActivity : ComponentActivity(), Projection {
         val roleManager = getSystemService(android.app.role.RoleManager::class.java)
         if (roleManager == null || !roleManager.isRoleAvailable(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
             MyCarLog.w("calls: call screening role unavailable on this phone")
+            android.widget.Toast.makeText(this, "This phone doesn't let apps screen calls.", android.widget.Toast.LENGTH_LONG).show()
             return
         }
-        if (roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) return
+        if (roleManager.isRoleHeld(android.app.role.RoleManager.ROLE_CALL_SCREENING)) {
+            android.widget.Toast.makeText(this, "myCar already screens unknown callers.", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        roleAskedAt = android.os.SystemClock.uptimeMillis()
         runCatching {
             callScreeningRole.launch(roleManager.createRequestRoleIntent(android.app.role.RoleManager.ROLE_CALL_SCREENING))
         }.onFailure { MyCarLog.e("could not ask for the call screening role", it) }
@@ -521,7 +547,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         val accessory = IntentCompat.getParcelableExtra(intent, UsbManager.EXTRA_ACCESSORY, UsbAccessory::class.java)
         if (accessory == null) {
             MyCarLog.e("attach intent carried no accessory")
-            SessionStatus.failed("Accessory missing", "The system reported a USB attach but did not include the accessory.")
+            SessionStatus.failed("The car isn't reachable", "Android saw the cable but not the car on it. Unplug it and plug it in again.")
             return
         }
         MyCarLog.i("accessory attached by the system - permission is implicit on this path")
@@ -589,7 +615,7 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
         if (pfd == null) {
             MyCarLog.e("openAccessory returned null - the session was claimed by someone else")
-            SessionStatus.failed("Accessory unavailable", "Another app claimed the USB accessory before myCar could open it.")
+            SessionStatus.failed("Another app has the car", "Another app took the car's connection before myCar could. If Android asks which app to open for the car, choose myCar.")
             return
         }
         descriptor = pfd
@@ -720,7 +746,8 @@ class MyCarActivity : ComponentActivity(), Projection {
         }
     }
 
-    private class Touch(val action: Int, val actionIndex: Int, val points: List<TouchPoint>)
+    /** [at]: when it arrived from the car, before it waited for the main thread. */
+    private class Touch(val action: Int, val actionIndex: Int, val points: List<TouchPoint>, val at: Long = android.os.SystemClock.uptimeMillis())
 
     private val touches = java.util.concurrent.ConcurrentLinkedQueue<Touch>()
 
@@ -730,7 +757,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             val touch = touches.poll() ?: break
             // Mirroring drives one phone touch at a time, so it follows the first finger only.
             if (PhoneMirror.active.value) touch.points.firstOrNull()?.let { relayTouch(touch.action, it.x, it.y) }
-            else screenProjector?.dispatchTouch(touch.action, touch.actionIndex, touch.points)
+            else screenProjector?.dispatchTouch(touch.action, touch.actionIndex, touch.points, touch.at)
         }
     }
 

@@ -2,6 +2,8 @@ package io.github.sirionero.mycar.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,11 +42,13 @@ import io.github.sirionero.mycar.cinema.CinemaSite
  * a phone or as on a computer, and whether video shows only with the car parked - on unless the
  * driver turns it off, after a warning.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CinemaSection() {
     val sites by Cinema.sites.collectAsState()
     val parkedOnly by Cinema.parkedOnly.collectAsState()
     var warning by remember { mutableStateOf(false) }
+    var resetAsk by remember { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf("") }
     var address by rememberSaveable { mutableStateOf("") }
     val askLocalNetwork = rememberLocalNetworkAsk()
@@ -97,7 +101,8 @@ internal fun CinemaSection() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
                 modifier = Modifier.fillMaxWidth(),
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Reset goes under on a narrow phone or with large text, instead of three lines of it.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = {
                         val url = Cinema.normalizeUrl(address)
@@ -109,10 +114,37 @@ internal fun CinemaSection() {
                     // Only an address with a host: "my site" made a tile with no name that opened nothing.
                     enabled = CinemaSite("", Cinema.normalizeUrl(address)).host.isNotEmpty(),
                 ) { Text("Add the site") }
-                TextButton(onClick = { Cinema.backToSuggested() }) { Text("Suggested sites") }
+                // The chips below add back a suggested site that's missing; this only ever takes
+                // the driver's own sites away, so it asks first.
+                if (sites != Cinema.SUGGESTED) {
+                    TextButton(onClick = { resetAsk = true }) { Text("Reset the list") }
+                }
             }
         }
         MoreSitesRow()
+    }
+
+    if (resetAsk) {
+        val own = sites.filter { site -> Cinema.SUGGESTED.none { it.url == site.url } }
+        AlertDialog(
+            onDismissRequest = { resetAsk = false },
+            title = { Text("Back to the suggested sites?") },
+            text = {
+                Text(
+                    "Cinema goes back to ${Cinema.SUGGESTED.joinToString { it.name }}." +
+                        if (own.isEmpty()) "" else " Your own sites leave it: ${own.joinToString { it.name }}.",
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    Cinema.backToSuggested()
+                    resetAsk = false
+                }) { Text("Reset") }
+            },
+            dismissButton = {
+                TextButton(onClick = { resetAsk = false }) { Text("Cancel") }
+            },
+        )
     }
 
     if (warning) {
@@ -144,6 +176,19 @@ internal fun CinemaSection() {
 /** A site: its name and address; the switch asks for its computer layout; the bin takes it off the list. */
 @Composable
 private fun SiteRow(site: CinemaSite) {
+    // A suggested site comes back from "More sites"; one of the driver's own (Jellyfin at home)
+    // would have to be typed in again: asked first.
+    var removeAsk by remember { mutableStateOf(false) }
+    val own = (Cinema.SUGGESTED + Cinema.MORE).none { it.url == site.url }
+    if (removeAsk) {
+        ConfirmDialog(
+            title = "Remove ${site.name}?",
+            text = "It leaves Cinema. To have it back, its address is typed in again.",
+            confirm = "Remove",
+            onConfirm = { Cinema.remove(site) },
+            onDismiss = { removeAsk = false },
+        )
+    }
     SettingsRow(
         site.name,
         Modifier.toggleable(site.desktop, role = Role.Switch) { Cinema.setDesktop(site, it) },
@@ -152,7 +197,7 @@ private fun SiteRow(site: CinemaSite) {
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Switch(checked = site.desktop, onCheckedChange = null)
-                IconButton(onClick = { Cinema.remove(site) }) {
+                IconButton(onClick = { if (own) removeAsk = true else Cinema.remove(site) }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Remove ${site.name}")
                 }
             }

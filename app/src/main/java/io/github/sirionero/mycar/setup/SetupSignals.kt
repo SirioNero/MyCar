@@ -19,12 +19,13 @@ object SetupSignals {
 
     /** The drive's permissions, by the name Android gives their group in its dialogs. */
     fun driveGroups(): List<Pair<String, List<String>>> = listOf(
-        "Calls" to listOf(
+        "Phone" to listOf(
             Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_CALL_LOG,
             Manifest.permission.ANSWER_PHONE_CALLS,
             Manifest.permission.CALL_PHONE,
         ),
+        // A group, and a question, of its own: the car's Recents.
+        "Call logs" to listOf(Manifest.permission.READ_CALL_LOG),
         "Contacts" to listOf(Manifest.permission.READ_CONTACTS),
         // Both together: from Android 12 a request for the precise location alone is dropped.
         "Location" to listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),

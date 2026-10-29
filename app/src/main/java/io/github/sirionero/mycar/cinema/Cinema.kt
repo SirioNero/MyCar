@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.cinema
 
 import android.content.Context
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.LocalNetwork
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -96,11 +97,15 @@ object Cinema {
         return PROTECTED.any { host == it || host.endsWith(".$it") }
     }
 
-    /** An address as typed: https:// in front when there's no scheme. */
+    /**
+     * An address as typed: https:// in front when there's no scheme, http:// for one at home
+     * (Jellyfin, a TV server, the router), which mostly answer only that, like Plancia's.
+     */
     fun normalizeUrl(raw: String): String {
         val url = raw.trim()
         if (url.isEmpty()) return ""
-        return if (url.startsWith("http://") || url.startsWith("https://")) url else "https://$url"
+        if (url.startsWith("http://") || url.startsWith("https://")) return url
+        return if (LocalNetwork.isLocal("http://$url")) "http://$url" else "https://$url"
     }
 
     private fun save(list: List<CinemaSite>) {

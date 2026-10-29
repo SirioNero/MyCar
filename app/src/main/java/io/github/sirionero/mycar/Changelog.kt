@@ -11,6 +11,19 @@ object Changelog {
 
     val releases = listOf(
         Release(
+            33, "0.5.20-alpha",
+            listOf(
+                "Phone: a Recents tab with your latest calls, and Call back on a missed call's popup.",
+                "Voice: \"read my messages\", \"reply to…\", \"call back\", \"redial\", and \"call Mom on mobile\" calls that number.",
+                "Play - said, or on the steering wheel - starts the music app you used last when none is open.",
+                "Quick replies go out in your phone's language. While a call rings, the next turn stays in the dock.",
+                "Dropdowns on web pages open in the car as a list to tap, and the car's Back key goes back inside apps.",
+                "Stop navigating takes two taps; screens that stopped at an error now have a way on.",
+                "Cinema: Continue opens again what you were watching; a film picks up where it stopped after a network drop.",
+                "Extra large fits better: settings keep whole words, the page bar keeps Done in sight, an app's menu scrolls.",
+            ),
+        ),
+        Release(
             32, "0.5.19-alpha",
             listOf(
                 "New: Cinema. Your video sites (YouTube, RaiPlay, Twitch and any you add on the phone), the videos on your phone, and TV channels from an IPTV list. Video shows only when the car is parked; the sound carries on.",

@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -100,12 +102,21 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
     }
     Box(modifier.clip(RoundedCornerShape(MyCarRadius.Card)), contentAlignment = Alignment.Center) {
         if (status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
-            Text(
-                "${app.label} would not start.",
-                style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(24.dp),
-            )
+            // Why, and a way on: only the sentence, it held a third of Home for the whole drive.
+            Column(
+                Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text("${app.label} would not start.", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                status.detail?.let {
+                    Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    GsButton(onClick = { CarServices.connectBrowse(app, frame) }, tone = GsTone.Tonal) { Text("Try again") }
+                    GsButton(onClick = navigator::closeSidePanel, tone = GsTone.Neutral) { Text("Close") }
+                }
+            }
         } else if (started && (status.phase == CarAppConnection.Phase.IDLE || app.component in CarServices.closedBrowse)) {
             // Closed from the dock's app menu: the pane waits to be asked, rather than starting
             // the app straight back up against the driver's wishes.
@@ -139,11 +150,22 @@ internal fun SideMediaPane(app: MediaApp, now: NowPlaying, modifier: Modifier) {
         val closedHere = cur == null && CarServices.closedMedia == app.component
         if ((cur == null && !closedHere) || failed) CarServices.openMedia(app, remember = false)
     }
+    val navigator = LocalCarNavigator.current
     Box(modifier) {
         GlassDockedPlayer(now, Modifier.matchParentSize())
         // Closed from its menu: the player stays, and a tap on it brings the app back, playing.
         if (current == null) {
             Box(Modifier.matchParentSize().clickable { CarServices.openMedia(app, autoplay = true) })
+            // The player's X stays its X: this layer took its tap too, and the music started
+            // again instead of the player going. Over it, where GlassDockedPlayer draws it.
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(10.dp)
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .clickable(onClickLabel = "Close the player", onClick = navigator::closeSidePanel),
+            )
         }
     }
 }
@@ -154,14 +176,18 @@ private val LIVE = setOf(CarAppConnection.Phase.BINDING, CarAppConnection.Phase.
 @Composable
 internal fun SidePanePicker() {
     val current by SidePaneChoice.current.collectAsState()
-    val apps = rememberAllEntries().filter { it.fitsBesideMap && it.componentId != null }.sortedBy { it.label.lowercase() }
+    val entries = rememberAllEntries()
+    val apps = entries.filter { it.fitsBesideMap && it.componentId != null }.sortedBy { it.label.lowercase() }
+    // Lit as beside the map: a choice saved with the Plancia or Xonos app is the one inside myCar now
+    // (and back, while the app stands in); compared as saved, nothing was lit.
+    val shown = withXonosInside(withPlanciaInside(current, entries), entries)
     val options = listOf(SidePaneChoice.MUSIC to "Music") + apps.mapNotNull { e -> e.componentId?.let { it to e.label } }
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Beside the map", style = MaterialTheme.typography.titleMedium, color = scheme.primary)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             options.forEach { (id, label) ->
-                val on = id == current
+                val on = id == shown
                 GsIconBox(
                     onClick = { SidePaneChoice.set(id) },
                     modifier = Modifier.widthIn(min = 150.dp).height(64.dp),

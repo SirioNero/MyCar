@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Home
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -43,8 +46,12 @@ import io.github.sirionero.mycar.car.theme.GsTone
 import io.github.sirionero.mycar.host.CarAppConnection
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.CarFocus
+import io.github.sirionero.mycar.call.CallUiState
+import io.github.sirionero.mycar.call.CarCalls
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathParser
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /** What a built-in app's id carries in a pin, so it can't collide with an installed app's component. */
 internal const val BUILT_IN_PREFIX = "mycar:"
@@ -123,7 +130,10 @@ internal fun rememberRunningApps(): Map<String, RunningSlot> {
     val browseStatus by CarServices.browse.status.collectAsState()
     val mediaApp by CarServices.mediaApp.collectAsState()
     val mediaPhase by CarServices.media.phase.collectAsState()
-    val now by CarServices.media.now.collectAsState()
+    // Only whether something plays: every update of the song (its state, its cover) made the dock,
+    // and the whole grid with its icons, compose again.
+    val playing by remember { CarServices.media.now.map { it.isActive }.distinctUntilChanged() }
+        .collectAsState(CarServices.media.now.value.isActive)
     val current = LocalCarNavigator.current.current
 
     fun CarAppConnection.liveId(phase: CarAppConnection.Phase) =
@@ -138,7 +148,7 @@ internal fun rememberRunningApps(): Map<String, RunningSlot> {
         CarServices.browse.liveId(browseStatus.phase)?.let { put(it, RunningSlot.BROWSE) }
         val mediaLive = when (mediaPhase) {
             CarMedia.Phase.CONNECTING -> true
-            CarMedia.Phase.READY -> now.isActive || current == CarScreen.Media
+            CarMedia.Phase.READY -> playing || current == CarScreen.Media
             else -> false
         }
         mediaApp?.component?.flattenToString()?.takeIf { mediaLive }?.let { put(it, RunningSlot.MEDIA) }
@@ -177,7 +187,7 @@ internal fun closeApp(slot: RunningSlot, navigator: CarNavigator) {
         RunningSlot.MEDIA -> CarServices.closeMedia()
         RunningSlot.SCREEN -> Unit
     }
-    if (slot != RunningSlot.NAV && slot.isShowing(navigator.current)) navigator.back()
+    if (slot != RunningSlot.NAV && slot.isShowing(navigator.current)) navigator.close()
 }
 
 /**
@@ -189,14 +199,25 @@ internal fun closeApp(slot: RunningSlot, navigator: CarNavigator) {
 @Composable
 internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>) {
     val id = navigator.appMenu ?: return
+    // A call ringing takes the screen: the menu, drawn over everything, goes with it, or the first
+    // tap on Answer only closed the menu.
+    val ringing = CarCalls.state.collectAsState().value is CallUiState.Ringing
+    LaunchedEffect(ringing) { if (ringing) navigator.dismissAppMenu() }
     val entry = findEntry(id)
     if (entry == null) {
         navigator.dismissAppMenu()
         return
     }
     val pinned by CarSettings.pinnedApps.collectAsState()
-    val isPinned = id in pinned
-    val barFull = !isPinned && pinned.size >= CarSettings.MAX_PINNED
+    val entries = rememberAllEntries()
+    // The pins this app shows for in the dock: saved as it, or as its Plancia or Xonos twin (both,
+    // when each was pinned in its time).
+    val mine = pinned.filter { pinShown(it, entries) == id }
+    val isPinned = mine.isNotEmpty()
+    // Only what the dock can show counts, once per icon: a pin of an app since removed, or the twin
+    // of one already there, took a place no one could see or free.
+    val shown = pinned.map { pinShown(it, entries) }.filter { s -> entries.any { it.componentId == s } }.toSet()
+    val barFull = !isPinned && shown.size >= CarSettings.MAX_PINNED
     val slot = running[id]
 
     Box(
@@ -222,7 +243,8 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                     onClick = {},
                 ),
         ) {
-            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Scrolls on a short screen: at Extra large "Close app" and "Cancel" were squashed to nothing.
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     entry.icon?.let { Image(it, null, Modifier.size(44.dp).clip(RoundedCornerShape(10.dp))) }
                     entry.builtIn?.let { Icon(it.glyph, null, Modifier.size(36.dp)) }
@@ -235,7 +257,20 @@ internal fun AppMenu(navigator: CarNavigator, running: Map<String, RunningSlot>)
                 }
                 GsButton(
                     onClick = {
-                        CarSettings.togglePin(id)
+                        if (isPinned) {
+                            mine.forEach(CarSettings::togglePin)
+                        } else {
+                            // Room the dock can't show freed first, once the phone's apps are known:
+                            // pins of apps since removed, and the second of a pair shown as one icon.
+                            if (pinned.size >= CarSettings.MAX_PINNED && LauncherCache.entries != null) {
+                                val kept = HashSet<String>()
+                                pinned.filterNot { stored ->
+                                    val s = pinShown(stored, entries)
+                                    entries.any { it.componentId == s } && kept.add(s)
+                                }.forEach(CarSettings::togglePin)
+                            }
+                            CarSettings.togglePin(id)
+                        }
                         navigator.dismissAppMenu()
                     },
                     tone = GsTone.Tonal,

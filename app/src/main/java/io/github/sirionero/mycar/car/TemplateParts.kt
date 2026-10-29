@@ -465,16 +465,18 @@ internal fun CarGlyph(icon: CarIcon?, modifier: Modifier = Modifier, standard: I
     // app's own process for a content:// icon, plus a bitmap decode - done synchronously on the
     // composition thread for every tile on screen, that's what made a shelf of ten covers feel
     // like it was hanging rather than loading.
-    val bitmapState by produceState<ImageBitmap?>(null, icon, icon.pictureKey()) {
-        value = withContext(Dispatchers.IO) { icon.image(context) }
+    // Whether it's a plain white glyph is worked out there too: it reads the pixels, and an
+    // app's picture can be 1024 px - on the main thread, a shelf of covers stalled the screen.
+    val loaded by produceState<Pair<ImageBitmap, Boolean>?>(null, icon, icon.pictureKey()) {
+        value = withContext(Dispatchers.IO) { icon.image(context)?.let { it to it.isPlainWhite() } }
     }
-    val bitmap = bitmapState
+    val bitmap = loaded?.first
     if (bitmap != null) {
         // An icon that names a tint (DEFAULT included) expects the host to colour it for the
         // surface it sits on; without this a white glyph vanishes on a light theme.
         val dark = MaterialTheme.colorScheme.surface.luminanceIsDark()
         val content = LocalContentColor.current
-        val white = remember(bitmap) { bitmap.isPlainWhite() }
+        val white = loaded?.second == true
         // Untinted white artwork is a template-app habit from dark surfaces; it is coloured like
         // text so it stays readable on a light one.
         // An app's own tint is kept only if it can be seen: MAPS.ME asks for dark grey on dark
@@ -823,16 +825,21 @@ internal fun Color.luminanceIsDark(): Boolean =
 
 
 
-/** True for a glyph drawn entirely in white (any transparency): a mask, not a picture. */
+/**
+ * True for a glyph drawn entirely in white (any transparency): a mask, not a picture. A row at a
+ * time, so a photo answers at its first coloured row without a copy of all its pixels.
+ */
 private fun androidx.compose.ui.graphics.ImageBitmap.isPlainWhite(): Boolean {
-    val pixels = IntArray(width * height)
-    readPixels(pixels)
+    val row = IntArray(width)
     var seen = 0
-    for (pixel in pixels) {
-        val alpha = pixel ushr 24
-        if (alpha < 40) continue
-        seen++
-        if ((pixel shr 16 and 0xFF) < 225 || (pixel shr 8 and 0xFF) < 225 || (pixel and 0xFF) < 225) return false
+    for (y in 0 until height) {
+        readPixels(row, startX = 0, startY = y, width = width, height = 1)
+        for (pixel in row) {
+            val alpha = pixel ushr 24
+            if (alpha < 40) continue
+            seen++
+            if ((pixel shr 16 and 0xFF) < 225 || (pixel shr 8 and 0xFF) < 225 || (pixel and 0xFF) < 225) return false
+        }
     }
     return seen > 0
 }

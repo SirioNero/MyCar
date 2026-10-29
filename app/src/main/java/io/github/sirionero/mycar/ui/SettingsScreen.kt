@@ -8,8 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -62,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.car.PhoneTyping
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
@@ -69,6 +72,7 @@ import io.github.sirionero.mycar.CertRotation
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.audio.AudioRoute
 import io.github.sirionero.mycar.notify.TestMessage
+import io.github.sirionero.mycar.stats.UsageStats
 import io.github.sirionero.mycar.car.CarSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -76,6 +80,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+
+/** Where Settings opens: at the top, or at the section a card on Home sent the driver to. */
+enum class SettingsAt { TOP, USAGE_NOTES, CERTIFICATE }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,18 +95,21 @@ fun SettingsScreen(
     onOpenLogs: () -> Unit,
     onReplayTutorial: () -> Unit,
     onReplayIntro: () -> Unit,
-    atUsageNotes: Boolean = false,
+    at: SettingsAt = SettingsAt.TOP,
 ) {
     val scroll = rememberScrollState()
-    // Opened from Home's "it worked" card: start at usage notes.
+    // Opened from Home's "it worked" card: start at usage notes; from its certificate card: at
+    // the certificate, second to last.
     var usageNotesY by remember { mutableIntStateOf(-1) }
-    if (atUsageNotes) {
+    var certificateY by remember { mutableIntStateOf(-1) }
+    if (at != SettingsAt.TOP) {
         LaunchedEffect(Unit) {
-            val y = snapshotFlow { usageNotesY }.first { it >= 0 }
+            val y = snapshotFlow { if (at == SettingsAt.CERTIFICATE) certificateY else usageNotesY }.first { it >= 0 }
             snapshotFlow { scroll.maxValue }.first { it > 0 && it < Int.MAX_VALUE }
             scroll.scrollTo(y)
         }
     }
+    val typingForCar by PhoneTyping.field.collectAsState()
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -117,6 +127,11 @@ fun SettingsScreen(
             Modifier
                 .fillMaxSize()
                 .padding(padding)
+                // Edge to edge, the window no longer shrinks for the keyboard: without this, a field
+                // in the lower half (Plancia's token, Xonos's password) stays under it. Not while the
+                // bar for typing for the car is up: that one already sits above the keyboard.
+                .consumeWindowInsets(padding)
+                .then(if (typingForCar == null) Modifier.imePadding() else Modifier)
                 .padding(horizontal = 24.dp)
                 .verticalScroll(scroll),
             verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -135,13 +150,16 @@ fun SettingsScreen(
             CinemaTvSection()
             VoiceModelSection()
             if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
-            SettingsSection(
-                "Usage notes",
-                Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
-                header = USAGE_STATS_INTRO,
-            ) { UsageStatsRows() }
+            // A build without a stats server sends nothing: no switch that would do nothing.
+            if (UsageStats.sends) {
+                SettingsSection(
+                    "Usage notes",
+                    Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
+                    header = USAGE_STATS_INTRO,
+                ) { UsageStatsRows() }
+            }
             SettingsSection("Updates") { UpdateRow() }
-            CertificateSection()
+            CertificateSection(Modifier.onGloballyPositioned { certificateY = it.positionInParent().y.toInt() })
             AboutSection(onOpenWhatsNew, onReplayTutorial, onReplayIntro)
             Spacer(Modifier.height(16.dp))
         }
@@ -260,7 +278,7 @@ private fun CarAudioSection() {
     SettingsSection(
         "Car audio",
         footer = if (route != AudioRoute.BLUETOOTH) {
-            "Calls go over Bluetooth either way. Run the command in Help once, and myCar stops asking to share audio."
+            "Calls go over Bluetooth either way. Run the command in How to connect once, and myCar stops asking to share audio."
         } else {
             "Calls go over Bluetooth either way."
         },
@@ -305,7 +323,7 @@ private fun AppsSection(onOpenRecommendedApps: () -> Unit) {
 }
 
 @Composable
-private fun CertificateSection() {
+private fun CertificateSection(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -319,11 +337,12 @@ private fun CertificateSection() {
     var notice by remember { mutableStateOf<String?>(null) }
     var downloading by remember { mutableStateOf(false) }
     var detailsOpen by remember { mutableStateOf(false) }
+    var removeAsk by remember { mutableStateOf<CertProvider.Kind?>(null) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) pendingUri = uri
     }
 
-    SettingsSection("Certificate", footer = notice ?: "Changes take effect on the next connection.") {
+    SettingsSection("Certificate", modifier, footer = notice ?: "Changes take effect on the next connection.") {
         val s = summary
         val loaded = s != null && s.kind != CertProvider.Kind.SELF_SIGNED
         val hasDetails = s?.subject != null || s?.issuer != null
@@ -403,23 +422,44 @@ private fun CertificateSection() {
         )
         val removable = when (s?.kind) {
             CertProvider.Kind.IMPORTED -> "Remove imported certificate"
-            CertProvider.Kind.DOWNLOADED -> "Remove downloaded certificate"
+            CertProvider.Kind.DOWNLOADED -> "Remove downloaded certificates"
             else -> null
         }
         if (removable != null) {
             SettingsDivider()
             SettingsRow(
                 removable,
-                Modifier.clickable {
-                    if (s?.kind == CertProvider.Kind.IMPORTED) CertProvider.removeImported(context) else CertProvider.removeDownloaded(context)
-                    notice = if (s?.kind == CertProvider.Kind.IMPORTED) "Removed the imported certificate." else "Removed the downloaded certificate."
-                    refresh++
-                },
+                Modifier.clickable { removeAsk = s?.kind },
                 icon = Icons.Filled.Delete,
                 tint = MaterialTheme.colorScheme.error,
                 titleColor = MaterialTheme.colorScheme.error,
             )
         }
+    }
+
+    removeAsk?.let { kind ->
+        val imported = kind == CertProvider.Kind.IMPORTED
+        ConfirmDialog(
+            title = if (imported) "Remove the imported certificate?" else "Remove the downloaded certificates?",
+            text = if (imported) {
+                "myCar goes back to the downloaded certificates, if it has them. Without one, it can't connect to a car."
+            } else {
+                "myCar can't connect to a car until it downloads them again, which needs the internet."
+            },
+            confirm = "Remove",
+            onConfirm = {
+                if (imported) CertProvider.removeImported(context) else CertProvider.removeDownloaded(context)
+                // What Home's card asked for: done, so the card goes.
+                if (imported && io.github.sirionero.mycar.CertRotation.notice.value.kind ==
+                    io.github.sirionero.mycar.CertRotationPolicy.Notice.OWN_REFUSED
+                ) {
+                    io.github.sirionero.mycar.CertRotation.dismiss(context)
+                }
+                notice = if (imported) "Removed the imported certificate." else "Removed the downloaded certificates."
+                refresh++
+            },
+            onDismiss = { removeAsk = null },
+        )
     }
 
     pendingUri?.let { uri ->

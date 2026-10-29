@@ -100,7 +100,7 @@ fun CarHome() {
                 .weight(if (splitScreen) 2.1f else 1f)
                 .fillMaxHeight(),
         ) {
-            MapPane(navStatus, frame)
+            MapPane(navStatus, frame, inView)
         }
         if (splitScreen) CompositionLocalProvider(LocalPlayerInView provides inView) {
             val side = Modifier.weight(1f).fillMaxHeight()
@@ -125,9 +125,12 @@ fun CarHome() {
 }
 
 @Composable
-private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame) {
+private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame, inView: Boolean) {
     val navigator = LocalCarNavigator.current
     if (status.phase == CarAppConnection.Phase.RUNNING) {
+        // The car's Back key reaches the map's app (its search results, a list of places) while
+        // the map is the page in view; under another screen it goes on closing that screen.
+        AppBackKey(CarServices.nav, active = inView)
         CarAppStage(CarServices.nav, status, frame, embedded = true) { CarServices.stopNav() }
         return
     }
@@ -216,7 +219,7 @@ private fun SideLyrics(now: NowPlaying, modifier: Modifier) {
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                 }
-                GsIconButton(Icons.Filled.Close, "Hide lyrics", navigator::closeSidePanel, size = 36.dp, iconSize = 20.dp)
+                GsIconButton(Icons.Filled.Close, "Hide lyrics", navigator::closeSidePanel, size = 48.dp, iconSize = 24.dp)
             }
             Spacer(Modifier.height(12.dp))
             LyricsPanel(now, Modifier.weight(1f).fillMaxWidth(), lineStyle = MaterialTheme.typography.headlineSmall)

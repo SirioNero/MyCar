@@ -70,6 +70,8 @@ class MyCarNotificationListener : NotificationListenerService() {
                 lines = lines,
                 isGroup = style?.isGroupConversation == true,
                 markRead = markReadOf(n),
+                missedCall = isMissedCall(sbn),
+                fromPhone = isPhone(sbn.packageName),
             ),
             quiet || !alerts(sbn, style != null),
         )
@@ -87,8 +89,24 @@ class MyCarNotificationListener : NotificationListenerService() {
             ranking.importance < android.app.NotificationManager.IMPORTANCE_DEFAULT
         ) return false
         val n = sbn.notification
-        return conversation || replyOf(n) != null || n.category in ALERT_CATEGORIES
+        return conversation || replyOf(n) != null || n.category in ALERT_CATEGORIES || isMissedCall(sbn)
     }
+
+    /**
+     * A missed call. The category says so where the dialer sets it; the AOSP dialer and Telecom
+     * (LineageOS and other ROMs) don't, but post it on a channel of their own for missed calls.
+     */
+    private fun isMissedCall(sbn: StatusBarNotification): Boolean {
+        val n = sbn.notification
+        if (n.category == Notification.CATEGORY_MISSED_CALL) return true
+        if ("missed" !in n.channelId.orEmpty().lowercase()) return false
+        return isPhone(sbn.packageName)
+    }
+
+    /** The phone's own dialer, or Telecom: not a VoIP app. */
+    private fun isPhone(packageName: String): Boolean =
+        packageName == TELECOM ||
+            packageName == runCatching { getSystemService(android.telecom.TelecomManager::class.java)?.defaultDialerPackage }.getOrNull()
 
     private fun markReadOf(n: Notification): Notification.Action? =
         (n.actions.orEmpty().toList() + Notification.WearableExtender(n).actions)
@@ -117,6 +135,7 @@ class MyCarNotificationListener : NotificationListenerService() {
 
     private companion object {
         const val ICON_PX = 96
+        const val TELECOM = "com.android.server.telecom"
         const val MAX_LINES = 8
         val ALERT_CATEGORIES = setOf(
             Notification.CATEGORY_MESSAGE,

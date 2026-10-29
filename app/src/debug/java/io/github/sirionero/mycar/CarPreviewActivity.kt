@@ -88,6 +88,8 @@ class CarPreviewActivity : ComponentActivity() {
         io.github.sirionero.mycar.car.SidePaneChoice.set(sidePane ?: io.github.sirionero.mycar.car.SidePaneChoice.MUSIC)
         // Home's ready-made pages every run, so a shot that changed one leaves the next alone.
         io.github.sirionero.mycar.car.HomePages.reset()
+        // Cinema's "Continue" would come first and move the tiles the shots tap.
+        io.github.sirionero.mycar.car.CinemaContinue.reset(this)
         // --es pageLayout <id>: the page left of the map in that layout (the weather, the agenda, then
         // empty parts), with an empty page right of it as Plancia's would be, for the layout shots.
         intent.getStringExtra("pageLayout")?.let { io.github.sirionero.mycar.car.PageLayout.of(it) }?.let { layout ->

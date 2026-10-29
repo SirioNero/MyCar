@@ -26,12 +26,15 @@ object SessionStatus {
 
     val state: StateFlow<Snapshot> = flow
 
+    /** The headline when the car turns the phone's certificate down. */
+    const val CERT_TURNED_DOWN = "The car turned down the certificate"
+
     fun connecting(stage: String) {
         flow.value = Snapshot(Phase.CONNECTING, "Connecting", stage)
     }
 
     fun projecting() {
-        flow.value = Snapshot(Phase.PROJECTING, "Projecting", "Streaming to the head unit.")
+        flow.value = Snapshot(Phase.PROJECTING, "Connected", "myCar is on the car's screen.")
     }
 
     fun failed(headline: String, detail: String) {
@@ -41,6 +44,6 @@ object SessionStatus {
     /** Keeps an earlier failure visible: a rejection is followed by a disconnect every time. */
     fun disconnected() {
         if (flow.value.phase == Phase.FAILED) return
-        flow.value = Snapshot(Phase.DISCONNECTED, "Disconnected", "The head unit is no longer connected.")
+        flow.value = Snapshot(Phase.DISCONNECTED, "Disconnected", "The car is no longer connected.")
     }
 }

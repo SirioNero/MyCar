@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.SharedFlow
 object CarKeys {
 
     /** A key that changes which screen is showing. */
-    enum class ScreenKey { BACK, HOME, MAP, MEDIA, PHONE }
+    enum class ScreenKey { BACK, HOME, MAP, MEDIA, PHONE, PLAY }
 
     private val _screenKeys = MutableSharedFlow<ScreenKey>(extraBufferCapacity = 8)
     val screenKeys: SharedFlow<ScreenKey> = _screenKeys
@@ -72,8 +72,12 @@ object CarKeys {
         // car still on its own screen) used to throw, and the exception ended the session.
         val media = CarServices.mediaOrNull()
         when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> media?.togglePlay()
-            KeyEvent.KEYCODE_MEDIA_PLAY -> if (media != null && !media.now.value.playing) media.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> if (media != null && CarServices.noMusicApp()) playLast() else media?.togglePlay()
+            KeyEvent.KEYCODE_MEDIA_PLAY -> when {
+                media == null -> Unit
+                CarServices.noMusicApp() -> playLast()
+                !media.now.value.playing -> media.togglePlay()
+            }
             KeyEvent.KEYCODE_MEDIA_PAUSE, KeyEvent.KEYCODE_MEDIA_STOP -> if (media != null && media.now.value.playing) media.togglePlay()
             KeyEvent.KEYCODE_MEDIA_NEXT -> media?.next()
             KeyEvent.KEYCODE_MEDIA_PREVIOUS -> media?.previous()
@@ -89,6 +93,20 @@ object CarKeys {
         }
         if (longPress) MyCarLog.i("keys: long press on $keyCode")
         return true
+    }
+
+    /**
+     * ▶ with no music app open (the first drive, or one closed from its menu): the one played
+     * last opens, playing - for [CarUi], which can wait for it. Not before the drive's music is
+     * decided: a car that sends PLAY as it connects would play with "Autoplay on connect" off.
+     * Straight out, not through [screen]: it isn't a reason to end a screen share.
+     */
+    private fun playLast() {
+        if (!CarServices.mediaDecided.value) return
+        // Something else is sounding (Cinema, a video in the browser): the key was meant for it,
+        // not for starting the music on top of it.
+        if (appContext?.getSystemService(android.media.AudioManager::class.java)?.isMusicActive == true) return
+        _screenKeys.tryEmit(ScreenKey.PLAY)
     }
 
     /** A turn of the rotary knob: each click moves focus one step, like Tab or Shift+Tab. */

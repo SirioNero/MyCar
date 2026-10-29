@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,6 +29,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -50,7 +52,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** A phone contact with at least one number, as read off the device's contacts. */
-internal data class Contact(val name: String, val number: String)
+/** [starred]: one of the phone's favourites, listed first. */
+/** [type] and [typeLabel] ("Mobile", "Home"): which of the person's numbers; [primary]: the phone's default. */
+internal data class Contact(
+    val name: String,
+    val number: String,
+    val starred: Boolean = false,
+    val type: Int = 0,
+    val typeLabel: String? = null,
+    val primary: Boolean = false,
+)
 
 private val CALL_PERMISSIONS = arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_CONTACTS)
 
@@ -64,20 +75,41 @@ internal fun loadContacts(context: Context): List<Contact> {
     val projection = arrayOf(
         ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
         ContactsContract.CommonDataKinds.Phone.NUMBER,
+        ContactsContract.CommonDataKinds.Phone.STARRED,
+        ContactsContract.CommonDataKinds.Phone.TYPE,
+        ContactsContract.CommonDataKinds.Phone.LABEL,
+        ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY,
     )
-    context.contentResolver.query(
-        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-        projection, null, null,
-        "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC",
-    )?.use { cursor ->
-        val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-        val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-        while (cursor.moveToNext()) {
-            val name = cursor.getString(nameIndex) ?: continue
-            val number = cursor.getString(numberIndex) ?: continue
-            out += Contact(name, number)
+    // The phone's favourites first: in the car, the people called most are a tap away. A provider
+    // that fails (a contacts app being updated) gives no contacts, not a closed myCar.
+    runCatching {
+        context.contentResolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            projection, null, null,
+            "${ContactsContract.CommonDataKinds.Phone.STARRED} DESC, ${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC",
+        )?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            val starredIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
+            val typeIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE)
+            val labelIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.LABEL)
+            val primaryIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.IS_SUPER_PRIMARY)
+            while (cursor.moveToNext()) {
+                val name = cursor.getString(nameIndex) ?: continue
+                val number = cursor.getString(numberIndex) ?: continue
+                val type = if (typeIndex >= 0) cursor.getInt(typeIndex) else 0
+                val label = if (labelIndex >= 0) cursor.getString(labelIndex) else null
+                out += Contact(
+                    name, number, starredIndex >= 0 && cursor.getInt(starredIndex) == 1,
+                    type = type,
+                    typeLabel = runCatching {
+                        ContactsContract.CommonDataKinds.Phone.getTypeLabel(context.resources, type, label)?.toString()
+                    }.getOrNull()?.takeIf { it.isNotBlank() },
+                    primary = primaryIndex >= 0 && cursor.getInt(primaryIndex) == 1,
+                )
+            }
         }
-    }
+    }.onFailure { MyCarLog.w("calls: couldn't read the contacts: ${it.message}") }
     return out.distinctBy { it.number }
 }
 
@@ -124,32 +156,62 @@ internal fun CallPromptOverlay() {
 
 private const val TAB_CONTACTS = 0
 private const val TAB_KEYPAD = 1
+private const val TAB_RECENTS = 2
 
-/** Dialing a number or calling a contact from the car screen: a contacts tab and a keypad tab. */
+/** Below this the three tabs and the title don't fit in a row: 800x480 at the Large sizes. */
+private val NARROW_PHONE = 600.dp
+
+/**
+ * The tab open last: the Phone opens on it again. To begin with Recents, as on a phone - or
+ * Contacts, without the call log, rather than a screen that asks for it.
+ */
+private var lastTab: Int? = null
+
+/** The Phone, next time it opens, on Recents: where a missed call that can't be called back from its card is. */
+internal fun openPhoneOnRecents() {
+    lastTab = TAB_RECENTS
+}
+
+/** Dialing a number or calling a contact from the car screen: recent calls, contacts and a keypad. */
 @Composable
 fun PhoneDialerScreen() {
     val context = LocalContext.current
     var hasPermissions by remember { mutableStateOf(hasCallPermissions(context)) }
-    var tab by remember { mutableStateOf(TAB_CONTACTS) }
+    var tab by remember { mutableStateOf(lastTab ?: if (hasCallLog(context)) TAB_RECENTS else TAB_CONTACTS) }
+    val show = { t: Int ->
+        tab = t
+        lastTab = t
+    }
 
-    Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        // The tabs share the title's row, so the list and keypad get the height back.
-        ScreenHeader("Phone") {
-            if (hasPermissions) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(140.dp)) { tab = TAB_CONTACTS }
-                    DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(140.dp)) { tab = TAB_KEYPAD }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        // A narrow screen (800x480 at the larger sizes): narrower tabs, and no title beside them - the
+        // three squeezed out the title and crushed Keypad.
+        val narrow = maxWidth < NARROW_PHONE
+        val tabWidth = if (narrow) 96.dp else 124.dp
+        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            // The tabs share the title's row, so the list and keypad get the height back.
+            ScreenHeader(if (narrow && hasPermissions) "" else "Phone") {
+                if (hasPermissions) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DialerTab("Recents", tab == TAB_RECENTS, Modifier.width(tabWidth)) { show(TAB_RECENTS) }
+                        DialerTab("Contacts", tab == TAB_CONTACTS, Modifier.width(tabWidth)) { show(TAB_CONTACTS) }
+                        DialerTab("Keypad", tab == TAB_KEYPAD, Modifier.width(tabWidth)) { show(TAB_KEYPAD) }
+                    }
                 }
             }
-        }
 
-        if (!hasPermissions) {
-            MissingPermission(context) { hasPermissions = true }
-            return@Column
-        }
+            if (!hasPermissions) {
+                MissingPermission(context) { hasPermissions = true }
+                return@Column
+            }
 
-        Box(Modifier.weight(1f).fillMaxWidth()) {
-            if (tab == TAB_CONTACTS) ContactsList(context) else Keypad(context)
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                when (tab) {
+                    TAB_RECENTS -> RecentsList(context)
+                    TAB_CONTACTS -> ContactsList(context)
+                    else -> Keypad(context)
+                }
+            }
         }
     }
 }
@@ -256,12 +318,16 @@ private fun KeypadButton(digit: String, modifier: Modifier, onClick: () -> Unit)
 
 @Composable
 private fun ContactsList(context: Context) {
-    val contacts by produceState(emptyList<Contact>(), context) {
+    // Null until read: "No contacts" showed while the phone was still reading them.
+    val loaded by produceState<List<Contact>?>(null, context) {
         value = withContext(Dispatchers.IO) { loadContacts(context) }
     }
+    val contacts = loaded.orEmpty()
     var query by remember { mutableStateOf("") }
     var searching by remember { mutableStateOf(false) }
     var pendingCall by remember { mutableStateOf<Contact?>(null) }
+    // The question first, then the search under it.
+    BackCloses(pendingCall != null || searching) { if (pendingCall != null) pendingCall = null else searching = false }
 
     val filtered = remember(contacts, query) {
         if (query.isBlank()) contacts
@@ -277,6 +343,11 @@ private fun ContactsList(context: Context) {
         // the field, so results stay visible while typing rather than getting squeezed out.
         Box(Modifier.weight(1f).fillMaxWidth()) {
             when {
+                loaded == null -> Text(
+                    "Loading contacts…",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 contacts.isEmpty() -> Text(
                     "No contacts with a phone number found.",
                     style = MaterialTheme.typography.bodyLarge,
@@ -399,8 +470,18 @@ private fun ContactRow(contact: Contact, onClick: () -> Unit) {
                 )
             }
             Column(Modifier.weight(1f)) {
-                Text(contact.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(contact.number, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    if (contact.starred) {
+                        Icon(Icons.Filled.Star, contentDescription = "Favourite", Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Text(contact.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                // Which of the person's numbers: two rows with one name told nothing apart.
+                Text(
+                    listOfNotNull(contact.typeLabel, contact.number).joinToString("  ·  "),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             Icon(Icons.Filled.Call, contentDescription = "Call", tint = MaterialTheme.colorScheme.primary)
         }

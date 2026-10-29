@@ -117,7 +117,14 @@ private fun AgendaCard(context: Context) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Coming up", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         val list = events
+        // Without the calendar the list is empty too: "nothing in the next week" said there were no plans.
+        val allowed = context.checkSelfPermission(Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED
         when {
+            !allowed -> Text(
+                "Allow the calendar for myCar on the phone to see what's coming up.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             list == null -> Text("Loading calendar…", style = MaterialTheme.typography.bodyMedium)
             list.isEmpty() -> Text(
                 "Nothing in the next week.",

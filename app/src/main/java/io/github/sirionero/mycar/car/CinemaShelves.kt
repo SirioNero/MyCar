@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -200,20 +201,37 @@ internal fun TvShelf(list: TvList, onPlay: (CinemaMedia) -> Unit, onClose: () ->
     val states by TvLists.states.collectAsState()
     val state = states[list.url] ?: TvListState(loading = true)
     var group by rememberSaveable(list.url) { mutableStateOf<String?>(null) }
+    // A channel by name, across the groups: lists run to thousands of channels.
+    var query by rememberSaveable(list.url) { mutableStateOf("") }
+    var searching by remember { mutableStateOf(false) }
     val groups = remember(state.channels) { state.channels.mapNotNull { it.group }.distinct() }
+    // Counted once, not again for every tile at every redraw.
+    val counts = remember(state.channels) { state.channels.groupingBy { it.group }.eachCount() }
     val groupsGrid = rememberLazyGridState()
     // A group's channels from the top; the same group's place kept while one of them plays.
     val channelsGrid = rememberSaveable(group, saver = LazyGridState.Saver) { LazyGridState() }
-    LaunchedEffect(list.url) { TvLists.load(context, list) }
+    LaunchedEffect(list.url) {
+        // Logos that didn't come last time (a tunnel, a slow server) get another chance.
+        ChannelLogos.forgetFailures()
+        TvLists.load(context, list)
+    }
     DisposableEffect(Unit) {
         navigator.backInterceptor = {
-            if (group != null) group = null else onClose()
+            when {
+                searching -> searching = false
+                query.isNotEmpty() -> query = ""
+                group != null -> group = null
+                else -> onClose()
+            }
             true
         }
         onDispose { navigator.backInterceptor = null }
     }
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(group?.takeIf { it != ALL } ?: list.name, Modifier.padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.S)) {
+            if (state.channels.size > SEARCH_FROM) {
+                GsIconButton(Icons.Filled.Search, "Find a channel", { searching = !searching })
+            }
             if (state.loading) {
                 CircularProgressIndicator(Modifier.size(28.dp), strokeWidth = 3.dp)
             } else {
@@ -229,39 +247,70 @@ internal fun TvShelf(list: TvList, onPlay: (CinemaMedia) -> Unit, onClose: () ->
                 modifier = Modifier.padding(horizontal = MyCarSpace.L),
             )
         }
-        when {
-            state.channels.isEmpty() && state.loading -> ShelfLoading()
-            state.channels.isEmpty() -> ShelfMessage(problem ?: "No channels in this list.", button = "Try again") {
-                TvLists.load(context, list, force = true)
-            }
-            groups.size > 1 && group == null -> LazyVerticalGrid(
-                columns = GridCells.Adaptive(GroupTileWidth),
-                state = groupsGrid,
-                contentPadding = PaddingValues(MyCarSpace.L),
-                horizontalArrangement = Arrangement.spacedBy(MyCarSpace.M),
-                verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                item(key = ALL) { GroupTile("All channels", state.channels.size) { group = ALL } }
-                items(groups, key = { it }) { name ->
-                    GroupTile(name, state.channels.count { it.group == name }) { group = name }
+        val found = remember(state.channels, query) {
+            if (query.isBlank()) null else state.channels.filter { it.name.contains(query.trim(), ignoreCase = true) }
+        }
+        // Between the header and the keyboard, never under it.
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            when {
+                found != null -> Column(Modifier.fillMaxSize()) {
+                    Text(
+                        "Channels with “${query.trim()}”: ${found.size}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = MyCarSpace.L),
+                    )
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(ChannelTileWidth),
+                        contentPadding = PaddingValues(MyCarSpace.L),
+                        horizontalArrangement = Arrangement.spacedBy(MyCarSpace.M),
+                        verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(found) { channel -> ChannelTile(channel) { onPlay(channel.media()) } }
+                    }
                 }
-            }
-            else -> {
-                val shown = remember(state.channels, group) {
-                    if (group == null || group == ALL) state.channels else state.channels.filter { it.group == group }
+                state.channels.isEmpty() && state.loading -> ShelfLoading()
+                state.channels.isEmpty() -> ShelfMessage(problem ?: "No channels in this list.", button = "Try again") {
+                    TvLists.load(context, list, force = true)
                 }
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(ChannelTileWidth),
-                    state = channelsGrid,
+                groups.size > 1 && group == null -> LazyVerticalGrid(
+                    columns = GridCells.Adaptive(GroupTileWidth),
+                    state = groupsGrid,
                     contentPadding = PaddingValues(MyCarSpace.L),
                     horizontalArrangement = Arrangement.spacedBy(MyCarSpace.M),
                     verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(shown) { channel -> ChannelTile(channel) { onPlay(channel.media()) } }
+                    item(key = ALL) { GroupTile("All channels", state.channels.size) { group = ALL } }
+                    items(groups, key = { it }) { name ->
+                        GroupTile(name, counts[name] ?: 0) { group = name }
+                    }
+                }
+                else -> {
+                    val shown = remember(state.channels, group) {
+                        if (group == null || group == ALL) state.channels else state.channels.filter { it.group == group }
+                    }
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(ChannelTileWidth),
+                        state = channelsGrid,
+                        contentPadding = PaddingValues(MyCarSpace.L),
+                        horizontalArrangement = Arrangement.spacedBy(MyCarSpace.M),
+                        verticalArrangement = Arrangement.spacedBy(MyCarSpace.M),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(shown) { channel -> ChannelTile(channel) { onPlay(channel.media()) } }
+                    }
                 }
             }
+        }
+        if (searching) {
+            CarKeyboard(
+                query,
+                onTextChange = { query = it },
+                onSubmit = { searching = false },
+                onDismiss = { searching = false },
+            )
         }
     }
 }
@@ -347,7 +396,8 @@ private fun ShelfMessage(text: String, button: String? = null, onButton: () -> U
     }
 }
 
-private fun initialColor(name: String) = ChannelColors[name.hashCode().absoluteValue % ChannelColors.size]
+// The remainder made positive, not the hash: the one hash with no positive value made it -2.
+private fun initialColor(name: String) = ChannelColors[(name.hashCode() % ChannelColors.size).absoluteValue]
 
 /** The group that shows every channel of a list. */
 private const val ALL = "\u0000all"
@@ -361,3 +411,6 @@ private val LogoBackground = Color(0xFF48484A)
 private val ChannelColors = listOf(
     Color(0xFFD7263D), Color(0xFF6C63FF), Color(0xFF0F9D58), Color(0xFFF4511E), Color(0xFF3D8BFF), Color(0xFF8E24AA),
 )
+
+/** Lists longer than this have the search button: shorter ones fit a glance. */
+private const val SEARCH_FROM = 24

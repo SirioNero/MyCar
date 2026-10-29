@@ -8,11 +8,13 @@ import androidx.car.app.navigation.model.NavigationTemplate
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
-import io.github.sirionero.mycar.host.clockTime
-import io.github.sirionero.mycar.host.remainingTime
 import io.github.sirionero.mycar.notify.CarNotification
 import io.github.sirionero.mycar.notify.CarNotifications
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -71,6 +73,7 @@ object VoiceReply {
     val state: StateFlow<State> = _state
 
     private val main = Handler(Looper.getMainLooper())
+    private val lookups = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var appContext: Context? = null
     private var run = 0
 
@@ -78,15 +81,32 @@ object VoiceReply {
 
     val active: Boolean get() = _state.value.phase != Phase.IDLE
 
-    /** Reads [n]'s newest messages aloud. */
-    fun read(n: CarNotification) {
+    /** Reads [n]'s newest messages aloud; [thenAsk] (Reply was tapped): then straight to the reply. */
+    fun read(n: CarNotification, thenAsk: Boolean = false) {
         val id = begin(State(Phase.READING, n))
+        CarNotifications.seen(n.key)
+        val context = appContext
+        if (n.missedCall && n.fromPhone && context != null) {
+            // Who, from the call log: the card says it in the dialer's own words and language
+            // ("Chiamata persa" over the name read as "Missed call from Chiamata persa").
+            lookups.launch {
+                val who = missedCaller(context, n.postedAt)
+                if (id != run) return@launch
+                CarAssistant.say(if (who != null) "Missed call from $who." else spoken(n)) { if (id == run) finish() }
+            }
+            return
+        }
         CarAssistant.say(spoken(n)) {
             if (id != run) return@say
             when {
                 n.reply == null -> finish()
                 // The microphone is silent during a call, so there's no point asking.
                 CarCalls.state.value is CallUiState.Active -> idleAfterRead(id)
+                // "Do you want to reply?" after a tap on Reply was one more turn to get lost in.
+                thenAsk -> {
+                    _state.value = _state.value.copy(phase = Phase.ASKING, heard = "")
+                    ask(id)
+                }
                 else -> offer(id)
             }
         }
@@ -139,8 +159,8 @@ object VoiceReply {
     }
 
     /**
-     * Reads [n] aloud and asks whether to reply, or, when the driver has just heard it, asks for
-     * the reply straight away. Then listens, reads the reply back and sends it.
+     * Reads [n] aloud and then asks for the reply, or asks straight away when the driver has just
+     * heard it. Then listens, reads the reply back and sends it.
      */
     fun reply(n: CarNotification, readFirst: Boolean = true) {
         if (n.reply == null) {
@@ -159,12 +179,14 @@ object VoiceReply {
             ask(id)
             return
         }
-        // Read it, then "Do you want to reply?", the same as Read.
-        read(n)
+        // Read it, then "What's your reply?": the driver chose Reply, so no "Do you want to reply?".
+        read(n, thenAsk = true)
     }
 
     private fun ask(id: Int) {
-        CarAssistant.say("What's your reply?") {
+        // Whose chat, out loud: a reply asked for by voice ("reply to Anna") can't be checked by eye.
+        val who = _state.value.target?.title?.takeIf { it.isNotBlank() }
+        CarAssistant.say(if (who != null) "What's your reply to $who?" else "What's your reply?") {
             if (id == run) listen(id)
         }
     }
@@ -185,7 +207,8 @@ object VoiceReply {
     private fun confirm(id: Int, text: String) {
         _state.value = _state.value.copy(phase = Phase.CONFIRMING, heard = text, until = 0L, span = 0L, held = 0f)
         // The countdown starts once the driver has heard the whole reply, not while it's read out.
-        CarAssistant.say("Sending: $text") {
+        val who = _state.value.target?.title?.takeIf { it.isNotBlank() }
+        CarAssistant.say(if (who != null) "Sending to $who: $text" else "Sending: $text") {
             if (id != run) return@say
             startCountdown(id, SEND_DELAY_MS)
             // A moment for the read-back to finish playing in the car before the microphone opens.
@@ -251,18 +274,21 @@ object VoiceReply {
     private fun words(text: String) = text.lowercase().split(Regex("[^a-z']+")).filter { it.isNotEmpty() }
 
     /**
-     * Ready-made replies for a tap instead of a voice reply. The first gives the arrival time when
-     * the map is following a route.
+     * Ready-made replies for a tap instead of a voice reply, in the phone's language (see
+     * [QuickReplyTexts]). The first gives the arrival time when the map is following a route.
      */
-    fun quickReplies(): List<String> = listOfNotNull(etaReply(), "Driving, I'll reply soon.", "On my way.")
+    fun quickReplies(): List<String> {
+        val texts = QuickReplyTexts.forPhone()
+        return listOfNotNull(etaReply(texts), texts.later, texts.onMyWay)
+    }
 
-    private fun etaReply(): String? {
+    private fun etaReply(texts: QuickReplyTexts.Texts): String? {
         val estimate = (CarServices.nav.template.value as? NavigationTemplate)?.destinationTravelEstimate ?: return null
-        val at = estimate.arrivalTimeAtDestination.clockTime()
-        val left = remainingTime(estimate.remainingTimeSeconds)
+        val at = QuickReplyTexts.arrival(estimate.arrivalTimeAtDestination)
+        val left = QuickReplyTexts.left(estimate.remainingTimeSeconds)
         return when {
-            at.isNotEmpty() -> "Driving, I'll be there around $at."
-            left.isNotEmpty() -> "Driving, I'll be there in about $left."
+            at.isNotEmpty() -> texts.around.format(at)
+            left.isNotEmpty() -> texts.inAbout.format(left)
             else -> null
         }
     }
@@ -288,6 +314,7 @@ object VoiceReply {
         CarAssistant.stopSpeaking()
         if (CarNotifications.reply(context, n, s.heard.trim())) {
             MyCarLog.i("voice reply: sent to ${n.appLabel}")
+            CarNotifications.seen(n.key)
             CarAssistant.say("Message sent.") {}
             CarNotifications.dismissPopup(n.id)
             _state.value = s.copy(phase = Phase.SENT, until = SystemClock.uptimeMillis() + SENT_MS, span = SENT_MS, held = 0f)
@@ -357,6 +384,16 @@ object VoiceReply {
     /** "Alex says: ..." or, in a group, "Sam in Climbing says: ...", for the newest messages. */
     private fun spoken(n: CarNotification): String {
         val from = n.title.ifBlank { n.appLabel }
+        // Not a chat: "Mario Rossi says: Missed call" told it the wrong way round. Some dialers
+        // put the name in the title, others in the text under a "Missed call" title.
+        if (n.missedCall) {
+            val who = if ("missed" in n.title.lowercase()) n.text else n.title
+            return if (who.isBlank() || "missed" in who.lowercase()) {
+                listOf(n.title, n.text).filter { it.isNotBlank() }.joinToString(". ") + "."
+            } else {
+                "Missed call from $who."
+            }
+        }
         val lines = n.lines.filter { it.sender != null }.takeLast(n.burst.coerceIn(1, MAX_READ))
         if (lines.isEmpty()) return "$from says: ${n.text}"
         return lines.joinToString(". ") { line ->

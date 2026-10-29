@@ -33,15 +33,19 @@ object Lyrics {
 
     private val cache = HashMap<String, LyricsResult?>()
 
-    suspend fun find(context: Context, title: String, artist: String, album: String, durationMs: Long): LyricsResult? {
-        if (title.isBlank()) return null
+    /**
+     * Success with null: there are none for this song. A failure: lrclib.net couldn't be reached
+     * (no signal), which the screen says as such - "no lyrics" made it sound like there were none.
+     */
+    suspend fun find(context: Context, title: String, artist: String, album: String, durationMs: Long): Result<LyricsResult?> {
+        if (title.isBlank()) return Result.success(null)
         val key = "$title|$artist|$album|$durationMs"
-        synchronized(cache) { if (cache.containsKey(key)) return cache[key] }
+        synchronized(cache) { if (cache.containsKey(key)) return Result.success(cache[key]) }
 
         val fromDisk = withContext(Dispatchers.IO) { readDisk(context, key) }
         if (fromDisk != null) {
             synchronized(cache) { cache[key] = fromDisk }
-            return fromDisk
+            return Result.success(fromDisk)
         }
 
         val lookup = withContext(Dispatchers.IO) {
@@ -54,7 +58,7 @@ object Lyrics {
         // time, rather than standing as "no lyrics" for as long as myCar runs.
         if (lookup.isSuccess) synchronized(cache) { cache[key] = result }
         if (result != null) withContext(Dispatchers.IO) { writeDisk(context, key, result) }
-        return result
+        return lookup
     }
 
     private fun cacheFile(context: Context, key: String): File {

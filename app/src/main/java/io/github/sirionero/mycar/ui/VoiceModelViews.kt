@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -85,6 +87,19 @@ internal fun VoiceModelSection() {
 @Composable
 private fun ModelRow(model: Model, chosen: Boolean) {
     val context = LocalContext.current
+    // Tens of megabytes to download again, and the car's assistant without a voice meanwhile if
+    // it's the one in use: asked first.
+    var deleteAsk by remember { mutableStateOf(false) }
+    if (deleteAsk) {
+        ConfirmDialog(
+            title = "Delete ${model.label}?",
+            text = "Its ${model.downloadMb} MB go from the phone. " +
+                (if (chosen) "It's the one in use: the car's assistant can't listen until it's downloaded again." else "It can be downloaded again here."),
+            confirm = "Delete",
+            onConfirm = { SpeechModels.delete(context, model) },
+            onDismiss = { deleteAsk = false },
+        )
+    }
     val state by SpeechModels.state(model).collectAsState()
     Column(
         Modifier
@@ -109,7 +124,7 @@ private fun ModelRow(model: Model, chosen: Boolean) {
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 when (state) {
-                    State.Ready -> TextButton(onClick = { SpeechModels.delete(context, model) }) { Text("Delete") }
+                    State.Ready -> TextButton(onClick = { deleteAsk = true }) { Text("Delete") }
                     is State.Downloading -> TextButton(onClick = { SpeechModels.delete(context, model) }) { Text("Cancel") }
                     else -> OutlinedButton(onClick = { SpeechModels.download(context, model) }) { Text("Download") }
                 }

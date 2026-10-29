@@ -31,7 +31,7 @@ data class CertSummary(
             val identity = CertProvider.loadSupplied(context)
                 ?: return CertSummary(
                     CertProvider.Kind.SELF_SIGNED,
-                    "None loaded (self-signed; cars reject it)",
+                    "No car certificate yet: tap one below to get it",
                     null, null, null,
                 )
             val cert = identity.certificate

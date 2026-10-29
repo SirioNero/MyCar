@@ -1,7 +1,14 @@
 package io.github.sirionero.mycar.car
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
+import android.provider.ContactsContract
+import androidx.car.app.navigation.model.NavigationTemplate
 import io.github.sirionero.mycar.media.CarMedia
+import io.github.sirionero.mycar.notify.CarNotifications
 import io.github.sirionero.mycar.speech.VoiceFocus
 import java.text.DateFormat
 import java.util.Date
@@ -31,10 +38,16 @@ object AssistantCommands {
 
         navigateCommand(context, navigator, frame, heard)?.let { return it }
         stopRouteCommand(heard)?.let { return it }
+        // Before "play X": "play my messages" isn't a song.
+        messageCommand(heard)?.let { return it }
         playSearchCommand(context, navigator, heard)?.let { return it }
+        // After "play X" ("play ETA" is a song), before the music's words: "when do I get to the
+        // next exit" isn't "next". Not for a person: "call Eta".
+        if (ETA.containsMatchIn(heard) && CALL_TRIGGERS.none { heard.startsWith(it) }) return arrival()
         mediaCommand(heard)?.let { return it }
         navCommand(navigator, heard)?.let { return it }
         infoCommand(heard)?.let { return it }
+        recallCommand(context, heard)?.let { return it }
         callCommand(context, heard)?.let { return it }
         openAppCommand(context, navigator, frame, heard)?.let { return it }
 
@@ -172,7 +185,8 @@ object AssistantCommands {
     private suspend fun playSearchCommand(context: Context, navigator: CarNavigator, heard: String): String? {
         var query = after(heard, PLAY_TRIGGERS) ?: return null
         query = query.removePrefix("some ").trim()
-        if (query.isEmpty() || query in RESUME_WORDS) return null
+        // "Play the next song", "play it again": the music's own buttons, not a search.
+        if (query.isEmpty() || query in RESUME_WORDS || TRANSPORT.matches(query)) return null
         val media = CarServices.media
 
         // "play Daft Punk on Metrolist": switch to that app first, if it's one we know.
@@ -218,6 +232,46 @@ object AssistantCommands {
         return "Looking for $query on $app."
     }
 
+    /**
+     * "Read my messages": the newest chat with something new, read aloud ("my last message": the
+     * newest, read or not), then the offer to reply. "Reply to Anna", "text Anna": straight to the
+     * reply, in Anna's latest chat. Only chats the phone showed during the drive: a new message
+     * to someone who hasn't written isn't something myCar can send.
+     */
+    private fun messageCommand(heard: String): String? {
+        val read = READ_MESSAGES.matchEntire(heard)
+        val to = REPLY_TO.matchEntire(heard)?.groupValues?.get(1)?.trim()
+        if (read == null && to.isNullOrEmpty()) return null
+        if (!CarNotifications.listening.value) return "myCar needs notification access to read messages. Allow it on the phone."
+        val chats = CarNotifications.history.value.filter { it.lines.isNotEmpty() || it.reply != null }
+        val n = if (to != null) {
+            // The whole name, then a whole word of it, and only then a piece of one: "Anna" found
+            // Giovanna, if she wrote last. The reply's question then says whose chat it is.
+            val writers = chats.filter { it.reply != null }
+            fun tier(title: String): Int {
+                val full = title.lowercase().trim()
+                return when {
+                    full == to -> 0
+                    " $full ".contains(" $to ") -> 1
+                    full.contains(to) -> 2
+                    else -> 3
+                }
+            }
+            val best = writers.minOfOrNull { tier(it.title) }?.takeIf { it < 3 }
+                ?: return "I couldn't find a message from $to to reply to."
+            writers.first { tier(it.title) == best }
+        } else {
+            val newest = read?.groupValues?.get(1).orEmpty().let { "last" in it || "latest" in it }
+            (if (newest) chats.firstOrNull() else chats.firstOrNull { CarNotifications.isUnread(it.key) })
+                ?: return if (newest) "There are no messages yet." else "No new messages."
+        }
+        // VoiceReply speaks from here: the assistant's own answer is nothing, which closes it.
+        // All that's new in the chat, a few at most: the history keeps each chat once, as its last post.
+        val news = n.copy(burst = CarNotifications.unreadCount(n.key).coerceAtLeast(1))
+        Handler(Looper.getMainLooper()).post { if (to != null) VoiceReply.reply(n, readFirst = false) else VoiceReply.read(news) }
+        return ""
+    }
+
     /** "Stop navigation", "cancel the route": ends the guidance - it used to pause the music. */
     private fun stopRouteCommand(heard: String): String? {
         if (!Regex("^(?:stop|end|cancel|quit|exit) (?:the )?(?:navigation|navigating|route|directions|guidance)$").matches(heard)) return null
@@ -225,27 +279,42 @@ object AssistantCommands {
         return "Ending the route."
     }
 
-    private fun mediaCommand(heard: String): String? {
+    private suspend fun mediaCommand(heard: String): String? {
+        // "Call Skip", "phone Nick": a person, not the music.
+        if (CALL_TRIGGERS.any { heard.startsWith(it) }) return null
         val media = CarServices.media
+        val none = CarServices.noMusicApp()
         return when {
-            "pause" in heard || heard.startsWith("stop") || heard == "quiet" || heard == "shut up" -> {
+            ("pause" in heard && "unpause" !in heard) || heard.startsWith("stop") || heard == "quiet" || heard == "shut up" -> {
                 media.pause()
                 VoiceFocus.afterRelease { media.pause() }
                 "Paused."
             }
-            "resume" in heard || "unpause" in heard || heard in RESUME_PHRASES ||
-                (heard.startsWith("play") && "playing" !in heard) -> {
-                if (!media.now.value.playing) media.togglePlay()
-                "Playing."
-            }
-            "next" in heard || "skip" in heard || heard.startsWith("change the song") -> {
+            // Before "play" below: "play the next song", "play something else", "play it again".
+            "next" in heard || "skip" in heard || heard.startsWith("change the song") || ANOTHER.matches(heard) -> {
+                if (none) return "Nothing's playing."
                 media.next()
                 "Skipping."
             }
-            "previous" in heard || "last song" in heard || "back song" in heard || "go back a song" in heard ||
-                "play that again" in heard || "replay" in heard -> {
+            "previous" in heard || "last song" in heard || "last track" in heard || "last one" in heard || "back song" in heard ||
+                "go back a song" in heard || AGAIN.matches(heard) || "replay" in heard -> {
+                if (none) return "Nothing's playing."
                 media.previous()
                 "Playing the previous track."
+            }
+            "resume" in heard || "unpause" in heard || heard in RESUME_PHRASES ||
+                (heard.startsWith("play") && "playing" !in heard) -> {
+                // No music app open (the first drive, one closed from its menu): the one played
+                // last, playing - as the car's ▶ key does. It used to say "Playing." to silence.
+                if (none) {
+                    return if (CarServices.reopenLastMedia(autoplay = true)) {
+                        "Playing ${CarServices.mediaApp.value?.label ?: "the music"}."
+                    } else {
+                        "Open a music app first, then ask again."
+                    }
+                }
+                if (!media.now.value.playing) media.togglePlay()
+                "Playing."
             }
             ("what" in heard && "playing" in heard) || "what song" in heard || "who sings" in heard ||
                 "who's singing" in heard || "who is singing" in heard || "what's this song" in heard ||
@@ -302,12 +371,62 @@ object AssistantCommands {
         else -> null
     }
 
+    /** "When do I arrive?": the route's own estimate, the arrival time as the phone writes it. */
+    private fun arrival(): String {
+        val estimate = (CarServices.nav.template.value as? NavigationTemplate)?.destinationTravelEstimate
+            ?: return "There's no route on the map."
+        val at = QuickReplyTexts.arrival(estimate.arrivalTimeAtDestination)
+        val left = spokenTimeLeft(estimate.remainingTimeSeconds)
+        return when {
+            at.isNotEmpty() && left.isNotEmpty() -> "Around $at, in $left."
+            at.isNotEmpty() -> "Around $at."
+            left.isNotEmpty() -> "In about $left."
+            else -> "The map hasn't said yet."
+        }
+    }
+
+    /** "1 hour 5 minutes", as it's said - not "1 hr 5 min". */
+    private fun spokenTimeLeft(seconds: Long): String {
+        if (seconds <= 0) return ""
+        val hours = seconds / 3600
+        val minutes = (seconds % 3600) / 60
+        fun unit(n: Long, one: String) = if (n == 1L) "1 $one" else "$n ${one}s"
+        return when {
+            hours > 0 && minutes > 0 -> "${unit(hours, "hour")} ${unit(minutes, "minute")}"
+            hours > 0 -> unit(hours, "hour")
+            else -> unit(minutes.coerceAtLeast(1), "minute")
+        }
+    }
+
+    /**
+     * "Call back": the last call that came in, missed or not; "redial": the last one made. Off the
+     * phone's call log, one call at a time (not the Recents' lines, where a call back joins the
+     * call before it). Before [callCommand], which would look for a contact called "back".
+     */
+    private suspend fun recallCommand(context: Context, heard: String): String? {
+        val redial = heard in REDIAL_PHRASES
+        if (!redial && heard !in CALL_BACK_PHRASES) return null
+        if (context.checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            return "myCar needs the phone permission first, from the phone screen."
+        }
+        if (!hasCallLog(context)) return "myCar needs the phone's call log first: allow it on the phone."
+        val calls = withContext(Dispatchers.IO) { loadRecents(context, grouped = false) }
+        val call = calls.firstOrNull { (it.kind == RecentKind.OUTGOING) == redial }
+            ?: return if (redial) "There's no call to redial." else "There's no call to return."
+        // A private number is in the log with none: skipping it called back the one before.
+        if (call.number.isBlank()) return "That call was from a private number, so it can't be returned."
+        val who = call.name ?: shownNumber(call.number)
+        placeCall(context, call.number)
+        return if (redial) "Calling $who again." else "Calling $who back."
+    }
+
     private suspend fun callCommand(context: Context, heard: String): String? {
-        val name = (
-            after(heard, CALL_TRIGGERS)
-                ?: Regex("^give (.+) a (?:call|ring)$").find(heard)?.groupValues?.get(1)
-                ?: return null
-            ).replace(Regex(" (?:on|at) (?:their |his |her )?(?:mobile|cell|phone|home|work)$"), "").trim()
+        val asked = after(heard, CALL_TRIGGERS)
+            ?: Regex("^give (.+) a (?:call|ring)$").find(heard)?.groupValues?.get(1)
+            ?: return null
+        // "on mobile", "at work": which of the person's numbers - it used to be thrown away.
+        val typeWord = NUMBER_TYPE.find(asked)?.groupValues?.get(1)
+        val name = asked.replace(NUMBER_TYPE, "").trim()
         if (name.isBlank()) return "Who should I call?"
         if (!hasCallPermissions(context)) return "myCar needs the phone and contacts permissions first, from the phone screen."
 
@@ -326,13 +445,35 @@ object AssistantCommands {
         val best = contacts.minOfOrNull(::tier)?.takeIf { it < 3 } ?: return "I couldn't find $name in your contacts."
         val matches = contacts.filter { tier(it) == best }
         val match = matches.first()
+        // A person's numbers: the one asked for, the phone's default for them, the mobile, the
+        // first. It used to be whichever the contacts gave first - the office, say.
+        val wanted = when (typeWord) {
+            "mobile", "cell" -> ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE
+            "home" -> ContactsContract.CommonDataKinds.Phone.TYPE_HOME
+            "work" -> ContactsContract.CommonDataKinds.Phone.TYPE_WORK
+            else -> null
+        }
+        fun bestOf(numbers: List<Contact>): Contact =
+            wanted?.let { w -> numbers.firstOrNull { it.type == w } } ?: numbers.firstOrNull { it.primary }
+                ?: numbers.firstOrNull { it.type == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE } ?: numbers.first()
         // Only a piece of a name, or more than one person: the driver confirms on the screen.
         if (best == 2 || matches.distinctBy { it.name }.size > 1) {
-            CallPrompt.ask(match.name, match.number)
-            return "Call ${match.name}?"
+            val ask = bestOf(matches.filter { it.name == match.name })
+            CallPrompt.ask(listOfNotNull(ask.name, ask.typeLabel).joinToString(" · "), ask.number)
+            return "Call ${ask.name}?"
         }
-        placeCall(context, match.number)
-        return "Calling ${match.name}."
+        val ofType = wanted?.let { w -> matches.firstOrNull { it.type == w } }
+        if (wanted != null && ofType == null) {
+            // Not that one on record: another, but asked first.
+            val other = matches.firstOrNull { it.primary }
+                ?: matches.firstOrNull { it.type == ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE } ?: match
+            CallPrompt.ask(listOfNotNull(other.name, other.typeLabel).joinToString(" · "), other.number)
+            return "${match.name} has no $typeWord number. Call ${other.typeLabel?.lowercase() ?: "the other one"} instead?"
+        }
+        val pick = bestOf(matches)
+        placeCall(context, pick.number)
+        // Which one, out loud, when there was a choice.
+        return if (matches.size > 1 && pick.typeLabel != null) "Calling ${pick.name}, ${pick.typeLabel.lowercase()}." else "Calling ${pick.name}."
     }
 
     private suspend fun openAppCommand(
@@ -379,7 +520,45 @@ object AssistantCommands {
     )
     private val PLACE_TAILS = listOf(" near me", " nearby", " near here", " around here", " close by", " closest to me")
 
+    /** After "play": the next or the last song, this one again, something else - not a title. */
+    private val TRANSPORT = Regex(
+        "^(?:the )?(?:next|previous|last)(?: (?:song|track|one))?$|^(?:that|it|this)(?: song| track| one)? (?:again|over)$" +
+            "|^(?:something else|another (?:song|track|one)|a different (?:song|track))$",
+    )
+
+    /** "Play it again", "that song again": the song from the start, as Previous does. */
+    private val AGAIN = Regex("^(?:(?:play me|play|put on|listen to) )?(?:that|it|this)(?: song| track| one)? (?:again|over)$")
+
+    /** "Play something else", "another song": the next one. */
+    private val ANOTHER = Regex("^(?:(?:play me|play|put on|listen to) )?(?:something else|another (?:song|track|one)|a different (?:song|track))$")
+
     private val PLAY_TRIGGERS = listOf("play me ", "play ", "put on ", "listen to ", "i want to hear ", "shuffle ")
+
+    /** "When do I arrive", "what time will we get there", "how much longer", "ETA". */
+    private val ETA = Regex(
+        "\\b(?:eta|arrival time|time of arrival|how much longer|how long (?:until|till|to|left|is left|before)" +
+            "|(?:when|what time) (?:do|will|are|am) (?:i|we)(?: going to)? (?:arrive|get there|be there|get to|reach))\\b",
+    )
+
+    /** "Read my messages", "play my new texts", "read me the last message". */
+    private val READ_MESSAGES = Regex("^(?:(?:read|check)(?: me)?(?: my| the)?|play(?: me)? my)((?: new| last| latest| unread)?) (?:messages?|texts?)$")
+
+    /** "Reply to Anna", "text Anna", "send a message to Anna". */
+    private val REPLY_TO = Regex("^(?:reply to|respond to|text|message|send a message to|write to) (.+)$")
+
+    /** " on mobile", " at work", " on her cell": the number asked for, at the end of a call. */
+    private val NUMBER_TYPE = Regex(" (?:on|at) (?:their |his |her )?(mobile|cell|phone|home|work)$")
+
+    private val CALL_BACK_PHRASES = setOf(
+        "call back", "call them back", "call him back", "call her back", "call back the last call",
+        "call back the missed call", "call back the last missed call", "call the last missed call",
+        "return the call", "return the last call", "return my last call", "return the missed call", "return my missed call",
+    )
+
+    private val REDIAL_PHRASES = setOf(
+        "redial", "redial the last number", "call again", "dial again", "call the last number",
+        "call the last number again", "call last number", "dial the last number",
+    )
 
     private val CALL_TRIGGERS = listOf("call ", "phone ", "dial ", "ring ", "make a call to ", "place a call to ", "start a call with ")
 

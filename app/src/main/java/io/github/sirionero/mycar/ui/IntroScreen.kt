@@ -30,11 +30,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -231,7 +231,8 @@ fun IntroScreen(onDone: () -> Unit) {
                 extra = { ThemePicker(c, ::cq, ::cqSp, step) }) { ButtonsIcon(c.onTertiaryC) }
         }
         }
-        Column(Modifier.fillMaxWidth().padding(horizontal = cq(8f))) {
+        // Above the three-button navigation bar, which covered Next and Start.
+        Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = cq(8f))) {
             Dots(c, steps.size, index, ::cq, Modifier.align(Alignment.CenterHorizontally))
             Spacer(Modifier.height(cq(5f)))
             PillRow(
@@ -279,8 +280,10 @@ private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit
     )
     Box(Modifier.fillMaxSize()) {
         Cookie(c.primaryC, Modifier.size(cq(120f)).offset(x = cq(28f), y = -cq(22f)).align(Alignment.TopEnd).graphicsLayer { rotationZ = spin; alpha = 0.9f })
-        Ticker(c.secondaryC, c.onSecondaryC, "OPEN SOURCE ✦ NO ACCOUNT ✦ YOUR CAR, YOUR PHONE ✦ ", cq, cqSp, reverse = true, tilt = 3f,
-            key = key, modifier = Modifier.align(Alignment.TopCenter).padding(top = height * 0.11f))
+        // Where a band of words used to scroll: a pirate flag flying "100% LOCAL" (see PirateFlag),
+        // as tall as the phone leaves room for above the welcome.
+        val flagHeight = minOf(cq(38f), height * 0.23f)
+        PirateFlag(key, Modifier.align(Alignment.TopStart).padding(start = cq(6f), top = height * 0.025f).size(width = flagHeight * 1.62f, height = flagHeight))
 
         Column(Modifier.align(Alignment.CenterStart).padding(horizontal = cq(8f))) {
             Text("Welcome to", color = c.onVariant, style = TextStyle(fontSize = cqSp(4.2f), fontWeight = FontWeight.SemiBold),
@@ -299,44 +302,6 @@ private fun Welcome(c: IntroColors, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit
         }
 
         Confetti(c, key, Modifier.fillMaxSize())
-    }
-}
-
-/** A tilted band of words scrolling past, slid in from the side when the step opens. */
-@Composable
-private fun Ticker(
-    bg: Color, fg: Color, words: String, cq: (Float) -> Dp, cqSp: (Float) -> TextUnit,
-    reverse: Boolean, tilt: Float, key: Any, modifier: Modifier,
-) {
-    val enter = entrance(key, 400, 800)
-    val scroll by rememberInfiniteTransition(label = "ticker").animateFloat(
-        0f, 1f, infiniteRepeatable(tween(if (reverse) 20_000 else 16_000, easing = LinearEasing)), label = "ticker",
-    )
-    Box(
-        modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                rotationZ = tilt
-                scaleX = 1.2f
-                val e = Rise.transform(enter)
-                alpha = e
-                translationX = (1 - e) * -cq(30f).toPx()
-            }
-            .background(bg)
-            .padding(vertical = cq(2.6f)),
-    ) {
-        Text(
-            words.repeat(4),
-            color = fg, maxLines = 1, softWrap = false,
-            style = TextStyle(fontSize = cqSp(5f), fontWeight = FontWeight.ExtraBold),
-            modifier = Modifier
-                .wrapContentWidth(Alignment.Start, unbounded = true)
-                .graphicsLayer {
-                    // The text holds the words four times; sliding by half loops cleanly.
-                    val shift = size.width / 2f * (if (reverse) 1 - scroll else scroll)
-                    translationX = -shift
-                },
-        )
     }
 }
 

@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -67,6 +69,7 @@ import io.github.sirionero.mycar.CertCatalog
 import io.github.sirionero.mycar.CertProvider
 import io.github.sirionero.mycar.KEY_MIC_ASKED
 import io.github.sirionero.mycar.call.CarCalls
+import io.github.sirionero.mycar.notify.NotificationAccess
 import io.github.sirionero.mycar.car.Prefetch
 import io.github.sirionero.mycar.host.AndroidAuto
 import io.github.sirionero.mycar.setup.FirstSetup
@@ -201,7 +204,27 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
             context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
         }
     }
-    val oneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { refresh() }
+    fun openNotificationSettings() {
+        runCatching {
+            context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName))
+        }.onFailure { openAppSettings() }
+    }
+    // Calendar and notifications, one at a time. Refused before a person could tap, Android didn't
+    // ask (it stops after two refusals): its settings page instead of a button that does nothing.
+    var oneAsking by remember { mutableStateOf("") }
+    var oneAskedAt by remember { mutableLongStateOf(0L) }
+    val oneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        val noDialog = SystemClock.uptimeMillis() - oneAskedAt < NO_DIALOG_MS
+        if (!granted && noDialog && (context as? Activity)?.shouldShowRequestPermissionRationale(oneAsking) == false) {
+            if (oneAsking == Manifest.permission.POST_NOTIFICATIONS) openNotificationSettings() else openAppSettings()
+        }
+        refresh()
+    }
+    fun askOne(permission: String) {
+        oneAsking = permission
+        oneAskedAt = SystemClock.uptimeMillis()
+        oneLauncher.launch(permission)
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -309,7 +332,7 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                     else -> if (signals.driveMissing.size < SetupSignals.driveGroups().size && FirstSetup.asked(context).isNotEmpty()) {
                         "Still off: ${signals.driveMissing.joinToString()}."
                     } else {
-                        "Your car shows who's calling and can dial your contacts, the map knows where you are, and " +
+                        "Your car shows who's calling and your recent calls, and can dial your contacts, the map knows where you are, and " +
                             "music can reach the car without Bluetooth. Android asks a few times: tap Allow each " +
                             "time. myCar only reads, and listens only when you tap the mic."
                     }
@@ -327,11 +350,10 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                 expandedAtStart = entry == SetupEntry.RETURN,
                 onMessages = {
                     // Phones without that screen: the app's own settings instead of a crash.
-                    runCatching { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
-                        .onFailure { openAppSettings() }
+                    if (!NotificationAccess.open(context)) openAppSettings()
                 },
-                onCalendar = { oneLauncher.launch(Manifest.permission.READ_CALENDAR) },
-                onNotifications = { oneLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                onCalendar = { askOne(Manifest.permission.READ_CALENDAR) },
+                onNotifications = { askOne(Manifest.permission.POST_NOTIFICATIONS) },
                 onScreening = onRequestCallScreening,
             )
             Spacer(Modifier.height(16.dp))
@@ -442,19 +464,20 @@ private fun MoreSection(
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     if (!expanded) return
-    StepCard("Messages", status(Id.MESSAGES), body = "The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the list this opens.") {
+    StepCard("Messages", status(Id.MESSAGES), body = "The car shows your messages, reads them aloud and lets you reply. Turn myCar on in the page this opens. " +
+        "If Android says it's a restricted setting: open myCar's app info, tap ⋮, then Allow restricted settings, and try again.") {
         if (status(Id.MESSAGES) != Status.DONE) Button(onClick = onMessages) { Text("Open notification access") }
     }
     StepCard("Calendar", status(Id.CALENDAR), body = "The car screen shows your next event. myCar only reads your calendar.") {
         if (status(Id.CALENDAR) != Status.DONE) Button(onClick = onCalendar) { Text("Allow") }
     }
-    StepCard("Notifications", status(Id.NOTIFICATIONS), body = "While myCar is connected, it shows a notification with a button to stop.") {
+    StepCard("Notifications", status(Id.NOTIFICATIONS), body = "Lets myCar show that it's connected to the car, with Stop while it sends the phone's sound, and tell you when an update is out.") {
         if (status(Id.NOTIFICATIONS) != Status.DONE) Button(onClick = onNotifications) { Text("Allow") }
     }
     StepCard(
         "Screen unknown callers",
         status(Id.SCREENING),
-        body = "With the car connected, calls from numbers outside your contacts wait for you to answer them from the car.",
+        body = "With the car connected, a call from a number outside your contacts waits a few seconds before it rings, so you can turn it down from the car.",
     ) {
         if (status(Id.SCREENING) != Status.DONE) Button(onClick = onScreening) { Text("Set up") }
     }
@@ -551,10 +574,15 @@ private fun BottomBar(
         else -> "You're ready. Plug into the car; if Android asks, choose myCar and tap Always." to "Done"
     }
     Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Above the three-button navigation bar: drawn to the edge, its buttons were under it.
+        Column(
+            Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Text(line, style = MaterialTheme.typography.bodyMedium)
-            Button(onClick = onNext, enabled = !busy, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text(action) }
+            // At least 56 dp: larger text grows it rather than being cut.
+            Button(onClick = onNext, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) { Text(action) }
             // Without the big button's step done: leave it for later, it stays on Home.
             if (next != null) {
                 TextButton(onClick = onFinish, modifier = Modifier.fillMaxWidth()) {

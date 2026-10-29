@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,14 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
     val notice by CertRotation.notice.collectAsStateWithLifecycle()
     if (notice.kind == Notice.NONE) return
     val context = LocalContext.current
+    // Done meanwhile somewhere else - certificates got in the setup, a file imported in Settings:
+    // the card asked for it still, after the setup's own card had gone.
+    val resumed = rememberResumeCount()
+    val gotOne = remember(notice, resumed) { notice.kind == Notice.NO_CERT && CertProvider.hasAnyCert(context) }
+    if (gotOne) {
+        LaunchedEffect(notice) { CertRotation.dismiss(context) }
+        return
+    }
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
     var problem by remember { mutableStateOf<String?>(null) }

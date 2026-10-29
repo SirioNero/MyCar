@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -42,6 +44,7 @@ import org.json.JSONArray
  * home, the one away, and a long-lived token. With the Plancia app on the phone, its account comes
  * over with one tap - and on its own the first time, when nothing's been set here yet.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PlanciaSection() {
     val context = LocalContext.current
@@ -51,9 +54,12 @@ internal fun PlanciaSection() {
     var remote by rememberSaveable(saved) { mutableStateOf(saved.remoteUrl) }
     var token by rememberSaveable(saved) { mutableStateOf(saved.token) }
     var status by remember { mutableStateOf<String?>(null) }
-    val planciaApp = remember { HomeAssistant.planciaAppCanShare(context) }
-    val planciaThere = remember { InsideOrApp.planciaAppThere(context) }
-    val planciaBridge = remember { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
+    var removeAsk by remember { mutableStateOf(false) }
+    // Read again on coming back: the Plancia app may have been installed or updated meanwhile.
+    val resumed = rememberResumeCount()
+    val planciaApp = remember(resumed) { HomeAssistant.planciaAppCanShare(context) }
+    val planciaThere = remember(resumed) { InsideOrApp.planciaAppThere(context) }
+    val planciaBridge = remember(resumed) { io.github.sirionero.mycar.bridge.Bridges.plancia.available(context) }
     val askLocalNetwork = rememberLocalNetworkAsk()
 
     fun test(config: HomeAssistant.Config) {
@@ -86,7 +92,7 @@ internal fun PlanciaSection() {
     SettingsSection(
         "Plancia",
         footer = "Your Home Assistant dashboards in the car, ready the moment you open them: from the app grid, " +
-            "a page beside the map, or beside it. Make the token in Home Assistant: your profile, Security, " +
+            "on a page next to the map's, or in the panel beside the map. Make the token in Home Assistant: your profile, Security, " +
             "Long-lived access tokens.",
     ) {
         if (saved.isComplete) LocalNetworkRow(saved.urls)
@@ -139,27 +145,44 @@ internal fun PlanciaSection() {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // On a narrow phone or with large text, Remove goes under rather than splitting in two.
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = {
                     val config = HomeAssistant.Config(
                         HomeAssistant.normalizeUrl(home),
                         HomeAssistant.normalizeUrl(remote),
                         token.trim(),
                     )
+                    // Not saved half done: an emptied token field (a new one about to be pasted)
+                    // overwrote the working account, without the question Remove asks.
+                    if (!config.isComplete) {
+                        status = "Add an address and a token. To take Plancia out of myCar, use Remove."
+                        return@Button
+                    }
                     HomeAssistant.save(config)
                     askLocalNetwork(config.urls) { test(config) }
                 }) { Text("Save and test") }
                 if (saved.isComplete) {
-                    TextButton(onClick = {
-                        HomeAssistant.remove()
-                        status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
-                    }) { Text("Remove") }
+                    TextButton(onClick = { removeAsk = true }) { Text("Remove") }
                 }
             }
             status?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
+    }
+
+    if (removeAsk) {
+        ConfirmDialog(
+            title = "Remove Plancia from myCar?",
+            text = "myCar forgets its addresses and token. The Plancia app, if it's on the phone, is back in the car.",
+            confirm = "Remove",
+            onConfirm = {
+                HomeAssistant.remove()
+                status = "Plancia is off: the Plancia app is back in the car, if it's on the phone."
+            },
+            onDismiss = { removeAsk = false },
+        )
     }
 }
 

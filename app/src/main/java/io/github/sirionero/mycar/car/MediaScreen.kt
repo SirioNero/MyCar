@@ -8,8 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
-import android.provider.Settings
-import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -41,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -62,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.MediaApp
@@ -92,6 +92,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
     val search by media.search.collectAsStateWithLifecycle()
     var tab by remember { mutableStateOf(Tab.NOW_PLAYING) }
     var searching by remember { mutableStateOf(false) }
+    BackCloses(searching) { searching = false }
 
     // The connection outlives this screen: the home screen's player is the same one.
     LaunchedEffect(app) { CarServices.openMedia(app) }
@@ -113,14 +114,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                             "${app.label} keeps its library to itself.",
                             "myCar can still control it once it has Notification access on the phone. " +
                                 "Allow it under Settings > Notifications > Notification access.",
-                            action = "Open on phone" to {
-                                val app = context.applicationContext
-                                runCatching {
-                                    app.startActivity(
-                                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                                    )
-                                }
-                            },
+                            action = "Open on phone" to { io.github.sirionero.mycar.notify.NotificationAccess.open(context) },
                         )
                         CarMedia.Rejection.NEEDS_APP_RUNNING -> Notice(
                             "${app.label} isn't running.",
@@ -128,9 +122,13 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                                 "open on the phone. Open it once and it keeps playing here in the car.",
                             action = "Open ${app.label}" to { media.launchAndConnect(app) },
                         )
+                        // Its library stays closed, but opened on the phone it plays and myCar
+                        // takes its controls, as for an app that has to be running.
                         CarMedia.Rejection.REFUSED -> Notice(
                             "${app.label} would not let myCar browse it.",
-                            "Some media apps only accept Google's own host.",
+                            "Some media apps only accept Google's own host. Open it on the phone and " +
+                                "myCar can still play, pause and skip it.",
+                            action = "Open ${app.label}" to { media.launchAndConnect(app) },
                         )
                         CarMedia.Rejection.KEEPS_CLOSING -> Notice(
                             "${app.label} keeps closing on the phone.",
@@ -195,7 +193,7 @@ fun MediaScreen(app: MediaApp, onExit: () -> Unit) {
                             "Search ${app.label}",
                             { searching = true },
                             colors = GsColors(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA), MaterialTheme.colorScheme.onSurface),
-                            size = 44.dp,
+                            size = 52.dp,
                             shape = MaterialTheme.shapes.large,
                         )
                     }
@@ -226,7 +224,7 @@ private fun AppIdentity(app: MediaApp, onExit: () -> Unit, modifier: Modifier = 
     val icon = remember(app) { findEntry(app.component.flattenToString())?.icon }
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         GsIconButton(
-            Icons.Filled.ArrowBack, "Back", onExit, size = 44.dp,
+            Icons.Filled.ArrowBack, "Back", onExit, size = 52.dp,
             colors = GsColors(MaterialTheme.colorScheme.onSurface.copy(alpha = ROW_ALPHA), MaterialTheme.colorScheme.onSurface),
         )
         Spacer(Modifier.width(14.dp))
@@ -234,8 +232,9 @@ private fun AppIdentity(app: MediaApp, onExit: () -> Unit, modifier: Modifier = 
             Image(it, null, Modifier.size(26.dp).clip(RoundedCornerShape(7.dp)))
             Spacer(Modifier.width(10.dp))
         }
+        // As the app writes its name, as in the dock and the grid: "YouTube Music", not "Youtube music".
         Text(
-            app.label.lowercase().replaceFirstChar { it.titlecase() },
+            app.label,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
@@ -307,7 +306,12 @@ private fun SearchPanel(
                     SearchNote("$appLabel can't list results. Press search, and $appLabel picks what to play.")
                 unsupported -> SearchNote("$appLabel can't search from the car.")
                 entries == null -> SearchNote("Searching $appLabel…")
-                entries.isEmpty() -> SearchNote("$appLabel found nothing for \"$trimmed\".")
+                // The library search of many apps covers only what's saved: the app can still
+                // find it on its own service, when it takes searches to play.
+                entries.isEmpty() -> SearchNote(
+                    "$appLabel found nothing for \"$trimmed\".",
+                    action = if (canPickForYou) "Ask $appLabel to play it" to { onPickForYou(trimmed) } else null,
+                )
                 else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 8.dp)) {
                     items(entries) { entry ->
                         EntryRow(entry, media) {
@@ -341,14 +345,20 @@ private fun SearchPanel(
 }
 
 @Composable
-private fun SearchNote(text: String) {
+private fun SearchNote(text: String, action: Pair<String, () -> Unit>? = null) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
+            action?.let { (label, run) ->
+                Spacer(Modifier.height(12.dp))
+                GsButton(onClick = run, tone = GsTone.Tonal) { Text(label) }
+            }
+        }
     }
 }
 
@@ -380,24 +390,32 @@ private fun SearchStatus(search: CarMedia.Search, appLabel: String, onDismiss: (
 @Composable
 private fun MediaTab(label: String, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val tint = MaterialTheme.colorScheme.onSurface
-    Box(
+    BoxWithConstraints(
         modifier
-            .height(44.dp)
+            .height(52.dp)
             .clip(CircleShape)
             .background(tint.copy(alpha = if (selected) 0.24f else 0.08f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
+        // A narrow tab (an 800x480 screen, the larger sizes): smaller, on two lines if it must -
+        // "Now playi…" told nobody which tab it was.
+        val narrow = maxWidth < NARROW_TAB
         Text(
             label,
-            style = MaterialTheme.typography.titleSmall,
+            style = if (narrow) MaterialTheme.typography.labelMedium else MaterialTheme.typography.titleSmall,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             color = tint.copy(alpha = if (selected) 1f else 0.75f),
-            maxLines = 1,
+            maxLines = if (narrow) 2 else 1,
             overflow = TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            lineHeight = if (narrow) 13.sp else androidx.compose.ui.unit.TextUnit.Unspecified,
         )
     }
 }
+
+/** Below this a tab's label goes smaller: "Now playing" in its usual style needs about 85 dp. */
+private val NARROW_TAB = 92.dp
 
 /**
  * The song's lyrics, fetched when this tab opens. Synced lyrics follow the playback position with
@@ -410,10 +428,14 @@ internal fun LyricsPanel(
     lineStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.titleLarge,
 ) {
     val context = LocalContext.current
-    val lyrics by produceState<LyricsState>(LyricsState.Loading, now.title, now.artist, now.album, now.durationMs) {
+    // Asked again with Try again, after a lookup that couldn't reach lrclib.net.
+    var attempt by remember { mutableIntStateOf(0) }
+    val lyrics by produceState<LyricsState>(LyricsState.Loading, now.title, now.artist, now.album, now.durationMs, attempt) {
         value = LyricsState.Loading
-        value = Lyrics.find(context, now.title, now.artist, now.album, now.durationMs)
-            ?.let { LyricsState.Found(it) } ?: LyricsState.Missing
+        value = Lyrics.find(context, now.title, now.artist, now.album, now.durationMs).fold(
+            onSuccess = { found -> found?.let { LyricsState.Found(it) } ?: LyricsState.Missing },
+            onFailure = { LyricsState.Unreachable },
+        )
     }
     val list = rememberLazyListState()
 
@@ -434,6 +456,11 @@ internal fun LyricsPanel(
         LyricsState.Missing -> Notice(
             if (now.title.isEmpty()) "Nothing playing." else "No lyrics found for this track.",
             null,
+        )
+        LyricsState.Unreachable -> Notice(
+            "Couldn't reach the lyrics.",
+            "They come from lrclib.net: check the phone's connection.",
+            action = "Try again" to { attempt++ },
         )
         is LyricsState.Found -> {
             val lines = state.result.lines
@@ -462,6 +489,7 @@ internal fun LyricsPanel(
 private sealed interface LyricsState {
     data object Loading : LyricsState
     data object Missing : LyricsState
+    data object Unreachable : LyricsState
     class Found(val result: LyricsResult) : LyricsState
 }
 
@@ -601,7 +629,8 @@ private fun BrowsePanel(browse: io.github.sirionero.mycar.media.BrowseState, med
                 "$appLabel keeps its library to itself.",
                 "Start music in the app on your phone. Play, pause, skip and seek work from here.",
             )
-            browse.failed -> Notice("Could not load this list.", null)
+            // Coming back didn't load it again (the same app stays connected): a way to, here.
+            browse.failed -> Notice("Could not load this list.", null, action = "Try again" to media::reload)
             browse.entries.isEmpty() -> Notice("Nothing here.", null)
             else -> LazyColumn(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // A list can hold the same item twice (a song twice in a playlist): its id alone as
@@ -644,7 +673,7 @@ private fun QueuePanel(queue: List<QueueTrack>, now: NowPlaying, media: CarMedia
 private fun QueueRow(track: QueueTrack, media: CarMedia) {
     val context = LocalContext.current
     val icon by produceState(track.iconBitmap, track.iconUri) {
-        value = track.iconBitmap ?: MediaArt.load(context, track.iconUri)
+        value = track.iconBitmap ?: MediaArt.load(context, track.iconUri, MediaArt.ROW_SIDE_PX)
     }
     Surface(
         onClick = { media.playQueueItem(track) },
@@ -671,7 +700,7 @@ private fun QueueRow(track: QueueTrack, media: CarMedia) {
 private fun EntryRow(entry: MediaEntry, media: CarMedia, onClick: () -> Unit = { media.select(entry) }) {
     val context = LocalContext.current
     val icon by produceState(entry.iconBitmap, entry.iconUri) {
-        value = entry.iconBitmap ?: MediaArt.load(context, entry.iconUri)
+        value = entry.iconBitmap ?: MediaArt.load(context, entry.iconUri, MediaArt.ROW_SIDE_PX)
     }
     Surface(
         onClick = onClick,

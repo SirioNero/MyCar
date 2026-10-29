@@ -107,6 +107,8 @@ EXTRA="--ez demoSong true" shoot split 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WA
 # The full player on the made-up song, opened from the cover beside the map, then its Browse tab:
 # the cover blurred behind it all, and still in sight beside the list.
 EXTRA="--ez demoSong true" shoot media 1920 720 240 "$WAIT;$WAIT;1635,200;$WAIT;1230,48;$WAIT"
+# The same at 800x480, where the tabs are narrow: "Now playing" on two lines, not "Now playi…".
+EXTRA="--ez demoSong true" shoot media-800x480 800 480 160 "$WAIT;$WAIT;703,133;$WAIT;$WAIT"
 # Home with an app chosen to sit beside the map instead (car Settings > Beside the map).
 installed $PLANCIA && EXTRA="--es sidePane $PLANCIA" shoot split-plancia 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
 installed $XONOS && EXTRA="--es sidePane $XONOS" shoot split-xonos 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
@@ -118,10 +120,10 @@ DOCK_MAP="72,174"
 shoot pages 1920 720 240 "$DOCK_MAP;966,675;$WAIT;$DOCK_MAP;1098,675;$WAIT;$WAIT;$WAIT"
 shoot pages-800x480 800 480 160 "48,116;404,450;$WAIT"
 # Changing a page: the pencil beside the dots, then a part, for the list of what can go there.
-shoot pages-edit 1920 720 240 "$DOCK_MAP;966,675;1138,675;585,400;$WAIT"
+shoot pages-edit 1920 720 240 "$WAIT;$DOCK_MAP;966,675;1138,675;585,400;$WAIT"
 # The layouts a page can take: the pencil, the Layout button at the start of its bar, the list of
 # layouts; then "Half left" from it (the fourth tile of the first row).
-shoot pages-layouts 1920 720 240 "$DOCK_MAP;966,675;1138,675;690,72;$WAIT;1430,252;$WAIT"
+shoot pages-layouts 1920 720 240 "$WAIT;$DOCK_MAP;966,675;1138,675;690,72;$WAIT;1430,252;$WAIT"
 # Each layout beside the two halves and the four parts, on the page left of the map (--es pageLayout):
 # the weather, the agenda, then empty parts.
 for layout in full half-quarters quarters-half strip-quarters quarters-strip; do
@@ -169,6 +171,9 @@ CINEMA_PHONE="302,216"    # the first tile, "On this phone"
 CINEMA_SECOND="594,216"   # YouTube; with a TV list, the list
 shoot cinema 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$WAIT"
 EXTRA="--ez moving true" shoot cinema-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT"
+# "Continue" (car/CinemaContinue.kt): YouTube opened, a look at the map, Cinema again - the first
+# tile is now "Continue: YouTube", and a tap on it opens the site again at the page it was on.
+shoot cinema-continue 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$DOCK_MAP;$WAIT;$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT"
 
 # Cinema's shelves on Android's own player: a minute of test picture and tone on the phone (in
 # Movies), and a TV list from the runner (10.0.2.2:8001) with a stream (HLS) and a film file, a
@@ -340,18 +345,21 @@ fi
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
 
-# The car's browser on a page that is one big dropdown (<select>), tapped twice: it used to close
-# myCar ("Window type mismatch" for its dialog); now it just doesn't open, and crash.txt stays empty.
+# The car's browser on a page that is one big dropdown (<select>): a tap opens myCar's own list over
+# the car's screen (car/WebSelect.kt; Android's dialog can't show there, and before 0.5.19 it closed
+# myCar), a tap on "Two" picks it, and the page says so in its log ("change Two", tag chromium).
 # The page comes from the runner (10.0.2.2:8002), as the browser's start page (--es startUrl).
 mkdir -p /tmp/select-page
 cat > /tmp/select-page/select.html <<'HTML'
-<html><body style="margin:0;background:#202830"><select style="position:fixed;left:0;top:0;width:100%;height:100%;font-size:48px"><option>One</option><option>Two</option><option>Three</option></select></body></html>
+<html><body style="margin:0;background:#202830"><select onchange="console.log('change ' + this.value)" style="position:fixed;left:0;top:0;width:100%;height:100%;font-size:48px"><option>One</option><option>Two</option><optgroup label="More"><option>Three</option><option disabled>Four</option></optgroup></select></body></html>
 HTML
 python3 -m http.server 8002 --bind 127.0.0.1 --directory /tmp/select-page > /tmp/select-page.txt 2>&1 &
-EXTRA="--es startUrl http://10.0.2.2:8002/select.html" LOGTAGS="cr_SelectPopup" \
-    shoot browser-select 1920 720 240 "$GRID_BUTTON;$(at browser);$WAIT;$WAIT;1000,400;$WAIT;1000,400;$WAIT"
+# The list's rows are 64 dp from 108 dp down, centred on the screen: "Two" at 204 dp, 306 px here.
+EXTRA="--es startUrl http://10.0.2.2:8002/select.html" LOGTAGS="chromium cr_SelectPopup" \
+    shoot browser-select 1920 720 240 "$GRID_BUTTON;$(at browser);$WAIT;$WAIT;1000,400;$WAIT;960,306;$WAIT"
 echo "--- a dropdown in the car's browser ---"
 if [ -s previews/browser-select/crash.txt ]; then head -20 previews/browser-select/crash.txt; else echo "browser-select: no crash"; fi
+grep -h "change " previews/browser-select/log.txt previews/browser-select/stream.txt 2>/dev/null | head -3 || true
 
 # The app grid over each kind of moving wallpaper: the same screen shot 2.5s apart, to compare.
 EXTRA="--es wallpaper waves" shoot motion-waves 1920 720 240 "$GRID_BUTTON;$WAIT;$WAIT"
@@ -367,6 +375,29 @@ EXTRA="--ez player true" shoot player-800x480 800 480 160 "$WAIT"
 # An incoming call from an unknown number, rung on the emulator's modem once the car UI is up.
 shoot call 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "adb emu gsm call 3331234567"
 adb emu gsm cancel 3331234567
+
+# The Phone's Recents (car/PhoneRecents.kt): the call above, missed, over a few more written into
+# the call log as root (the shell may not): two in a row with Giulia, a garage yesterday, an
+# unknown number missed, a declined one. Root only for that: the shots after it run as before.
+case " ${ONLY:-phone-recents} " in *" phone-recents "*)
+    if adb root >/dev/null 2>&1; then
+        sleep 3; adb wait-for-device
+        now=$(( $(adb shell date +%s | tr -d '\r') * 1000 ))
+        calllog() {  # <number> <type: 1 in, 2 out, 3 missed, 5 declined> <minutes ago> <seconds> [name]
+            local name=
+            [ -n "${5:-}" ] && name="--bind name:s:'$5'"
+            adb shell "content insert --uri content://call_log/calls --bind number:s:$1 --bind type:i:$2 --bind date:l:$((now - $3 * 60000)) --bind duration:i:$4 $name"
+        }
+        calllog 3381234567 5 14400 0 "Marco"
+        calllog 3209998877 3 4320 0
+        calllog 0298765432 2 1560 140 "Officina Rossi"
+        calllog 3471112233 2 15 30 "Giulia Bianchi"
+        calllog 3471112233 1 12 65 "Giulia Bianchi"
+        adb unroot >/dev/null 2>&1; sleep 3; adb wait-for-device
+    fi
+    shoot phone-recents 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
+    ;;
+esac
 
 # The dock's microphone with "Phone's assistant" chosen: myCar should wake the phone's assistant
 # as the swipe up from a bottom corner does, through SystemUI. First with the Settings app standing
@@ -527,6 +558,17 @@ setup_phone() {
     adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
     sleep 5; tap_text "How to connect"; sleep 3
     tap_text "Take me back to the initial setup"; sleep 3; adb exec-out screencap -p > $d/08-partial.png
+    # The intro, as after an update: its first page, the pirate flag hoisted and then in the wind.
+    # The emulator runs with animations off (the runner's default), which stops the wind: on for
+    # these shots only.
+    adb shell am force-stop "$PKG"
+    adb shell run-as "$PKG" rm -f shared_prefs/intro.xml
+    adb shell settings put global animator_duration_scale 1
+    adb shell am start -n "$PKG/io.github.sirionero.mycar.MyCarActivity"
+    sleep 2.5; adb exec-out screencap -p > $d/09-intro-1.png
+    sleep 0.6; adb exec-out screencap -p > $d/09-intro-2.png
+    sleep 0.6; adb exec-out screencap -p > $d/09-intro-3.png
+    adb shell settings put global animator_duration_scale 0
     adb logcat -d | grep -E "myCar|CERT|DOWNL" > $d/log.txt
     adb logcat -d -b crash > $d/crash.txt 2>&1
     echo "--- setup on the phone ---"

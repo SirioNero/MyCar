@@ -57,6 +57,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.call.CallUiState
+import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.car.design.AppIcon
 import io.github.sirionero.mycar.car.design.AppIconShape
 import io.github.sirionero.mycar.car.design.GlassTile
@@ -95,18 +97,25 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
     val running = rememberRunningApps()
     val pinnedIds by CarSettings.pinnedApps.collectAsState()
     val frame by CarEnvironment.frame.collectAsState()
-    val turn = rememberNextTurn().takeIf { navigator.current != CarScreen.Home || !navigator.onMapPage }
+    // A ringing call's card covers the map: the next turn is here meanwhile.
+    val ringing = CarCalls.state.collectAsState().value is CallUiState.Ringing
+    // Read only when it shows: during a route the map app sends its screen about once a second, and
+    // reading it anyway made the whole dock compose again each time, with the map in view.
+    val turn = if (ringing || navigator.current != CarScreen.Home || !navigator.onMapPage) rememberNextTurn() else null
     val media = CarServices.media
     val mediaPhase by media.phase.collectAsState()
     val now by media.now.collectAsState()
     val mediaShown = mediaPhase == CarMedia.Phase.READY && now.isActive
 
     // A pinned app that's also open keeps its pinned place, marked with a dot. The map has its own
-    // slot, and the media app's is the song playing, so neither shows twice.
-    val pinned = pinnedIds.mapNotNull { id -> entries.find { it.componentId == id } }
+    // slot, and the media app's is the song playing, so neither shows twice. A pin saved as the
+    // Plancia or Xonos app shows as the one inside myCar, and back (see pinShown).
+    val pinned = pinnedIds.mapNotNull { id -> entries.find { it.componentId == pinShown(id, entries) } }
+        .distinctBy { it.componentId }
         .filter { running[it.componentId] != RunningSlot.NAV }
+    val pinnedShown = pinned.mapNotNullTo(HashSet()) { it.componentId }
     val open = running.keys
-        .filter { it !in pinnedIds && running[it] != RunningSlot.NAV && running[it] != RunningSlot.MEDIA }
+        .filter { it !in pinnedIds && it !in pinnedShown && running[it] != RunningSlot.NAV && running[it] != RunningSlot.MEDIA }
         .mapNotNull { id -> entries.find { it.componentId == id } }
 
     // Over a wallpaper the dock is glass: the wallpaper behind it, darkened, and a hairline of
@@ -162,6 +171,14 @@ internal fun CarDock(navigator: CarNavigator, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * The app a pin shows as: one saved with the Plancia or Xonos app is the one inside myCar once
+ * that's set up, and the app again while it stands in for it (see InsideOrApp). Read as saved, the
+ * pin vanished from the dock and still took one of its places.
+ */
+internal fun pinShown(id: String, entries: List<Entry>): String =
+    withXonosInside(withPlanciaInside(id, entries), entries) ?: id
 
 /** One slot in the dock's middle, keyed so a slot keeps its state as others come and go above it. */
 private class DockSlot(val key: String, val content: @Composable () -> Unit)
@@ -343,6 +360,8 @@ private fun DockNowPlaying(navigator: CarNavigator) {
             } else {
                 AppIcon(appIcon, null, MyCarSize.DockIcon)
             }
+            // How it is, not a button: bars while it plays, faded in pause. A pause glyph here read
+            // as the pause button, and a tap only showed or hid the player.
             Box(
                 Modifier
                     .align(Alignment.BottomEnd)
@@ -352,14 +371,14 @@ private fun DockNowPlaying(navigator: CarNavigator) {
                     .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(2.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
+                    .background(if (now.playing) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painterResource(if (now.playing) R.drawable.sym_pause else R.drawable.sym_play_arrow),
+                    MediaIcons.Equalizer,
                     contentDescription = null,
                     modifier = Modifier.size(12.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary,
+                    tint = if (now.playing) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

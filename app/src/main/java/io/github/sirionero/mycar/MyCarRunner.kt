@@ -119,7 +119,7 @@ class MyCarRunner(
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_AUDIO)
         SessionReport.begin(wireless)
         log.i("--- session starting ---")
-        SessionStatus.connecting("Connected to the head unit")
+        SessionStatus.connecting("Talking to the car")
         log.i("device=${Build.MANUFACTURER} ${Build.MODEL}  android=${Build.VERSION.RELEASE} (sdk ${Build.VERSION.SDK_INT})")
 
         // The head unit speaks first, and some give up if the phone doesn't read within about a
@@ -339,7 +339,7 @@ class MyCarRunner(
                 } else "",
         )
         state = State.TLS_HANDSHAKE
-        SessionStatus.connecting("Securing the link")
+        SessionStatus.connecting("Securing the connection")
         log.i("awaiting ClientHello - the head unit is the TLS client, we are the server")
     }
 
@@ -362,8 +362,8 @@ class MyCarRunner(
                     "handshake_failure alert here means it validates the phone's certificate.",
             )
             SessionStatus.failed(
-                "Head unit rejected the certificate",
-                "The head unit aborted the secure handshake. It validates the phone's certificate.",
+                SessionStatus.CERT_TURNED_DOWN,
+                "The car ended the secure connection: it doesn't accept the phone's certificate.",
             )
             state = State.DONE
             authenticationFailed = true
@@ -392,7 +392,7 @@ class MyCarRunner(
             0 -> {
                 log.i("STATUS_SUCCESS - certificate accepted; confirming with service discovery")
                 state = State.WAIT_SDR
-                SessionStatus.connecting("Certificate accepted - discovering services")
+                SessionStatus.connecting("Certificate accepted: getting ready")
                 sendServiceDiscoveryRequest()
                 // After the request: the car is waiting for it, not for the bookkeeping.
                 verdict(CertVerdict.Accepted)
@@ -406,8 +406,8 @@ class MyCarRunner(
                         "we cannot issue from.",
                 )
                 SessionStatus.failed(
-                    "Head unit rejected the certificate",
-                    "The head unit refused the phone's certificate (certificate error).",
+                    SessionStatus.CERT_TURNED_DOWN,
+                    "The car refused the phone's certificate (certificate error).",
                 )
                 state = State.DONE
                 authenticationFailed = true
@@ -421,8 +421,8 @@ class MyCarRunner(
                         "practical answer is the same.",
                 )
                 SessionStatus.failed(
-                    "Head unit rejected the certificate",
-                    "Authentication failed. The head unit does not trust the certificate in use.",
+                    SessionStatus.CERT_TURNED_DOWN,
+                    "The car doesn't trust the certificate in use.",
                 )
                 state = State.DONE
                 authenticationFailed = true
@@ -452,7 +452,7 @@ class MyCarRunner(
                     "Unexpected status. Check MessageStatus.proto in aasdk for the meaning " +
                         "before drawing any conclusion.",
                 )
-                SessionStatus.failed("Unexpected response", "The head unit answered authentication with status $status.")
+                SessionStatus.failed("Unexpected answer", "The car answered the certificate check with code $status.")
                 state = State.DONE
                 authenticationFailed = true
             }
@@ -502,7 +502,7 @@ class MyCarRunner(
             log.i("no vehicle profile matched - default display settings (add one to vehicles.json)")
         }
         CarEnvironment.setVehicle(profile?.name ?: "Unknown vehicle", profile?.insets ?: Insets.NONE)
-        SessionStatus.connecting("Starting video")
+        SessionStatus.connecting("Starting the picture")
 
         startVideoChannel(body)
     }
@@ -955,7 +955,7 @@ class MyCarRunner(
                         "PHASE A FAILED (channel open rejected)",
                         "The head unit refused to open the video channel (status=$status).",
                     )
-                    SessionStatus.failed("Video channel refused", "The head unit would not open the video channel (status $status).")
+                    SessionStatus.failed("The car refused the picture", "The car wouldn't open its screen to myCar (code $status).")
                     return
                 }
                 // Setup { required MediaCodecType type = 1 }
@@ -1349,16 +1349,16 @@ class MyCarRunner(
         when (state) {
             State.DONE -> SessionStatus.disconnected()
             State.WAIT_VERSION -> SessionStatus.failed(
-                "Head unit never started talking",
-                "The connection opened but the head unit sent nothing. Check the phone is set to use myCar for this USB accessory.",
+                "The car didn't answer",
+                "The connection opened but the car sent nothing. If Android asks which app to open for the car, choose myCar.",
             )
             State.TLS_HANDSHAKE, State.WAIT_AUTH -> SessionStatus.failed(
-                "Connection dropped during setup",
-                "The head unit disconnected while securing the link. This usually means it rejected the certificate.",
+                "The car hung up during setup",
+                "The car ended the connection while securing it. This usually means it turned down the certificate.",
             )
             State.WAIT_SDR -> SessionStatus.failed(
-                "Connection dropped after authentication",
-                "The certificate was accepted but the head unit disconnected before finishing setup.",
+                "The car hung up after the certificate",
+                "The car accepted the certificate but ended the connection before setup was done.",
             )
         }
         when (state) {

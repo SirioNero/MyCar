@@ -3,7 +3,12 @@ package io.github.sirionero.mycar.car
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
+import android.net.ConnectivityManager
+import android.net.Network
+import android.os.Handler
+import android.os.Looper
 import android.webkit.PermissionRequest
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -42,11 +47,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -89,9 +96,14 @@ import kotlin.math.absoluteValue
 /** Cinema full screen, from the app grid: the phone's videos, the TV lists and the sites, or the one open. */
 @Composable
 internal fun CinemaScreen() {
+    val context = LocalContext.current
     val sites by Cinema.sites.collectAsState()
     val tvLists by TvLists.lists.collectAsState()
+    LaunchedEffect(Unit) { CinemaContinue.load(context) }
+    val last by CinemaContinue.last.collectAsState()
     var openUrl by rememberSaveable { mutableStateOf<String?>(null) }
+    // A site opened again from "Continue": at the page it was on.
+    var startPage by remember { mutableStateOf<String?>(null) }
     // The phone's videos (PHONE_SHELF) or a TV list (by its address), and what plays from there.
     var shelf by rememberSaveable { mutableStateOf<String?>(null) }
     var playing by remember { mutableStateOf<CinemaMedia?>(null) }
@@ -100,22 +112,53 @@ internal fun CinemaScreen() {
     val open = sites.firstOrNull { it.url == openUrl }
     val list = tvLists.firstOrNull { it.url == shelf }
     val media = playing
+    val play: (CinemaMedia) -> Unit = {
+        playing = it
+        CinemaContinue.media(context, it)
+    }
+    // Only what can still be opened: a site taken off the list on the phone can't.
+    val again = last?.takeIf { it !is CinemaContinue.Site || sites.any { site -> site.url == it.url } }
     when {
         media != null -> key(media) { CinemaPlayer(media, onClose = { playing = null }) }
         shelf == PHONE_SHELF -> shelves.SaveableStateProvider(PHONE_SHELF) {
-            PhoneVideosShelf(onPlay = { playing = it }, onClose = { shelf = null })
+            PhoneVideosShelf(onPlay = play, onClose = { shelf = null })
         }
         list != null -> shelves.SaveableStateProvider(list.url) {
-            TvShelf(list, onPlay = { playing = it }, onClose = { shelf = null })
+            TvShelf(list, onPlay = play, onClose = { shelf = null })
         }
-        open == null -> CinemaHome(sites, tvLists, onOpen = { openUrl = it.url }, onShelf = { shelf = it })
-        else -> key(open.url) { CinemaSiteView(open, onClose = { openUrl = null }) }
+        open == null -> CinemaHome(
+            sites, tvLists, again,
+            onContinue = {
+                when (val l = again) {
+                    is CinemaContinue.Site -> {
+                        startPage = l.page
+                        openUrl = l.url
+                    }
+                    is CinemaContinue.Media -> playing = l.media
+                    null -> Unit
+                }
+            },
+            onOpen = {
+                startPage = null
+                openUrl = it.url
+                CinemaContinue.site(context, it)
+            },
+            onShelf = { shelf = it },
+        )
+        else -> key(open.url) { CinemaSiteView(open, startAt = startPage, onClose = { openUrl = null }) }
     }
 }
 
 /** The phone's videos and each TV list as myCar's own tiles, then the sites with their own icons. */
 @Composable
-private fun CinemaHome(sites: List<CinemaSite>, tvLists: List<TvList>, onOpen: (CinemaSite) -> Unit, onShelf: (String) -> Unit) {
+private fun CinemaHome(
+    sites: List<CinemaSite>,
+    tvLists: List<TvList>,
+    last: CinemaContinue.Last?,
+    onContinue: () -> Unit,
+    onOpen: (CinemaSite) -> Unit,
+    onShelf: (String) -> Unit,
+) {
     val context = LocalContext.current
     val icons by SiteIcons.icons.collectAsState()
     LaunchedEffect(sites) { SiteIcons.load(context, sites) }
@@ -128,6 +171,10 @@ private fun CinemaHome(sites: List<CinemaSite>, tvLists: List<TvList>, onOpen: (
             verticalArrangement = Arrangement.spacedBy(MyCarSpace.L),
             modifier = Modifier.fillMaxSize(),
         ) {
+            // First, what was on last: a look at the map no longer loses it.
+            if (last != null) item(key = "continue") {
+                ShelfTile("Continue: ${last.title}", MyCarPalette.Positive, R.drawable.sym_play_arrow, IconSize, onContinue)
+            }
             item(key = PHONE_SHELF) {
                 ShelfTile("On this phone", MyCarPalette.Warning, R.drawable.sym_video_library, IconSize) { onShelf(PHONE_SHELF) }
             }
@@ -181,7 +228,7 @@ private fun SiteTile(site: CinemaSite, icon: androidx.compose.ui.graphics.ImageB
 /** A site with no icon yet: its initial, on a colour of its own. */
 @Composable
 private fun InitialTile(site: CinemaSite, size: androidx.compose.ui.unit.Dp) {
-    val color = InitialColors[site.host.hashCode().absoluteValue % InitialColors.size]
+    val color = InitialColors[(site.host.hashCode() % InitialColors.size).absoluteValue]
     Box(
         Modifier.size(size).clip(AppIconShape).background(color).glassFinish(),
         contentAlignment = Alignment.Center,
@@ -200,7 +247,7 @@ private fun InitialTile(site: CinemaSite, size: androidx.compose.ui.unit.Dp) {
  * full-screen video first, then steps back through the site, then goes back to the sites.
  */
 @Composable
-private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
+private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Unit) {
     val context = LocalContext.current
     val navigator = LocalCarNavigator.current
     val ring = String.format("#%06X", MaterialTheme.colorScheme.primary.toArgb() and 0xFFFFFF)
@@ -212,6 +259,13 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
     var desktopShown by remember { mutableStateOf(site.desktop) }
     // The page is at home and Android keeps myCar off the home network (see LocalNetwork).
     var offHomeNetwork by remember { mutableStateOf(false) }
+    // The page didn't load for want of a network (a tunnel, no signal): it loads again by itself
+    // when a network comes back, or at a tap.
+    var unreachable by remember { mutableStateOf(false) }
+    // A new web view after the web engine's page process died (see CinemaClient), at the page it
+    // was showing.
+    var generation by remember { mutableIntStateOf(0) }
+    var lastUrl by remember { mutableStateOf(startAt) }
 
     // Another app's sound has to reach the car: the capture starts now, if it waited for Xonos.
     LaunchedEffect(Unit) { CarAudio.captureNow() }
@@ -256,6 +310,7 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
             CinemaBar(site.name, onBack = { web?.takeIf { it.canGoBack() }?.goBack() ?: onClose() }, onClose = onClose)
         }
         Box(Modifier.weight(1f).fillMaxWidth()) {
+            key(generation) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
@@ -267,7 +322,27 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                         settings.loadWithOverviewMode = true
                         settings.useWideViewPort = true
                         settings.userAgentString = userAgentFor(this, site.desktop)
-                        webViewClient = CinemaClient(ring, onLoading = { offHomeNetwork = false }, onOffHomeNetwork = { offHomeNetwork = true })
+                        webViewClient = CinemaClient(
+                            ring,
+                            onLoading = { url ->
+                                offHomeNetwork = false
+                                unreachable = false
+                                lastUrl = url
+                                if (url != null && url.startsWith("http")) CinemaContinue.site(context, site, url)
+                            },
+                            onVisited = { url ->
+                                lastUrl = url
+                                CinemaContinue.site(context, site, url)
+                            },
+                            onOffHomeNetwork = { offHomeNetwork = true },
+                            onUnreachable = { unreachable = true },
+                            onGone = {
+                                web = null
+                                fullScreen = null
+                                fieldText = null
+                                generation++
+                            },
+                        )
                         webChromeClient = CinemaChrome(
                             onShow = { view, callback -> fullScreen = view to callback },
                             onHide = { fullScreen = null },
@@ -277,12 +352,17 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                             FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
                             "MyCarField",
                         )
-                        loadUrl(site.url)
+                        WebSelect.install(this)
+                        loadUrl(lastUrl ?: site.url)
                         web = this
                     }
                 },
-                onRelease = { it.destroy() },
+                onRelease = {
+                    WebSelect.cancel(it)
+                    runCatching { it.destroy() }
+                },
             )
+            }
             fullScreen?.let { (view, _) ->
                 AndroidView(
                     modifier = Modifier.fillMaxSize().background(Color.Black),
@@ -300,6 +380,15 @@ private fun CinemaSiteView(site: CinemaSite, onClose: () -> Unit) {
                     offHomeNetwork = false
                     web?.reload()
                 })
+            } else if (unreachable) {
+                PageCover("The page didn't load", "Check the phone's connection: it loads again by itself when it's back.\nTap to try again.") {
+                    unreachable = false
+                    web?.reload()
+                }
+                ReloadWhenOnline {
+                    unreachable = false
+                    web?.reload()
+                }
             }
             if (!allowed) ParkedCover()
         }
@@ -381,7 +470,12 @@ internal fun ParkedCover() {
 
 /** Over a page at home that Android keeps myCar from: what to allow on the phone; a tap tries again. */
 @Composable
-private fun HomeNetworkCover(onRetry: () -> Unit) {
+private fun HomeNetworkCover(onRetry: () -> Unit) =
+    PageCover("This site is on your home network", LocalNetwork.HINT + "\nTap to try again.", onRetry)
+
+/** Over a page that couldn't load: why, and a tap anywhere tries again. */
+@Composable
+private fun PageCover(title: String, text: String, onRetry: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -390,9 +484,9 @@ private fun HomeNetworkCover(onRetry: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(MyCarSpace.M, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("This site is on your home network", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(
-            LocalNetwork.HINT + "\nTap to try again.",
+            text,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -412,10 +506,36 @@ private val CHROME_VERSION = Regex("Chrome/([\\d.]+)")
 
 private class CinemaClient(
     private val ring: String,
-    private val onLoading: () -> Unit,
+    private val onLoading: (String?) -> Unit,
+    /** A page the site moved to without loading one (YouTube, Twitch, RaiPlay): for "Continue". */
+    private val onVisited: (String) -> Unit,
     private val onOffHomeNetwork: () -> Unit,
+    private val onUnreachable: () -> Unit,
+    private val onGone: () -> Unit,
 ) : WebViewClient() {
-    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading()
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) = onLoading(url)
+
+    // Video sites change page by script (history.pushState), with no page start to tell: a video
+    // opened that way was lost to "Continue", which went back to the site's first page.
+    override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
+        if (!isReload && url != null && url.startsWith("http")) onVisited(url)
+    }
+
+    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
+        view?.handledAppLink(request) == true
+
+    // The web engine's page process is one for the whole app: when it dies (video sites weigh on
+    // it most), every web view on it must say it handled that, or Android ends myCar - and the
+    // drive. As the browser's (see LoggingClient): this one goes, a new one opens at the same page.
+    override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean {
+        MyCarLog.w("cinema: web page process gone (crash: ${detail?.didCrash()}) - opening the site again")
+        if (view != null) {
+            (view.parent as? ViewGroup)?.removeView(view)
+            runCatching { view.destroy() }
+        }
+        Handler(Looper.getMainLooper()).post(onGone)
+        return true
+    }
 
     override fun onPageFinished(view: WebView?, url: String?) {
         view?.evaluateJavascript(FOCUS_TRACKING_JS, null)
@@ -425,7 +545,11 @@ private class CinemaClient(
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         if (request?.isForMainFrame == true) {
             MyCarLog.w("cinema: ${request.url} didn't load - ${error?.errorCode} ${error?.description}")
-            if (view != null && LocalNetwork.blocks(view.context, listOf(request.url.toString()))) onOffHomeNetwork()
+            if (view != null && LocalNetwork.blocks(view.context, listOf(request.url.toString()))) {
+                onOffHomeNetwork()
+            } else if (error?.errorCode in NO_NETWORK) {
+                onUnreachable()
+            }
         }
     }
 }
@@ -461,3 +585,33 @@ private val IconSize = 112.dp
 private val InitialColors = listOf(
     Color(0xFFD7263D), Color(0xFF6C63FF), Color(0xFF0F9D58), Color(0xFFF4511E), Color(0xFF3D8BFF), Color(0xFF8E24AA),
 )
+
+/** The web engine's errors that mean the page couldn't be reached at all. */
+private val NO_NETWORK = setOf(
+    WebViewClient.ERROR_HOST_LOOKUP, WebViewClient.ERROR_CONNECT, WebViewClient.ERROR_TIMEOUT, WebViewClient.ERROR_IO,
+)
+
+/**
+ * Calls [reload] when a network comes back (out of a tunnel), or the phone moves to another one -
+ * not for the network up already, which didn't reach the page a moment ago.
+ */
+@Composable
+private fun ReloadWhenOnline(reload: () -> Unit) {
+    val context = LocalContext.current
+    val latest by rememberUpdatedState(reload)
+    DisposableEffect(Unit) {
+        val connectivity = context.getSystemService(ConnectivityManager::class.java)
+        val now = connectivity?.activeNetwork
+        val main = Handler(Looper.getMainLooper())
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                if (network != now) main.post { latest() }
+            }
+        }
+        runCatching { connectivity?.registerDefaultNetworkCallback(callback) }
+        onDispose {
+            main.removeCallbacksAndMessages(null)
+            runCatching { connectivity?.unregisterNetworkCallback(callback) }
+        }
+    }
+}

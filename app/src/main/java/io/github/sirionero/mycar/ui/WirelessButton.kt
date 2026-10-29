@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.wireless.WirelessLink
 
 /**
@@ -63,11 +67,20 @@ internal fun WirelessButton() {
     val context = LocalContext.current
     var devices by remember { mutableStateOf<List<BluetoothDevice>?>(null) }
     var denied by remember { mutableStateOf(false) }
+    // "Use myCar in the car" off: the car's network was joined and then dropped without a word,
+    // and the card kept spinning on "reaching" the car.
+    var switchedOff by remember { mutableStateOf(false) }
     fun granted() = WIRELESS_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
     val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (granted()) devices = WirelessLink.pairedDevices(context) else denied = true
+    }
+    // Allowed in Android's settings meanwhile: the note about the permission goes.
+    LifecycleResumeEffect(Unit) {
+        if (denied && granted()) denied = false
+        if (switchedOff && AppSettings.myCarEnabled(context)) switchedOff = false
+        onPauseOrDispose { }
     }
 
     if (denied) {
@@ -87,12 +100,30 @@ internal fun WirelessButton() {
             modifier = Modifier.padding(bottom = 4.dp),
         ) { Text("Enable Nearby devices permission") }
     }
+    if (switchedOff) {
+        Text(
+            "myCar is switched off for the car (Settings, \"Use myCar in the car\").",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        TextButton(
+            onClick = {
+                AppSettings.setMyCarEnabled(context, true)
+                switchedOff = false
+            },
+            modifier = Modifier.padding(bottom = 4.dp),
+        ) { Text("Turn it on") }
+    }
     Button(
         onClick = {
             denied = false
+            if (!AppSettings.myCarEnabled(context)) {
+                switchedOff = true
+                return@Button
+            }
             if (granted()) devices = WirelessLink.pairedDevices(context) else ask.launch(WIRELESS_PERMISSIONS)
         },
-        modifier = Modifier.fillMaxWidth().height(64.dp),
+        // At least 64 dp: larger text puts "wirelessly" on a second line, which a fixed height cut.
+        modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
     ) {
         Box(Modifier.size(28.dp)) { WifiIcon(MaterialTheme.colorScheme.onPrimary) }
         Spacer(Modifier.width(12.dp))
@@ -106,7 +137,15 @@ internal fun WirelessButton() {
             text = {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     if (list.isEmpty()) {
-                        Text("Your phone isn't paired with anything yet. Pair it with the car first.")
+                        // With Bluetooth off Android lists no paired device at all.
+                        val off = context.getSystemService(BluetoothManager::class.java)?.adapter?.isEnabled == false
+                        Text(
+                            if (off) {
+                                "Bluetooth is off. Turn it on, then tap Connect wirelessly again."
+                            } else {
+                                "Your phone isn't paired with anything yet. Pair it with the car first."
+                            },
+                        )
                     }
                     list.forEach { device ->
                         Text(

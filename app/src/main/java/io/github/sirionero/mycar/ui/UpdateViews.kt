@@ -3,6 +3,8 @@ package io.github.sirionero.mycar.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +45,7 @@ import io.github.sirionero.mycar.update.UpdateChecker.State
 private const val UNPLUG_FIRST = "Unplug from the car to install. Installing closes myCar."
 
 /** Shown on Home once a newer version is found; hidden otherwise. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UpdateCard() {
     val context = LocalContext.current
@@ -85,7 +88,7 @@ fun UpdateCard() {
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(Modifier.height(12.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { UpdateChecker.download(context, release) }) {
                             Text(if (s is State.Failed) "Try again" else "Update")
                         }

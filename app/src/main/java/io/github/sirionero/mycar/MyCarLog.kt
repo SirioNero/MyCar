@@ -194,11 +194,16 @@ object MyCarLog {
         return out.toString().trimEnd()
     }
 
+    @Volatile private var crashHandlerInstalled = false
+
     /**
      * Records an uncaught exception in the log file before the process dies, then lets the
      * system's own handler run. Without it the file ends mid-sentence and the reason is lost.
      */
     fun installCrashHandler() {
+        // Once a process: each new MyCarActivity wrapped it again, and a crash was written N times.
+        if (crashHandlerInstalled) return
+        crashHandlerInstalled = true
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             runCatching {

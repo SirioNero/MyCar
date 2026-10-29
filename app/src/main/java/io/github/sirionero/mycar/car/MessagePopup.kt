@@ -26,11 +26,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -99,6 +99,8 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
         return
     }
     val n = popup?.takeIf { showNew } ?: return
+    val context = LocalContext.current
+    val navigator = LocalCarNavigator.current
     PopupCard(n.until(), POPUP_MS, modifier) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             NotificationIcon(n, size = 44.dp)
@@ -106,7 +108,7 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
                 Text(n.heading(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(n.text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            GsIconButton(Icons.Filled.Close, "Dismiss", { CarNotifications.dismissPopup(n.id) }, size = 40.dp, iconSize = 20.dp)
+            GsIconButton(Icons.Filled.Close, "Dismiss", { CarNotifications.dismissPopup(n.id) }, size = 52.dp, iconSize = 24.dp)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             GsButton(onClick = { VoiceReply.read(n) }, tone = GsTone.Neutral, modifier = Modifier.weight(1f)) {
@@ -117,6 +119,23 @@ fun NotificationPopup(showNew: Boolean, modifier: Modifier = Modifier) {
                 GsButton(onClick = { VoiceReply.reply(n) }, modifier = Modifier.weight(1f)) {
                     ReplyGlyph(Modifier.size(20.dp))
                     Text("Reply", Modifier.padding(start = 8.dp))
+                }
+            } else if (n.missedCall && n.fromPhone) {
+                // Calling back is what a missed call is for: from the call log, or the Phone's
+                // Recents when the log can't say which number it was.
+                GsButton(
+                    onClick = {
+                        CarNotifications.seen(n.key)
+                        CarNotifications.dismissPopup(n.id)
+                        callBackMissed(context, n.postedAt) {
+                            openPhoneOnRecents()
+                            BuiltInApps.Phone.open(navigator)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(ImageVector.vectorResource(R.drawable.sym_call), contentDescription = null, Modifier.size(20.dp))
+                    Text("Call back", Modifier.padding(start = 8.dp))
                 }
             }
         }
@@ -149,15 +168,22 @@ private fun PopupCard(until: Long, span: Long, modifier: Modifier, held: Float =
     }
 }
 
-/** The share of [span] still to go before [until], updated every frame so the bar moves smoothly. */
+/**
+ * The share of [span] still to go before [until], updated as often as the car's picture changes
+ * (30 a second) so the bar moves smoothly: every frame of the phone's own screen, up to 120 a
+ * second, recomposed and measured the bar for frames the car never got.
+ */
 @Composable
 private fun rememberTimeLeft(until: Long, span: Long) = produceState(fractionLeft(until, span), until, span) {
     // The state outlives a change of deadline, so start from the new one rather than the old value.
     value = fractionLeft(until, span)
     while (value > 0f) {
-        withFrameMillis { value = fractionLeft(until, span) }
+        delay(CAR_FRAME_MS)
+        value = fractionLeft(until, span)
     }
 }
+
+private const val CAR_FRAME_MS = 33L
 
 private fun fractionLeft(until: Long, span: Long): Float =
     ((until - SystemClock.uptimeMillis()).toFloat() / span).coerceIn(0f, 1f)

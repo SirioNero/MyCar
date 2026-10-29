@@ -253,6 +253,20 @@ object UpdateChecker {
         },
     )
 
+    /**
+     * What stopped a download, in the driver's words: myCar's own sentences ([error]) as they are,
+     * Java's ("Unable to resolve host…", "timeout", "ENOSPC…") as what they mean.
+     */
+    private fun downloadProblem(e: Throwable): String {
+        val message = e.message.orEmpty()
+        return when {
+            e is IllegalStateException && message.isNotEmpty() -> message
+            "ENOSPC" in message || message.contains("no space", ignoreCase = true) ->
+                "Not enough space on the phone for the update. Free some, then try again."
+            else -> "The download stopped. Check the connection, then try again."
+        }
+    }
+
     /** Downloads [release], then opens the installer once the file checks out. */
     fun download(context: Context, release: Release) {
         if (flow.value is State.Downloading) return
@@ -268,7 +282,7 @@ object UpdateChecker {
             }.getOrElse {
                 apk.delete()
                 MyCarLog.w("update: download failed: ${it.message}")
-                State.Failed(it.message ?: "The download failed. Try again.", release)
+                State.Failed(downloadProblem(it), release)
             }
             if (flow.value is State.Ready) install(app)
         }, "mycar-update").start()
@@ -292,12 +306,18 @@ object UpdateChecker {
             )
             return
         }
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.logshare", ready.apk)
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW)
-                .setDataAndType(uri, "application/vnd.android.package-archive")
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK),
-        )
+        // On the download's own thread: a throw here (no installer to hand it to) ended myCar.
+        runCatching {
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.logshare", ready.apk)
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(uri, "application/vnd.android.package-archive")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        }.onFailure {
+            MyCarLog.w("update: couldn't open Android's installer: ${it.message}")
+            flow.value = State.Failed("Couldn't open Android's installer. Try again.", ready.release)
+        }
     }
 
     /** The newest release with an APK that [channel] takes. Drafts never count. */
@@ -350,7 +370,7 @@ object UpdateChecker {
             setRequestProperty("User-Agent", "myCar/${BuildConfig.VERSION_NAME}")
         }
         try {
-            if (conn.responseCode !in 200..299) error("GitHub answered ${conn.responseCode}")
+            if (conn.responseCode !in 200..299) error("GitHub didn't send the update (code ${conn.responseCode}). Try again later.")
             val total = release.size.takeIf { it > 0 } ?: conn.contentLengthLong
             val digest = MessageDigest.getInstance("SHA-256")
             var done = 0L

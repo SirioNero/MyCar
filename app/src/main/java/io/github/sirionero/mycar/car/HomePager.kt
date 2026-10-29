@@ -122,8 +122,11 @@ internal fun HomePager(onHome: Boolean, mapPage: @Composable (inView: Boolean) -
         // Last: clearing it restarts this effect, which would cut the scroll short.
         follow = null
     }
-    // The dock's map, the car's map key, "navigate to": back to the map's page.
+    // The dock's map, the car's map key, "navigate to": back to the map's page, and to a clean
+    // Home: the changing of a page, and its lists, stayed over the map.
     LaunchedEffect(navigator.mapPageRequests) {
+        editing = null
+        choosing = null
         val map = latest.indexOfFirst { it.layout == PageLayout.MAP }
         if (map >= 0 && pager.currentPage != map) pager.animateScrollToPage(map)
     }
@@ -667,11 +670,17 @@ private fun EditBar(
         modifier
             .clip(RoundedCornerShape(MyCarRadius.Sheet))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .horizontalScroll(rememberScrollState())
             .padding(MyCarSpace.S),
         horizontalArrangement = Arrangement.spacedBy(MyCarSpace.S),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+      // Done stays in sight: at Extra large on a small screen it was past the edge, and the bar's
+      // scrolling isn't something to guess. The rest scrolls beside it when it doesn't fit.
+      Row(
+        Modifier.weight(1f, fill = false).horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(MyCarSpace.S),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
         LayoutButton(page.layout, onLayout)
         Spacer(Modifier.width(MyCarSpace.S))
         BarButton(R.drawable.sym_chevron_left, "Move left", enabled = canMoveLeft) { onMove(-1) }
@@ -685,6 +694,7 @@ private fun EditBar(
         } else {
             BarButton(R.drawable.sym_delete, "Delete this page") { deleting = true }
         }
+      }
         Spacer(Modifier.width(MyCarSpace.S))
         GsButton(onClick = onDone, modifier = Modifier.height(MyCarSize.TouchTarget)) {
             Icon(painterResource(R.drawable.sym_check), null, Modifier.size(24.dp))
@@ -869,8 +879,29 @@ internal fun HomePagesSettings() {
             ) {
                 Text("Add a page", style = MaterialTheme.typography.titleMedium)
             }
-            GsButton(onClick = HomePages::reset, tone = GsTone.Tonal, modifier = Modifier.height(MyCarSize.TouchTarget)) {
-                Text("Ready-made pages", style = MaterialTheme.typography.titleMedium)
+            // All the driver's pages go: a second tap, as for "Delete page".
+            val saved by HomePages.saved.collectAsState()
+            var replacing by remember { mutableStateOf(false) }
+            LaunchedEffect(replacing) {
+                if (replacing) {
+                    delay(DELETE_ARMED_MS)
+                    replacing = false
+                }
+            }
+            GsButton(
+                onClick = {
+                    if (replacing) {
+                        HomePages.reset()
+                        replacing = false
+                    } else {
+                        replacing = true
+                    }
+                },
+                tone = if (replacing) GsTone.Danger else GsTone.Tonal,
+                enabled = saved != null,
+                modifier = Modifier.height(MyCarSize.TouchTarget),
+            ) {
+                Text(if (replacing) "Replace my pages" else "Ready-made pages", style = MaterialTheme.typography.titleMedium)
             }
         }
     }

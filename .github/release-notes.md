@@ -1,17 +1,79 @@
-myCar 0.5.19-alpha: Cinema, new layouts for the pages beside the map, and a sweep through the code.
+myCar 0.5.20-alpha: Recents and call back on the car's Phone, your messages by voice, music that starts when you say Play, and a sweep through the whole app - easier to use in the car and on the phone, smoother, and a steadier Cinema.
+
+## New in the car
+- Phone: a Recents tab, as on a phone - your latest calls, missed ones in red, a tap to call back (it asks first, with the number). The Phone opens on the tab you used last. A missed call's popup has Call back too, and Read says "Missed call from…".
+- Voice: "read my messages" reads what's new in your latest chat, "reply to Anna" or "text Anna" goes straight to your reply - and myCar says whose chat it is ("What's your reply to Anna?"). "Call back" returns the last call, "redial" makes the last one again. "Call Mom on mobile" calls that number; with several numbers myCar picks the phone's default or the mobile, and says which. "When do I arrive?" gives the arrival time and the time left. All in "You can say".
+- Play - said, or the ▶ on the steering wheel - with no music app open starts the one you used last (the ▶ leaves alone a video that's already playing). Before, nothing happened (and the assistant said "Playing."). "Play the next song", "play it again" and "play something else" skip or repeat instead of searching for a song with that name; "call Skip" calls Skip.
+- Quick replies to messages go out in your phone's language - Italian, Spanish, French, German or Portuguese - with the arrival time written the way your phone writes it. They went out in English.
+- While a call rings, the next turn shows in the dock: the call's card covers the map. The caller's number is written as on the phone.
+
+## In the car
+- After a tap on Reply, myCar reads the message and asks straight away for your reply: no more "Do you want to reply?" to answer first.
+- Missed calls pop up, with Call back, on phones whose dialer doesn't mark them as missed calls (LineageOS and other ROMs). Call back calls that very call: after a private number it opens Recents instead. Read says who called, whatever the phone's language.
+- The dot on the dock's clock goes off once a message is read aloud, answered or seen in its app, not only when the dashboard opens.
+- The assistant's errors ("Didn't catch that") go by themselves after a few seconds instead of covering the map; on a phone without a speech engine its answers stay up long enough to read. A "play X" the music app ignored is said outside the player too.
+- No more dead ends: an app beside the map that wouldn't start gets Try again and Close, a music list that didn't load gets Try again, a music app that won't be browsed gets Open on the phone, and a search that found nothing gets "Ask the app to play it".
+- Lyrics with no signal say they couldn't be reached, with Try again, instead of "No lyrics found".
+- Full player: tabs stay readable on small screens ("Now playing" on two lines rather than "Now playi…"), and app names are written as the apps write them ("YouTube Music", not "Youtube music"). The sign on the song in the dock shows that it's playing, instead of looking like a pause button.
+- Beside the map, the player's X closes it even after the music app was closed from its menu (it started the music again).
+- The card to pair the car over Bluetooth shows on the first drive after installing or updating myCar too (it only came from the second drive).
+- Steadier: a music app whose library has an empty name, the contacts failing to load, or anything going wrong in a voice command no longer closes myCar - and the drive with it.
+- Dropdowns on web pages open on the car's screen: in the browser, on Cinema's sites and in Plancia, a tap on a dropdown shows its choices as a list to tap (groups, greyed-out choices, several at once with Done). Before, they didn't open at all.
+- The car's Back key (on the wheel or the knob) goes back a screen inside an app that shows its own back arrow, instead of closing the app or doing nothing beside the map. It also closes what's open over a screen first: a call question, the assistant, a search.
+- Stop navigating takes two taps: the first turns the X into a red End route for a few seconds. One stray touch by the dock ended the route.
+- Beside the map, a tap between the player's buttons (or on its title) no longer opens the full player over the map.
+- Bigger buttons where they're most used: Back at the top of every screen, the full player's Back, Search and tabs, the close buttons of the player and of message popups.
+- The "Bluetooth isn't connected" and "Location is off" warnings, which cover the map until you tap OK, wait until the car stops.
+- Phone: "Loading contacts…" while the phone reads them (it said "No contacts"), and your favourite contacts come first, with a star.
+- Messages and notifications: Open on phone goes straight to myCar's switch in Android's notification access.
+- Smoother scrolling and flings: each touch from the car keeps the time it arrived at. Lighter: app pictures checked off the screen's thread, the message timer bar at the car's 30 frames a second, list thumbnails at the size they're shown.
+- Car screens above 1080p get an H.264 level that fits them (an encoder could refuse the old one).
+- An app opened when the car connects (Settings > Open on connect) now sits on Home: Back leads there (it did nothing).
+- The map's key - in the dock, on the car, or "navigate to" - also closes the changing of a page, which stayed over the map.
+- Extra large on a small screen: the page bar keeps Done in sight, the car's settings keep whole words (the choices scroll instead of breaking "Browser" in two), an app's long-press menu scrolls instead of squeezing out Close app, and the week's forecast stays on one line.
+- Ready-made pages asks for a second tap (Replace my pages) before it replaces your pages, like Delete page.
+- Browser: the car's keyboard closes once a search is sent or a link opens a new page (it stayed over the results).
+- An app's long-press menu closes when a call rings: the first tap on Answer only closed the menu.
+- Icons pinned to the dock with the Plancia or Xonos app stay once those are set up inside myCar (and the other way, while the apps stand in): they vanished and still took a place, so the dock said it was full with two icons in sight.
+- The dashboard's Clear all takes a second tap, on a button sized for the car: it also empties what the Messages screens and "read my messages" can read.
+- Less work while you drive: the dock no longer redraws at every update of the route with the map in view, nor the app grid at every change of the song.
+- Without the calendar allowed, the dashboard says so, instead of "Nothing in the next week". Settings > Beside the map lights Plancia or Xonos inside myCar when the choice was made with their apps, and Screen fit counts with the car's real height.
 
 ## Cinema
+- Continue, first among the tiles, opens again what you were watching - a site at the page it was on, a video where you left it, a channel - after a look at the map or another app.
+- If the web engine's page process stops (video sites weigh on it most), the site opens again where it was. Before, Android closed myCar, and the drive with it.
+- A film that stops for a network drop picks up where it stopped with Try again; it no longer starts over. A TV channel tries again by itself after 3, 10 and 30 seconds, and anything that stopped tries again when the network comes back. After a long call, a channel comes back at the live point.
+- TV lists: a magnifier finds a channel by name across all groups. Logos that didn't load get another chance when the list opens.
+- A page that didn't load for want of signal says so and reloads by itself when the network is back.
+- Links that open an app (YouTube's and Twitch's "open in the app", phone numbers, store links): a web page to fall back on opens instead, a phone number asks to call it, and the others say they open an app on the phone - no more error page.
+- The car's keyboard reaches fields already selected when the page loaded and fields inside web components, and the field moves into view above the keyboard.
+
+## On the phone
+- The welcome's band is now a pirate flag flying in the wind: 100% LOCAL - we defend our data.
+- With three-button navigation, the setup's and the welcome's buttons (Finish later, Done, Next, Start) sit above Android's bar instead of under it. With large text, Connect wirelessly and the setup's big button grow instead of cutting their second line.
+- Settings: the keyboard no longer covers the field you type in (Plancia's token, Xonos's password, a Cinema site or TV list).
+- Plancia: Save and test with the address or token left empty no longer replaces the account that works - it says what's missing.
+- Removing a TV list, one of your own Cinema sites or a voice model asks first. Videos on this phone > Allow opens Android's settings when Android no longer asks.
+- The certificate notice on Home goes away once it's done. Disconnect asks first during a drive: one stray tap on the phone ended it.
+- Connect wirelessly with myCar switched off for the car says so, with Turn it on (it joined the car's Wi-Fi and spun for ever).
+- Initial setup names the permissions as Android does (Phone, Call logs), and How to connect no longer says "Everything's set up" while calls, map and music are off. Back on the replayed welcome returns to Settings.
+- Cinema: an address at home typed without http (192.168.1.10:8096, jellyfin.local:8096) opens as http, as such servers expect.
+- Removing the certificates, Plancia's account or Xonos's account asks first, and says what happens (the certificates need the internet to come back).
+- Cinema: resetting the list of sites asks first and says which of yours go; the button shows only when there's something to reset.
+- Calendar, Notifications and the call filter: when Android no longer asks, the button opens the right page of Android's settings instead of doing nothing.
+- Connect wirelessly says when Bluetooth is off, instead of "not paired with anything".
+- The connection card speaks of the car, not of the "head unit" ("Connected", "The car didn't answer").
+- The phone's screen stays on only while a car connects or shows myCar: left open after a drive, it stayed lit in the pocket.
+- Clearer messages when an update can't download; the Plancia and Xonos rows update after installing or updating those apps; "Your car turned down your certificate" opens Settings at the certificate; a few wrong texts fixed.
+
+## Also in 0.5.19-alpha
 - A new app in the grid: your video sites as tiles, each with the icon it gives itself - YouTube, RaiPlay and Twitch to start with, and any you add on the phone (Settings > Cinema, where More sites adds Dailymotion, Vimeo, La7, TED, Arte, NASA+ and the Internet Archive with a tap). Each opens in a browser made for video: full screen when the player asks for it, the car's keyboard for searching.
 - On this phone: the videos on your phone, newest first, with their pictures and lengths. They start again where you left them. Allow it once, on the phone or from the car.
 - TV: add an IPTV list (M3U) in Settings > Cinema: TV - from your provider, a public list or a TV server at home - and its channels show with their logos and groups. The list is kept on the phone, so the channels are there even when its server doesn't answer.
 - Phone videos and TV play on Android's own player, with nothing extra to install: tap for the controls (back 10 seconds, play or pause, forward 10 seconds).
 - Video shows only when the car is parked: while it moves the picture is covered and the sound carries on. That's a setting, on by default, which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN) most likely stays black in the car.
-
-## Pages beside the map
 - Beside two halves and four parts, a page can now be a whole page, a half beside two quarters (on either side), or a wide strip above or below two quarters. On the page, the pencil, then Layout: each layout is shown as a picture.
 - What the page shows stays, in order, as far as the new layout has room.
-
-## Fixes from a sweep through the code
 - Vela Maps: the turn arrow changes with the turn again, on the routing card, in the "then" row and in the dock (it kept the first arrow, "continue").
 - A dropdown on a web page - in the browser, in Plancia, on a Cinema site - no longer closes myCar (and the drive with it). It doesn't open on the car's screen.
 - Cars that never confirm the audio they get (some 2024 Volkswagens among them) no longer lose about two seconds of sound at the start of the music, after every call, when the radio gives the speakers back, and in the middle of every spoken direction.

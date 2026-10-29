@@ -56,7 +56,7 @@ class ConnectionLifecycleTest {
                 SessionReport.category,
             )
             assertEquals(SessionStatus.Phase.FAILED, SessionStatus.state.value.phase)
-            assertEquals("Head unit rejected the certificate", SessionStatus.state.value.headline)
+            assertEquals(SessionStatus.CERT_TURNED_DOWN, SessionStatus.state.value.headline)
             assertTrue(SessionReport.stage < SessionReport.Stage.ACCEPTED)
         }
     }
@@ -65,7 +65,7 @@ class ConnectionLifecycleTest {
         val fatalAlert = message(3, byteArrayOf(21, 3, 3, 0, 2, 2, 42))
         runner(ByteArrayInputStream(version + hello() + fatalAlert + version + message(6))).run()
         assertEquals(SessionReport.Category.TLS, SessionReport.category)
-        assertEquals("Head unit rejected the certificate", SessionStatus.state.value.headline)
+        assertEquals(SessionStatus.CERT_TURNED_DOWN, SessionStatus.state.value.headline)
         assertTrue(SessionReport.stage < SessionReport.Stage.ACCEPTED)
     }
 
@@ -99,7 +99,7 @@ class ConnectionLifecycleTest {
         assertFalse(reply!!.encrypted)
         assertEquals(SessionReport.Category.BYEBYE, SessionReport.category)
         // The car hung up while checking the certificate: the driver reads it as before.
-        assertEquals("Connection dropped during setup", SessionStatus.state.value.headline)
+        assertEquals("The car hung up during setup", SessionStatus.state.value.headline)
     }
 
     @Test fun `a ByeBye during a drive is answered and ends the session`() {

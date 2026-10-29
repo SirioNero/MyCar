@@ -60,8 +60,8 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
     var screen by rememberSaveable { mutableStateOf(if (Intro.due(context)) Screen.INTRO else afterIntro) }
     // A replay from About goes back to Settings; the launch one carries on into setup.
     var introReturn by rememberSaveable { mutableStateOf(afterIntro) }
-    // Home's "it worked" card opens Settings at usage notes rather than at the top.
-    var settingsAtUsageNotes by rememberSaveable { mutableStateOf(false) }
+    // Home's cards open Settings at their section rather than at the top.
+    var settingsAt by rememberSaveable { mutableStateOf(SettingsAt.TOP) }
     // What's new and Connection help open from Home and from Settings; back returns to whichever.
     var backTo by rememberSaveable { mutableStateOf(Screen.SETTINGS) }
     // The setup list: from the first run, or back to it later; it returns where it came from.
@@ -74,10 +74,15 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             else -> Screen.HOME
         }
     }
+    // The intro replayed from Settings goes back there from its first page (the intro's own handler
+    // takes the later pages); otherwise Back left myCar.
+    BackHandler(enabled = screen == Screen.INTRO && introReturn == Screen.SETTINGS) { screen = Screen.SETTINGS }
 
-    // Home stays upright; every other screen turns with the phone.
+    // Home and the intro stay upright (the intro is drawn to the width of a phone held upright,
+    // and it often shows on the first start after an update, opened by the car with the phone
+    // in its holder); every other screen turns with the phone.
     LaunchedEffect(screen) {
-        (context as? Activity)?.requestedOrientation = if (screen == Screen.HOME) {
+        (context as? Activity)?.requestedOrientation = if (screen == Screen.HOME || screen == Screen.INTRO) {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         } else {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -120,10 +125,11 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
             when (screen) {
                 Screen.INTRO -> IntroScreen(onDone = { screen = introReturn })
                 Screen.HOME -> HomeScreen(
-                    onOpenSettings = { settingsAtUsageNotes = false; screen = Screen.SETTINGS },
+                    onOpenSettings = { settingsAt = SettingsAt.TOP; screen = Screen.SETTINGS },
                     onOpenWhatsNew = { backTo = Screen.HOME; screen = Screen.WHATS_NEW },
                     onOpenHelp = { backTo = Screen.HOME; screen = Screen.HELP },
-                    onOpenUsageNotes = { settingsAtUsageNotes = true; screen = Screen.SETTINGS },
+                    onOpenUsageNotes = { settingsAt = SettingsAt.USAGE_NOTES; screen = Screen.SETTINGS },
+                    onOpenCertificate = { settingsAt = SettingsAt.CERTIFICATE; screen = Screen.SETTINGS },
                     onOpenSetup = {
                         setupEntry = SetupEntry.RETURN
                         setupReturn = Screen.HOME
@@ -135,19 +141,19 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                 Screen.LOGS -> LogsScreen(onBack = { screen = Screen.SETTINGS })
                 Screen.SETTINGS -> SettingsScreen(
                     onBack = { screen = Screen.HOME },
-                    onOpenRecommendedApps = { settingsAtUsageNotes = false; screen = Screen.RECOMMENDED_APPS },
-                    onOpenWhatsNew = { settingsAtUsageNotes = false; backTo = Screen.SETTINGS; screen = Screen.WHATS_NEW },
-                    onOpenHelp = { settingsAtUsageNotes = false; backTo = Screen.SETTINGS; screen = Screen.HELP },
-                    onOpenCarPreview = { settingsAtUsageNotes = false; screen = Screen.CAR_PREVIEW },
-                    onOpenLogs = { settingsAtUsageNotes = false; screen = Screen.LOGS },
+                    onOpenRecommendedApps = { settingsAt = SettingsAt.TOP; screen = Screen.RECOMMENDED_APPS },
+                    onOpenWhatsNew = { settingsAt = SettingsAt.TOP; backTo = Screen.SETTINGS; screen = Screen.WHATS_NEW },
+                    onOpenHelp = { settingsAt = SettingsAt.TOP; backTo = Screen.SETTINGS; screen = Screen.HELP },
+                    onOpenCarPreview = { settingsAt = SettingsAt.TOP; screen = Screen.CAR_PREVIEW },
+                    onOpenLogs = { settingsAt = SettingsAt.TOP; screen = Screen.LOGS },
                     onReplayTutorial = {
-                        settingsAtUsageNotes = false
+                        settingsAt = SettingsAt.TOP
                         setupEntry = SetupEntry.RETURN
                         setupReturn = Screen.SETTINGS
                         screen = Screen.SETUP
                     },
                     onReplayIntro = { Intro.replay(context); introReturn = Screen.SETTINGS; screen = Screen.INTRO },
-                    atUsageNotes = settingsAtUsageNotes,
+                    at = settingsAt,
                 )
                 Screen.RECOMMENDED_APPS -> RecommendedAppsScreen(onBack = { screen = Screen.SETTINGS })
                 Screen.CAR_PREVIEW -> CarPreviewScreen(onBack = { screen = Screen.SETTINGS })

@@ -25,7 +25,8 @@ object CarSensors {
     /** Seeds one row per sensor type the head unit advertised, so the screen shows what's on
      * offer even before the first event for it arrives. */
     fun onDiscovered(types: List<Int>) {
-        readingsFlow.value = types.map { id ->
+        // Once each: a type listed twice made the screen's list throw on its repeated key.
+        readingsFlow.value = types.distinct().map { id ->
             Reading(id, SensorType.name(id), "(waiting for data)", 0L)
         }
     }
@@ -38,6 +39,9 @@ object CarSensors {
      * other services in this file.
      */
     fun onEvent(body: ByteArray) {
+        // Only for the "Vehicle data" screen, off unless both settings are on: every event was
+        // written out on the car's reading thread, drive after drive, for a screen nobody opened.
+        if (!CarSettings.experimentalFeaturesEnabled.value || !CarSettings.carSensorsEnabled.value) return
         val now = System.currentTimeMillis()
         val fields = Wire.fields(body)
         val byType = fields.groupBy { it.number }

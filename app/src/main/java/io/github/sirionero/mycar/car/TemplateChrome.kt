@@ -59,6 +59,12 @@ import io.github.sirionero.mycar.host.remainingTime
 import io.github.sirionero.mycar.host.text
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.layout.PaddingValues
 
 /**
  * Draws the template an app handed us, over the surface it is drawing its map into.
@@ -288,15 +294,36 @@ private fun TravelEstimateBar(estimate: TravelEstimate, modifier: Modifier = Mod
             // pops the on-screen card, leaving the app still believing it is navigating (so a
             // freshly picked destination silently does nothing); this is the call that actually
             // clears that flag on the app's side.
-            GsIconButton(
-                Icons.Filled.Close,
-                "Stop navigating",
-                { connection.stopNavigating() },
-                colors = GsColors(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.colorScheme.onSurface),
-                size = 40.dp,
-                iconSize = 20.dp,
-                shape = CircleShape,
-            )
+            // In two taps, like deleting a page: the X sits by the dock, and one stray touch
+            // ended the route. The first arms "End route" for a few seconds; the second ends it.
+            var ending by remember { mutableStateOf(false) }
+            LaunchedEffect(ending) {
+                if (ending) {
+                    delay(END_ROUTE_ARMED_MS)
+                    ending = false
+                }
+            }
+            if (ending) {
+                GsButton(
+                    onClick = {
+                        ending = false
+                        connection.stopNavigating()
+                    },
+                    modifier = Modifier.height(48.dp),
+                    tone = GsTone.Danger,
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                ) { Text("End route", style = MaterialTheme.typography.titleMedium) }
+            } else {
+                GsIconButton(
+                    Icons.Filled.Close,
+                    "Stop navigating",
+                    { ending = true },
+                    colors = GsColors(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.colorScheme.onSurface),
+                    size = 48.dp,
+                    iconSize = 22.dp,
+                    shape = CircleShape,
+                )
+            }
             Spacer(Modifier.width(10.dp))
             Column {
                 if (time.isNotEmpty()) {
@@ -471,3 +498,6 @@ private const val ESTIMATE_FRACTION = 0.14f
 private fun Template?.needsFullHeight() =
     this is androidx.car.app.model.SearchTemplate || this is androidx.car.app.model.signin.SignInTemplate ||
         this is androidx.car.app.model.TabTemplate || this is androidx.car.app.model.LongMessageTemplate
+
+/** How long "End route" waits for its second tap. */
+private const val END_ROUTE_ARMED_MS = 4_000L

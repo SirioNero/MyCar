@@ -1,8 +1,6 @@
 package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.car.theme.*
-import android.content.Intent
-import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -84,18 +82,29 @@ fun NotificationsSection() {
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f),
             )
-            if (history.isNotEmpty()) TextButton(onClick = CarNotifications::clear) { Text("Clear all") }
+            // Everything goes, what the Messages screens and "read my messages" read included: a second
+            // tap, as for Delete page, on a button sized for the car (a phone's text button was).
+            var clearing by remember { mutableStateOf(false) }
+            LaunchedEffect(clearing) {
+                if (clearing) {
+                    delay(CLEAR_ARMED_MS)
+                    clearing = false
+                }
+            }
+            if (history.isNotEmpty()) {
+                GsButton(
+                    onClick = {
+                        if (clearing) CarNotifications.clear()
+                        clearing = !clearing
+                    },
+                    tone = if (clearing) GsTone.Danger else GsTone.Tonal,
+                    modifier = Modifier.height(56.dp),
+                ) { Text(if (clearing) "Clear them all" else "Clear all", style = MaterialTheme.typography.titleMedium) }
+            }
         }
 
         if (!listening) {
-            AccessBanner {
-                // From the phone's own context: one tied to the car's display can't host the settings.
-                runCatching {
-                    context.applicationContext.startActivity(
-                        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                    )
-                }
-            }
+            AccessBanner { io.github.sirionero.mycar.notify.NotificationAccess.open(context) }
         }
 
         if (history.isEmpty()) {
@@ -233,3 +242,5 @@ private fun ReplyPane(n: CarNotification, onDone: () -> Unit) {
         )
     }
 }
+
+private const val CLEAR_ARMED_MS = 4_000L

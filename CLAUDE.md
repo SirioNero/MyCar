@@ -73,7 +73,8 @@ Rispondi sempre in **italiano**.
   sessione vera: le app (mappa di Vela, Plancia) disegnano alla densità dell'auto.
   Pagine della Home: `pages/` (dal tasto mappa del dock, che risveglia i puntini, alla pagina di
   sinistra e poi a quella di destra), `pages-800x480/`, `pages-edit/` (matita e elenco delle
-  scelte), `pages-layouts/` (matita, "Layout", elenco dei formati, "Half left"), `layout-<formato>/`
+  scelte; parte con un'attesa: il primo tocco subito dopo l'avvio diventava una pressione lunga),
+  `pages-layouts/` (matita, "Layout", elenco dei formati, "Half left"), `layout-<formato>/`
   e `layout-800x480/` (la pagina a sinistra della mappa in quel formato, `--es pageLayout <id>`); l'anteprima riparte ogni volta dalle pagine pronte (`HomePages.reset()`).
   Assistente: `assistant/` (Impostazioni al posto di un assistente-activity, `phone-screen.png`),
   `assistant-google/` (l'app Google dell'emulatore: schermo del telefono dopo il microfono e dopo lo
@@ -85,7 +86,9 @@ Rispondi sempre in **italiano**.
   riceve `invocation_type=1`, `triggered_by=83` e la sorgente "assist gesture", come dal launcher;
   l'app Google si apre in ascolto. Lo scorrimento simulato con `input` invece l'emulatore non lo
   prende per il gesto dell'assistente (né veloce né passo-passo): `assistant-gesture/` resta vuoto.
-  `media/` è il player a tutto schermo col brano finto (anche il browse con la copertina);
+  `media/` è il player a tutto schermo col brano finto (anche il browse con la copertina), `media-800x480/`
+  lo stesso a 800×480 (linguette strette); `phone-recents/` è il Telefono sui Recenti con chiamate
+  scritte nel registro dell'emulatore (come root, poi `adb unroot`: gli scatti dopo restano come prima);
   `assistant-locked/` blocca l'emulatore con un PIN, tocca il microfono, fotografa la richiesta di
   sblocco, digita il PIN e controlla nel log che l'assistente di prova si apra dopo lo sblocco.
   Lanciato a mano, il workflow accetta `shots` (nomi degli scatti separati da spazi, vuoto = tutti)
@@ -168,7 +171,7 @@ Modulo unico `:app` (cartella `app/`), package `io.github.sirionero.mycar`. UI *
 | Package | Ruolo |
 |---|---|
 | radice | Protocollo AA: `MyCarRunner` (sessione, canali, video/audio), `SessionService` (servizio in primo piano del viaggio), `Tailnet` (Tailscale/VPN per i messaggi di Plancia e Xonos), `Framing`, `Protobuf`, `PhoneTls`, `ServiceDiscovery`, `CertProvider` / `CertDownloader`, `VideoSource` (encoder), `ScreenProjector` (VirtualDisplay + `Presentation` con Compose → encoder → auto), `MyCarActivity` (possiede la sessione USB/wireless), `PermissionActivity` (la domanda di Android sul telefono per un tocco sull'auto), `MyCarLog` |
-| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen`, `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
+| `car/` | **UI mostrata sull'auto**: `CarUi` (root: tema, navigazione, overlay, transizioni), `CarDock` (dock a sinistra), `CarHomeScreen` (mappa + player), `HomePager` / `HomePages` / `HomeWidgets` (pagine della Home ai lati della mappa, widget meteo e agenda), `GlassPlayer` (player accanto alla mappa), `CarLauncher` (griglia app a pagine), `PhoneAssistants` (assistente vocale a scelta), `WallpaperPicker`, `MediaScreen`, `PhoneDialerScreen` / `PhoneRecents` (Telefono: Recenti, contatti, tastierino), `QuickReplyTexts` (risposte rapide nella lingua del telefono), `CallOverlay`, `CarDashboardScreen`, `CarSettingsScreen`, `PlanciaApp` / `PlanciaWeb` / `PlanciaScripts` (Plancia integrata), `CinemaApp` / `CinemaShelves` / `CinemaPlayer` / `CinemaContinue` (Cinema in auto), `CarDriving` (stato di guida detto dall'auto, per il video), `CarWebContext` (il contesto di ogni WebView sullo schermo dell'auto), `WebSelect` (menu a tendina delle pagine), `AppLinks` (link alle app nelle pagine), `TemplateBack` / `BackCloses` (tasto Indietro dell'auto), `CarNavigator` (stack schermate `CarScreen`), template Car App Library (`Template*`) |
 | `car/theme/` | Design system attuale dei controlli: `GsTheme` / `ControlLook` (temi Flat/Tactile/Keycap), `GsControls` (`GsButton`, `GsIconButton`, `gsColors`), `GsSeekBar`, `GsSwitch` |
 | `ui/` | **UI sul telefono**: onboarding (`IntroScreen`, `SetupScreen`; le vecchie `CertSetupScreen` / `SetupGuideScreen`), `HomeScreen`, `SettingsScreen`, `PlanciaSettings` (account di Home Assistant per Plancia), `XonosSettings` (account di Music Assistant per Xonos), `CinemaSettings` (siti di Cinema e "Video only when parked"), `MyCarTheme` (Material You), `AboutLinks` (link, donazioni, avvisi di licenza) |
 | `host/` | Host Car App Library per app di terze parti (`CarAppConnection`, `KnownApps`) |
@@ -634,6 +637,90 @@ Tutti i token in un solo posto, `car/design/`:
   l'auto mostra il suo schermo, una LOSS in ritardo che risponde al nostro RELEASE (solo dopo un
   riavvio dell'audio server), `drawWithCache` per gli sfondi. La correzione di `PcmOutput.DEAD` va
   portata anche nell'app Xonos.
+- **Setaccio 2** (0.5.20, branch `fix/bug-scan-4`): altre quattro letture (video e tocchi, schermo
+  dell'auto, app del telefono, browser/Cinema/Plancia), ogni segnalazione verificata prima. In auto:
+  **menu a tendina delle pagine** (`car/WebSelect.kt`: script in ogni pagina e frame con
+  `addDocumentStartJavaScript` + `addWebMessageListener` di androidx.webkit, che prende il `mousedown`
+  di un `<select>` (Blink apre lì il suo menu) e lo mostra come elenco sopra lo schermo dell'auto;
+  la scelta torna alla pagina con `input` e `change`; una pagina può chiedere solo subito dopo un
+  tocco o la manopola, `car/CarInput.kt`; scatto `browser-select` con "change Two" nel log); tasto
+  Indietro dell'auto all'app per auto che mostra la freccia (`car/TemplateBack.kt`) e prima ai
+  pannelli aperti (`car/BackCloses.kt`, CarUi); "Stop navigating" in due tocchi; il vetro del player
+  accanto alla mappa tiene i tocchi tra i tasti; tasti più grandi (Indietro 56 dp, player 52);
+  avvisi Bluetooth/posizione solo da fermi; rubrica che carica e preferiti in cima; accesso alle
+  notifiche aperto sull'interruttore di myCar (`notify/NotificationAccess.kt`); ora d'arrivo nei
+  tocchi (`ScreenProjector.dispatchTouch(at)`); livelli H.264 5–5.2 solo oltre 1080p. Cinema: niente
+  più chiusura di myCar se cade il processo delle pagine; film che riprende dopo un errore
+  (Android dice "finito" anche dopo un errore), canali che riprovano da soli; ricerca nelle liste
+  TV; link alle app (`car/AppLinks.kt`); campi già attivi e nei componenti web; pagina che si
+  ricarica al ritorno della rete. Telefono: conferme prima di togliere certificati/account/siti,
+  tasti che aprono le impostazioni quando Android non chiede più, schermo acceso solo col
+  collegamento, frasi senza "head unit", e altro (vedi note di rilascio). **Lasciati** per non
+  toccare come l'auto riceve l'immagine o perché incerti: GOP e ripetizione dell'ultimo fotogramma,
+  encoder nuovo senza rifare la UI, prima immagine anticipata, collegamento della mappa prima della
+  scansione delle app, SurfaceView per Cinema, video coperto in marcia (setSurface/INVISIBLE),
+  browser fermo fuori vista (YouTube si metterebbe in pausa); da decidere con l'utente: sfondo
+  animato nel dock accanto alla mappa. Il nastro dell'intro (ereditato) è diventato, su richiesta
+  dell'utente, una bandiera pirata che sventola, disegnata dal codice: teschio, "100% LOCAL", "WE
+  DEFEND OUR DATA" (`ui/PirateFlag.kt`; scatti `setup-phone/09-intro-*` con le animazioni accese).
+- **Setaccio 3** (notte, 0.5.20, `fix/bug-scan-4`): letture di musica/messaggi/chiamate/assistente
+  in auto e di robustezza, ogni punto verificato prima. **Recenti** nel Telefono dell'auto
+  (`car/PhoneRecents.kt`: registro chiamate, READ_CALL_LOG già chiesto dal setup; chiamate di fila
+  con lo stesso numero in una riga col conteggio, perse in rosso, nome dalla rubrica se il registro
+  non l'ha, numeri formattati; tocco → `CallPrompt`; si rilegge col `ContentObserver` del registro; il
+  Telefono si apre sull'ultima scheda usata, Recenti all'inizio); "Call back" nel popup di una
+  chiamata persa (`CarNotification.missedCall`, letta come "Missed call from…"). Assistente: "call
+  back"/"redial" (registro una chiamata alla volta, `loadRecents(grouped = false)`), "read my
+  messages"/"reply to…"/"text …" (`messageCommand`, prima di "play X"), "call X on mobile/home/work"
+  (numero chiesto, poi predefinito, poi cellulare; `Contact.type/typeLabel/primary`), "play" e il ▶
+  del volante senza app aperta riaprono l'ultima e la fanno suonare (`CarServices.noMusicApp`,
+  `reopenLastMedia(autoplay)`, `ScreenKey.PLAY` solo dopo `mediaDecided`), "play the next song" / "play
+  it again" non sono ricerche e "call Skip" non salta il brano, errori che vanno via in 6 s, risposte
+  senza sintesi vocale visibili 5 s, "play X" ignorato detto anche fuori dal player. Risposte rapide
+  nella lingua del telefono (`car/QuickReplyTexts.kt`: it, es, fr, de, pt; orario come lo scrive il
+  telefono). Svolta nel dock durante lo squillo; Reply senza "Do you want to reply?"; pallino dei non
+  letti per chat (`CarNotifications.seen`); un passo in ogni schermata d'errore (app accanto alla
+  mappa, elenco musicale, app che rifiuta, ricerca vuota); linguette del player su due righe sotto
+  92 dp, nomi delle app come sono; nel dock barre al posto del simbolo pausa; la X del player chiude
+  anche con l'app chiusa. Cinema: "Continue" riapre l'ultima cosa (`car/CinemaContinue.kt`, azzerato
+  dall'anteprima). Test nuovi: `VideoLevelTest`, `QuickReplyTextsTest`, `TemplateBackTest`. Scatti
+  nuovi: `phone-recents`, `media-800x480`, `cinema-continue`. "When do I arrive?" dal percorso della
+  mappa. Robustezza: `CarBluetooth.init` già in `MyCarActivity.onCreate` (al primo viaggio di un
+  processo la scheda "Pair" non compariva: l'auto offre l'abbinamento prima che partano i servizi del
+  viaggio), radice "" di un'app musicale (Android lancia su `subscribe("")`: ora niente elenco),
+  rubrica e comandi vocali protetti (risposta "Something went wrong"), sensori formattati solo con
+  "Vehicle data" acceso, gestore dei crash una volta per processo, indice dei colori di Cinema mai
+  negativo. Lasciato: `startForeground` senza try in cattura audio e condivisione (nessun percorso
+  che fallisca trovato, e tocca la cattura). Revisione indipendente dei commit della notte, corretti:
+  "reply to X" per livelli di nome come "call" (prima "Anna" trovava Giovanna) e il destinatario
+  detto nella domanda; "call back" dopo un numero privato; il numero migliore anche nella conferma;
+  "read my messages" con tutti i nuovi della chat (`CarNotifications.unreadCount`) e chat letta sul
+  telefono non più nuova (`gone` → `seen`); chiamata persa riconosciuta anche dal canale "missed" del
+  dialer predefinito o di Telecom (il dialer AOSP non mette la categoria); "Call back" del popup solo
+  sulla sua chiamata (stessa ora, con numero) e con uno scope che sopravvive al popup; ▶ del volante
+  senza app solo se il telefono non suona già altro (`isMusicActive`); "Continue" che segue
+  `doUpdateVisitedHistory`; Telefono su Contatti senza registro, linguette strette sotto 600 dp; testi
+  delle canzoni "non raggiunti" con Try again. Da decidere con l'utente: "Fuck you too." detto ad alta
+  voce dall'assistente (anche con passeggeri).
+- **Setaccio 4** (notte, 0.5.20, `fix/bug-scan-4`): app del telefono e schermate dell'auto meno
+  guardate, ogni punto verificato nel codice. Telefono: tasti sopra la barra a tre tasti e che crescono
+  coi caratteri grandi, tastiera che non copre i campi delle Impostazioni (`imePadding`), Plancia che
+  non perde l'account con un campo vuoto, avviso del certificato che va via, Disconnect con conferma a
+  viaggio avviato, conferme per liste TV, siti propri di Cinema e modelli vocali, "Connect wirelessly"
+  con myCar spenta, gruppi "Phone" e "Call logs" nel setup (come li chiama Android), Indietro
+  dall'intro rivista, http per gli indirizzi di casa scritti senza schema in Cinema. Auto:
+  `CarNavigator.close()` per Stop e "Close app" (il tasto Indietro di un'app, `AppBackKey`, si prendeva
+  il passo e lasciava uno schermo nero), "Open on connect" sopra Home, tasto mappa che chiude la
+  modifica delle pagine, Done sempre in vista e menu dell'app che scorre a Extra large, `ChoiceRow` che
+  scorre sotto 110 dp a scelta, secondo tocco per "Ready-made pages", tastiera del browser chiusa a
+  pagina nuova (`onPageStarted`), menu dell'app chiuso allo squillo, agenda senza permesso, "Beside the
+  map" acceso con Plancia/Xonos dentro myCar, icone fissate lette come quelle mostrate (`pinShown`, la
+  regola di pagine e "Beside the map"; il limite conta solo quelle visibili), "Clear all" della
+  Dashboard col secondo tocco, svolta del dock e app aperte lette solo quando servono (meno
+  ricomposizioni in guida). Da decidere con l'utente: i puntini delle pagine sempre
+  sopra il fondo di browser, Plancia e app (svanire come sulla mappa, o una striscia riservata).
+  Lasciati: il conto alla rovescia di "Start" che continua con la mappa fuori vista (scelta di
+  design), le schede di `TabTemplate` senza scorrimento (non visto con un'app vera).
 - **Prima connessione** (`ui/SetupScreen.kt`, `setup/`): una lista sola, "Set up myCar", al primo
   avvio (al posto di `CertSetupScreen` + le pagine di `SetupGuideScreen`, ancora nel codice finché
   la nuova non è provata sul telefono) e ogni volta che si torna con "Take me back to the initial
