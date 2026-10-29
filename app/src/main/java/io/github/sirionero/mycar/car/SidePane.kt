@@ -176,14 +176,18 @@ private val LIVE = setOf(CarAppConnection.Phase.BINDING, CarAppConnection.Phase.
 @Composable
 internal fun SidePanePicker() {
     val current by SidePaneChoice.current.collectAsState()
-    val apps = rememberAllEntries().filter { it.fitsBesideMap && it.componentId != null }.sortedBy { it.label.lowercase() }
+    val entries = rememberAllEntries()
+    val apps = entries.filter { it.fitsBesideMap && it.componentId != null }.sortedBy { it.label.lowercase() }
+    // Lit as beside the map: a choice saved with the Plancia or Xonos app is the one inside myCar now
+    // (and back, while the app stands in); compared as saved, nothing was lit.
+    val shown = withXonosInside(withPlanciaInside(current, entries), entries)
     val options = listOf(SidePaneChoice.MUSIC to "Music") + apps.mapNotNull { e -> e.componentId?.let { it to e.label } }
     val scheme = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("Beside the map", style = MaterialTheme.typography.titleMedium, color = scheme.primary)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             options.forEach { (id, label) ->
-                val on = id == current
+                val on = id == shown
                 GsIconBox(
                     onClick = { SidePaneChoice.set(id) },
                     modifier = Modifier.widthIn(min = 150.dp).height(64.dp),
