@@ -148,6 +148,8 @@
     <string name="intro_start">开始</string>
     <string name="intro_welcome_to">欢迎来到</string>
     <string name="intro_welcome_tag">alpha · 重磅版本</string>
+    <string name="intro_language_title">你的语言。</string>
+    <string name="intro_language_body">myCar 现在支持中文、英语、意大利语、西班牙语、德语、法语、葡萄牙语、希腊语和俄语：手机上、车机屏幕上和语音助手都可以。默认跟随手机语言；可以在这里选择其他语言，也可以稍后在“设置 > 语言”中更改。</string>
     <string name="intro_wireless_title">无线连接。</string>
     <string name="intro_wireless_body">如果你的汽车支持无线 Android Auto，只需配对一次，数据线就可以留在家里。</string>
     <string name="intro_knobs_title">支持旋钮。</string>

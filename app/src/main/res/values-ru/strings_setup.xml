@@ -160,6 +160,8 @@
     <string name="intro_start">Начать</string>
     <string name="intro_welcome_to">Добро пожаловать в</string>
     <string name="intro_welcome_tag">альфа · большое обновление</string>
+    <string name="intro_language_title">Ваш язык.</string>
+    <string name="intro_language_body">Теперь myCar говорит на русском, английском, итальянском, испанском, немецком, французском, португальском, греческом и китайском: на телефоне, на экране автомобиля и в голосовом помощнике. Язык берётся из телефона; выберите другой здесь или позже в разделе «Настройки > Язык».</string>
     <string name="intro_wireless_title">Без кабеля.</string>
     <string name="intro_wireless_body">Если ваш автомобиль поддерживает беспроводной Android Auto, выполните сопряжение один раз и оставьте кабель дома.</string>
     <string name="intro_knobs_title">Ручки работают.</string>

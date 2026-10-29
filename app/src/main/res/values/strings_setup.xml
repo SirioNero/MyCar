@@ -211,6 +211,9 @@
     <string name="intro_welcome_to">Welcome to</string>
     <!-- A small tag under the release number; "alpha" is the release's stage -->
     <string name="intro_welcome_tag">alpha · the big one</string>
+    <!-- Intro of 0.6, the language page: a list of the languages to tap follows it. Page titles are short, in very big type -->
+    <string name="intro_language_title">Your language.</string>
+    <string name="intro_language_body">myCar now speaks English, Italian, Spanish, German, French, Portuguese, Greek, Russian and Chinese: on the phone, on the car\'s screen and in the voice assistant. It follows the phone; pick another one here, or later in Settings > Language.</string>
     <!-- Page titles are short, in very big type -->
     <string name="intro_wireless_title">Wireless.</string>
     <string name="intro_wireless_body">If your car does wireless Android Auto, pair once and leave the cable at home.</string>

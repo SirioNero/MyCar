@@ -152,6 +152,8 @@
     <string name="intro_start">Inizia</string>
     <string name="intro_welcome_to">Ecco la</string>
     <string name="intro_welcome_tag">alpha · il grande aggiornamento</string>
+    <string name="intro_language_title">La tua lingua.</string>
+    <string name="intro_language_body">myCar ora parla italiano, inglese, spagnolo, tedesco, francese, portoghese, greco, russo e cinese: sul telefono, sullo schermo dell\'auto e nell\'assistente vocale. Segue il telefono; scegline un\'altra qui, o più tardi in Impostazioni > Lingua.</string>
     <string name="intro_wireless_title">Senza fili.</string>
     <string name="intro_wireless_body">Se la tua auto ha Android Auto senza fili, accoppia il telefono una volta e lascia il cavo a casa.</string>
     <string name="intro_knobs_title">La manopola funziona.</string>

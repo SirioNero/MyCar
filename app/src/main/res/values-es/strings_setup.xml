@@ -152,6 +152,8 @@
     <string name="intro_start">Empezar</string>
     <string name="intro_welcome_to">Te damos la bienvenida a</string>
     <string name="intro_welcome_tag">alfa · la gran versión</string>
+    <string name="intro_language_title">Tu idioma.</string>
+    <string name="intro_language_body">myCar ya habla español, inglés, italiano, alemán, francés, portugués, griego, ruso y chino: en el teléfono, en la pantalla del coche y en el asistente de voz. Sigue al teléfono; elige otro aquí, o más tarde en Ajustes > Idioma.</string>
     <string name="intro_wireless_title">Sin cables.</string>
     <string name="intro_wireless_body">Si tu coche tiene Android Auto inalámbrico, vincula el teléfono una vez y deja el cable en casa.</string>
     <string name="intro_knobs_title">Los mandos funcionan.</string>

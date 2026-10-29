@@ -28,6 +28,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -176,7 +179,7 @@ internal fun introColors(): IntroColors {
 }
 
 /** In the order shown: what's new, what to pick, then housekeeping. */
-private enum class IntroStep { WELCOME, WIRELESS, KNOBS, VOICE, THEME, APPS, GRAPHENE }
+private enum class IntroStep { WELCOME, LANGUAGE, WIRELESS, KNOBS, VOICE, THEME, APPS, GRAPHENE }
 
 private val Pop = CubicBezierEasing(0.3f, 1.6f, 0.5f, 1f)
 private val Rise = CubicBezierEasing(0.2f, 0.8f, 0.2f, 1f)
@@ -214,6 +217,11 @@ fun IntroScreen(onDone: () -> Unit) {
         Box(Modifier.weight(1f).fillMaxWidth()) {
         when (step) {
             IntroStep.WELCOME -> Welcome(c, ::cq, ::cqSp, h)
+            IntroStep.LANGUAGE -> BadgeStep(c, ::cq, ::cqSp, c.primaryC, stringResource(R.string.intro_language_title),
+                stringResource(R.string.intro_language_body), step,
+                extra = { LanguagePicker(c, ::cq, ::cqSp, step) }) {
+                Icon(ImageVector.vectorResource(R.drawable.sym_language), contentDescription = null, tint = c.onPrimaryC, modifier = Modifier.fillMaxSize())
+            }
             IntroStep.WIRELESS -> BadgeStep(c, ::cq, ::cqSp, c.secondaryC, stringResource(R.string.intro_wireless_title),
                 stringResource(R.string.intro_wireless_body), step) { WifiIcon(c.onSecondaryC) }
             IntroStep.KNOBS -> BadgeStep(c, ::cq, ::cqSp, c.tertiaryC, stringResource(R.string.intro_knobs_title),

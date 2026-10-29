@@ -152,6 +152,8 @@
     <string name="intro_start">Começar</string>
     <string name="intro_welcome_to">Boas-vindas à</string>
     <string name="intro_welcome_tag">alpha · a grande versão</string>
+    <string name="intro_language_title">Seu idioma.</string>
+    <string name="intro_language_body">O myCar agora fala português, inglês, italiano, espanhol, alemão, francês, grego, russo e chinês: no telefone, na tela do carro e no assistente de voz. Ele segue o telefone; escolha outro aqui, ou depois em Configurações > Idioma.</string>
     <string name="intro_wireless_title">Sem fio.</string>
     <string name="intro_wireless_body">Se o seu carro tem Android Auto sem fio, pareie uma vez e deixe o cabo em casa.</string>
     <string name="intro_knobs_title">O botão giratório funciona.</string>
