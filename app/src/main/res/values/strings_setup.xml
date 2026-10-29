@@ -236,9 +236,9 @@
     <string name="intro_theme_navigate">Navigate</string>
     <string name="intro_voice_title">Just say it.</string>
     <!-- %1$s: the word that opens the assistant's help, in the assistant's language (e.g. help) -->
-    <string name="intro_voice_body">Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech into text by itself, and nothing you say leaves it. Say \"%1$s\" in the car for the full list.</string>
+    <string name="intro_voice_body">Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech into text by itself, and what you say stays on it, unless you ask your own Home Assistant. Say \"%1$s\" in the car for the full list.</string>
     <!-- The same when the assistant speaks another language than English. %1$s: that language's name (e.g. Italian), %2$s: the word that opens the help, in that language -->
-    <string name="intro_voice_body_language">Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech into text by itself, and nothing you say leaves it. It listens and answers in %1$s, like your phone. Say \"%2$s\" in the car for the full list.</string>
+    <string name="intro_voice_body_language">Tap the mic, or press the talk button on your wheel, and speak. Your phone turns speech into text by itself, and what you say stays on it, unless you ask your own Home Assistant. It listens and answers in %1$s, myCar\'s language. Say \"%2$s\" in the car for the full list.</string>
     <!-- Button text while it downloads. %1$d: percent done -->
     <string name="intro_voice_downloading">Downloading, %1$d%%</string>
     <string name="intro_voice_failed">Download failed. Try again</string>

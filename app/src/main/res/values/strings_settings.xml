@@ -301,17 +301,17 @@
     <!-- Speech model names are names: keep them -->
     <string name="voice_model_whisper">Whisper small</string>
     <string name="voice_model_whisper_detail">For Chinese. OpenAI Whisper, MIT</string>
-    <string name="voice_model_parakeet_multi_detail">Italian, Portuguese, Spanish, French, German and English, and 19 more European languages. As big and slow as Parakeet large. NVIDIA NeMo, CC BY 4.0</string>
+    <string name="voice_model_parakeet_multi_detail">Italian, Portuguese, Spanish, French, German, Greek, Russian and English, and 17 more European languages. As big and slow as Parakeet large. NVIDIA NeMo, CC BY 4.0</string>
 
-    <!-- Settings > Voice, for a phone in another language (ui/VoiceLanguageNote.kt). %1$s: the phone's language, named in this language (Italian) -->
+    <!-- Settings > Voice, when myCar is in another language than English (ui/VoiceLanguageNote.kt). %1$s: myCar's language, named in this language (Italian) -->
     <string name="voice_model_language_title">Voice: %1$s</string>
-    <!-- %1$s: the phone's language, %2$s: a model's name -->
-    <string name="voice_model_language_ready">Your phone is in %1$s, so the car\'s assistant listens and answers in %1$s, with %2$s.</string>
-    <!-- %1$s: the phone's language, %2$s: a model's name, %3$s: something to say to the assistant, in the phone's language -->
-    <string name="voice_model_language_ready_try">Your phone is in %1$s, so the car\'s assistant listens and answers in %1$s, with %2$s. Try “%3$s”.</string>
-    <!-- %1$s: the phone's language, %2$s: a model's name, %3$d: its size in megabytes -->
-    <string name="voice_model_language_missing">Your phone is in %1$s. With %2$s (%3$d MB) the car\'s assistant listens and answers in %1$s; until then it understands English only.</string>
-    <!-- %1$s: the phone's language -->
+    <!-- %1$s: myCar's language, %2$s: a model's name -->
+    <string name="voice_model_language_ready">myCar is in %1$s, so the car\'s assistant listens and answers in %1$s, with %2$s.</string>
+    <!-- %1$s: myCar's language, %2$s: a model's name, %3$s: something to say to the assistant, in that language -->
+    <string name="voice_model_language_ready_try">myCar is in %1$s, so the car\'s assistant listens and answers in %1$s, with %2$s. Try “%3$s”.</string>
+    <!-- %1$s: myCar's language, %2$s: a model's name, %3$d: its size in megabytes -->
+    <string name="voice_model_language_missing">myCar is in %1$s. With %2$s (%3$d MB) the car\'s assistant listens and answers in %1$s; until then it understands English only.</string>
+    <!-- %1$s: myCar's language -->
     <string name="voice_model_language_tts">It answers with the phone\'s own text-to-speech voice for %1$s. If it sounds wrong, pick or download that voice in Android\'s text-to-speech settings.</string>
     <!-- Button. %1$s: a model's name -->
     <string name="voice_model_language_download">Download %1$s</string>
