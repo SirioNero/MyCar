@@ -50,8 +50,9 @@ internal object QuickReplyTexts {
             "Estou ao volante, chego por volta das %s.", "Estou ao volante, chego em cerca de %s.",
             "Estou ao volante, respondo em breve.", "Estou a caminho.",
         ),
+        // The time left ends with the minutes' own full stop ("5 λεπ."): none after it.
         "el" to Texts(
-            "Οδηγώ, θα είμαι εκεί γύρω στις %s.", "Οδηγώ, θα είμαι εκεί σε περίπου %s.",
+            "Οδηγώ, θα είμαι εκεί γύρω στις %s.", "Οδηγώ, θα είμαι εκεί σε περίπου %s",
             "Οδηγώ, θα σου απαντήσω σύντομα.", "Έρχομαι.",
             hour = "ώρ.", minute = "λεπ.",
         ),
