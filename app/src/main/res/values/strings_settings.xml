@@ -298,6 +298,9 @@
     <string name="voice_model_canary_detail">Recommended. Quick, and hears names and places well. English, Spanish, German and French. NVIDIA NeMo, CC BY 4.0</string>
     <string name="voice_model_parakeet_large_detail">Hears names best, but slower and three times the size. NVIDIA NeMo, CC BY 4.0</string>
     <!-- "Parakeet large": the model's name (voice_model_parakeet_large) -->
+    <!-- Speech model names are names: keep them -->
+    <string name="voice_model_whisper">Whisper small</string>
+    <string name="voice_model_whisper_detail">For Chinese. OpenAI Whisper, MIT</string>
     <string name="voice_model_parakeet_multi_detail">Italian, Portuguese, Spanish, French, German and English, and 19 more European languages. As big and slow as Parakeet large. NVIDIA NeMo, CC BY 4.0</string>
 
     <!-- Settings > Voice, for a phone in another language (ui/VoiceLanguageNote.kt). %1$s: the phone's language, named in this language (Italian) -->

@@ -21,6 +21,7 @@ internal object AssistantLanguage {
         VoiceLanguage.FR -> FrenchPhrases
         VoiceLanguage.DE -> GermanPhrases
         VoiceLanguage.PT -> PortuguesePhrases
+        VoiceLanguage.ZH -> ChinesePhrases
     }
 
     /** What the driver said, as the English command it means. English, or anything unknown, passes as it was. */

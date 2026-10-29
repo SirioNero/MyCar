@@ -21,6 +21,7 @@ import com.k2fsa.sherpa.onnx.OfflineCanaryModelConfig
 import com.k2fsa.sherpa.onnx.OfflineModelConfig
 import com.k2fsa.sherpa.onnx.OfflineRecognizer
 import com.k2fsa.sherpa.onnx.OfflineRecognizerConfig
+import com.k2fsa.sherpa.onnx.OfflineWhisperModelConfig
 import com.k2fsa.sherpa.onnx.OfflineTransducerModelConfig
 import com.k2fsa.sherpa.onnx.OnlineModelConfig
 import com.k2fsa.sherpa.onnx.OnlineRecognizer
@@ -335,6 +336,14 @@ object SpeechEngine {
                             canary = OfflineCanaryModelConfig(path(model.encoder), path(model.decoder), srcLang = lang, tgtLang = lang, usePnc = false),
                             tokens = path("tokens.txt"),
                             numThreads = threads(),
+                        )
+                    } else if (model.modelType == "whisper") {
+                        // Told the language, Whisper writes it (Chinese for Chinese) rather than guessing one.
+                        OfflineModelConfig(
+                            whisper = OfflineWhisperModelConfig(path(model.encoder), path(model.decoder), language = language.code, task = "transcribe"),
+                            tokens = path(model.tokens),
+                            numThreads = threads(),
+                            modelType = "whisper",
                         )
                     } else {
                         OfflineModelConfig(

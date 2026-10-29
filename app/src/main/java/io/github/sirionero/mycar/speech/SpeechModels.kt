@@ -50,8 +50,10 @@ object SpeechModels {
         val modelType: String = "",
         /** Where the unpacked files are, when not under the archive's own name on Hugging Face. */
         private val filesAt: String? = null,
-        /** The languages it hears; the assistant listens in the phone's language only with a model that knows it. */
+        /** The languages it hears; the assistant listens in myCar's language only with a model that knows it. */
         val languages: Set<VoiceLanguage> = setOf(VoiceLanguage.EN),
+        /** Whisper's has the model's size in its name. */
+        val tokens: String = "tokens.txt",
     ) {
         KROKO(
             Role.LIVE, "kroko-en", "Kroko", R.string.voice_model_kroko, R.string.voice_model_kroko_detail, 68,
@@ -82,21 +84,35 @@ object SpeechModels {
             R.string.voice_model_parakeet_multi, R.string.voice_model_parakeet_multi_detail,
             640, "sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8",
             "encoder.int8.onnx", "decoder.int8.onnx", "joiner.int8.onnx", modelType = "nemo_transducer",
-            languages = VoiceLanguage.entries.toSet(),
+            // The European ones: Chinese is Whisper's.
+            languages = VoiceLanguage.entries.toSet() - VoiceLanguage.ZH,
+        ),
+        WHISPER(
+            Role.FINAL, "whisper-small", "Whisper small", R.string.voice_model_whisper, R.string.voice_model_whisper_detail, 358,
+            "sherpa-onnx-whisper-small",
+            "small-encoder.int8.onnx", "small-decoder.int8.onnx", "", modelType = "whisper",
+            languages = setOf(VoiceLanguage.ZH), tokens = "small-tokens.txt",
         ),
         ;
 
         fun fileUrl(name: String) = "https://huggingface.co/${filesAt ?: "csukuangfj/$archive/resolve/main"}/$name"
-        val files get() = listOf(encoder, decoder, joiner, "tokens.txt").filter { it.isNotEmpty() }
+        val files get() = listOf(encoder, decoder, joiner, tokens).filter { it.isNotEmpty() }
     }
 
     /**
      * What setup offers in one tap for [language]: Kroko for the live words (and to hear when the
      * driver stops), Canary for the final ones; Parakeet multilingual where Canary doesn't know the
-     * language (Italian, Portuguese).
+     * language (Italian, Portuguese, Greek, Russian), Whisper for Chinese.
      */
     fun recommended(language: VoiceLanguage = VoiceLanguages.phone()): List<Model> =
-        listOf(Model.KROKO, if (language in Model.CANARY.languages) Model.CANARY else Model.PARAKEET_MULTI)
+        listOf(
+            Model.KROKO,
+            when (language) {
+                in Model.CANARY.languages -> Model.CANARY
+                in Model.WHISPER.languages -> Model.WHISPER
+                else -> Model.PARAKEET_MULTI
+            },
+        )
 
     /** Both recommended models, and the final one chosen: for a phone in Italian that's Parakeet multilingual. */
     fun downloadRecommended(context: Context) {
@@ -118,7 +134,7 @@ object SpeechModels {
             return listOf(Model.CANARY, Model.PARAKEET_LARGE, Model.PARAKEET_MULTI, Model.PARAKEET_SMALL)
                 .firstOrNull { isReady(context, it) } ?: chosen
         }
-        return listOfNotNull(chosen, Model.CANARY, Model.PARAKEET_MULTI)
+        return listOfNotNull(chosen, Model.CANARY, Model.PARAKEET_MULTI, Model.WHISPER)
             .firstOrNull { language in it.languages && isReady(context, it) }
     }
 
