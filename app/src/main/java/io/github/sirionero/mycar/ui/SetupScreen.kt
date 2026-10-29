@@ -332,10 +332,10 @@ fun SetupScreen(entry: SetupEntry, onDone: () -> Unit, onRequestCallScreening: (
                 emphasized = next?.id == Id.PERMISSIONS,
                 body = when (permissions) {
                     Status.DONE -> stringResource(R.string.setup_drive_allowed)
-                    Status.BLOCKED -> stringResource(R.string.setup_drive_blocked, signals.driveBlocked.joinToString())
+                    Status.BLOCKED -> stringResource(R.string.setup_drive_blocked, signals.driveBlocked.joinToString(stringResource(R.string.common_list_separator)))
                     Status.SKIPPED -> stringResource(R.string.setup_drive_skipped)
                     else -> if (signals.driveMissing.size < SetupSignals.driveGroups().size && FirstSetup.asked(context).isNotEmpty()) {
-                        stringResource(R.string.setup_drive_still_off, signals.driveMissing.joinToString())
+                        stringResource(R.string.setup_drive_still_off, signals.driveMissing.joinToString(stringResource(R.string.common_list_separator)))
                     } else {
                         stringResource(R.string.setup_drive_body)
                     }
@@ -390,7 +390,7 @@ private fun certificateSummary(context: android.content.Context): String {
     val present = CertCatalog.present(context)
     return when {
         present.size >= 2 -> Words.plural(
-            R.plurals.setup_cert_ready_spares, present.size - 1, label(present[0]), present.drop(1).joinToString { label(it) },
+            R.plurals.setup_cert_ready_spares, present.size - 1, label(present[0]), present.drop(1).joinToString(Words.get(R.string.common_list_separator)) { label(it) },
         )
         present.size == 1 -> Words.get(R.string.setup_cert_ready_one, label(present[0]))
         else -> Words.get(R.string.setup_cert_ready)

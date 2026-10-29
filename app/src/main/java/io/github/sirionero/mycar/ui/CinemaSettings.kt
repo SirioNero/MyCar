@@ -126,15 +126,16 @@ internal fun CinemaSection() {
 
     if (resetAsk) {
         val own = sites.filter { site -> Cinema.SUGGESTED.none { it.url == site.url } }
+        val sep = stringResource(R.string.common_list_separator)
         AlertDialog(
             onDismissRequest = { resetAsk = false },
             title = { Text(stringResource(R.string.settings_cinema_reset_title)) },
             text = {
                 Text(
                     if (own.isEmpty()) {
-                        stringResource(R.string.settings_cinema_reset_text, Cinema.SUGGESTED.joinToString { it.name })
+                        stringResource(R.string.settings_cinema_reset_text, Cinema.SUGGESTED.joinToString(sep) { it.name })
                     } else {
-                        stringResource(R.string.settings_cinema_reset_text_own, Cinema.SUGGESTED.joinToString { it.name }, own.joinToString { it.name })
+                        stringResource(R.string.settings_cinema_reset_text_own, Cinema.SUGGESTED.joinToString(sep) { it.name }, own.joinToString(sep) { it.name })
                     },
                 )
             },

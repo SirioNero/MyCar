@@ -25,4 +25,6 @@
     <string name="common_off">关闭</string>
     <string name="common_loading">正在加载…</string>
     <string name="common_settings">设置</string>
+    <string name="common_bluetooth">蓝牙</string>
+    <string name="common_list_separator">、</string>
 </resources>

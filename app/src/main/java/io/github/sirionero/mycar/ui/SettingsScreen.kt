@@ -293,7 +293,7 @@ private fun CarAudioSection() {
         )
         SettingsDivider()
         AudioRouteRow(
-            AudioRoute.BLUETOOTH, route, "Bluetooth",
+            AudioRoute.BLUETOOTH, route, stringResource(R.string.common_bluetooth),
             stringResource(R.string.settings_audio_bluetooth_detail),
         )
         SettingsDivider()

@@ -425,7 +425,7 @@ internal fun AudioChoice() {
             selected = route == AudioRoute.AUTO,
         ) { CarSettings.setAudioRoute(AudioRoute.AUTO) }
         AudioCard(
-            "Bluetooth", null,
+            stringResource(R.string.common_bluetooth), null,
             stringResource(R.string.setup_audio_bluetooth_body),
             selected = route == AudioRoute.BLUETOOTH,
         ) { CarSettings.setAudioRoute(AudioRoute.BLUETOOTH) }

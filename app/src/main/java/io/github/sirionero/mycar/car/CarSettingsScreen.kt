@@ -156,7 +156,7 @@ fun CarSettingsScreen() {
             stringResource(R.string.car_settings_car_audio),
             listOf(
                 AudioRoute.AUTO to stringResource(R.string.car_settings_car_audio_auto),
-                AudioRoute.BLUETOOTH to "Bluetooth",
+                AudioRoute.BLUETOOTH to stringResource(R.string.common_bluetooth),
                 AudioRoute.CAR_LINK to stringResource(R.string.car_settings_car_audio_through_mycar),
             ),
             audioRoute,

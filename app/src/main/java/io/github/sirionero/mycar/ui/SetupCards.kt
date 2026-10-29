@@ -64,7 +64,7 @@ internal fun BackToSetupCard(onOpenSetup: () -> Unit) {
     }
     val line = when {
         left.isNotEmpty() -> pluralStringResource(
-            R.plurals.setup_card_steps_left, left.size, left.size, left.map { stepName(it.id) }.joinToString(),
+            R.plurals.setup_card_steps_left, left.size, left.size, left.map { stepName(it.id) }.joinToString(stringResource(R.string.common_list_separator)),
         )
         extras > 0 -> pluralStringResource(R.plurals.setup_card_extras_left, extras, extras)
         else -> stringResource(R.string.setup_card_all_done)
@@ -98,7 +98,7 @@ internal fun SetupLeftCard(onOpenSetup: () -> Unit) {
         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.setup_left_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
-                stringResource(R.string.setup_left_body, left.map { stepName(it.id) }.joinToString()),
+                stringResource(R.string.setup_left_body, left.map { stepName(it.id) }.joinToString(stringResource(R.string.common_list_separator))),
                 style = MaterialTheme.typography.bodyMedium,
             )
             // Side by side where they fit, one under the other on a narrow phone or with large text.

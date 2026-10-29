@@ -65,7 +65,13 @@ for folder in [os.path.join(RES, "values")] + [os.path.join(RES, f"values-{l}") 
             if 'formatted="false"' not in attrs and not aapt_format_ok(text):
                 print(os.path.basename(folder), key, "percent signs aapt reads as placeholders: use %% or %1$s")
                 problems += 1
+def unquoted(text):
+    """A string aapt reads whole between double quotes (to keep its spaces) is checked inside them."""
+    return text[1:-1] if len(text) >= 2 and text[0] == '"' and text[-1] == '"' else text
+
+
 for key, text in base.items():
+    text = unquoted(text)
     if re.search(r"(?<!\\)'", text) or re.search(r'(?<!\\)"', text):
         print("en", key, "apostrophe or quote without a backslash"); problems += 1
 for lang in LANGS:
@@ -78,7 +84,7 @@ for lang in LANGS:
     for key, text in strings.items():
         if key in base and sorted(FMT.findall(text)) != sorted(FMT.findall(base[key])):
             print(lang, key, "placeholders differ:", text); problems += 1
-        if re.search(r"(?<!\\)'", text) or re.search(r'(?<!\\)"', text):
+        if re.search(r"(?<!\\)'", unquoted(text)) or re.search(r'(?<!\\)"', unquoted(text)):
             print(lang, key, "apostrophe or quote without a backslash"); problems += 1
     if set(plurals) != set(base_plurals):
         print(lang, "plurals differ:", sorted(set(plurals) ^ set(base_plurals))); problems += 1

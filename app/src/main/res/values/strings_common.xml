@@ -32,6 +32,10 @@
     <string name="common_off">Off</string>
     <!-- While something is on its way -->
     <string name="common_loading">Loading…</string>
+    <!-- Bluetooth, as Android's own settings write it (蓝牙 in Chinese) -->
+    <string name="common_bluetooth">Bluetooth</string>
+    <!-- Between the items of a list ("Contacts, Location, Phone"): a comma and a space in most languages, 、 in Chinese. Quoted so the space stays -->
+    <string name="common_list_separator">", "</string>
     <!-- Screen titles -->
     <string name="common_settings">Settings</string>
 </resources>
