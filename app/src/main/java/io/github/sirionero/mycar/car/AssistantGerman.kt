@@ -275,5 +275,7 @@ internal object GermanPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Möchtest du antworten? Sag ja oder nein.",
         "Get ready to say your reply." to "Mach dich bereit für deine Antwort.",
         "Say your reply" to "Sag deine Antwort",
+        "Anything else" to "Alles andere",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Home Assistant antwortet: dein Zuhause und die Fragen, die sein Sprachassistent kennt.",
     )
 }

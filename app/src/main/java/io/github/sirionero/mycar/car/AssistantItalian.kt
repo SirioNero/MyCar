@@ -293,5 +293,7 @@ internal object ItalianPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Vuoi rispondere? Di' sì o no.",
         "Get ready to say your reply." to "Preparati a dire la risposta.",
         "Say your reply" to "Di' la risposta",
+        "Anything else" to "Tutto il resto",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Risponde Home Assistant: la casa, e le domande che il suo assistente vocale conosce.",
     )
 }

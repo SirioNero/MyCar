@@ -311,5 +311,7 @@ internal object FrenchPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Voulez-vous répondre ? Dites oui ou non.",
         "Get ready to say your reply." to "Préparez-vous à dire votre réponse.",
         "Say your reply" to "Dites votre réponse",
+        "Anything else" to "Tout le reste",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Home Assistant répond : la maison, et les questions que connaît son assistant vocal.",
     )
 }

@@ -323,5 +323,7 @@ internal object PortuguesePhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "Quer responder? Diga sim ou não.",
         "Get ready to say your reply." to "Prepare-se para dizer a resposta.",
         "Say your reply" to "Diga a resposta",
+        "Anything else" to pt("Tudo o resto", "Todo o resto"),
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Responde o Home Assistant: a casa e as perguntas que o seu assistente de voz conhece.",
     )
 }

@@ -286,5 +286,7 @@ internal object SpanishPhrases : Phrasebook() {
         "Do you want to reply? Say yes or no." to "¿Quieres responder? Di sí o no.",
         "Get ready to say your reply." to "Prepárate para decir tu respuesta.",
         "Say your reply" to "Di tu respuesta",
+        "Anything else" to "Todo lo demás",
+        "Home Assistant answers it: your home, and any question its voice assistant knows." to "Responde Home Assistant: la casa y las preguntas que conozca su asistente de voz.",
     )
 }
