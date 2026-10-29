@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.graphicsLayer
@@ -82,7 +81,7 @@ internal fun UpdateSplashContent(
         Canvas(Modifier.fillMaxSize()) {
             val center = Offset(size.width / 2, (flagTop + flagH * 0.55f).toPx())
             val r = size.width * (0.62f + 0.04f * sin(2 * PI.toFloat() * breath))
-            drawGlow(Brush.radialGradient(listOf(glow.copy(alpha = 0.85f), glow.copy(alpha = 0.25f), glow.copy(alpha = 0f)), center = center, radius = r), center, r)
+            drawGlow(center, r, 0f to glow.copy(alpha = 0.85f), 0.5f to glow.copy(alpha = 0.25f), 1f to glow.copy(alpha = 0f))
         }
         Sparkles(accent, Modifier.fillMaxSize(), flagTop, flagH)
 
