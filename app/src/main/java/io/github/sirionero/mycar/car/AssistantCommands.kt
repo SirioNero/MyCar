@@ -96,8 +96,9 @@ object AssistantCommands {
         val n = squash(name.removePrefix("the ").removePrefix("my ").removeSuffix(" app"))
         if (n.isEmpty()) return null
         items.firstOrNull { squash(label(it)) == n }?.let { return it }
-        // Loose matches need a real word: "pizza in a" mustn't pick "Organic Maps" for its "a".
-        if (n.length < 3) return null
+        // Loose matches need a real word: "pizza in a" mustn't pick "Organic Maps" for its "a". A
+        // Chinese character counts twice: two of them make a word ("高德" for 高德地图).
+        if (n.sumOf { if (Character.UnicodeScript.of(it.code) == Character.UnicodeScript.HAN) 2L else 1L } < 3) return null
         return items.firstOrNull { squash(label(it)).startsWith(n) }
             ?: items.firstOrNull { squash(label(it)).contains(n) }
     }
