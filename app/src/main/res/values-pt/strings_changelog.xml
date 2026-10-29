@@ -5,6 +5,7 @@
         <item>No Automático, a conexão Bluetooth da música que cai por uma chamada ou por um instante não leva mais o som para o myCar no meio da viagem: ele espera que ela volte.</item>
         <item>O player tem um botão de som: mostra se o som chega ao carro por Bluetooth ou pelo myCar, e um toque o manda pelo outro caminho.</item>
         <item>O myCar lembra essa escolha para cada carro: um carro pode ir pelo myCar enquanto os outros continuam no Automático.</item>
+        <item>Conexão sem fio automática: um carro que chama o telefone encontra o myCar pronto na hora, e o myCar espera por ele até cinco minutos enquanto o Android Auto do carro inicia.</item>
     </string-array>
     <string-array name="changelog_37">
         <item>No telefone, a faixa sob a barra de status também fica com a cor do tema, com Claro, Escuro, Preto e Monokai.</item>

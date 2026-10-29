@@ -5,6 +5,7 @@
         <item>Bei Automatisch verlegt eine Bluetooth-Musikverbindung, die für einen Anruf oder kurz abbricht, den Ton nicht mehr mitten in der Fahrt auf myCar: myCar wartet, bis sie zurückkommt.</item>
         <item>Der Player hat eine Ton-Taste: Sie zeigt, ob der Ton über Bluetooth oder über myCar ins Auto kommt, und ein Tippen schickt ihn den anderen Weg.</item>
         <item>myCar merkt sich diese Wahl für jedes Auto: Ein Auto kann über myCar laufen, während die anderen auf „Automatisch“ bleiben.</item>
+        <item>Kabellos von selbst verbinden: Ein Auto, das das Telefon anruft, findet myCar sofort bereit, und myCar wartet bis zu fünf Minuten, während Android Auto im Auto startet.</item>
     </string-array>
     <string-array name="changelog_37">
         <item>Auf dem Telefon nimmt auch der Streifen unter der Statusleiste die Farbe des Designs an, mit Hell, Dunkel, Schwarz und Monokai.</item>

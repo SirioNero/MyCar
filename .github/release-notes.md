@@ -1,10 +1,14 @@
-myCar 0.6.2-alpha: a sound button in the player, the sound's way remembered for each car, and the car's music no longer going quiet for good.
+myCar 0.6.2-alpha: a sound button in the player, the sound's way remembered for each car, the car's music no longer going quiet for good, and a readier wireless connection by itself.
 
 ## Car audio
 - Through myCar: when the car takes the speakers for a moment (its own voice, for example) it should give them back when done. A car that never did left the music off for the rest of the drive, as the phone played on with no pause to ask again after. Now, after 20 seconds of the phone playing with no word from the car, myCar asks for the speakers again. During a call the phone's music is paused or silenced, so it doesn't ask then.
 - Automatic, with the music on Bluetooth: when the car's Bluetooth music connection dropped - for a call, or for a moment - myCar moved the sound to its own link at once, which opened the car's Android Auto music channel and could put Android's sharing question up mid-drive. Now it waits for the connection to come back: the sound moves only if it's still gone 10 seconds later, with no call on.
 - A sound button in the player, beside the map and full screen: a Bluetooth sign when the sound reaches the car over Bluetooth, a car when it goes through myCar. A tap sends it the other way - every app's sound, Spotify and Cinema included.
 - myCar remembers the way for each car: a choice made with a car connected (the sound button, the car's settings, or the phone's) is that car's and comes back at its next drive, so one car can go through myCar while the others stay on Automatic. A choice made on the phone with no car connected is for every car.
+
+## Connecting wirelessly by itself
+- Most cars call the phone's Android Auto service as soon as their Bluetooth connects. myCar used to try the car's own service first and publish its own only once that failed, a few seconds later - by then a car could have looked, found nothing and given up, and the drive didn't start until the phone was reconnected from the car's menu. Now myCar remembers, for each car, that it calls the phone, and next time is ready for it at once.
+- Started by the car's Bluetooth, myCar now waits up to five minutes for the car to call, for cars whose Android Auto takes a while to boot after the engine starts.
 
 ## Also in 0.6.1-alpha
 - The phone's themes colour the band under the status bar too.

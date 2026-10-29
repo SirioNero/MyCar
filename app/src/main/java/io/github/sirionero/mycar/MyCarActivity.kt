@@ -590,7 +590,7 @@ class MyCarActivity : ComponentActivity(), Projection {
             return
         }
         MyCarLog.i("auto-connect: connecting")
-        io.github.sirionero.mycar.wireless.WirelessLink.start(this, device)
+        io.github.sirionero.mycar.wireless.WirelessLink.start(this, device, byItself = true)
     }
 
     private fun start(accessory: UsbAccessory) {

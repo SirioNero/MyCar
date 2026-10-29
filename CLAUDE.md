@@ -757,7 +757,12 @@ Tutti i token in un solo posto, `car/design/`:
   viaggio in corso non si tocca. Impostazioni → Connection → "Connect wirelessly by itself" (chiave
   `on` in `mycar_wireless_auto`): spento smette di guardare, riacceso richiede le auto a cui si era
   detto di no. `REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND` per il `SessionService`
-  col telefono in tasca. Non provato con un'auto vera.
+  col telefono in tasca. Dalla 0.6.2 un'auto che ha chiamato il telefono (servizio Android Auto pubblicato
+  da myCar, `waitForCar`) è ricordata (`WirelessAuto.callsPhone`, chiave `calls:<indirizzo>`): la volta dopo
+  myCar pubblica il servizio subito invece di provare prima quello dell'auto (pochi secondi in cui l'auto
+  cercava e rinunciava); se non chiama, la volta dopo si riprova come prima. Partito da solo
+  (`WirelessLink.start(byItself = true)`) aspetta l'auto fino a 5 minuti invece di 2. Non provato con
+  un'auto vera.
 - **Setaccio** (0.5.19, branch `fix/bug-scan-3`): quattro letture del codice (sessione e protocollo,
   audio e Xonos, interfaccia dell'auto, resto), ogni segnalazione verificata nel codice prima di
   correggerla. Corretti: la freccia di Vela ferma sulla prima svolta (`CarIcon.equals` confronta le

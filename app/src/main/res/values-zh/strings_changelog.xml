@@ -5,6 +5,7 @@
         <item>在“自动”模式下，音乐的蓝牙连接因通话或短暂中断时，不会再在行程中途把声音切到 myCar：myCar 会等它恢复。</item>
         <item>播放器新增声音按钮：显示声音是通过蓝牙还是通过 myCar 传到车上，点按一下即可切换。</item>
         <item>myCar 会为每辆车记住这个选择：一辆车可以通过 myCar，其他车辆仍保持“自动”。</item>
+        <item>自动无线连接：会主动呼叫手机的车辆会立即找到准备就绪的 myCar，myCar 会在车辆的 Android Auto 启动期间最多等待五分钟。</item>
     </string-array>
     <string-array name="changelog_37">
         <item>在手机上，状态栏下方的那条区域也会使用主题的颜色，适用于浅色、深色、纯黑和 Monokai。</item>
