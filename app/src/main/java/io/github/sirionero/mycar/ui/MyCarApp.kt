@@ -160,13 +160,13 @@ fun MyCarApp(onDisconnect: () -> Unit, onRequestCallScreening: () -> Unit) {
                 Screen.LOGS -> LogsScreen(onBack = { screen = Screen.SETTINGS })
                 Screen.SETTINGS -> SettingsScreen(
                     onBack = { screen = Screen.HOME },
-                    onOpenRecommendedApps = { settingsAt = SettingsAt.TOP; screen = Screen.RECOMMENDED_APPS },
-                    onOpenWhatsNew = { settingsAt = SettingsAt.TOP; backTo = Screen.SETTINGS; screen = Screen.WHATS_NEW },
-                    onOpenHelp = { settingsAt = SettingsAt.TOP; backTo = Screen.SETTINGS; screen = Screen.HELP },
-                    onOpenCarPreview = { settingsAt = SettingsAt.TOP; screen = Screen.CAR_PREVIEW },
-                    onOpenLogs = { settingsAt = SettingsAt.TOP; screen = Screen.LOGS },
+                    onOpenRecommendedApps = { settingsAt = SettingsAt.HELP; screen = Screen.RECOMMENDED_APPS },
+                    onOpenWhatsNew = { settingsAt = SettingsAt.ABOUT; backTo = Screen.SETTINGS; screen = Screen.WHATS_NEW },
+                    onOpenHelp = { settingsAt = SettingsAt.HELP; backTo = Screen.SETTINGS; screen = Screen.HELP },
+                    onOpenCarPreview = { settingsAt = SettingsAt.HELP; screen = Screen.CAR_PREVIEW },
+                    onOpenLogs = { settingsAt = SettingsAt.HELP; screen = Screen.LOGS },
                     onReplayTutorial = {
-                        settingsAt = SettingsAt.TOP
+                        settingsAt = SettingsAt.ABOUT
                         setupEntry = SetupEntry.RETURN
                         setupReturn = Screen.SETTINGS
                         screen = Screen.SETUP

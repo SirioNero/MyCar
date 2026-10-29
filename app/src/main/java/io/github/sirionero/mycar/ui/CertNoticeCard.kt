@@ -1,6 +1,5 @@
 package io.github.sirionero.mycar.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -98,7 +97,7 @@ internal fun CertNoticeCard(onOpenHelp: () -> Unit, onOpenSettings: () -> Unit) 
     }
 
     // The same amber as the Bluetooth card: something to do, not something broken.
-    val dark = isSystemInDarkTheme()
+    val dark = phoneDark()
     val container = if (dark) Color(0xFF4A3B00) else Color(0xFFFFE08A)
     val content = if (dark) Color(0xFFFFE08A) else Color(0xFF3A2E00)
     val filled = ButtonDefaults.buttonColors(containerColor = content, contentColor = container)

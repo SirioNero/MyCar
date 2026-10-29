@@ -392,4 +392,21 @@
     <string name="tailscale_cable_update_app">Wirelessly, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car\'s Wi-Fi), and then it can\'t reach your %1$s by itself. Update the %2$s app, and myCar reaches it through the app; until then the car uses the %2$s app instead, by itself.</string>
     <!-- %1$s: the server, Home Assistant or Music Assistant; %2$s: the app, Plancia or Xonos, which isn't on the phone -->
     <string name="tailscale_cable_get_app">Wirelessly, myCar has to be left out of Tailscale (inside a VPN, Android keeps myCar off the car\'s Wi-Fi), and then it can\'t reach your %1$s by itself. With an up-to-date %2$s app on the phone, myCar reaches it through the app.</string>
+    <!-- Settings: the groups, each a page (ui/SettingsScreen.kt), and the phone app's theme (ui/PhoneTheme.kt) -->
+    <string name="settings_group_general">General</string>
+    <string name="settings_group_general_detail">Language, theme, updates</string>
+    <string name="settings_group_connection_detail">Wireless, car audio, certificate</string>
+    <string name="settings_group_voice">Voice</string>
+    <string name="settings_group_voice_detail">Speech models for the voice assistant</string>
+    <string name="settings_group_plancia_detail">Home Assistant in the car</string>
+    <string name="settings_group_xonos_detail">Music Assistant in the car</string>
+    <string name="settings_group_cinema_detail">Video sites and TV lists</string>
+    <string name="settings_group_help_detail">How to connect, logs, car preview</string>
+    <string name="settings_group_about_detail">Version, licenses, support myCar</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_footer">How myCar looks on the phone. The car\'s screen has its own, in the car\'s settings.</string>
+    <string name="theme_phone">Like the phone</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_black">Black (AMOLED)</string>
 </resources>

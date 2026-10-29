@@ -282,4 +282,20 @@
     <string name="tailscale_cable_title">通过 Tailscale：目前需要数据线</string>
     <string name="tailscale_cable_update_app">无线连接时，必须把 myCar 排除在 Tailscale 之外（在 VPN 内，Android 不让 myCar 使用汽车的 WLAN），这样它就无法自己访问你的 %1$s。请更新 %2$s 应用，myCar 就能通过该应用访问它；在此之前，车上会自动改用 %2$s 应用。</string>
     <string name="tailscale_cable_get_app">无线连接时，必须把 myCar 排除在 Tailscale 之外（在 VPN 内，Android 不让 myCar 使用汽车的 WLAN），这样它就无法自己访问你的 %1$s。手机上装有最新版的 %2$s 应用时，myCar 就能通过该应用访问它。</string>
+    <string name="settings_group_general">常规</string>
+    <string name="settings_group_general_detail">语言、主题、更新</string>
+    <string name="settings_group_connection_detail">无线、车载音频、证书</string>
+    <string name="settings_group_voice">语音</string>
+    <string name="settings_group_voice_detail">语音助手的语音模型</string>
+    <string name="settings_group_plancia_detail">车上的 Home Assistant</string>
+    <string name="settings_group_xonos_detail">车上的 Music Assistant</string>
+    <string name="settings_group_cinema_detail">视频网站和电视列表</string>
+    <string name="settings_group_help_detail">如何连接、日志、车机预览</string>
+    <string name="settings_group_about_detail">版本、许可、支持 myCar</string>
+    <string name="theme_title">主题</string>
+    <string name="theme_footer">myCar 在手机上的外观。车机屏幕有自己的外观，在车机设置中。</string>
+    <string name="theme_phone">跟随手机</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="theme_black">纯黑 (AMOLED)</string>
 </resources>

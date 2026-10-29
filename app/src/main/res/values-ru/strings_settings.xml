@@ -288,4 +288,20 @@
     <string name="tailscale_cable_title">Через Tailscale: пока только с кабелем</string>
     <string name="tailscale_cable_update_app">Без кабеля myCar нужно исключить из Tailscale (внутри VPN Android не пускает myCar в Wi-Fi автомобиля), и тогда сам он не может подключиться к вашему %1$s. Обновите приложение %2$s, и myCar будет подключаться через него; а до тех пор автомобиль сам использует вместо этого приложение %2$s.</string>
     <string name="tailscale_cable_get_app">Без кабеля myCar нужно исключить из Tailscale (внутри VPN Android не пускает myCar в Wi-Fi автомобиля), и тогда сам он не может подключиться к вашему %1$s. Если на телефоне будет свежая версия приложения %2$s, myCar подключится через него.</string>
+    <string name="settings_group_general">Общие</string>
+    <string name="settings_group_general_detail">Язык, тема, обновления</string>
+    <string name="settings_group_connection_detail">Без проводов, звук в автомобиле, сертификат</string>
+    <string name="settings_group_voice">Голос</string>
+    <string name="settings_group_voice_detail">Речевые модели для помощника</string>
+    <string name="settings_group_plancia_detail">Home Assistant в автомобиле</string>
+    <string name="settings_group_xonos_detail">Music Assistant в автомобиле</string>
+    <string name="settings_group_cinema_detail">Видеосайты и списки ТВ</string>
+    <string name="settings_group_help_detail">Как подключиться, журналы, предпросмотр автомобиля</string>
+    <string name="settings_group_about_detail">Версия, лицензии, поддержать myCar</string>
+    <string name="theme_title">Тема</string>
+    <string name="theme_footer">Как myCar выглядит на телефоне. У экрана автомобиля своя тема — в настройках автомобиля.</string>
+    <string name="theme_phone">Как в телефоне</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_black">Чёрная (AMOLED)</string>
 </resources>

@@ -284,4 +284,20 @@
     <string name="tailscale_cable_title">Μέσω Tailscale: με το καλώδιο, προς το παρόν</string>
     <string name="tailscale_cable_update_app">Ασύρματα, το myCar πρέπει να μείνει έξω από το Tailscale (μέσα σε ένα VPN, το Android κρατά το myCar έξω από το Wi-Fi του αυτοκινήτου), και τότε δεν μπορεί να φτάσει μόνο του στο %1$s σας. Ενημερώστε την εφαρμογή %2$s και το myCar θα φτάνει σε αυτό μέσω της εφαρμογής· μέχρι τότε το αυτοκίνητο χρησιμοποιεί στη θέση του, από μόνο του, την εφαρμογή %2$s.</string>
     <string name="tailscale_cable_get_app">Ασύρματα, το myCar πρέπει να μείνει έξω από το Tailscale (μέσα σε ένα VPN, το Android κρατά το myCar έξω από το Wi-Fi του αυτοκινήτου), και τότε δεν μπορεί να φτάσει μόνο του στο %1$s σας. Με μια ενημερωμένη εφαρμογή %2$s στο τηλέφωνο, το myCar φτάνει σε αυτό μέσω της εφαρμογής.</string>
+    <string name="settings_group_general">Γενικά</string>
+    <string name="settings_group_general_detail">Γλώσσα, θέμα, ενημερώσεις</string>
+    <string name="settings_group_connection_detail">Ασύρματα, ήχος αυτοκινήτου, πιστοποιητικό</string>
+    <string name="settings_group_voice">Φωνή</string>
+    <string name="settings_group_voice_detail">Μοντέλα ομιλίας για τον βοηθό</string>
+    <string name="settings_group_plancia_detail">Το Home Assistant στο αυτοκίνητο</string>
+    <string name="settings_group_xonos_detail">Το Music Assistant στο αυτοκίνητο</string>
+    <string name="settings_group_cinema_detail">Ιστότοποι βίντεο και λίστες TV</string>
+    <string name="settings_group_help_detail">Σύνδεση, αρχεία καταγραφής, προεπισκόπηση αυτοκινήτου</string>
+    <string name="settings_group_about_detail">Έκδοση, άδειες, υποστήριξη του myCar</string>
+    <string name="theme_title">Θέμα</string>
+    <string name="theme_footer">Η εμφάνιση του myCar στο τηλέφωνο. Η οθόνη του αυτοκινήτου έχει τη δική της, στις ρυθμίσεις του αυτοκινήτου.</string>
+    <string name="theme_phone">Όπως το τηλέφωνο</string>
+    <string name="theme_light">Φωτεινό</string>
+    <string name="theme_dark">Σκούρο</string>
+    <string name="theme_black">Μαύρο (AMOLED)</string>
 </resources>

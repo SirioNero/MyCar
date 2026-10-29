@@ -284,4 +284,20 @@
     <string name="tailscale_cable_title">Über Tailscale: vorerst per Kabel</string>
     <string name="tailscale_cable_update_app">Kabellos muss myCar außerhalb von Tailscale bleiben (innerhalb eines VPN hält Android myCar vom WLAN des Autos fern), und dann erreicht es dein %1$s nicht selbst. Aktualisiere die %2$s-App, dann erreicht myCar es über die App; bis dahin nutzt das Auto von selbst stattdessen die %2$s-App.</string>
     <string name="tailscale_cable_get_app">Kabellos muss myCar außerhalb von Tailscale bleiben (innerhalb eines VPN hält Android myCar vom WLAN des Autos fern), und dann erreicht es dein %1$s nicht selbst. Mit einer aktuellen %2$s-App auf dem Telefon erreicht myCar es über die App.</string>
+    <string name="settings_group_general">Allgemein</string>
+    <string name="settings_group_general_detail">Sprache, Design, Updates</string>
+    <string name="settings_group_connection_detail">Kabellos, Audio im Auto, Zertifikat</string>
+    <string name="settings_group_voice">Sprachsteuerung</string>
+    <string name="settings_group_voice_detail">Sprachmodelle für den Assistenten</string>
+    <string name="settings_group_plancia_detail">Home Assistant im Auto</string>
+    <string name="settings_group_xonos_detail">Music Assistant im Auto</string>
+    <string name="settings_group_cinema_detail">Videoseiten und TV-Listen</string>
+    <string name="settings_group_help_detail">Verbinden, Protokolle, Vorschau des Autos</string>
+    <string name="settings_group_about_detail">Version, Lizenzen, myCar unterstützen</string>
+    <string name="theme_title">Design</string>
+    <string name="theme_footer">So sieht myCar auf dem Telefon aus. Der Bildschirm des Autos hat sein eigenes, in den Einstellungen des Autos.</string>
+    <string name="theme_phone">Wie das Telefon</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_black">Schwarz (AMOLED)</string>
 </resources>

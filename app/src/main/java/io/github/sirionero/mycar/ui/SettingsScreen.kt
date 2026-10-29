@@ -3,6 +3,7 @@ package io.github.sirionero.mycar.ui
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Delete
@@ -49,6 +51,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -56,6 +60,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
@@ -84,8 +90,8 @@ import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
-/** Where Settings opens: at the top, or at the section a card on Home sent the driver to. */
-enum class SettingsAt { TOP, USAGE_NOTES, CERTIFICATE }
+/** Where Settings opens: at its list, or at the group a card on Home (or a screen opened from it) is about. */
+enum class SettingsAt { TOP, USAGE_NOTES, CERTIFICATE, HELP, ABOUT }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,74 +106,152 @@ fun SettingsScreen(
     onReplayIntro: () -> Unit,
     at: SettingsAt = SettingsAt.TOP,
 ) {
-    val scroll = rememberScrollState()
-    // Opened from Home's "it worked" card: start at usage notes; from its certificate card: at
-    // the certificate, second to last.
-    var usageNotesY by remember { mutableIntStateOf(-1) }
-    var certificateY by remember { mutableIntStateOf(-1) }
-    if (at != SettingsAt.TOP) {
-        LaunchedEffect(Unit) {
-            val y = snapshotFlow { if (at == SettingsAt.CERTIFICATE) certificateY else usageNotesY }.first { it >= 0 }
-            snapshotFlow { scroll.maxValue }.first { it > 0 && it < Int.MAX_VALUE }
-            scroll.scrollTo(y)
-        }
-    }
+    // The groups, each a page of its own; Home's cards open straight at theirs.
+    var page by rememberSaveable { mutableStateOf(startPage(at)) }
+    BackHandler(enabled = page != null) { page = null }
     val typingForCar by PhoneTyping.field.collectAsState()
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.common_settings)) },
+                title = { Text(page?.let { pageTitle(it) } ?: stringResource(R.string.common_settings)) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = { if (page != null) page = null else onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                     }
                 },
             )
         },
     ) { padding ->
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(padding)
-                // Edge to edge, the window no longer shrinks for the keyboard: without this, a field
-                // in the lower half (Plancia's token, Xonos's password) stays under it. Not while the
-                // bar for typing for the car is up: that one already sits above the keyboard.
-                .consumeWindowInsets(padding)
-                .then(if (typingForCar == null) Modifier.imePadding() else Modifier)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(scroll),
-            verticalArrangement = Arrangement.spacedBy(24.dp),
-        ) {
-            Spacer(Modifier.height(0.dp))
-            LanguageSection()
-            SettingsSection(
-                stringResource(R.string.settings_support_title),
-                footer = stringResource(R.string.settings_support_footer),
-            ) { DonateRows() }
-            ConnectionSection()
-            HelpSection(onOpenHelp, onOpenCarPreview, onOpenLogs)
-            CarAudioSection()
-            PlanciaSection()
-            XonosSection()
-            CinemaSection()
-            CinemaTvSection()
-            VoiceModelSection()
-            if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
-            // A build without a stats server sends nothing: no switch that would do nothing.
-            if (UsageStats.sends) {
-                SettingsSection(
-                    stringResource(R.string.settings_usage_notes_title),
-                    Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
-                    header = USAGE_STATS_INTRO,
-                ) { UsageStatsRows() }
+        key(page) {
+            val scroll = rememberScrollState()
+            // Opened from Home's "it worked" card: at usage notes; from its certificate card: at the
+            // certificate.
+            var usageNotesY by remember { mutableIntStateOf(-1) }
+            var certificateY by remember { mutableIntStateOf(-1) }
+            if ((at == SettingsAt.USAGE_NOTES || at == SettingsAt.CERTIFICATE) && page == startPage(at)) {
+                LaunchedEffect(Unit) {
+                    val y = snapshotFlow { if (at == SettingsAt.CERTIFICATE) certificateY else usageNotesY }.first { it >= 0 }
+                    snapshotFlow { scroll.maxValue }.first { it > 0 && it < Int.MAX_VALUE }
+                    scroll.scrollTo(y)
+                }
             }
-            SettingsSection(stringResource(R.string.settings_updates_title)) { UpdateRow() }
-            CertificateSection(Modifier.onGloballyPositioned { certificateY = it.positionInParent().y.toInt() })
-            AboutSection(onOpenWhatsNew, onReplayTutorial, onReplayIntro)
-            Spacer(Modifier.height(16.dp))
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    // Edge to edge, the window no longer shrinks for the keyboard: without this, a field
+                    // in the lower half (Plancia's token, Xonos's password) stays under it. Not while the
+                    // bar for typing for the car is up: that one already sits above the keyboard.
+                    .consumeWindowInsets(padding)
+                    .then(if (typingForCar == null) Modifier.imePadding() else Modifier)
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(scroll),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
+                Spacer(Modifier.height(0.dp))
+                when (page) {
+                    null -> SettingsCard {
+                        SettingsPage.entries.forEachIndexed { i, group ->
+                            if (i > 0) SettingsDivider()
+                            SettingsRow(
+                                pageTitle(group),
+                                Modifier.clickable { page = group },
+                                subtitle = pageDetail(group),
+                                icon = pageIcon(group),
+                                trailing = { Arrow() },
+                            )
+                        }
+                    }
+                    SettingsPage.GENERAL -> {
+                        LanguageSection()
+                        ThemeSection()
+                        SettingsSection(stringResource(R.string.settings_updates_title)) { UpdateRow() }
+                    }
+                    SettingsPage.CONNECTION -> {
+                        ConnectionSection()
+                        CarAudioSection()
+                        CertificateSection(Modifier.onGloballyPositioned { certificateY = it.positionInParent().y.toInt() })
+                    }
+                    SettingsPage.VOICE -> VoiceModelSection()
+                    SettingsPage.PLANCIA -> PlanciaSection()
+                    SettingsPage.XONOS -> XonosSection()
+                    SettingsPage.CINEMA -> {
+                        CinemaSection()
+                        CinemaTvSection()
+                    }
+                    SettingsPage.HELP -> {
+                        HelpSection(onOpenHelp, onOpenCarPreview, onOpenLogs)
+                        if (SHOW_RECOMMENDED_APPS) AppsSection(onOpenRecommendedApps)
+                    }
+                    SettingsPage.ABOUT -> {
+                        SettingsSection(
+                            stringResource(R.string.settings_support_title),
+                            footer = stringResource(R.string.settings_support_footer),
+                        ) { DonateRows() }
+                        // A build without a stats server sends nothing: no switch that would do nothing.
+                        if (UsageStats.sends) {
+                            SettingsSection(
+                                stringResource(R.string.settings_usage_notes_title),
+                                Modifier.onGloballyPositioned { usageNotesY = it.positionInParent().y.toInt() },
+                                header = USAGE_STATS_INTRO,
+                            ) { UsageStatsRows() }
+                        }
+                        AboutSection(onOpenWhatsNew, onReplayTutorial, onReplayIntro)
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
         }
     }
+}
+
+/** The groups of Settings, in the order listed. */
+enum class SettingsPage { GENERAL, CONNECTION, VOICE, PLANCIA, XONOS, CINEMA, HELP, ABOUT }
+
+private fun startPage(at: SettingsAt): SettingsPage? = when (at) {
+    SettingsAt.TOP -> null
+    SettingsAt.USAGE_NOTES, SettingsAt.ABOUT -> SettingsPage.ABOUT
+    SettingsAt.CERTIFICATE -> SettingsPage.CONNECTION
+    SettingsAt.HELP -> SettingsPage.HELP
+}
+
+@Composable
+private fun pageTitle(page: SettingsPage): String = when (page) {
+    SettingsPage.GENERAL -> stringResource(R.string.settings_group_general)
+    SettingsPage.CONNECTION -> stringResource(R.string.settings_connection_title)
+    SettingsPage.VOICE -> stringResource(R.string.settings_group_voice)
+    SettingsPage.PLANCIA -> "Plancia"
+    SettingsPage.XONOS -> "Xonos"
+    SettingsPage.CINEMA -> "Cinema"
+    SettingsPage.HELP -> stringResource(R.string.settings_help_title)
+    SettingsPage.ABOUT -> stringResource(R.string.settings_about_title)
+}
+
+@Composable
+private fun pageDetail(page: SettingsPage): String = stringResource(
+    when (page) {
+        SettingsPage.GENERAL -> R.string.settings_group_general_detail
+        SettingsPage.CONNECTION -> R.string.settings_group_connection_detail
+        SettingsPage.VOICE -> R.string.settings_group_voice_detail
+        SettingsPage.PLANCIA -> R.string.settings_group_plancia_detail
+        SettingsPage.XONOS -> R.string.settings_group_xonos_detail
+        SettingsPage.CINEMA -> R.string.settings_group_cinema_detail
+        SettingsPage.HELP -> R.string.settings_group_help_detail
+        SettingsPage.ABOUT -> R.string.settings_group_about_detail
+    },
+)
+
+@Composable
+private fun pageIcon(page: SettingsPage): ImageVector = when (page) {
+    SettingsPage.GENERAL -> ImageVector.vectorResource(R.drawable.sym_settings)
+    SettingsPage.CONNECTION -> ImageVector.vectorResource(R.drawable.sym_directions_car)
+    SettingsPage.VOICE -> ImageVector.vectorResource(R.drawable.sym_mic)
+    SettingsPage.PLANCIA -> ImageVector.vectorResource(R.drawable.sym_space_dashboard)
+    SettingsPage.XONOS -> ImageVector.vectorResource(R.drawable.sym_play_arrow)
+    SettingsPage.CINEMA -> ImageVector.vectorResource(R.drawable.sym_movie)
+    SettingsPage.HELP -> Icons.Filled.Build
+    SettingsPage.ABOUT -> Icons.Filled.Info
 }
 
 @Composable

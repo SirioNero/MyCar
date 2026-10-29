@@ -284,4 +284,20 @@
     <string name="tailscale_cable_title">Tramite Tailscale: col cavo, per ora</string>
     <string name="tailscale_cable_update_app">Senza fili, myCar va lasciata fuori da Tailscale (dentro una VPN, Android tiene myCar fuori dal Wi-Fi dell\'auto), e allora non può raggiungere da sola il tuo %1$s. Aggiorna l\'app %2$s, e myCar lo raggiunge tramite l\'app; fino ad allora l\'auto usa da sola l\'app %2$s al suo posto.</string>
     <string name="tailscale_cable_get_app">Senza fili, myCar va lasciata fuori da Tailscale (dentro una VPN, Android tiene myCar fuori dal Wi-Fi dell\'auto), e allora non può raggiungere da sola il tuo %1$s. Con un\'app %2$s aggiornata sul telefono, myCar lo raggiunge tramite l\'app.</string>
+    <string name="settings_group_general">Generali</string>
+    <string name="settings_group_general_detail">Lingua, tema, aggiornamenti</string>
+    <string name="settings_group_connection_detail">Senza fili, audio in auto, certificato</string>
+    <string name="settings_group_voice">Voce</string>
+    <string name="settings_group_voice_detail">Modelli vocali per l\'assistente</string>
+    <string name="settings_group_plancia_detail">Home Assistant in auto</string>
+    <string name="settings_group_xonos_detail">Music Assistant in auto</string>
+    <string name="settings_group_cinema_detail">Siti video e liste TV</string>
+    <string name="settings_group_help_detail">Come collegarsi, log, anteprima dell\'auto</string>
+    <string name="settings_group_about_detail">Versione, licenze, sostieni myCar</string>
+    <string name="theme_title">Tema</string>
+    <string name="theme_footer">L\'aspetto di myCar sul telefono. Lo schermo dell\'auto ha il suo, nelle impostazioni dell\'auto.</string>
+    <string name="theme_phone">Come il telefono</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
+    <string name="theme_black">Nero (AMOLED)</string>
 </resources>
