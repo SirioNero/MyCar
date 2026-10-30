@@ -83,6 +83,7 @@
 
     <string name="assistant_grant">Autoriser</string>
     <string name="assistant_dismiss">Fermer</string>
+    <string name="assistant_needs_model">Ne comprend que l\'anglais pour l\'instant : pour les commandes en %1$s, téléchargez %2$s dans les paramètres de myCar sur le téléphone.</string>
     <string name="assistant_mic">Assistant</string>
     <string name="assistant_phone_inline">l’assistant du téléphone</string>
     <string name="assistant_unlock_to_start">Déverrouillez le téléphone : %1$s démarre aussitôt</string>

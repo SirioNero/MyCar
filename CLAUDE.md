@@ -522,7 +522,16 @@ Tutti i token in un solo posto, `car/design/`:
   Kroko + Parakeet multilingue per it/pt, che dal setup diventa anche la scelta). Kroko (solo
   inglese) in un'altra lingua sente solo quando si smette di parlare: le sue parole non si mostrano,
   si aspetta il modello finale (anche se sta caricando) e lo si usa anche quando Kroko non ha scritto
-  niente. **Comandi e risposte** (`car/AssistantLanguage.kt` + `AssistantItalian/Spanish/French/
+  niente. Dalla 0.6.4 la fine della frase in un'altra lingua non è più solo di Kroko, che in italiano
+  può stare un secondo senza scrivere mentre il guidatore parla ancora e tagliava la frase: vale quando
+  anche il microfono è tornato al rumore dell'auto (`speech/SpeechEnd.kt` + `SpeechEndTest`: il livello
+  più basso dalla pressione, che sale piano; non contano i primi 300 ms, la coda del bip e un microfono
+  che sale piano, né gli zeri di un microfono dell'auto che parte; "ha parlato" vuol dire 200 ms di
+  voce di fila, non qualche colpo sparso),
+  al massimo 2,5 s dopo; senza parole di Kroko bastano 1,2 s di quiete dopo aver parlato. Il log dice
+  lingua, modello e come è finita la frase (non le parole). Con myCar in una lingua senza il suo modello
+  l'assistente ascolta in inglese e in auto lo dice sopra "Listening…" (`assistant_needs_model`, con il
+  modello da scaricare). **Comandi e risposte** (`car/AssistantLanguage.kt` + `AssistantItalian/Spanish/French/
   German/Portuguese.kt`): `AssistantCommands` resta inglese; `toEnglish` trasforma la frase nel
   comando inglese che vuol dire (regole in ordine, come in `AssistantCommands`), `answer` traduce ogni
   frase inglese (`Said`: tutte quelle di AssistantCommands, CarAssistant, SpeechEngine, VoiceReply),
@@ -596,9 +605,11 @@ Tutti i token in un solo posto, `car/design/`:
   (`AssistantCommands.missed`: `UNKNOWN`, o "open X" senza un'app X: "apri il cancello" è per la casa)
   va a Home Assistant con le parole come dette, e la risposta (già nella lingua del guidatore) si dice
   com'è (`CarAssistant.replyAsSaid`, scartata se nel frattempo il guidatore ha chiuso o richiesto). Una
-  domanda entro 5 minuti continua la conversazione (`conversation_id`: "e domani?"); se Home Assistant
-  chiede qualcosa (`continue_conversation`) il microfono si riapre e la risposta va a lui, non ai
-  comandi (`asked`, 60 s). `home/Assist.kt` + `AssistPlan.kt` (+ `AssistPlanTest`): la pipeline
+  domanda entro 5 minuti continua la conversazione (`conversation_id`: "e domani?"). Se Home Assistant
+  chiede qualcosa (`continue_conversation`) il microfono non si riapre da solo (dalla 0.6.4, richiesta
+  dell'utente: dopo una risposta l'assistente se ne va) e la frase dopo passa prima dai comandi di
+  myCar, poi da lui con la conversazione. Home Assistant ha 15 s (`AssistantBrain.ANSWER_MS`), e intanto
+  il riquadro scrive "Home Assistant". `home/Assist.kt` + `AssistPlan.kt` (+ `AssistPlanTest`): la pipeline
   preferita se parla la lingua del guidatore, se no un'altra che la parla (`assist_pipeline/run`, dal
   testo: eventi `intent-end` con `intent_output`, `error`, `run-end`, `HaClient.stream`); se nessuna la
   parla, l'agente della preferita chiesto nella lingua (`conversation/process` con `language`):
@@ -774,7 +785,27 @@ Tutti i token in un solo posto, `car/design/`:
   viaggio cede a un'auto che ricompare (`listeningQuietly`); un'attesa partita dal Bluetooth dell'auto
   andata a vuoto non fa dimenticare che chiama. In Automatico dopo una chiamata l'A2DP ha 10 s pieni
   per tornare (`CarAudioRoute.sawCall`). Trovati da una revisione indipendente, verificati nel codice.
+  Dalla 0.6.4: l'auto che compare in Bluetooth va dritta alla schermata di myCar già aperta
+  (`connectFromOpenScreen` in `MyCarActivity.kt`; poi la si porta comunque davanti, senza azione, così
+  le domande di Android che aspettano myCar sullo schermo compaiono allo sblocco), perché un intent a una schermata ferma, con lo schermo
+  acceso e il blocco sopra, Android lo consegna solo quando torna davanti, cioè dopo lo sblocco
+  (`ActivityRecord.deliverNewIntentLocked`: subito solo se RESUMED/PAUSED o in cima col telefono che
+  dorme); il "Consenti" si lancia solo con myCar davanti (`showApproval` dà false altrimenti) e l'auto
+  che aspetta (`waiting`) si chiede in `onResume` (`askWaiting`); Impostazioni > Connessione dice le auto
+  permesse (`allowedCars`); all'avvio il log dice quante sono e Android le guarda di nuovo (`rewatch`).
+  Verificato nel codice di Android (mirror `aosp-mirror/platform_frameworks_base`): con Android 16 il
+  sistema manda ancora `onDeviceAppeared(AssociationInfo)` accanto a `onDevicePresenceEvent`
+  ("legacy callback", `DevicePresenceProcessor`), e `startObservingDevicePresence(String)` funziona.
   Non provato con un'auto vera.
+- **Assistente che non resta fermo** (0.6.4, richiesta dell'utente: "o si rimuove completamente da solo
+  o continua ad ascoltare, preferisco il primo"): `CarAssistant` ha un controllo dei tempi (`watchdog`,
+  ogni secondo finché il riquadro è su) che lo chiude da solo: microfono non aperto in 10 s, ascolto oltre
+  25 s, parole o Home Assistant oltre 20 s (il tempo riparte quando passa a Home Assistant), sintesi
+  vocale che non dice di aver finito (8 s + 120 ms a lettera, di più con la voce di Android rallentata,
+  e mai mentre il motore segnala le parole che dice, `onRangeStart`; la fine si chiude a mano, così la
+  musica riprende). Ricominciando mentre il modello finale carica, la frase lasciata non si decodifica. Il microfono premuto mentre lavora ricomincia (prima non faceva niente); i comandi si
+  prendono con `collectLatest` in `CarUi`, così una richiesta nuova o Annulla fanno cadere quella che
+  aspetta Home Assistant (prima tutte in coda dietro di lei fino a 40 s).
 - **Setaccio** (0.5.19, branch `fix/bug-scan-3`): quattro letture del codice (sessione e protocollo,
   audio e Xonos, interfaccia dell'auto, resto), ogni segnalazione verificata nel codice prima di
   correggerla. Corretti: la freccia di Vela ferma sulla prima svolta (`CarIcon.equals` confronta le
@@ -951,10 +982,12 @@ Tutti i token in un solo posto, `car/design/`:
 
 ## Backlog
 
-- **In sospeso dopo la 0.6.0** (richiesta dell'utente prima del limite settimanale, da riprendere da
-  soli): giro di bug sulla connessione
-  automatica e sul ricollegamento pochi minuti dopo un viaggio ("esco al super, rientro e fatica a
-  ricollegarsi"; ramo `fix/reconnect`, vuoto); scatti `lang-*` per controllare le lingue. Poi 0.6.1.
+- **Schermo dell'auto tutto nero** dopo un collegamento riuscito, a volte (segnalato dopo la 0.6.3):
+  non trovato leggendo il codice. Escluso: il display virtuale di myCar non si spegne col telefono
+  (privato, `FLAG_NEVER_BLANK` in `VirtualDisplayAdapter`), la `Presentation` non dipende dalla
+  schermata di myCar (token suo). Serve il log di un viaggio così (Impostazioni > Aiuto e strumenti >
+  Log in tempo reale > Precedenti > Condividi).
+- Scatti `lang-*` per controllare le lingue.
 - Fatto nella 0.6.0 (non ancora visto in un'anteprima): impostazioni del telefono in gruppi
   (`SettingsPage` in `ui/SettingsScreen.kt`: Generali, Connessione, Voce, Plancia, Xonos, Cinema, Aiuto
   e strumenti, Informazioni; `SettingsAt` apre il gruppo giusto, Indietro torna all'elenco) e temi del

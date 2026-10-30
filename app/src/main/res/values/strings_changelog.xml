@@ -5,6 +5,13 @@
   "Settings >" are the app's own: translate them as the app's screens say them.
 -->
 <resources>
+    <!-- 0.6.4-alpha -->
+    <string-array name="changelog_40">
+        <item>The assistant no longer hangs after words it can\'t act on: it always closes by itself (after a question from Home Assistant too), and the microphone starts over at once. Home Assistant gets 15 seconds to answer.</item>
+        <item>In languages other than English, a phrase is no longer cut while you\'re still speaking: it ends once the microphone is quiet again.</item>
+        <item>When the phone has no voice model for myCar\'s language, the assistant says so while it listens, and which model to download.</item>
+        <item>Connecting wirelessly by itself no longer waits for the phone to be unlocked when myCar is already open behind the lock screen. Android\'s \"Allow\" comes up as soon as myCar is on screen, and the settings show the cars allowed.</item>
+    </string-array>
     <!-- 0.6.3-alpha -->
     <string-array name="changelog_39">
         <item>After a wireless drive with a car that calls the phone, myCar keeps listening for it for ten minutes: after a short stop the car connects again by itself, even when its Bluetooth never dropped.</item>

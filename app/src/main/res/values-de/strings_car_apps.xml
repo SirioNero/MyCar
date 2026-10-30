@@ -83,6 +83,7 @@
 
     <string name="assistant_grant">Zulassen</string>
     <string name="assistant_dismiss">Schließen</string>
+    <string name="assistant_needs_model">Versteht vorerst nur Englisch: Für Befehle auf %1$s lade %2$s in den Einstellungen von myCar auf dem Telefon herunter.</string>
     <string name="assistant_mic">Assistent</string>
     <string name="assistant_phone_inline">der Assistent des Telefons</string>
     <string name="assistant_unlock_to_start">Entsperre das Telefon: Sobald es entsperrt ist, startet %1$s</string>

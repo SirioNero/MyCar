@@ -96,6 +96,7 @@ import io.github.sirionero.mycar.notify.CarNotifications
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
 import java.text.DateFormat
 import java.util.Date
@@ -165,12 +166,13 @@ fun CarUi() {
     // only knows how to listen and speak, not what "open Spotify" means.
     val frameForAssistant by CarEnvironment.frame.collectAsState()
     LaunchedEffect(navigator) {
-        CarAssistant.pendingCommand.collect { heard ->
+        // The latest words only: a new request (or Cancel) drops one still waiting for Home
+        // Assistant, which held every request after it until it answered.
+        CarAssistant.pendingCommand.collectLatest { heard ->
             if (heard != null) {
                 // Whatever a command meets (a provider that fails, an app that throws), the drive
                 // goes on: an exception here used to end myCar.
-                // Home Assistant asked something back: the answer is for it, not a command of myCar's.
-                val reply = if (AssistantBrain.asked) AssistantCommands.UNKNOWN else try {
+                val reply = try {
                     AssistantCommands.handle(appContext, navigator, frameForAssistant, heard)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
@@ -179,8 +181,13 @@ fun CarUi() {
                     "Something went wrong. Try again."
                 }
                 // None of myCar's commands: the driver's Home Assistant may know, or run it.
-                val answer = if (AssistantCommands.missed(reply)) AssistantBrain.ask(heard) else null
-                if (answer != null) CarAssistant.replyAsSaid(heard, answer.text, answer.goOn) else CarAssistant.reply(reply)
+                val answer = if (AssistantCommands.missed(reply) && AssistantBrain.ready) {
+                    CarAssistant.askingHome(heard)
+                    AssistantBrain.ask(heard)
+                } else {
+                    null
+                }
+                if (answer != null) CarAssistant.replyAsSaid(heard, answer.text) else CarAssistant.reply(reply)
             }
         }
     }

@@ -87,6 +87,7 @@
 
     <string name="assistant_grant">Разрешить</string>
     <string name="assistant_dismiss">Закрыть</string>
+    <string name="assistant_needs_model">Пока понимает только английский: чтобы давать команды на языке «%1$s», скачайте %2$s в настройках myCar на телефоне.</string>
     <string name="assistant_mic">Помощник</string>
     <string name="assistant_phone_inline">помощник телефона</string>
     <string name="assistant_unlock_to_start">Разблокируйте телефон: %1$s запустится, как только телефон будет разблокирован</string>

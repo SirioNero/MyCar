@@ -102,12 +102,17 @@ fun AssistantOverlay(modifier: Modifier = Modifier) {
                 val listeningLabel = AssistantLanguage.label("Listening…")
                 val waitLabel = AssistantLanguage.label("One moment…")
                 val (small, big) = when (state.phase) {
-                    CarAssistant.Phase.LISTENING -> "" to state.heard.ifBlank { if (state.ready) listeningLabel else waitLabel }
-                    CarAssistant.Phase.THINKING -> "" to state.heard.ifBlank { "…" }
+                    CarAssistant.Phase.LISTENING -> state.hint to state.heard.ifBlank { if (state.ready) listeningLabel else waitLabel }
+                    // Its name, the same in every language: who the words went to, and who's awaited.
+                    CarAssistant.Phase.THINKING -> (if (state.brain) "Home Assistant" else "") to state.heard.ifBlank { "…" }
                     else -> state.heard to state.reply
                 }
                 if (small.isNotBlank()) {
-                    Text(small, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    // The hint is a sentence: on two lines, not cut after a few words.
+                    Text(
+                        small, color = Color.White.copy(alpha = 0.7f), style = MaterialTheme.typography.bodyLarge,
+                        maxLines = if (small == state.hint) 2 else 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
+                    )
                 }
                 // A long answer (Home Assistant's model, AssistantBrain) smaller, on more lines.
                 val long = big.length > LONG_REPLY

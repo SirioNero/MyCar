@@ -2,12 +2,14 @@ package io.github.sirionero.mycar.wireless
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
 import android.companion.AssociationRequest
 import android.companion.BluetoothDeviceFilter
 import android.companion.CompanionDeviceManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import io.github.sirionero.mycar.MyCarActivity
@@ -41,11 +43,16 @@ object WirelessAuto {
     private const val SETTLE_MS = 15_000L
     /** A dialog that never showed (myCar wasn't on screen) gets no answer: asked again after this. */
     private const val UNANSWERED_MS = 10 * 60_000L
+    /** The car whose "Allow" couldn't show, myCar being behind: asked the next time its screen is up. */
+    private const val WAITING = "waiting"
 
     private val log = MyCarLog.tagged("AAW")
 
-    /** Set by the activity: shows Android's companion dialog, which only an activity can do. */
-    @Volatile var showApproval: ((IntentSender, String) -> Unit)? = null
+    /**
+     * Set by the activity: shows Android's companion dialog, which only an activity in front can do.
+     * False when myCar's screen isn't in front: the car is asked about when it is ([askWaiting]).
+     */
+    @Volatile var showApproval: ((IntentSender, String) -> Boolean)? = null
 
     /** The car whose dialog is up, so a second call in the same drive doesn't ask twice. */
     @Volatile private var asking: String? = null
@@ -104,12 +111,11 @@ object WirelessAuto {
 
             private fun pending(chooser: IntentSender) {
                 val show = showApproval
-                if (show == null) {
-                    // Asked again at the next wireless drive: only an answer counts.
-                    log.w("auto-connect: no screen to ask on")
+                if (show == null || !show(chooser, address)) {
+                    // Only an answer counts: asked as soon as myCar's screen is up, or at the next drive.
+                    log.w("auto-connect: myCar isn't on screen to ask - asking when it is")
                     asking = null
-                } else {
-                    show(chooser, address)
+                    prefs(context).edit().putString(WAITING, address).apply()
                 }
             }
 
@@ -118,6 +124,44 @@ object WirelessAuto {
                 asking = null
             }
         }, Handler(Looper.getMainLooper()))
+    }
+
+    /** myCar's screen is up: the "Allow" that couldn't show while it was behind, for the car that waited. */
+    @SuppressLint("MissingPermission")
+    fun askWaiting(context: Context) {
+        val prefs = prefs(context)
+        val address = prefs.getString(WAITING, null) ?: return
+        prefs.edit().remove(WAITING).apply()
+        if (!isOn(context) || context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) return
+        val device = context.getSystemService(BluetoothManager::class.java)?.adapter
+            ?.let { runCatching { it.getRemoteDevice(address) }.getOrNull() } ?: return
+        reached(context, device)
+    }
+
+    /** The cars myCar connects to by itself, by name: for the setting on the phone. */
+    @SuppressLint("MissingPermission")
+    fun allowedCars(context: Context): List<String> {
+        val manager = context.getSystemService(CompanionDeviceManager::class.java) ?: return emptyList()
+        val addresses = companions(manager)
+        if (addresses.isEmpty()) return emptyList()
+        val adapter = context.getSystemService(BluetoothManager::class.java)?.adapter
+        val named = context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        return addresses.map { address ->
+            (if (named) adapter?.let { runCatching { it.getRemoteDevice(address.uppercase(java.util.Locale.ROOT)).name }.getOrNull() } else null) ?: address
+        }
+    }
+
+    /**
+     * At myCar's start: the cars allowed are watched again (Android keeps it, so this changes
+     * nothing when all is well), and the log says how many there are, which tells a car that was
+     * never allowed from one Android doesn't report.
+     */
+    fun rewatch(context: Context) {
+        if (!isOn(context)) return
+        val manager = context.getSystemService(CompanionDeviceManager::class.java) ?: return
+        val cars = companions(manager)
+        log.i("auto-connect: ${cars.size} car(s) allowed to connect by themselves")
+        cars.forEach { watch(context, it) }
     }
 
     /** Whether the car at [address] called the phone the last time it connected wirelessly. */
@@ -151,6 +195,7 @@ object WirelessAuto {
         val manager = context.getSystemService(CompanionDeviceManager::class.java) ?: return
         @Suppress("DEPRECATION")
         runCatching { manager.startObservingDevicePresence(address) }
+            .onSuccess { log.i("auto-connect: Android watches for the car") }
             .onFailure { log.w("auto-connect: couldn't watch for the car (${it.message})") }
     }
 
@@ -189,15 +234,29 @@ object WirelessAuto {
             return
         }
         val now = System.currentTimeMillis()
-        if (now - lastAppeared < SETTLE_MS) return
+        if (now - lastAppeared < SETTLE_MS) {
+            log.i("auto-connect: a car myCar knows connected over Bluetooth again within ${SETTLE_MS / 1000} s - once is enough")
+            return
+        }
         lastAppeared = now
         log.i("auto-connect: a car myCar knows connected over Bluetooth")
+        // Bluetooth takes an address in capitals only.
+        val upper = address.uppercase(java.util.Locale.ROOT)
+        if (io.github.sirionero.mycar.connectFromOpenScreen(upper)) {
+            log.i("auto-connect: connecting from myCar's screen, already open")
+            // Brought to the front as before, with nothing to do: Android's questions that wait for
+            // myCar on screen (the music's sharing, the "Allow") come up as soon as the phone is
+            // unlocked, instead of only once the driver opened myCar.
+            runCatching {
+                context.startActivity(Intent(context, MyCarActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }.onFailure { log.w("auto-connect: couldn't bring myCar up (${it.message})") }
+            return
+        }
         runCatching {
             context.startActivity(
                 Intent(context, MyCarActivity::class.java)
                     .setAction(ACTION_CAR_NEARBY)
-                    // Bluetooth takes an address in capitals only.
-                    .putExtra(EXTRA_ADDRESS, address.uppercase(java.util.Locale.ROOT))
+                    .putExtra(EXTRA_ADDRESS, upper)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             )
         }.onFailure { log.w("auto-connect: couldn't open myCar (${it.message})") }

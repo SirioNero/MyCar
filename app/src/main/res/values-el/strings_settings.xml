@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">Ανενεργό: τη σύνδεση μπορεί να την πάρει το Android Auto</string>
     <string name="settings_wireless_auto">Αυτόματη ασύρματη σύνδεση</string>
     <string name="settings_wireless_auto_on">Ένα αυτοκίνητο στο οποίο συνδεθήκατε χωρίς καλώδιο συνδέεται ξανά όταν το ξεκινάτε. Το Android ρωτά μία φορά.</string>
+    <string name="settings_wireless_auto_cars">Συνδέεται ξανά μόνο του με το %1$s όταν το ξεκινάτε. Για άλλο αυτοκίνητο, το Android ρωτά μία φορά, μετά από μια διαδρομή χωρίς καλώδιο.</string>
     <string name="settings_wireless_auto_off">Ανενεργό: πατάτε «Ασύρματη σύνδεση» κάθε φορά</string>
 
     <string name="settings_help_title">Βοήθεια και εργαλεία</string>

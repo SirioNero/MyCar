@@ -81,6 +81,7 @@
 
     <string name="assistant_grant">授权</string>
     <string name="assistant_dismiss">关闭</string>
+    <string name="assistant_needs_model">目前只听得懂英语：要用%1$s说指令，请在手机上的 myCar 设置里下载 %2$s。</string>
     <string name="assistant_mic">助手</string>
     <string name="assistant_phone_inline">手机助手</string>
     <string name="assistant_unlock_to_start">请解锁手机：手机一打开，“%1$s”就会启动</string>

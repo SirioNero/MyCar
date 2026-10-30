@@ -1,13 +1,28 @@
-myCar 0.6.3-alpha: wireless connecting by itself with the phone in a pocket, and again after a short stop.
+myCar 0.6.4-alpha: a voice assistant that never hangs, phrases not cut short in other languages, and connecting by itself with the phone locked.
+
+## Voice assistant
+- After words it couldn't act on, the assistant could sit on "…" for up to a minute with the microphone deaf: it waited up to 40 seconds for Home Assistant, and every new request queued behind that one. Now Home Assistant gets 15 seconds, a new request or Cancel drops the one still waiting, and the microphone pressed while it works starts over.
+- Whatever stalls - the microphone not opening, a phrase that doesn't end, words that never come, a speech engine that never says it's done - the assistant closes by itself after a while.
+- When Home Assistant asks something back, the microphone no longer opens by itself, and the next words no longer go to it no matter what: myCar's commands first, then Home Assistant, carrying on the conversation for five minutes.
+- While it waits for Home Assistant, it says so.
+- In languages other than English, the end of a phrase was left to the live model, which knows English only: in Italian it could go a second without writing a word while the driver was still talking, and the phrase was cut there. Now its end counts once the microphone is quiet too (back to the car's own noise), at most 2.5 seconds later; and if it writes nothing at all, 1.2 seconds of quiet after speaking ends the phrase.
+- myCar in a language with no voice model for it on the phone listens in English: the car now says so over "Listening…", with the model to download.
+- The log says which language and model the assistant listens with, and how each phrase ended.
 
 ## Connecting wirelessly by itself
+- The car coming up over Bluetooth reached myCar as an intent. To a myCar screen already open but stopped, with the screen on and the lock screen up (the car's Bluetooth wakes the phone), Android hands it over only once that screen is back in front - after the phone is unlocked. Now, with a myCar screen open, the connection starts straight from it.
+- Android's "Allow" for connecting by itself was asked only with myCar in front: with the phone in a pocket as the car's picture came up, it might never show. Now myCar remembers the car and asks as soon as its screen is up.
+- Settings > Connection shows the cars myCar connects to by itself.
+- The log says at start how many cars are allowed, and whether Android watches for them.
+
+Not tried in a real car yet.
+
+## Also in 0.6.3-alpha
 - After a wireless drive with a car that calls the phone, myCar keeps the phone's Android Auto service published for ten more minutes, with nothing shown on the phone. After a short stop - the car's Bluetooth still connected, so Android never says the car came back - the car finds the service when its Android Auto starts again, and the drive comes back by itself instead of waiting for a tap.
 - It stops at once for the cable, a tap on Connect, or Disconnect.
 - With the phone locked in a pocket, Android refused myCar the car's Wi-Fi: it hands a car's network only to an app in front or one with a foreground service, and myCar's drive service only started once the picture was up. Now it starts as soon as the car's Bluetooth channel opens, so connecting by itself works with the phone in a pocket too. A start-up that doesn't get to a drive gives it back.
 - The car coming back over Bluetooth while myCar is still listening after the drive starts a fresh, full wait instead of being turned away.
 - A car that didn't call within the wait that its own Bluetooth started is no longer forgotten as one that calls the phone.
-
-## Car audio
 - On Automatic with the music on Bluetooth, a car that drops its Bluetooth music for a call now gets a full ten seconds after the call ends to bring it back, before the sound moves to myCar.
 
 ## Also in 0.6.2-alpha

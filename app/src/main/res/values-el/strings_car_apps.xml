@@ -83,6 +83,7 @@
 
     <string name="assistant_grant">Παραχώρηση</string>
     <string name="assistant_dismiss">Παράβλεψη</string>
+    <string name="assistant_needs_model">Προς το παρόν καταλαβαίνει μόνο αγγλικά: για εντολές στα %1$s, κατεβάστε το %2$s από τις ρυθμίσεις του myCar στο τηλέφωνο.</string>
     <string name="assistant_mic">Βοηθός</string>
     <string name="assistant_phone_inline">ο βοηθός του τηλεφώνου</string>
     <string name="assistant_unlock_to_start">Ξεκλειδώστε το τηλέφωνο: μόλις ανοίξει, ξεκινά %1$s</string>

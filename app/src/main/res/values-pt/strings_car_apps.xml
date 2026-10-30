@@ -83,6 +83,7 @@
 
     <string name="assistant_grant">Permitir</string>
     <string name="assistant_dismiss">Fechar</string>
+    <string name="assistant_needs_model">Por enquanto só entende inglês: para comandos em %1$s, baixe %2$s nas configurações do myCar no telefone.</string>
     <string name="assistant_mic">Assistente</string>
     <string name="assistant_phone_inline">o assistente do telefone</string>
     <string name="assistant_unlock_to_start">Desbloqueie o telefone: %1$s começa assim que ele for desbloqueado</string>
