@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">已关闭：可改由 Android Auto 接管连接</string>
     <string name="settings_wireless_auto">自动无线连接</string>
     <string name="settings_wireless_auto_on">曾经无线连接过的汽车，启动时会自动重新连接。Android 只会询问一次。</string>
+    <string name="settings_wireless_auto_cars">%1$s 启动时会自动重新连接。换一辆车时，在一次无线行程之后，Android 会询问一次。</string>
     <string name="settings_wireless_auto_off">已关闭：每次都要点按“无线连接”</string>
 
     <string name="settings_help_title">帮助和工具</string>

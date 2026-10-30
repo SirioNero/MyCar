@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">Выкл.: подключение может взять Android Auto</string>
     <string name="settings_wireless_auto">Подключаться без кабеля автоматически</string>
     <string name="settings_wireless_auto_on">Автомобиль, к которому вы уже подключались без кабеля, снова подключается, когда его заводят. Android спросит один раз.</string>
+    <string name="settings_wireless_auto_cars">Снова подключается сам к %1$s, когда его заводят. Для другого автомобиля Android спросит один раз, после поездки без кабеля.</string>
     <string name="settings_wireless_auto_off">Выкл.: каждый раз нажимайте «Подключить без кабеля»</string>
 
     <string name="settings_help_title">Помощь и инструменты</string>

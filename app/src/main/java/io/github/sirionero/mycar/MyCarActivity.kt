@@ -211,11 +211,19 @@ class MyCarActivity : ComponentActivity(), Projection {
             runOnUiThread { startWireless(socket) }
         }
         io.github.sirionero.mycar.wireless.WirelessAuto.showApproval = { chooser, address ->
-            runOnUiThread {
-                approvingCar = address
-                carApproval.launch(androidx.activity.result.IntentSenderRequest.Builder(chooser).build())
+            // Only from a screen in front: from one behind (the phone in a pocket as the car's picture
+            // came up) it may not come up at all, or nobody sees it, and the car never got its "Allow".
+            if (!lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+                false
+            } else {
+                runOnUiThread {
+                    approvingCar = address
+                    carApproval.launch(androidx.activity.result.IntentSenderRequest.Builder(chooser).build())
+                }
+                true
             }
         }
+        io.github.sirionero.mycar.wireless.WirelessAuto.rewatch(this)
         CarSettings.init(this)
         // Before the car lists its services, which comes before the car's screen starts the drive's
         // services: the first drive of a process never offered to pair (no context to look with).
@@ -337,6 +345,8 @@ class MyCarActivity : ComponentActivity(), Projection {
         if (capturePending) {
             if (runner != null) requestCapture() else capturePending = false
         }
+        // The "Allow" for connecting by itself that couldn't show while myCar was behind.
+        io.github.sirionero.mycar.wireless.WirelessAuto.askWaiting(this)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -560,7 +570,7 @@ class MyCarActivity : ComponentActivity(), Projection {
     }
 
     /** A car allowed to connect by itself came up over Bluetooth: connect wirelessly, unless the cable or another try is on it. */
-    private fun connectToNearbyCar(address: String?) {
+    internal fun connectToNearbyCar(address: String?) {
         if (address == null) return
         if (!AppSettings.myCarEnabled(this)) {
             MyCarLog.i("auto-connect: myCar is switched off - not connecting")
@@ -807,6 +817,18 @@ class MyCarActivity : ComponentActivity(), Projection {
 
 /** The myCar screen that holds the drive and myCar's hooks: a second one hands it its intent and goes. */
 private var current: java.lang.ref.WeakReference<MyCarActivity>? = null
+
+/**
+ * The car came up over Bluetooth (WirelessAuto): straight to the myCar screen already open, in front
+ * or not. Sent as an intent instead, Android holds it for a screen that's stopped until it comes to
+ * the front: with the lock screen up (the car's Bluetooth wakes the phone), that was after the
+ * phone was unlocked, and the car waited. False with no myCar screen, which has to be opened.
+ */
+internal fun connectFromOpenScreen(address: String): Boolean {
+    val activity = current?.get()?.takeIf { !it.isFinishing && !it.isDestroyed } ?: return false
+    activity.runOnUiThread { activity.connectToNearbyCar(address) }
+    return true
+}
 
 /** Set once myCar has asked for the microphone, for the car audio or in the setup guide, and been told no. */
 internal const val KEY_MIC_ASKED = "record_audio_asked"

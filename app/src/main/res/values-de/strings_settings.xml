@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">Aus: Android Auto kann stattdessen die Verbindung übernehmen</string>
     <string name="settings_wireless_auto">Automatisch kabellos verbinden</string>
     <string name="settings_wireless_auto_on">Ein Auto, mit dem du dich schon ohne Kabel verbunden hast, verbindet sich beim Starten wieder. Android fragt einmal.</string>
+    <string name="settings_wireless_auto_cars">Verbindet sich beim Starten von selbst wieder mit %1$s. Bei einem anderen Auto fragt Android einmal, nach einer Fahrt ohne Kabel.</string>
     <string name="settings_wireless_auto_off">Aus: Tippe jedes Mal auf „Kabellos verbinden“</string>
 
     <string name="settings_help_title">Hilfe und Werkzeuge</string>

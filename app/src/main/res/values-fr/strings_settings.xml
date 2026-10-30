@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">Désactivé : Android Auto peut prendre la connexion à la place</string>
     <string name="settings_wireless_auto">Connexion sans fil automatique</string>
     <string name="settings_wireless_auto_on">Une voiture déjà connectée sans câble se reconnecte quand elle démarre. Android demande une seule fois.</string>
+    <string name="settings_wireless_auto_cars">Se reconnecte tout seul à %1$s quand elle démarre. Pour une autre voiture, Android demande une fois, après un trajet sans câble.</string>
     <string name="settings_wireless_auto_off">Désactivé : appuyez sur Connexion sans fil à chaque fois</string>
 
     <string name="settings_help_title">Aide et outils</string>

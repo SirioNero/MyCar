@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">Desativado: o Android Auto pode assumir a conexão</string>
     <string name="settings_wireless_auto">Conectar sem fio automaticamente</string>
     <string name="settings_wireless_auto_on">Um carro ao qual você se conectou sem o cabo volta a se conectar quando é ligado. O Android pergunta uma vez.</string>
+    <string name="settings_wireless_auto_cars">Volta a se conectar sozinho a %1$s quando ele é ligado. Para outro carro, o Android pergunta uma vez, depois de uma viagem sem cabo.</string>
     <string name="settings_wireless_auto_off">Desativado: toque em Conectar sem fio toda vez</string>
 
     <string name="settings_help_title">Ajuda e ferramentas</string>

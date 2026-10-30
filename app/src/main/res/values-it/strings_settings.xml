@@ -19,6 +19,7 @@
     <string name="settings_use_mycar_off">Spento: al suo posto può collegarsi Android Auto</string>
     <string name="settings_wireless_auto">Collegamento senza fili automatico</string>
     <string name="settings_wireless_auto_on">Un\'auto già collegata senza cavo si ricollega da sola quando la accendi. Android lo chiede una volta.</string>
+    <string name="settings_wireless_auto_cars">Si ricollega da solo a %1$s quando la accendi. Per un\'altra auto Android lo chiede una volta, dopo un viaggio senza cavo.</string>
     <string name="settings_wireless_auto_off">Spento: tocca «Collega senza fili» ogni volta</string>
 
     <string name="settings_help_title">Aiuto e strumenti</string>

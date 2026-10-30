@@ -30,6 +30,8 @@
     <!-- A switch (ui/WirelessAutoRow.kt) -->
     <string name="settings_wireless_auto">Connect wirelessly by itself</string>
     <string name="settings_wireless_auto_on">A car you connected to without the cable connects again when it starts. Android asks once.</string>
+    <!-- %1$s: the cars allowed, by their Bluetooth names -->
+    <string name="settings_wireless_auto_cars">Connects again by itself to %1$s when it starts. Another car: Android asks once, after a drive without the cable.</string>
     <!-- "Connect wirelessly": the button on myCar's Home screen -->
     <string name="settings_wireless_auto_off">Off: tap Connect wirelessly each time</string>
 
