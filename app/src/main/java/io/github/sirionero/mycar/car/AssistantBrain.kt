@@ -8,6 +8,7 @@ import io.github.sirionero.mycar.home.Assist
 import io.github.sirionero.mycar.home.HaConnection
 import io.github.sirionero.mycar.home.HomeAssistant
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -40,29 +41,33 @@ object AssistantBrain {
     /** Home Assistant set up in myCar and connected for this drive, and not turned off. */
     val ready: Boolean get() = on.value && HomeAssistant.connection.value is HaConnection.Connected
 
-    /** What to say, already in the driver's language; [goOn]: Home Assistant asked something back. */
+    /**
+     * What to say, already in the driver's language; [goOn]: Home Assistant asked something back.
+     * The microphone doesn't open again for it: the driver answers with the microphone, and the
+     * conversation carries on ([FOLLOW_ON_MS]) as long as the words aren't one of myCar's commands.
+     */
     class Reply(val text: String, val goOn: Boolean)
 
     private var conversation: String? = null
     private var lastAt = 0L
-
-    /** Home Assistant asked something back a moment ago: the next words are its answer. */
-    val asked: Boolean get() = askedBack && SystemClock.elapsedRealtime() - lastAt < ANSWER_MS
-    @Volatile private var askedBack = false
 
     /**
      * Home Assistant's answer to [heard], as the driver said it; null when it can't be asked (not
      * set up, not connected, turned off). What was said isn't logged: it may be anything.
      */
     suspend fun ask(heard: String): Reply? {
-        askedBack = false
         if (!ready) return null
         val goingOn = conversation?.takeIf { SystemClock.elapsedRealtime() - lastAt < FOLLOW_ON_MS }
         return try {
-            val answer = Assist.ask(heard, AssistantLanguage.language.code, goingOn)
+            // Not the 40 s a large model may take: the driver waited on "…" with the microphone
+            // deaf, and took the assistant for stuck.
+            val answer = withTimeoutOrNull(ANSWER_MS) { Assist.ask(heard, AssistantLanguage.language.code, goingOn) }
+            if (answer == null) {
+                MyCarLog.w("assistant: Home Assistant didn't answer in ${ANSWER_MS / 1000} s")
+                return Reply(AssistantLanguage.answer("Home Assistant didn't answer."), false)
+            }
             conversation = answer.conversationId
             lastAt = SystemClock.elapsedRealtime()
-            askedBack = answer.goOn
             MyCarLog.i("assistant: Home Assistant answered" + if (answer.goOn) ", and asks back" else "")
             Reply(answer.speech.ifBlank { AssistantLanguage.answer("Done.") }, answer.goOn)
         } catch (e: CancellationException) {
@@ -76,6 +81,6 @@ object AssistantBrain {
     /** A question within a few minutes of the last carries on with it ("and tomorrow?"). */
     private const val FOLLOW_ON_MS = 5 * 60_000L
 
-    /** Long enough to hear the question out and answer it; later, the words are a new request. */
-    private const val ANSWER_MS = 60_000L
+    /** The longest the car waits for Home Assistant's answer. */
+    private const val ANSWER_MS = 15_000L
 }

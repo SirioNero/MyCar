@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -13,9 +14,12 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import androidx.core.content.ContextCompat
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.call.CallUiState
 import io.github.sirionero.mycar.call.CarCalls
 import io.github.sirionero.mycar.speech.SpeechEngine
+import io.github.sirionero.mycar.speech.SpeechModels
 import io.github.sirionero.mycar.speech.VoiceFocus
 import io.github.sirionero.mycar.speech.VoiceLanguage
 import io.github.sirionero.mycar.speech.VoiceLanguages
@@ -43,6 +47,10 @@ object CarAssistant {
         val missingPermission: Boolean = false,
         /** False from the press until the microphone is actually open, so the overlay doesn't claim to listen early. */
         val ready: Boolean = false,
+        /** Home Assistant is being asked (AssistantBrain): the overlay says so while it waits. */
+        val brain: Boolean = false,
+        /** A line over "Listening…": why the assistant listens in English though myCar is in another language. */
+        val hint: String = "",
     )
 
     private val _state = MutableStateFlow(State())
@@ -101,7 +109,15 @@ object CarAssistant {
 
     private fun startOnMainThread() {
         val context = appContext ?: return
-        if (_state.value.phase == Phase.LISTENING || _state.value.phase == Phase.THINKING) return
+        if (_state.value.phase == Phase.LISTENING) return
+        // Still working on the last words (the model, Home Assistant): the microphone starts over
+        // instead of doing nothing, which looked like the assistant had hung.
+        if (_state.value.phase == Phase.THINKING) {
+            MyCarLog.i("assistant: asked again while still working on the last words - starting over")
+            releaseRecognizer()
+            _pendingCommand.value = null
+            _state.value = State(Phase.IDLE)
+        }
         syncLanguage()
         // A message being read or answered gives way: the driver asked for the assistant instead,
         // and the reply left waiting would keep the car's voice key for itself. A reply counting
@@ -124,7 +140,8 @@ object CarAssistant {
             return
         }
         tts?.stop()
-        _state.value = State(Phase.LISTENING)
+        _state.value = State(Phase.LISTENING, hint = languageHint(context))
+        watch()
         listenOnce(
             onListening = { _state.value = _state.value.copy(ready = true) },
             onPartial = { text -> _state.value = _state.value.copy(heard = text) },
@@ -164,23 +181,32 @@ object CarAssistant {
     /**
      * Home Assistant's answer to [heard] (AssistantBrain), already in the driver's language. Dropped
      * when the driver has moved on meanwhile - closed the assistant, or asked again - as it can take
-     * a few seconds. With [listenAgain] (it asked something back) the microphone opens once it's said.
+     * a few seconds. When it asks something back the microphone doesn't open by itself: the driver
+     * asked for the assistant to go away after an answer, and answers with the microphone.
      */
-    fun replyAsSaid(heard: String, text: String, listenAgain: Boolean) {
+    fun replyAsSaid(heard: String, text: String) {
         if (_pendingCommand.value != heard || _state.value.phase != Phase.THINKING) return
         _pendingCommand.value = null
-        speakReply(text) { if (listenAgain) start() }
+        speakReply(text)
+    }
+
+    /** [heard] has gone to Home Assistant (AssistantBrain): the overlay says who it's waiting for. */
+    fun askingHome(heard: String) {
+        if (_pendingCommand.value == heard && _state.value.phase == Phase.THINKING) _state.value = _state.value.copy(brain = true)
     }
 
     /** As if the driver had said [text]: for the car preview, where no speech model runs. */
     internal fun heard(text: String) {
         _state.value = State(Phase.THINKING, heard = text)
         _pendingCommand.value = text
+        watch()
     }
 
     /** Shows and says [text], then [then] once it has been said to the end. */
     private fun speakReply(text: String, then: () -> Unit = {}) {
-        _state.value = _state.value.copy(phase = Phase.SPEAKING, reply = text)
+        _state.value = _state.value.copy(phase = Phase.SPEAKING, reply = text, brain = false)
+        // Long enough for any voice to say it, so only an engine that never says it's done hits it.
+        speakLimitMs = (SPEAK_BASE_MS + text.length * SPEAK_PER_CHAR_MS).coerceAtMost(SPEAK_MAX_MS)
 
         val engine = tts
         if (text.isBlank()) {
@@ -197,7 +223,7 @@ object CarAssistant {
             return
         }
         appContext?.let(VoiceFocus::acquire)
-        speak(engine, text) { stopped ->
+        speaking = speak(engine, text) { stopped ->
             VoiceFocus.release()
             // Still this answer on screen: done speaking, or cut short by a message read aloud. Not
             // when the microphone or Cancel stopped it, which have moved the overlay on already.
@@ -206,6 +232,84 @@ object CarAssistant {
                 if (!stopped) mainHandler.post(then)
             }
         }
+    }
+
+    /** The answer being said, so the [watchdog] can end it. */
+    private var speaking: String? = null
+    private var speakLimitMs = SPEAK_MAX_MS
+
+    /**
+     * Never left up by itself: whatever stalls - the final model loading, a phrase the recognizer
+     * never finishes, Home Assistant, a speech engine that never says it's done - the overlay goes
+     * after a while and the microphone works again. It used to sit on "…" with the microphone
+     * deaf, which the driver took for a hang; asked for it to go away by itself instead.
+     */
+    private val watchdog = object : Runnable {
+        private var seen: State? = null
+        private var since = 0L
+
+        override fun run() {
+            val now = SystemClock.uptimeMillis()
+            val s = _state.value
+            if (s.phase == Phase.IDLE || s.phase == Phase.ERROR) {
+                seen = null
+                return
+            }
+            val last = seen
+            if (last == null || last.phase != s.phase || last.ready != s.ready || last.brain != s.brain) {
+                seen = s
+                since = now
+            }
+            val limit = when (s.phase) {
+                Phase.LISTENING -> if (s.ready) LISTEN_LIMIT_MS else OPEN_LIMIT_MS
+                Phase.THINKING -> THINK_LIMIT_MS
+                else -> speakLimitMs
+            }
+            if (now - since < limit) {
+                mainHandler.postDelayed(this, WATCH_MS)
+                return
+            }
+            seen = null
+            MyCarLog.w("assistant: still ${s.phase.name.lowercase()}${if (s.brain) " for Home Assistant" else ""} after ${limit / 1000} s - closing")
+            giveUp(s.phase)
+        }
+    }
+
+    private fun watch() {
+        mainHandler.removeCallbacks(watchdog)
+        mainHandler.post(watchdog)
+    }
+
+    private fun giveUp(phase: Phase) {
+        releaseRecognizer()
+        _pendingCommand.value = null
+        if (phase == Phase.SPEAKING) {
+            // The engine never said it finished: ended here, or the music it paused stayed paused.
+            speaking?.let { end(it, stopped = true) }
+            tts?.stop()
+            _state.value = State(Phase.IDLE)
+            return
+        }
+        tts?.stop()
+        val why = if (phase == Phase.LISTENING && !_state.value.ready) "The microphone isn't available right now." else "Speech recognition failed."
+        _state.value = State(Phase.ERROR, reply = AssistantLanguage.answer(why))
+    }
+
+    /**
+     * myCar is in a language its downloaded models don't hear: the assistant listens in English
+     * (VoiceLanguages.effective), and Italian said to it came out as nonsense with no word why.
+     * Said in myCar's own language, with the model to download.
+     */
+    private fun languageHint(context: Context): String {
+        val phone = VoiceLanguages.phone()
+        if (phone == VoiceLanguage.EN || AssistantLanguage.language != VoiceLanguage.EN || CarSettings.systemSpeech.value) return ""
+        val model = SpeechModels.recommended(phone).last()
+        MyCarLog.w("assistant: no model hears ${phone.code} - listening in English")
+        return Words.get(
+            R.string.assistant_needs_model,
+            phone.locale.getDisplayLanguage(java.util.Locale.getDefault()),
+            Words.get(model.title),
+        )
     }
 
     private var replies = 0
@@ -258,7 +362,7 @@ object CarAssistant {
      * engine went away mid-drive) sends no callback at all: it ends at once, or the voice focus
      * stayed taken and the music paused for the rest of the drive.
      */
-    private fun speak(engine: TextToSpeech, text: String, ending: (stopped: Boolean) -> Unit) {
+    private fun speak(engine: TextToSpeech, text: String, ending: (stopped: Boolean) -> Unit): String {
         val id = "mycar-${++utterances}"
         endings[id] = ending
         engine.setOnUtteranceProgressListener(progress)
@@ -266,6 +370,7 @@ object CarAssistant {
             MyCarLog.w("assistant: speech engine refused to speak")
             end(id, stopped = false)
         }
+        return id
     }
 
     fun stopSpeaking() { tts?.stop() }
@@ -303,8 +408,11 @@ object CarAssistant {
         val failed: (String) -> Unit = { onError(AssistantLanguage.answer(it)) }
         val context = appContext ?: return failed("Speech isn't ready yet.")
         if (CarSettings.systemSpeech.value && SpeechRecognizer.isRecognitionAvailable(context)) {
+            MyCarLog.i("assistant: listening with the phone's recognizer in ${AssistantLanguage.language.code}")
             return systemListen(context, onListening, onPartial, onHeard, onResult, failed)
         }
+        val final = SpeechModels.finalFor(context, AssistantLanguage.language)
+        MyCarLog.i("assistant: listening in ${AssistantLanguage.language.code}, final model ${final?.label ?: "none"}")
         SpeechEngine.listen(
             context,
             language = AssistantLanguage.language,
@@ -399,3 +507,16 @@ object CarAssistant {
 
 /** An answer with no voice to say it stays on screen this long. */
 private const val SILENT_REPLY_MS = 5_000L
+
+/** How often the overlay is checked for being stuck. */
+private const val WATCH_MS = 1_000L
+/** From the press to the microphone open: the cue, the car's microphone, the live model loading. */
+private const val OPEN_LIMIT_MS = 10_000L
+/** Listening: the recognizer ends a phrase at 15 s; a little more for the car's microphone to stop. */
+private const val LISTEN_LIMIT_MS = 25_000L
+/** Working out the words, or waiting for Home Assistant (which gets 15 s of its own). */
+private const val THINK_LIMIT_MS = 20_000L
+/** Saying an answer: this, and a little more per letter. */
+private const val SPEAK_BASE_MS = 8_000L
+private const val SPEAK_PER_CHAR_MS = 120L
+private const val SPEAK_MAX_MS = 60_000L

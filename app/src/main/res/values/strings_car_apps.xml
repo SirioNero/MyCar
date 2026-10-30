@@ -138,6 +138,8 @@
     <string name="assistant_grant">Grant</string>
     <!-- Icon label: closes the assistant -->
     <string name="assistant_dismiss">Dismiss</string>
+    <!-- %1$s: myCar's language, named in it (italiano, Deutsch…); %2$s: the voice model that hears it -->
+    <string name="assistant_needs_model">Understands English only for now: for commands in %1$s, download %2$s in myCar\'s settings on the phone.</string>
     <!-- Icon label of the assistant's microphone -->
     <string name="assistant_mic">Assistant</string>
     <!-- Fills %1$s in the sentences below when the phone's own assistant is chosen: lower case, mid-sentence -->
