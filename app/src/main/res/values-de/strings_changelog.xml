@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_39">
+        <item>Nach einer kabellosen Fahrt mit einem Auto, das das Telefon anruft, wartet myCar noch zehn Minuten darauf: Nach einem kurzen Halt verbindet sich das Auto von selbst wieder, auch wenn sein Bluetooth nie getrennt war.</item>
+        <item>Kabellos verbinden mit dem Telefon in der Tasche: myCar holt sich jetzt in den Vordergrund, bevor es dem WLAN des Autos beitritt, das Android einer App im Hintergrund verweigert.</item>
+        <item>Bei „Automatisch“ wartet die Musik nach einem Anruf, bis das Bluetooth des Autos zurück ist, bevor sie zu myCar wechselt.</item>
+    </string-array>
     <string-array name="changelog_38">
         <item>Über myCar bleibt die Musik nicht mehr aus, wenn das Auto die Lautsprecher für seine eigene Ansage nimmt und vergisst, sie zurückzugeben: Nach einer Weile fragt myCar erneut danach.</item>
         <item>Bei Automatisch verlegt eine Bluetooth-Musikverbindung, die für einen Anruf oder kurz abbricht, den Ton nicht mehr mitten in der Fahrt auf myCar: myCar wartet, bis sie zurückkommt.</item>

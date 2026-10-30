@@ -761,8 +761,20 @@ Tutti i token in un solo posto, `car/design/`:
   da myCar, `waitForCar`) è ricordata (`WirelessAuto.callsPhone`, chiave `calls:<indirizzo>`): la volta dopo
   myCar pubblica il servizio subito invece di provare prima quello dell'auto (pochi secondi in cui l'auto
   cercava e rinunciava); se non chiama, la volta dopo si riprova come prima. Partito da solo
-  (`WirelessLink.start(byItself = true)`) aspetta l'auto fino a 5 minuti invece di 2. Non provato con
-  un'auto vera.
+  (`WirelessLink.start(byItself = true)`) aspetta l'auto fino a 5 minuti invece di 2. Dalla 0.6.3, finito
+  un viaggio senza fili con un'auto che chiama il telefono (sessione e canale Bluetooth chiusi dall'auto),
+  il servizio resta pubblicato altri 10 minuti senza niente sullo schermo (`WirelessLink.listenAgain`,
+  `quiet`): in una sosta breve il Bluetooth non si stacca, Android non dice che l'auto è tornata, e l'auto
+  che riavvia il suo Android Auto trovava niente da chiamare. Cavo, Connetti o Disconnetti lo fermano.
+  Android dà il Wi-Fi di un'auto (`WifiNetworkSpecifier`) solo a un'app in primo piano o con un servizio
+  in primo piano: col telefono in tasca il join veniva rifiutato, perché `SessionService` partiva solo
+  con l'immagine. Ora parte all'apertura del canale Bluetooth (`WirelessLink.holdService`; `joinWifi`
+  aspetta fino a 3 s che sia su) e torna indietro se l'avvio non arriva a un viaggio
+  (`giveBackService`, solo se l'ha acceso lui: mai durante un viaggio o col cavo). L'ascolto dopo il
+  viaggio cede a un'auto che ricompare (`listeningQuietly`); un'attesa partita dal Bluetooth dell'auto
+  andata a vuoto non fa dimenticare che chiama. In Automatico dopo una chiamata l'A2DP ha 10 s pieni
+  per tornare (`CarAudioRoute.sawCall`). Trovati da una revisione indipendente, verificati nel codice.
+  Non provato con un'auto vera.
 - **Setaccio** (0.5.19, branch `fix/bug-scan-3`): quattro letture del codice (sessione e protocollo,
   audio e Xonos, interfaccia dell'auto, resto), ogni segnalazione verificata nel codice prima di
   correggerla. Corretti: la freccia di Vela ferma sulla prima svolta (`CarIcon.equals` confronta le
