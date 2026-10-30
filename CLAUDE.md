@@ -525,7 +525,9 @@ Tutti i token in un solo posto, `car/design/`:
   niente. Dalla 0.6.4 la fine della frase in un'altra lingua non è più solo di Kroko, che in italiano
   può stare un secondo senza scrivere mentre il guidatore parla ancora e tagliava la frase: vale quando
   anche il microfono è tornato al rumore dell'auto (`speech/SpeechEnd.kt` + `SpeechEndTest`: il livello
-  più basso dalla pressione, che sale piano; gli zeri di un microfono dell'auto che parte non contano),
+  più basso dalla pressione, che sale piano; non contano i primi 300 ms, la coda del bip e un microfono
+  che sale piano, né gli zeri di un microfono dell'auto che parte; "ha parlato" vuol dire 200 ms di
+  voce di fila, non qualche colpo sparso),
   al massimo 2,5 s dopo; senza parole di Kroko bastano 1,2 s di quiete dopo aver parlato. Il log dice
   lingua, modello e come è finita la frase (non le parole). Con myCar in una lingua senza il suo modello
   l'assistente ascolta in inglese e in auto lo dice sopra "Listening…" (`assistant_needs_model`, con il
@@ -784,7 +786,8 @@ Tutti i token in un solo posto, `car/design/`:
   andata a vuoto non fa dimenticare che chiama. In Automatico dopo una chiamata l'A2DP ha 10 s pieni
   per tornare (`CarAudioRoute.sawCall`). Trovati da una revisione indipendente, verificati nel codice.
   Dalla 0.6.4: l'auto che compare in Bluetooth va dritta alla schermata di myCar già aperta
-  (`connectFromOpenScreen` in `MyCarActivity.kt`), perché un intent a una schermata ferma, con lo schermo
+  (`connectFromOpenScreen` in `MyCarActivity.kt`; poi la si porta comunque davanti, senza azione, così
+  le domande di Android che aspettano myCar sullo schermo compaiono allo sblocco), perché un intent a una schermata ferma, con lo schermo
   acceso e il blocco sopra, Android lo consegna solo quando torna davanti, cioè dopo lo sblocco
   (`ActivityRecord.deliverNewIntentLocked`: subito solo se RESUMED/PAUSED o in cima col telefono che
   dorme); il "Consenti" si lancia solo con myCar davanti (`showApproval` dà false altrimenti) e l'auto
@@ -798,8 +801,9 @@ Tutti i token in un solo posto, `car/design/`:
   o continua ad ascoltare, preferisco il primo"): `CarAssistant` ha un controllo dei tempi (`watchdog`,
   ogni secondo finché il riquadro è su) che lo chiude da solo: microfono non aperto in 10 s, ascolto oltre
   25 s, parole o Home Assistant oltre 20 s (il tempo riparte quando passa a Home Assistant), sintesi
-  vocale che non dice di aver finito (8 s + 120 ms a lettera; la fine si chiude a mano, così la musica
-  riprende). Il microfono premuto mentre lavora ricomincia (prima non faceva niente); i comandi si
+  vocale che non dice di aver finito (8 s + 120 ms a lettera, di più con la voce di Android rallentata,
+  e mai mentre il motore segnala le parole che dice, `onRangeStart`; la fine si chiude a mano, così la
+  musica riprende). Ricominciando mentre il modello finale carica, la frase lasciata non si decodifica. Il microfono premuto mentre lavora ricomincia (prima non faceva niente); i comandi si
   prendono con `collectLatest` in `CarUi`, così una richiesta nuova o Annulla fanno cadere quella che
   aspetta Home Assistant (prima tutte in coda dietro di lei fino a 40 s).
 - **Setaccio** (0.5.19, branch `fix/bug-scan-3`): quattro letture del codice (sessione e protocollo,

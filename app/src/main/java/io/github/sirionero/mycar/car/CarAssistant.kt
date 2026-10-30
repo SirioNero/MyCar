@@ -205,8 +205,9 @@ object CarAssistant {
     /** Shows and says [text], then [then] once it has been said to the end. */
     private fun speakReply(text: String, then: () -> Unit = {}) {
         _state.value = _state.value.copy(phase = Phase.SPEAKING, reply = text, brain = false)
-        // Long enough for any voice to say it, so only an engine that never says it's done hits it.
-        speakLimitMs = (SPEAK_BASE_MS + text.length * SPEAK_PER_CHAR_MS).coerceAtMost(SPEAK_MAX_MS)
+        // Long enough for any voice to say it, so only an engine that never says it's done hits it:
+        // longer with the phone's speech rate turned down.
+        speakLimitMs = ((SPEAK_BASE_MS + text.length * SPEAK_PER_CHAR_MS) * slowness()).toLong().coerceAtMost(SPEAK_MAX_MS)
 
         val engine = tts
         if (text.isBlank()) {
@@ -237,6 +238,16 @@ object CarAssistant {
     /** The answer being said, so the [watchdog] can end it. */
     private var speaking: String? = null
     private var speakLimitMs = SPEAK_MAX_MS
+    /** When the speech engine last said it reached a word: still talking, however long the answer. */
+    @Volatile private var lastWordAt = 0L
+
+    /** How much slower than normal the phone speaks (Android's speech rate, 100 = normal). */
+    private fun slowness(): Float {
+        val rate = runCatching {
+            android.provider.Settings.Secure.getInt(appContext?.contentResolver, android.provider.Settings.Secure.TTS_DEFAULT_RATE, 100)
+        }.getOrDefault(100)
+        return if (rate in 1 until 100) 100f / rate else 1f
+    }
 
     /**
      * Never left up by itself: whatever stalls - the final model loading, a phrase the recognizer
@@ -265,7 +276,8 @@ object CarAssistant {
                 Phase.THINKING -> THINK_LIMIT_MS
                 else -> speakLimitMs
             }
-            if (now - since < limit) {
+            val stillTalking = s.phase == Phase.SPEAKING && now - lastWordAt < STILL_TALKING_MS
+            if (now - since < limit || stillTalking) {
                 mainHandler.postDelayed(this, WATCH_MS)
                 return
             }
@@ -351,6 +363,10 @@ object CarAssistant {
         @Deprecated("Deprecated in Java, no replacement on this API level")
         override fun onError(utteranceId: String?) = end(utteranceId, stopped = false)
         override fun onStop(utteranceId: String?, interrupted: Boolean) = end(utteranceId, stopped = true)
+        // Engines that tell each word as they say it keep the watchdog off a long answer.
+        override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+            lastWordAt = SystemClock.uptimeMillis()
+        }
     }
 
     private fun end(utteranceId: String?, stopped: Boolean) {
@@ -519,4 +535,6 @@ private const val THINK_LIMIT_MS = 20_000L
 /** Saying an answer: this, and a little more per letter. */
 private const val SPEAK_BASE_MS = 8_000L
 private const val SPEAK_PER_CHAR_MS = 120L
-private const val SPEAK_MAX_MS = 60_000L
+private const val SPEAK_MAX_MS = 120_000L
+/** A word said this recently: the engine is still talking. */
+private const val STILL_TALKING_MS = 3_000L

@@ -34,7 +34,7 @@ class SpeechEndTest {
     @Test
     fun `a short pause between words isn't the end`() {
         val end = SpeechEnd()
-        end.feed(3) { noise(0.02f) }
+        end.feed(5) { noise(0.02f) }
         end.feed(8) { voice(0.02f, 5f) }
         end.feed(3) { noise(0.02f) }
         val pause = end.quietMs
@@ -62,5 +62,30 @@ class SpeechEndTest {
         end.feed(1) { voice(0.01f, 8f) }
         end.feed(5) { noise(0.01f) }
         assertFalse(end.spoke)
+    }
+
+    @Test
+    fun `bumps here and there are not someone speaking`() {
+        val end = SpeechEnd()
+        end.feed(5) { noise(0.01f) }
+        repeat(4) {
+            end.feed(1) { voice(0.01f, 8f) }
+            end.feed(2) { noise(0.01f) }
+        }
+        assertFalse(end.spoke)
+    }
+
+    @Test
+    fun `the cue's tail and a microphone fading in don't count`() {
+        val end = SpeechEnd()
+        end.feed(1) { voice(0.01f, 8f) }
+        end.feed(2) { noise(0.0003f) }
+        end.feed(4) { noise(0.01f) }
+        assertFalse(end.spoke)
+        assertTrue(end.quietMs >= 300)
+        end.feed(10) { voice(0.01f, 6f) }
+        end.feed(6) { noise(0.01f) }
+        assertTrue(end.spoke)
+        assertTrue(end.quietMs >= 500)
     }
 }

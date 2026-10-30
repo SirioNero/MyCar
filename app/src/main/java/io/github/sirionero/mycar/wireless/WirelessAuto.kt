@@ -244,6 +244,12 @@ object WirelessAuto {
         val upper = address.uppercase(java.util.Locale.ROOT)
         if (io.github.sirionero.mycar.connectFromOpenScreen(upper)) {
             log.i("auto-connect: connecting from myCar's screen, already open")
+            // Brought to the front as before, with nothing to do: Android's questions that wait for
+            // myCar on screen (the music's sharing, the "Allow") come up as soon as the phone is
+            // unlocked, instead of only once the driver opened myCar.
+            runCatching {
+                context.startActivity(Intent(context, MyCarActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            }.onFailure { log.w("auto-connect: couldn't bring myCar up (${it.message})") }
             return
         }
         runCatching {

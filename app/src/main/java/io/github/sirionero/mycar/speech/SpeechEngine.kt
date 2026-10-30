@@ -312,6 +312,9 @@ object SpeechEngine {
         val started = SystemClock.uptimeMillis()
         // Held for the whole read, so a model swap or the idle unload can't free it mid-decode.
         val reread = synchronized(finalLock) {
+            // Dropped while the model loaded (the driver asked again): not read, so the new phrase,
+            // waiting behind this one on the same thread, starts seconds sooner.
+            if (id != run) { phrase.fill(0f); return "" }
             val final = finalRecognizer?.takeIf { loadedFinal == wanted && loadedLanguage == language }
                 ?: run { phrase.fill(0f); if (english) return last else throw FinalMissing() }
             final.createStream().run {

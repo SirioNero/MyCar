@@ -12,10 +12,11 @@ import kotlin.math.sqrt
 internal class SpeechEnd {
     /** The quietest the microphone has been: the car's noise. Rises slowly, so one dip doesn't fix it. */
     private var floor = Float.MAX_VALUE
+    private var heardMs = 0
     private var loudMs = 0
     private var quietFor = 0
 
-    /** The driver has said something: loud for a while, not one bump. */
+    /** The driver has said something: loud for a while at a stretch, not a bump or two. */
     var spoke = false
         private set
 
@@ -28,12 +29,14 @@ internal class SpeechEnd {
         var sum = 0.0
         for (i in 0 until n) sum += samples[i].toDouble() * samples[i]
         val level = sqrt(sum / n).toFloat()
+        // The start is no measure of anything: the cue's tail as the car plays it, a microphone that
+        // fades in (which held the floor so low that the car's noise never counted as quiet).
+        heardMs += ms
+        if (heardMs <= SETTLE_MS) return
         // Exact silence (a car's microphone starting up sends zeros) is no measure of its noise.
         if (level >= SILENCE) floor = if (level < floor) level else floor * FLOOR_RISE
-        if (level > floor * SPEECH_RATIO) {
-            loudMs += ms
-            if (loudMs >= SPOKE_MS) spoke = true
-        }
+        loudMs = if (level > floor * SPEECH_RATIO) loudMs + ms else 0
+        if (loudMs >= SPOKE_MS) spoke = true
         quietFor = if (level < floor * QUIET_RATIO || level < SILENCE) quietFor + ms else 0
     }
 
@@ -44,9 +47,11 @@ internal class SpeechEnd {
         const val SPEECH_RATIO = 3f
         /** Within this of the car's noise (about 6 dB) is quiet. */
         const val QUIET_RATIO = 2f
-        /** A voice for this long, in all, is someone speaking. */
-        const val SPOKE_MS = 300
+        /** A voice for this long at a stretch is someone speaking: a bump on the road is shorter. */
+        const val SPOKE_MS = 200
         /** How fast the noise floor may rise, per piece: a car that gets louder is followed. */
-        const val FLOOR_RISE = 1.015f
+        const val FLOOR_RISE = 1.03f
+        /** The first moments after the microphone opens, left out. */
+        const val SETTLE_MS = 300
     }
 }
