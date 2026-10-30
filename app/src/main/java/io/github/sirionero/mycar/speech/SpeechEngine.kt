@@ -59,6 +59,12 @@ object SpeechEngine {
     private const val SILENCED_MS = 1_500L
     /** Quiet after the last word that ends the phrase. */
     private const val END_SILENCE_S = 1.0f
+    /** Another language: how long the microphone must be quiet too, once Kroko hears the end. */
+    private const val QUIET_END_MS = 500
+    /** Another language: the most Kroko's end waits for the microphone to go quiet (a loud car). */
+    private const val HOLD_BACK_MS = 2_500
+    /** Another language: quiet this long after speaking ends the phrase though Kroko wrote nothing. */
+    private const val ALONE_END_MS = 1_200
     private const val CUE_VOLUME = 80
     private const val IDLE_UNLOAD_MS = 5 * 60_000L
     /** How long the car gets to start sending once asked, before the phone's microphone takes over. */
@@ -228,6 +234,11 @@ object SpeechEngine {
         var audioMs = 0L
         var decodeMs = 0L
         var anySound = false
+        val english = language == VoiceLanguage.EN
+        // Another language: Kroko's end counts once the microphone is quiet too (SpeechEnd).
+        val loudness = if (english) null else SpeechEnd()
+        var heldBackMs = 0
+        var ended = "stopped"
         try {
             while (id == run) {
                 val n = mic.read(frame)
@@ -245,7 +256,9 @@ object SpeechEngine {
                 System.arraycopy(samples, 0, phrase, held, keep)
                 held += keep
                 s.acceptWaveform(if (n == CHUNK) samples else samples.copyOf(n), RATE)
-                audioMs += n * 1000L / RATE
+                val pieceMs = n * 1000 / RATE
+                loudness?.add(samples, n, pieceMs)
+                audioMs += pieceMs
                 val started = SystemClock.uptimeMillis()
                 while (r.isReady(s)) r.decode(s)
                 decodeMs += SystemClock.uptimeMillis() - started
@@ -259,7 +272,17 @@ object SpeechEngine {
                     // Kroko's English guesses at another language would only mislead.
                     if (language == VoiceLanguage.EN) onPartial(text)
                 }
-                if (r.isEndpoint(s)) break
+                val krokoEnd = r.isEndpoint(s)
+                if (loudness == null) {
+                    if (krokoEnd) { ended = "the model heard the end"; break }
+                    continue
+                }
+                if (krokoEnd && loudness.quietMs >= QUIET_END_MS) { ended = "the model heard the end, and it's quiet"; break }
+                if (krokoEnd && heldBackMs >= HOLD_BACK_MS) { ended = "the model heard the end ${HOLD_BACK_MS} ms ago"; break }
+                heldBackMs = if (krokoEnd) heldBackMs + pieceMs else 0
+                // Kroko may write nothing at all for the language: the microphone alone ends it then.
+                if (loudness.spoke && loudness.quietMs >= ALONE_END_MS) { ended = "quiet after speaking"; break }
+                if (audioMs >= (MAX_S * 1000).toLong()) { ended = "the longest phrase"; break }
             }
             s.inputFinished()
             while (r.isReady(s)) r.decode(s)
@@ -270,10 +293,9 @@ object SpeechEngine {
         }
         // Under 1.0 keeps up with the driver; over it, the words fall behind the voice.
         MyCarLog.i(
-            "speech: $audioMs ms of audio, decoding took $decodeMs ms " +
+            "speech: $audioMs ms of audio (${language.code}, ended: $ended), decoding took $decodeMs ms " +
                 "(${"%.2f".format(decodeMs.toFloat() / max(1L, audioMs))} of real time)",
         )
-        val english = language == VoiceLanguage.EN
         // Another language: Kroko may have written nothing for it, so only quiet ends it here.
         if ((english && last.isEmpty()) || id != run || (!english && held == 0)) { phrase.fill(0f); return if (english) last else "" }
         val wanted = SpeechModels.finalFor(context, language)
