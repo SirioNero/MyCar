@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_40">
+        <item>O assistente não fica mais travado depois de palavras que não sabe executar: ele sempre fecha sozinho (também depois de uma pergunta do Home Assistant) e o microfone recomeça na hora. O Home Assistant tem 15 segundos para responder.</item>
+        <item>Em português e nos outros idiomas a frase não é mais cortada enquanto você ainda está falando: ela termina quando o microfone volta ao silêncio.</item>
+        <item>Se faltar no telefone o modelo de voz do idioma do myCar, o assistente avisa enquanto escuta, com o modelo para baixar.</item>
+        <item>A conexão sem fio automática não espera mais o desbloqueio do telefone quando o myCar já está aberto atrás do bloqueio. O “Permitir” do Android aparece assim que o myCar está na tela, e as configurações mostram os carros permitidos.</item>
+    </string-array>
     <string-array name="changelog_39">
         <item>Depois de uma viagem sem fio com um carro que chama o telefone, o myCar continua esperando por ele por dez minutos: depois de uma parada curta o carro se conecta de novo sozinho, mesmo que o Bluetooth nunca tenha caído.</item>
         <item>Conexão sem fio com o telefone no bolso: o myCar agora se coloca em primeiro plano antes de entrar no Wi-Fi do carro, que o Android recusa a um app em segundo plano.</item>

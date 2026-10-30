@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_40">
+        <item>Der Assistent hängt nicht mehr nach Worten, die er nicht ausführen kann: Er schließt sich immer von selbst (auch nach einer Rückfrage von Home Assistant), und das Mikrofon startet sofort neu. Home Assistant hat 15 Sekunden für die Antwort.</item>
+        <item>Auf Deutsch und in den anderen Sprachen wird ein Satz nicht mehr abgeschnitten, während du noch sprichst: Er endet, wenn das Mikrofon wieder still ist.</item>
+        <item>Fehlt auf dem Telefon das Sprachmodell für die Sprache von myCar, sagt der Assistent das beim Zuhören, mit dem Modell zum Herunterladen.</item>
+        <item>Das automatische kabellose Verbinden wartet nicht mehr aufs Entsperren, wenn myCar schon hinter der Sperre geöffnet ist. Das „Zulassen“ von Android erscheint, sobald myCar auf dem Bildschirm ist, und die Einstellungen zeigen die erlaubten Autos.</item>
+    </string-array>
     <string-array name="changelog_39">
         <item>Nach einer kabellosen Fahrt mit einem Auto, das das Telefon anruft, wartet myCar noch zehn Minuten darauf: Nach einem kurzen Halt verbindet sich das Auto von selbst wieder, auch wenn sein Bluetooth nie getrennt war.</item>
         <item>Kabellos verbinden mit dem Telefon in der Tasche: myCar holt sich jetzt in den Vordergrund, bevor es dem WLAN des Autos beitritt, das Android einer App im Hintergrund verweigert.</item>
