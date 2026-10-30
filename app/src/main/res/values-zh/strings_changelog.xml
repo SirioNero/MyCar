@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_41">
+        <item>自动无线连接：手机等待车辆时，现在每 8 秒会再次呼叫车辆自己的 Android Auto。仍在启动的车辆不会回应第一次呼叫，而 myCar 之后就只是一直等待。</item>
+        <item>如果后面的步骤失败（车辆的 Wi-Fi、连接），由车辆蓝牙发起的尝试会自动从头再来，最多三次，就像你手动点按“断开连接”和“无线连接”一样。</item>
+    </string-array>
     <string-array name="changelog_40">
         <item>助手遇到无法执行的话不会再卡住：它总会自动关闭（Home Assistant 反问之后也一样），麦克风也会立即重新开始。Home Assistant 有 15 秒来回答。</item>
         <item>用中文和其他语言时，你还在说话时句子不会再被截断：要等麦克风重新安静下来才结束。</item>

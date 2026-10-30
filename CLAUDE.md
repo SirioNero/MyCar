@@ -796,7 +796,16 @@ Tutti i token in un solo posto, `car/design/`:
   Verificato nel codice di Android (mirror `aosp-mirror/platform_frameworks_base`): con Android 16 il
   sistema manda ancora `onDeviceAppeared(AssociationInfo)` accanto a `onDevicePresenceEvent`
   ("legacy callback", `DevicePresenceProcessor`), e `startObservingDevicePresence(String)` funziona.
-  Non provato con un'auto vera.
+  Dalla 0.6.5 (segnalato dall'utente dopo la 0.6.4: "l'app tenta a connettersi in automatico ma non ci
+  riesce; faccio disconnetti, connetti e seleziono e si connette subito"): mentre il servizio del telefono
+  aspetta l'auto (`waitForCar`), myCar richiama ogni 8 s quello dell'auto (`KNOCK_MS`, un thread a parte;
+  vince il primo canale, l'altro si chiude; `Channel.inbound` dice chi l'ha aperto per `rememberCalls`),
+  non durante l'ascolto dopo il viaggio (`quiet`). Prima, se al Bluetooth dell'auto il suo servizio non
+  c'era ancora (sistema dell'auto che si avvia), myCar aspettava soltanto, e un'auto che aspetta di essere
+  chiamata non faceva niente. Un avvio partito dal Bluetooth dell'auto (`autoStart`) che fallisce dopo
+  (Wi-Fi dell'auto non arrivato, TCP, canale chiuso prima di un viaggio) ricomincia da solo dopo 3 s, fino
+  a 3 volte (`startOver`, `retriesLeft`, `retryFor` contro i doppioni), non dietro una VPN; un tocco, il
+  cavo o Disconnetti lo fermano (`startRun`). Non provato con un'auto vera.
 - **Assistente che non resta fermo** (0.6.4, richiesta dell'utente: "o si rimuove completamente da solo
   o continua ad ascoltare, preferisco il primo"): `CarAssistant` ha un controllo dei tempi (`watchdog`,
   ogni secondo finché il riquadro è su) che lo chiude da solo: microfono non aperto in 10 s, ascolto oltre

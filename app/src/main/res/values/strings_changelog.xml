@@ -5,6 +5,11 @@
   "Settings >" are the app's own: translate them as the app's screens say them.
 -->
 <resources>
+    <!-- 0.6.5-alpha -->
+    <string-array name="changelog_41">
+        <item>Connecting wirelessly by itself: while the phone waits for the car, it now calls the car\'s own Android Auto again every 8 seconds. A car still starting up didn\'t answer the first call, and myCar then only waited.</item>
+        <item>When a later step fails (the car\'s Wi-Fi, the connection), a start-up the car\'s Bluetooth began starts over by itself, up to three times, as \"Disconnect\" and \"Connect wirelessly\" did by hand.</item>
+    </string-array>
     <!-- 0.6.4-alpha -->
     <string-array name="changelog_40">
         <item>The assistant no longer hangs after words it can\'t act on: it always closes by itself (after a question from Home Assistant too), and the microphone starts over at once. Home Assistant gets 15 seconds to answer.</item>

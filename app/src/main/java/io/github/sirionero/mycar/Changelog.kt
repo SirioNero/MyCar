@@ -16,6 +16,7 @@ object Changelog {
     }
 
     val releases = listOf(
+        Release(41, "0.6.5-alpha", R.array.changelog_41),
         Release(40, "0.6.4-alpha", R.array.changelog_40),
         Release(39, "0.6.3-alpha", R.array.changelog_39),
         Release(38, "0.6.2-alpha", R.array.changelog_38),

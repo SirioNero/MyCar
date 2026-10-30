@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_41">
+        <item>Conexão sem fio automática: enquanto o telefone espera o carro, agora ele chama de novo o Android Auto do carro a cada 8 segundos. Um carro que ainda estava ligando não respondia à primeira chamada, e o myCar depois só ficava esperando.</item>
+        <item>Se uma etapa seguinte falhar (o Wi-Fi do carro, a conexão), a tentativa iniciada pelo Bluetooth do carro recomeça sozinha, até três vezes, como você fazia à mão com “Desconectar” e “Conectar sem fio”.</item>
+    </string-array>
     <string-array name="changelog_40">
         <item>O assistente não fica mais travado depois de palavras que não sabe executar: ele sempre fecha sozinho (também depois de uma pergunta do Home Assistant) e o microfone recomeça na hora. O Home Assistant tem 15 segundos para responder.</item>
         <item>Em português e nos outros idiomas a frase não é mais cortada enquanto você ainda está falando: ela termina quando o microfone volta ao silêncio.</item>

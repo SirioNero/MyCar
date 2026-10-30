@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_41">
+        <item>Automatisch kabellos verbinden: Während das Telefon auf das Auto wartet, ruft es jetzt alle 8 Sekunden erneut das Android Auto des Autos an. Ein Auto, das noch hochfuhr, antwortete nicht auf den ersten Anruf, und myCar wartete danach nur noch.</item>
+        <item>Wenn ein späterer Schritt scheitert (das WLAN des Autos, die Verbindung), beginnt ein Versuch, den das Bluetooth des Autos ausgelöst hat, von selbst neu, bis zu dreimal, wie du es von Hand mit „Trennen“ und „Kabellos verbinden“ gemacht hast.</item>
+    </string-array>
     <string-array name="changelog_40">
         <item>Der Assistent hängt nicht mehr nach Worten, die er nicht ausführen kann: Er schließt sich immer von selbst (auch nach einer Rückfrage von Home Assistant), und das Mikrofon startet sofort neu. Home Assistant hat 15 Sekunden für die Antwort.</item>
         <item>Auf Deutsch und in den anderen Sprachen wird ein Satz nicht mehr abgeschnitten, während du noch sprichst: Er endet, wenn das Mikrofon wieder still ist.</item>

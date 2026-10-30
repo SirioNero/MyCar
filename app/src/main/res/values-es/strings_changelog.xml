@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_41">
+        <item>Conexión inalámbrica automática: mientras el teléfono espera al coche, ahora vuelve a llamar al Android Auto del coche cada 8 segundos. Un coche que aún estaba arrancando no respondía a la primera llamada, y myCar luego solo esperaba.</item>
+        <item>Si falla un paso posterior (el Wi-Fi del coche, la conexión), el intento que empezó el Bluetooth del coche vuelve a empezar solo, hasta tres veces, como hacías a mano con «Desconectar» y «Conectar sin cable».</item>
+    </string-array>
     <string-array name="changelog_40">
         <item>El asistente ya no se queda colgado tras palabras que no sabe ejecutar: siempre se cierra solo (también tras una pregunta de Home Assistant) y el micrófono vuelve a empezar al momento. Home Assistant tiene 15 segundos para responder.</item>
         <item>En español y en los demás idiomas la frase ya no se corta mientras sigues hablando: termina cuando el micrófono vuelve a quedar en silencio.</item>

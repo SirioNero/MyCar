@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_41">
+        <item>Collegamento senza fili da solo: mentre il telefono aspetta l\'auto, ora richiama l\'Android Auto dell\'auto ogni 8 secondi. Un\'auto che si stava ancora avviando non rispondeva alla prima chiamata, e myCar poi restava solo ad aspettare.</item>
+        <item>Se un passo dopo non riesce (il Wi-Fi dell\'auto, il collegamento), il tentativo partito dal Bluetooth dell\'auto ricomincia da solo, fino a tre volte, come facevi a mano con «Scollega» e «Collega senza fili».</item>
+    </string-array>
     <string-array name="changelog_40">
         <item>L\'assistente non resta più bloccato dopo parole che non sa eseguire: si chiude sempre da solo (anche dopo una domanda di Home Assistant), e il microfono ricomincia subito. Home Assistant ha 15 secondi per rispondere.</item>
         <item>In italiano e nelle altre lingue la frase non si taglia più mentre stai ancora parlando: finisce quando il microfono torna in silenzio.</item>
