@@ -1,0 +1,30 @@
+19:53:41.193 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261103-195341.log
+19:53:41.227 I APP   last exit: stopped on request at 2026-11-03 19:53:39 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 4903
+19:53:41.555 I APP   projecting 1920x720 @ 240dpi
+19:53:41.570 I APP   preview: displayId=6
+19:53:42.668 I APP   prefetch done in 754ms
+19:53:43.656 I APP   weather: loaded
+19:53:45.614 E APP   preview: no frame yet for step 0
+19:53:46.456 I APP   media: connecting to Xonos's library
+19:53:46.689 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+19:53:46.827 I APP   host: binding to app.vela/.car.VelaCarAppService
+19:53:47.045 I APP   media: connected to Xonos, root=root
+19:53:47.047 I APP   media: app buttons: none
+19:53:47.058 I APP   host: bound; requesting app info
+19:53:47.114 I APP   media: shuffle mode 0, repeat mode 0, rating type 0
+19:53:47.115 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+19:53:47.165 I APP   host: handshake accepted; creating the app
+19:53:47.307 I APP   host: created; starting
+19:53:47.313 I APP   host: app asked for a surface (callback=true)
+19:53:47.396 I APP   ============================================================
+19:53:47.396 I APP   VERDICT: app.vela accepted myCar as a template host
+19:53:47.397 I APP   Handshake completed at car API level 7.
+19:53:47.397 I APP   ============================================================
+19:53:47.497 I APP   stage: surface ready at 1195x720
+19:53:47.581 I APP   host: lent the app a 1195x720 @240dpi surface
+19:53:47.735 I APP   host: template = PlaceListNavigationTemplate
+19:53:50.021 I APP   preview: wrote preview-0.png
+19:53:53.536 I APP   preview: wrote preview-1.png
+19:53:54.755 I APP   preview: wrote preview-2.png
+19:53:57.257 I APP   preview: wrote preview-3.png
+19:54:01.971 I APP   speech: Canary waits for the first command, 1892 MB free

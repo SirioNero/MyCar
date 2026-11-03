@@ -1,0 +1,55 @@
+--------- beginning of main
+11-03 19:53:41.191  4949  4949 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261103-195341.log
+11-03 19:53:41.224  4949  4972 I myCar   : last exit: stopped on request at 2026-11-03 19:53:39 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 4903
+11-03 19:53:41.552  4949  4949 I myCar   : projecting 1920x720 @ 240dpi
+11-03 19:53:41.570  4949  4949 I myCar   : preview: displayId=6
+11-03 19:53:42.668  4949  5000 I myCar   : prefetch done in 754ms
+11-03 19:53:42.702  4949  4976 I Xonos   : Collegato a Music Assistant 2.10.8 (di casa) Music Assistant (runnervmnwato) su http://10.0.2.2:8095
+11-03 19:53:43.656  4949  5016 I myCar   : weather: loaded
+11-03 19:53:45.613  4949  4949 E myCar   : preview: no frame yet for step 0
+11-03 19:53:46.456  4949  4949 I myCar   : media: connecting to Xonos's library
+11-03 19:53:46.687  4949  4949 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-03 19:53:46.827  4949  4949 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-03 19:53:47.043  4949  4949 I myCar   : media: connected to Xonos, root=root
+11-03 19:53:47.047  4949  4949 I myCar   : media: app buttons: none
+11-03 19:53:47.054  4949  4949 I myCar   : host: bound; requesting app info
+11-03 19:53:47.114  4949  4949 I myCar   : media: shuffle mode 0, repeat mode 0, rating type 0
+11-03 19:53:47.114  4949  4949 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-03 19:53:47.164  4949  4949 I myCar   : host: handshake accepted; creating the app
+11-03 19:53:47.168  4949  4949 I Xonos   : Scelta: resume
+11-03 19:53:47.219  4949  4949 I Xonos   : Lettore: brano della coda (motivo 3)
+11-03 19:53:47.307  4949  4949 I myCar   : host: created; starting
+11-03 19:53:47.313  4949  4962 I myCar   : host: app asked for a surface (callback=true)
+11-03 19:53:47.396  4949  4949 I myCar   : ============================================================
+11-03 19:53:47.396  4949  4949 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-03 19:53:47.396  4949  4949 I myCar   : Handshake completed at car API level 7.
+11-03 19:53:47.397  4949  4949 I myCar   : ============================================================
+11-03 19:53:47.497  4949  4949 I myCar   : stage: surface ready at 1195x720
+11-03 19:53:47.581  4949  4949 I myCar   : host: lent the app a 1195x720 @240dpi surface
+11-03 19:53:47.735  4949  4949 I myCar   : host: template = PlaceListNavigationTemplate
+11-03 19:53:47.934  4949  5061 I Xonos   : Sendspin: server pronto Music Assistant (runnervmnwato), ruoli ["player@v1"]
+11-03 19:53:47.942  4949  5061 D Xonos   : Gruppo: playing
+11-03 19:53:48.137  4949  5086 I Xonos   : Lettore pronto in Music Assistant
+11-03 19:53:48.222  4949  5061 I Xonos   : Sendspin: stream/start (opus)
+11-03 19:53:48.228  4949  5061 I Xonos   : Sendspin: primo audio dopo stream/start, con 235 ms di anticipo
+11-03 19:53:48.614  4949  5101 I Xonos   : Stream opus 48000 Hz, 2 canali
+11-03 19:53:48.720  4949  5101 I Xonos   : Uscita audio aperta in 59 ms (altoparlante)
+11-03 19:53:48.750  4949  5101 I Xonos   : Uscita audio: primo tempo vero dopo 38 ms (altoparlante)
+11-03 19:53:48.750  4949  5101 I Xonos   : Avvio a 333 ms dal momento giusto
+11-03 19:53:48.750  4949  5101 I Xonos   : Inizio 333 ms dopo il momento giusto: non si salta, si recupera piano
+11-03 19:53:49.253  4949  4949 I Xonos   : Scelta: Music Assistant ha risposto dopo 2085 ms
+11-03 19:53:49.253  4949  4949 I Xonos   : Scelta: coda col brano nuovo dopo 2086 ms
+11-03 19:53:49.296  4949  4949 I Xonos   : Scelta: finita dopo 2128 ms
+11-03 19:53:49.374  4949  5061 I Xonos   : Sendspin: stream/end
+11-03 19:53:49.422  4949  5061 I Xonos   : Sendspin: stream/start (opus)
+11-03 19:53:49.425  4949  5061 I Xonos   : Sendspin: primo audio dopo stream/start, in ritardo di 61 ms
+11-03 19:53:49.496  4949  5101 I Xonos   : Stream opus 48000 Hz, 2 canali
+11-03 19:53:49.547  4949  5101 I Xonos   : Uscita audio aperta in 20 ms (altoparlante)
+11-03 19:53:49.633  4949  5101 I Xonos   : Uscita audio: primo tempo vero dopo 94 ms (altoparlante)
+11-03 19:53:49.633  4949  5101 I Xonos   : Avvio a 387 ms dal momento giusto
+11-03 19:53:49.633  4949  5101 I Xonos   : Inizio 387 ms dopo il momento giusto: non si salta, si recupera piano
+11-03 19:53:50.021  4949  4949 I myCar   : preview: wrote preview-0.png
+11-03 19:53:53.535  4949  4949 I myCar   : preview: wrote preview-1.png
+11-03 19:53:54.755  4949  4949 I myCar   : preview: wrote preview-2.png
+11-03 19:53:57.257  4949  4949 I myCar   : preview: wrote preview-3.png
+11-03 19:54:01.971  4949  5124 I myCar   : speech: Canary waits for the first command, 1892 MB free

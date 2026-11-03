@@ -1,0 +1,31 @@
+19:52:13.900 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261103-195213.log
+19:52:14.292 I APP   projecting 1920x720 @ 240dpi
+19:52:14.292 I APP   preview: displayId=2
+19:52:19.191 E APP   preview: no frame yet for step 0
+19:52:19.306 I APP   prefetch done in 4533ms
+19:52:20.430 I APP   media: connecting to Xonos's library
+19:52:20.496 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+19:52:20.689 I APP   host: binding to app.vela/.car.VelaCarAppService
+19:52:21.754 I APP   weather: loaded
+19:52:22.040 I APP   weather: loaded
+19:52:22.141 I APP   host: bound; requesting app info
+19:52:22.184 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+19:52:22.229 I APP   host: handshake accepted; creating the app
+19:52:22.574 I APP   host: created; starting
+19:52:22.613 I APP   host: app asked for a surface (callback=true)
+19:52:22.707 I APP   ============================================================
+19:52:22.707 I APP   VERDICT: app.vela accepted myCar as a template host
+19:52:22.707 I APP   Handshake completed at car API level 7.
+19:52:22.707 I APP   ============================================================
+19:52:22.821 I APP   stage: surface ready at 1195x720
+19:52:22.856 I APP   host: lent the app a 1195x720 @240dpi surface
+19:52:23.041 I APP   host: template = PlaceListNavigationTemplate
+19:52:24.110 I APP   preview: wrote preview-0.png
+19:52:25.951 I APP   preview: wrote preview-1.png
+19:52:26.284 I APP   media: connected to Xonos, root=root
+19:52:26.300 I APP   media: app buttons: none
+19:52:26.447 I APP   media: shuffle mode 0, repeat mode 0, rating type 0
+19:52:28.347 I APP   preview: wrote preview-2.png
+19:52:30.943 I APP   preview: wrote preview-3.png
+19:52:33.413 I APP   preview: wrote preview-4.png
+19:52:34.966 I APP   speech: Canary waits for the first command, 1942 MB free

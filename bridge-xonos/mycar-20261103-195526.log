@@ -1,0 +1,43 @@
+19:55:26.977 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261103-195526.log
+19:55:26.996 I APP   last exit: stopped on request at 2026-11-03 19:55:02 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 5383
+19:55:27.262 I APP   projecting 1920x720 @ 240dpi
+19:55:27.269 I APP   preview: displayId=10
+19:55:28.693 I APP   prefetch done in 1181ms
+19:55:31.046 I BRIDGE bound to the Xonos app's bridge
+19:55:31.047 E APP   preview: no frame yet for step 0
+19:55:31.684 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+19:55:31.685 I APP   media: connecting to Xonos's library
+19:55:31.867 I APP   host: binding to app.vela/.car.VelaCarAppService
+19:55:32.587 I APP   host: bound; requesting app info
+19:55:32.627 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+19:55:32.658 I APP   media: connected to Xonos, root=root
+19:55:32.660 I APP   media: app buttons: none
+19:55:32.663 I APP   host: handshake accepted; creating the app
+19:55:32.823 I APP   media: shuffle mode 0, repeat mode 0, rating type 1
+19:55:32.824 I APP   host: created; starting
+19:55:32.867 I APP   host: app asked for a surface (callback=true)
+19:55:33.891 I APP   ============================================================
+19:55:33.892 I APP   VERDICT: app.vela accepted myCar as a template host
+19:55:33.892 I APP   Handshake completed at car API level 7.
+19:55:33.892 I APP   ============================================================
+19:55:34.112 I APP   stage: surface ready at 1195x720
+19:55:34.293 I APP   host: lent the app a 1195x720 @240dpi surface
+19:55:34.302 I APP   host: template = PlaceListNavigationTemplate
+19:55:35.404 I APP   preview: wrote preview-0.png
+19:55:37.707 I APP   weather: loaded
+19:55:37.875 I APP   weather: loaded
+19:55:38.603 I APP   preview: wrote preview-1.png
+19:55:40.411 I APP   preview: wrote preview-2.png
+19:55:43.023 I APP   preview: wrote preview-3.png
+19:55:45.641 I APP   preview: wrote preview-4.png
+19:55:48.057 I APP   preview: wrote preview-5.png
+19:55:48.073 I APP   speech: Canary waits for the first command, 1863 MB free
+19:55:50.464 I APP   preview: wrote preview-6.png
+19:55:53.078 I APP   preview: wrote preview-7.png
+19:55:55.913 I APP   preview: wrote preview-8.png
+19:55:58.038 I APP   preview: wrote preview-9.png
+19:56:00.491 I APP   preview: wrote preview-10.png
+19:56:02.959 I APP   preview: wrote preview-11.png
+19:56:05.410 I APP   preview: wrote preview-12.png
+19:56:07.913 I APP   preview: wrote preview-13.png
+19:56:10.469 I APP   preview: wrote preview-14.png
