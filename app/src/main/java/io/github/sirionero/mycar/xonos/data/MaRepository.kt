@@ -37,12 +37,22 @@ class MaRepository(
         .apply(network)
         .build()
 
+    /**
+     * Per l'indirizzo di casa quando c'è anche quello remoto. Fuori casa un indirizzo come 192.168.1.10 di solito
+     * non risponde affatto (i pacchetti si perdono) e si aspettavano 8 s a ogni collegamento prima di provare il
+     * remoto; un server nella stessa rete risponde in millisecondi. Stessa coda e stesse connessioni di [http].
+     */
+    private val homeHttp: OkHttpClient = http.newBuilder().connectTimeout(HOME_CONNECT_S, TimeUnit.SECONDS).build()
+
     private val _connection = MutableStateFlow<Connection>(Connection.Connecting(""))
     val connection: StateFlow<Connection> = _connection.asStateFlow()
 
     private val listeners = CopyOnWriteArrayList<(String, String?, Any?) -> Unit>()
 
     @Volatile private var client: MaClient? = null
+
+    /** L'ora in millisecondi; il banco di prova la sposta avanti per vedere il rinnovo del token. */
+    @Volatile internal var clock: () -> Long = System::currentTimeMillis
     private var loop: Job? = null
     private var users = 0
 
@@ -73,6 +83,9 @@ class MaRepository(
             loop = null
             client?.close()
             client = null
+            // Non più "collegato": chi segue la connessione (la cassa di "Suona su") deve vedere il prossimo
+            // collegamento come nuovo. Con lo stesso Connected di prima lo StateFlow non direbbe niente.
+            _connection.value = Connection.Connecting("")
         }
     }
 
@@ -122,7 +135,8 @@ class MaRepository(
             var lastError = MaException("Music Assistant non raggiungibile", problem = Problem.NETWORK)
             for (url in config.urls) {
                 _connection.value = Connection.Connecting(url)
-                val candidate = MaClient(http, locale())
+                val quick = url == config.homeUrl && config.urls.size > 1
+                val candidate = MaClient(if (quick) homeHttp else http, locale())
                 try {
                     server = candidate.connect(url, config.token)
                     session = candidate
@@ -149,8 +163,15 @@ class MaRepository(
             active.onEvent = { event, objectId, data -> listeners.forEach { it(event, objectId, data) } }
             client = active
             try {
-                Log.i(TAG, "Collegato a ${server.name} (${server.version}) su $usedUrl")
+                // Nelle build vere senza nome e indirizzo del server: solo da dove (casa, fuori, il telefono stesso).
+                val where = when {
+                    usedUrl != config.homeUrl -> "da fuori casa"
+                    usedUrl.startsWith(LOCAL_PREFIX) -> "sul telefono"
+                    else -> "di casa"
+                }
+                Log.i(TAG, "Collegato a Music Assistant ${server.version} ($where)" + Logged.text(" ${server.name} su $usedUrl", ""))
                 _connection.value = Connection.Connected(usedUrl, server)
+                scope.launch { renewToken(active, config.token) }
                 val reason = active.closed.await()
                 _connection.value = Connection.Failed("Connessione persa ($reason), riprovo", Problem.LOST, reason)
             } catch (e: CancellationException) {
@@ -170,8 +191,44 @@ class MaRepository(
         }
     }
 
+    /**
+     * Dalla 2.10 i token a lunga durata di Music Assistant scadono dopo un anno e non si rinnovano da soli (prima
+     * duravano dieci anni): scaduto quello di Xonos, niente musica finché non si rientra a mano. Così, quando
+     * mancano meno di [RENEW_BEFORE_S], Xonos se ne fa dare uno nuovo con lo stesso nome e lo salva al posto del
+     * vecchio. Il vecchio vale fino alla sua scadenza: revocarlo chiuderebbe anche questa connessione (e quella
+     * dell'app Xonos, se il token di myCar viene da lei).
+     */
+    private suspend fun renewToken(active: MaClient, token: String) {
+        val info = TokenInfo.read(token) ?: return
+        val left = info.expiresAt - clock() / 1000
+        if (!info.longLived || left > RENEW_BEFORE_S) return
+        try {
+            val fresh = active.command("auth/token/create") { put("name", info.name ?: "myCar") } as? String ?: return
+            synchronized(settings) {
+                val now = settings.load()
+                // Intanto si è cambiato server o token: quello nuovo non serve.
+                if (now.token != token) return
+                settings.save(now.copy(token = fresh))
+            }
+            Log.i(TAG, "Token rinnovato: quello di prima scadeva tra ${left / 86_400} giorni")
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Token non rinnovato: ${Logged.error(e)}")
+        }
+    }
+
     companion object {
         private const val TAG = "Xonos"
+
+        /** L'indirizzo di un Music Assistant sul telefono stesso (quello scaricato da Xonos). */
+        private const val LOCAL_PREFIX = "http://127.0.0.1"
+
+        /** Il tempo per aprire la connessione all'indirizzo di casa, quando dopo c'è quello remoto. */
+        const val HOME_CONNECT_S = 3L
+
+        /** Quanto prima della scadenza si chiede un token nuovo: Xonos deve collegarsi almeno una volta in quel tempo. */
+        const val RENEW_BEFORE_S = 30L * 86_400
 
         /**
          * La lingua dei testi che Music Assistant traduce da sé: quella di myCar (Locale.getDefault(),

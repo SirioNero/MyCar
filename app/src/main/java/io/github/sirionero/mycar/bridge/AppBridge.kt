@@ -42,6 +42,16 @@ class AppBridge(val packageName: String, private val label: String, private val 
     @Volatile private var checkedAt = 0L
     @Volatile private var there = false
 
+    /** The hosts the app last turned down for good ([NOT_MYCAR], [NOT_OURS]): see [refusedForGood]. */
+    @Volatile private var refused = emptySet<String>()
+
+    /**
+     * Whether the app's last answer for [host] was a refusal that asking again won't change, until the app's own
+     * settings do: myCar isn't the one it serves, or the address isn't its server's (the Xonos app moved to another
+     * Music Assistant, or took its own off the phone). Any other answer for [host] clears it.
+     */
+    fun refusedForGood(host: String): Boolean = host in refused
+
     private fun intent() = Intent(ACTION).setPackage(packageName)
 
     /** Whether the app on the phone has the bridge (an up-to-date Plancia or Xonos). Checked again every half minute. */
@@ -83,6 +93,7 @@ class AppBridge(val packageName: String, private val label: String, private val 
                 throw BridgeException(said(Words.get(R.string.bridge_unknown, label)))
             }
             val code = reply.readInt()
+            synchronized(lock) { refused = if (code == NOT_MYCAR || code == NOT_OURS) refused + host else refused - host }
             if (code == OK) {
                 val socket = ParcelFileDescriptor.CREATOR.createFromParcel(reply)
                 synchronized(lock) {

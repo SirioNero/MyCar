@@ -1,6 +1,8 @@
 package io.github.sirionero.mycar.xonos.data
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -66,14 +68,17 @@ class Account(private val repo: MaRepository) {
         } catch (e: IllegalArgumentException) {
             throw MaException("Indirizzo non valido: $url", problem = Problem.BAD_ADDRESS, detail = url)
         }
-        val answer = repo.http.newCall(request).await().use { response ->
-            val text = response.body?.string().orEmpty()
-            val json = runCatching { JSONObject(text) }.getOrNull()
-            if (!response.isSuccessful || json?.optBoolean("success") != true) {
-                val error = json?.str("error") ?: "HTTP ${response.code}"
-                throw MaException(error, response.code, Problem.REFUSED, error)
+        // La risposta si legge (e si chiude) fuori dal thread principale: su Android lì la rete è vietata.
+        val answer = withContext(Dispatchers.IO) {
+            repo.http.newCall(request).await().use { response ->
+                val text = response.body?.string().orEmpty()
+                val json = runCatching { JSONObject(text) }.getOrNull()
+                if (!response.isSuccessful || json?.optBoolean("success") != true) {
+                    val error = json?.str("error") ?: "HTTP ${response.code}"
+                    throw MaException(error, response.code, Problem.REFUSED, error)
+                }
+                json
             }
-            json
         }
         val session = answer.str("token") ?: throw MaException("Nessun token dal server", problem = Problem.REFUSED)
         val client = repo.newClient()
@@ -96,7 +101,8 @@ class Account(private val repo: MaRepository) {
             return false
         }
         return try {
-            repo.http.newCall(request).await().use { it.code == 200 }
+            // Chiudere la risposta può leggere dalla rete: fuori dal thread principale.
+            withContext(Dispatchers.IO) { repo.http.newCall(request).await().use { it.code == 200 } }
         } catch (e: MaException) {
             false
         }

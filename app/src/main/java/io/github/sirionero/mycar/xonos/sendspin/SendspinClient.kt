@@ -1,7 +1,9 @@
 package io.github.sirionero.mycar.xonos.sendspin
 
 import android.util.Log
+import io.github.sirionero.mycar.xonos.data.Logged
 import io.github.sirionero.mycar.xonos.data.MaClient
+import io.github.sirionero.mycar.xonos.data.SkipTrace
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -10,7 +12,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,6 +65,12 @@ class SendspinClient(
         val muted: Boolean,
         /** "Mobile Application" per il telefono; nel banco di prova un altro nome fa una cassa finta, visibile a tutti. */
         val productName: String = PRODUCT_NAME,
+        /**
+         * Il server legge i comandi del lettore (volume, muto) da client/state: allora l'hello non li ripete e
+         * client/state non ha il vecchio "state". Con quei campi, che la specifica ha tolto, Music Assistant segna il
+         * telefono come lettore non conforme. Resta spento per i server più vecchi: prima della 2.10 li volevano.
+         */
+        val modernWire: Boolean = false,
     )
 
     enum class Phase { STOPPED, CONNECTING, READY }
@@ -69,6 +79,9 @@ class SendspinClient(
     private var job: Job? = null
     private var target: Pair<String, String>? = null
     @Volatile private var session: Session? = null
+
+    /** Il ciclo di connessione sta solo aspettando il prossimo tentativo (dopo molti errori fino a 30 s). */
+    @Volatile private var backingOff = false
 
     private val _phase = MutableStateFlow(Phase.STOPPED)
 
@@ -87,7 +100,10 @@ class SendspinClient(
      */
     @Synchronized
     fun start(baseUrl: String, token: String, force: Boolean = false) {
-        if (!force && job?.isActive == true && target == (baseUrl to token) && _phase.value == Phase.READY) return
+        // Se il ciclo sta solo aspettando il prossimo tentativo ([backingOff]), si riprova subito: Music Assistant è
+        // appena tornato (l'API si è ricollegata) e l'audio non deve restare indietro fino a 30 s. In myCar anche un
+        // tentativo ancora in corso: dopo una galleria poteva essere partito su una strada morta.
+        if (!force && !backingOff && _phase.value == Phase.READY && job?.isActive == true && target == (baseUrl to token)) return
         job?.cancel()
         session?.close(goodbye = false)
         target = baseUrl to token
@@ -112,14 +128,20 @@ class SendspinClient(
             _phase.value = Phase.CONNECTING
             val url = if (direct) directUrl(baseUrl) else MaClient.websocketUrl(baseUrl, "/sendspin")
             val current = Session(token, authenticate = !direct)
-            session = current
+            // Col lock di start() e stop(), e solo se questo ciclo vale ancora: uno vecchio, fermato mentre non era in
+            // attesa, si metterebbe al posto della sessione di quello nuovo, che non riceverebbe più niente.
+            val context = currentCoroutineContext()
+            synchronized(this) {
+                context.ensureActive()
+                session = current
+            }
             val outcome = try {
                 current.run(url)
             } catch (e: CancellationException) {
                 current.close(goodbye = false)
                 throw e
             }
-            // Finita senza che la WebSocket si chiudesse (il server non ha risposto all'hello): la si
+            // Finita senza che la WebSocket si chiudesse (il server non ha risposto all'hello, o ha detto di no): la si
             // chiude qui, o a ogni giro ne restava aperta un'altra verso Music Assistant.
             current.abandon()
             if (session === current) session = null
@@ -128,7 +150,7 @@ class SendspinClient(
             when {
                 outcome.httpCode == 404 && !direct && url.startsWith("ws://") -> {
                     // Music Assistant 2.7.0 non aveva ancora /sendspin sulla porta dell'interfaccia.
-                    Log.i(TAG, "Nessun /sendspin su $baseUrl: provo la porta diretta di Sendspin")
+                    Log.i(TAG, "Nessun /sendspin${Logged.text(" su $baseUrl", "")}: provo la porta diretta di Sendspin")
                     direct = true
                     continue
                 }
@@ -136,12 +158,30 @@ class SendspinClient(
                 else -> failures++
             }
             _error.value = outcome.reason
-            Log.w(TAG, "Audio scollegato: ${outcome.reason}")
-            delay(if (failures == 0) 1_000L else (2_000L * failures).coerceAtMost(30_000L))
+            // Nelle build vere solo il tipo: il testo può avere l'indirizzo del server (errori di rete di OkHttp).
+            Log.w(TAG, "Audio scollegato: ${Logged.text(outcome.reason, outcome.kind)}")
+            backingOff = true
+            try {
+                delay(
+                    when {
+                        // Riprovare subito non cambia niente: lo deve cambiare chi gestisce Music Assistant. Si riprova
+                        // comunque ogni tanto, e subito quando l'API si ricollega (vedi [start]).
+                        outcome.refused -> REFUSED_RETRY_MS
+                        failures == 0 -> 1_000L
+                        else -> (2_000L * failures).coerceAtMost(30_000L)
+                    },
+                )
+            } finally {
+                backingOff = false
+            }
         }
     }
 
-    private class Outcome(val reason: String, val wasReady: Boolean, val httpCode: Int?)
+    /**
+     * Com'è finita una connessione: [reason] per chi usa l'app, [kind] per il registro (senza indirizzi né testi del
+     * server), [refused] se il server non vuole lettori come questo.
+     */
+    private class Outcome(val reason: String, val kind: String, val wasReady: Boolean, val httpCode: Int?, val refused: Boolean)
 
     /** Una connessione, dall'apertura alla chiusura. */
     private inner class Session(private val token: String, private val authenticate: Boolean) : WebSocketListener() {
@@ -155,12 +195,16 @@ class SendspinClient(
         private var volume = id.volume
         private var muted = id.muted
 
+        // Dopo stream/start o stream/clear: il primo pacchetto audio va nel registro (vedi [SkipTrace]). Lo toccano
+        // solo i messaggi di questa connessione, che OkHttp consegna uno alla volta dallo stesso thread.
+        private var firstAudioAfter: String? = null
+
         suspend fun run(url: String): Outcome {
             engine.setVolume(volume, muted)
             val request = try {
                 Request.Builder().url(url).build()
             } catch (e: IllegalArgumentException) {
-                return Outcome("Indirizzo non valido: $url", false, null)
+                return Outcome("Indirizzo non valido: $url", "indirizzo non valido", false, null, false)
             }
             socket = http.newWebSocket(request, this)
             return coroutineScope {
@@ -177,11 +221,6 @@ class SendspinClient(
             }
         }
 
-        /** Lascia andare la WebSocket senza saluti; non fa niente se è già chiusa. */
-        fun abandon() {
-            socket?.cancel()
-        }
-
         fun close(goodbye: Boolean) {
             val ws = socket ?: return
             if (goodbye && ready) {
@@ -189,6 +228,11 @@ class SendspinClient(
             }
             ws.close(1000, null)
             finish("Connessione chiusa", null)
+        }
+
+        /** Lascia andare la WebSocket senza saluti; non fa niente se è già chiusa. */
+        fun abandon() {
+            socket?.cancel()
         }
 
         /** Una raffica di misure subito, poi una ogni pochi secondi: la specifica ne vuole almeno una ogni dieci. */
@@ -243,8 +287,8 @@ class SendspinClient(
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            // Una connessione chiusa per aprirne un'altra consegna ancora i suoi messaggi per un po':
-            // uno stream/end di quella vecchia fermerebbe lo stream nuovo.
+            // Una connessione chiusa per aprirne un'altra consegna ancora i suoi messaggi per un po' (finché la chiusura
+            // non è finita): uno stream/end di quella vecchia fermerebbe lo stream nuovo.
             if (session !== this) return
             val received = now()
             val msg = try {
@@ -256,8 +300,20 @@ class SendspinClient(
             when (msg.optString("type")) {
                 "auth_ok" -> sendHello()
                 "server/hello" -> {
-                    Log.i(TAG, "Sendspin: ${payload.optString("name")}, ruoli ${payload.optJSONArray("active_roles")}")
+                    val name = Logged.text(" " + payload.optString("name"), "")
+                    Log.i(TAG, "Sendspin: server pronto$name, ruoli ${payload.optJSONArray("active_roles")}")
                     helloAnswered.complete(Unit)
+                }
+                // Il server non accetta questa connessione: per esempio un Music Assistant che vuole solo lettori
+                // cifrati (senza "allow_legacy_clients" risponde "malformed" al client/hello in chiaro), poi chiude.
+                "server/error" -> {
+                    val why = payload.optString("reason").take(REASON_CHARS).ifBlank { "?" }
+                    finish(
+                        "Questo Music Assistant accetta solo lettori Sendspin cifrati, che Xonos non sa ancora usare ($why)",
+                        null,
+                        kind = "server/error $why",
+                        refused = true,
+                    )
                 }
                 "server/time" -> replies.trySend(
                     longArrayOf(
@@ -267,9 +323,20 @@ class SendspinClient(
                         received,
                     ),
                 )
-                "stream/start" -> payload.optJSONObject("player")?.let(StreamFormat::from)?.let(engine::startStream)
-                "stream/clear" -> if (forPlayer(payload)) engine.clear()
-                "stream/end" -> if (forPlayer(payload)) engine.end()
+                "stream/start" -> payload.optJSONObject("player")?.let(StreamFormat::from)?.let { format ->
+                    Log.i(TAG, "Sendspin: stream/start (${format.codec})${SkipTrace.suffix()}")
+                    firstAudioAfter = "stream/start"
+                    engine.startStream(format)
+                }
+                "stream/clear" -> if (forPlayer(payload)) {
+                    Log.i(TAG, "Sendspin: stream/clear${SkipTrace.suffix()}")
+                    firstAudioAfter = "stream/clear"
+                    engine.clear()
+                }
+                "stream/end" -> if (forPlayer(payload)) {
+                    Log.i(TAG, "Sendspin: stream/end${SkipTrace.suffix()}")
+                    engine.end()
+                }
                 "server/command" -> payload.optJSONObject("player")?.let(::command)
                 "group/update" -> Log.d(TAG, "Gruppo: ${payload.optString("playback_state")}")
             }
@@ -282,6 +349,13 @@ class SendspinClient(
             if (bytes.size < AUDIO_HEADER || bytes[0].toInt() != AUDIO_CHUNK) return
             val data = bytes.toByteArray()
             val timestamp = ByteBuffer.wrap(data, 1, 8).long
+            firstAudioAfter?.let { after ->
+                firstAudioAfter = null
+                // L'anticipo: quanto prima del momento in cui va suonato è arrivato (negativo: è arrivato tardi).
+                val aheadMs = (engine.filter.toClient(timestamp) - now()) / 1000
+                val arrival = if (aheadMs >= 0) "con $aheadMs ms di anticipo" else "in ritardo di ${-aheadMs} ms"
+                Log.i(TAG, "Sendspin: primo audio dopo $after, $arrival${SkipTrace.suffix()}")
+            }
             engine.audio(timestamp, data, AUDIO_HEADER, data.size - AUDIO_HEADER)
         }
 
@@ -297,6 +371,7 @@ class SendspinClient(
                     else -> "Connessione chiusa dal server"
                 },
                 null,
+                kind = if (code == 4001) "token rifiutato (4001)" else "chiusa dal server ($code)",
             )
         }
 
@@ -307,19 +382,19 @@ class SendspinClient(
                 response != null -> "Errore HTTP ${response.code}"
                 else -> t.message ?: "Errore di rete"
             }
-            finish(reason, response?.code)
+            finish(reason, response?.code, kind = response?.let { "HTTP ${it.code}" } ?: t.javaClass.simpleName)
         }
 
-        private fun finish(reason: String, httpCode: Int?) {
-            done.complete(Outcome(reason, ready, httpCode))
+        private fun finish(reason: String, httpCode: Int?, kind: String = reason, refused: Boolean = false) {
+            done.complete(Outcome(reason, kind, ready, httpCode, refused))
         }
 
         private fun sendHello() {
             val player = JSONObject()
                 .put("supported_formats", JSONArray(id.formats.map { it.toJson() }))
                 .put("buffer_capacity", BUFFER_CAPACITY)
-                // Le versioni prima della 2.10 li volevano qui; le nuove li leggono da client/state.
-                .put("supported_commands", JSONArray(COMMANDS))
+            // Le versioni prima della 2.10 li volevano qui; le nuove li leggono da client/state.
+            if (!id.modernWire) player.put("supported_commands", JSONArray(COMMANDS))
             val payload = JSONObject()
                 .put("client_id", id.clientId)
                 .put("version", 1)
@@ -350,9 +425,9 @@ class SendspinClient(
                 .put("supported_commands", JSONArray(COMMANDS))
             val payload = JSONObject()
                 .put("available", true)
-                // Il nome di "available" nelle versioni prima della 2.10.
-                .put("state", "synchronized")
                 .put("player", player)
+            // Il nome di "available" nelle versioni prima della 2.10.
+            if (!id.modernWire) payload.put("state", "synchronized")
             send(message("client/state", payload))
         }
 
@@ -385,6 +460,12 @@ class SendspinClient(
         const val SYNC_INTERVAL_MS = 5_000L
         const val RETRY_SYNC_MS = 1_000L
         const val HELLO_TIMEOUT_MS = 15_000L
+
+        /** Dopo un "no" del server ([Outcome.refused]) si riprova solo ogni tanto. */
+        const val REFUSED_RETRY_MS = 5 * 60_000L
+
+        /** Il motivo di server/error nel registro è una parola ("malformed"): non di più. */
+        const val REASON_CHARS = 40
         const val DIRECT_PORT = 8927
         const val CLOCK_JUMP_US = 1_000_000L
 

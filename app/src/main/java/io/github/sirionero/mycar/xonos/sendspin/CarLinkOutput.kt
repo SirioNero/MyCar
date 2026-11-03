@@ -19,6 +19,10 @@ class CarLinkOutput private constructor(
     override val latencyUs: Long
         get() = DirectFeed.RING_MS * 1_000L + DirectFeed.CAR_DELAY_US
 
+    // Per il registro (le righe "Uscita audio"): dritto nel canale musicale dell'auto.
+    override val route: String
+        get() = "auto, tramite myCar"
+
     override fun play() = Unit
 
     override fun write(data: ShortArray, offsetFrames: Int, frames: Int): Int = writer.write(data, offsetFrames, frames)

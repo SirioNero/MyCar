@@ -6,22 +6,28 @@ import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Process
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.bridge.BridgeDns
 import io.github.sirionero.mycar.bridge.BridgeSocketFactory
 import io.github.sirionero.mycar.bridge.Bridges
 import io.github.sirionero.mycar.media.MediaApp
 import io.github.sirionero.mycar.xonos.data.ArtCache
+import io.github.sirionero.mycar.xonos.data.Connection
 import io.github.sirionero.mycar.xonos.data.Library
+import io.github.sirionero.mycar.xonos.data.Logged
 import io.github.sirionero.mycar.xonos.data.MaRepository
+import io.github.sirionero.mycar.xonos.data.Problem
 import io.github.sirionero.mycar.xonos.data.Settings
 import io.github.sirionero.mycar.xonos.playback.PlaybackService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.io.File
+import java.net.URI
 
 /**
  * Xonos inside myCar: Music Assistant's player, set up on the phone and played in the car as one
@@ -33,6 +39,12 @@ import java.io.File
  * down the car's audio link (see CarLinkOutput) rather than through the phone's speakers.
  */
 object Xonos {
+
+    init {
+        // Before anything else: in the engine's logcat the details (titles, names, addresses, error texts) only in
+        // the debug build, as myCar's rule wants (see data/Logged).
+        Logged.details = BuildConfig.DEBUG
+    }
 
     private lateinit var app: Context
 
@@ -81,7 +93,7 @@ object Xonos {
             socketFactory(BridgeSocketFactory(Bridges.xonos))
         }
     }
-    val library: Library by lazy { Library(repo) }
+    val library: Library by lazy { Library(repo).also { it.playTimeoutMs = playTimeout() } }
 
     /** The covers fetched for the car, the notification and the player (see playback/Artwork). */
     val artCache: ArtCache by lazy { ArtCache(File(app.cacheDir, "xonos-art"), repo.http) }
@@ -113,6 +125,7 @@ object Xonos {
         if (config.isComplete) AppSettings.putString(context, KEY_IMPORT_OFF, "")
         settings.save(config)
         settings.username = username
+        library.playTimeoutMs = playTimeout()
         _setUp.value = config.isComplete
         repo.reconnect()
     }
@@ -128,6 +141,59 @@ object Xonos {
 
     /** Whether "Remove" was the last word: no account taken from the Xonos app by itself. */
     fun importOff(context: Context): Boolean = AppSettings.getString(context, KEY_IMPORT_OFF, "") == "1"
+
+    /**
+     * Whether the account's Music Assistant is the one inside the Xonos app on this phone (127.0.0.1:8095): myCar
+     * reaches it through the bridge, and the Xonos app stops it when nobody uses it and starts it again when the
+     * bridge is opened (see bridge/Bridges.onThePhone).
+     */
+    val onPhoneServer: Boolean
+        get() = runCatching { URI(settings.load().homeUrl).host }.getOrNull()?.let(Bridges::onThePhone) == true
+
+    /**
+     * How long play_media is waited for (see Library.playTimeoutMs): longer with the Xonos app's Music Assistant,
+     * where Spotify's requests keep to its limit and the first play of a long playlist or an artist takes longer.
+     */
+    private fun playTimeout() = if (onPhoneServer) Library.PHONE_PLAY_TIMEOUT_MS else Library.PLAY_TIMEOUT_MS
+
+    /**
+     * The Music Assistant inside the Xonos app, stopped because nobody used it (or closed by Android), starts again
+     * when myCar opens the bridge, and stays on while myCar keeps it bound: a play, a skip, a choice or the car's
+     * menu waits for it (see MaPlayer and PlaybackService) rather than failing at once. True if it's worth waiting:
+     * the account's server is that one, the Xonos app is there with its bridge, and the server hasn't turned myCar
+     * down for good. The connection then tries again now, not at its next attempt - which after a few failures
+     * comes up to 20 s later.
+     */
+    fun wakePhoneServer(): Boolean {
+        if (!onPhoneServer || !Bridges.xonos.available(app) || phoneServerRefused()) return false
+        val now = SystemClock.elapsedRealtime()
+        if (repo.connection.value is Connection.Failed && now - wokenAt > WAKE_AGAIN_MS) {
+            wokenAt = now
+            repo.reconnect()
+        }
+        return true
+    }
+
+    @Volatile private var wokenAt = 0L
+
+    /**
+     * The Xonos app's Music Assistant answered and turned myCar down for a reason that won't pass by itself (the
+     * token, the version...), or the Xonos app itself did (its server isn't this address any more: it moved to another
+     * Music Assistant or took its own off the phone, and won't start it for myCar): no use waiting for it to start (see
+     * MaPlayer). How the server's own process is doing the Xonos app doesn't tell myCar: these are the sure signs.
+     */
+    fun phoneServerRefused(): Boolean =
+        (repo.connection.value as? Connection.Failed)?.problem in REFUSED_FOR_GOOD ||
+            runCatching { URI(settings.load().homeUrl).host }.getOrNull()?.let(Bridges.xonos::refusedForGood) == true
+
+    private val REFUSED_FOR_GOOD = setOf(
+        Problem.BAD_TOKEN,
+        Problem.TOO_OLD,
+        Problem.DENIED,
+        Problem.NOT_MUSIC_ASSISTANT,
+        Problem.SETUP_REQUIRED,
+        Problem.BAD_ADDRESS,
+    )
 
     /** The player, as the car's media screens connect to it. */
     fun component(context: Context) = ComponentName(context, PlaybackService::class.java)
@@ -155,4 +221,7 @@ object Xonos {
     private const val ICON_BACKGROUND = 0xFF0E1420.toInt()
     private const val KEY_IMPORT_OFF = "xonos_import_off"
     private const val KEY_ON = "xonos_in_the_car"
+
+    /** How soon a wake ([wakePhoneServer]) may make the connection try again: several asks at once make one try. */
+    private const val WAKE_AGAIN_MS = 2_000L
 }
