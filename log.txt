@@ -1,0 +1,11 @@
+--------- beginning of main
+11-03 00:56:40.683  4741  4741 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261103-005640.log
+11-03 00:56:40.691  4741  4741 I myCar   : myCar ready
+11-03 00:56:40.694  4741  4741 I myCar   : auto-connect: 0 car(s) allowed to connect by themselves
+11-03 00:56:40.707  4741  4763 I myCar   : last exit: stopped on request at 2026-11-03 00:56:05 (io.github.sirionero.mycar, status 0, importance 400, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar due to from pid 3715
+11-03 00:56:40.921  4771  4782 I Plancia : Account passato a io.github.sirionero.mycar
+11-03 00:56:40.922  4741  4767 I myCar   : plancia: took the Plancia app's Home Assistant account
+11-03 00:56:41.345  4741  4770 I myCar   : prefetch done in 617ms
+11-03 00:56:42.680  4795  4810 I Xonos   : Account passato a io.github.sirionero.mycar
+11-03 00:56:42.686  4741  4769 I myCar   : xonos: took the Xonos app's Music Assistant account
+11-03 00:56:43.392  4741  4741 I myCar   : local network: allowed
