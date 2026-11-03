@@ -1,0 +1,7 @@
+Use an alternate server
+Enter the URL of an alternate Tailscale server or your self-hosted Headscale server.
+Custom control server URL
+http://10.0.2.2:8080
+Add account
+Go back to the previous screen
+Add another account

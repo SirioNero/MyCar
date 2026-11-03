@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="url_home">http://umbrel:8095</string>
+    <string name="url_remote"></string>
+    <string name="token">(hidden)</string>
+    <string name="username">mycar</string>
+</map>

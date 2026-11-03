@@ -1,0 +1,6 @@
+Add another account
+Reauthenticate
+Delete tailnet
+Go back to the previous screen
+Accounts
+menu

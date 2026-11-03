@@ -1,0 +1,17 @@
+--------- beginning of main
+11-03 19:55:34.961  6160  6160 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar/files/mycar-20261103-195534.log
+11-03 19:55:34.962  6160  6160 I myCar   : myCar ready
+11-03 19:55:34.963  6160  6160 I myCar   : auto-connect: 0 car(s) allowed to connect by themselves
+11-03 19:55:34.963  6160  6178 I myCar   : last exit: stopped on request at 2026-11-03 19:55:03 (io.github.sirionero.mycar, status 0, importance 400, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar due to from pid 5989
+11-03 19:55:35.089  6185  6198 I Plancia : Account passato a io.github.sirionero.mycar
+11-03 19:55:35.090  6160  6181 I myCar   : plancia: took the Plancia app's Home Assistant account
+11-03 19:55:35.212  6160  6184 I myCar   : prefetch done in 241ms
+11-03 19:55:36.287  6160  6160 I myCar   : local network: allowed
+11-03 19:55:36.444  6209  6225 I Xonos   : Account passato a io.github.sirionero.mycar
+11-03 19:55:36.444  6160  6183 I myCar   : xonos: took the Xonos app's Music Assistant account
+11-03 19:56:07.133  6160  6160 I myCar   : bound to the Plancia app's bridge
+11-03 19:56:07.147  6185  6200 I Plancia : Ponte per io.github.sirionero.mycar verso umbrel:8123
+11-03 19:56:42.523  6209  6551 I Xonos   : Account passato a io.github.sirionero.mycar
+11-03 19:56:42.523  6160  6183 I myCar   : xonos: took the Xonos app's Music Assistant account
+11-03 19:56:42.568  6160  6160 I myCar   : bound to the Xonos app's bridge
+11-03 19:56:42.623  6209  6551 I Xonos   : Ponte per io.github.sirionero.mycar verso Music Assistant (porta 8095)
