@@ -1085,7 +1085,7 @@ object WirelessLink {
      * means the car drops the phone's traffic, usually because it is still waiting for a step.
      */
     @SuppressLint("MissingPermission")
-    private fun probe(context: Context, net: Network, ip: String, port: Int) {
+    private fun probe(context: Context, net: Network, ip: String, port: Int, bindRefused: Boolean) {
         runCatching {
             val manager = context.getSystemService(ConnectivityManager::class.java)
             val link = manager?.getLinkProperties(net)
@@ -1099,6 +1099,12 @@ object WirelessLink {
                     "active network ${manager?.activeNetwork}, car network $net, VPN ${if (vpnActive(context)) "on" else "off"}",
             )
         }.onFailure { log.w("probe: couldn't read the link (${it.message})") }
+        // Bound to the car's network, every port is refused the same way (EPERM): in a tester's log
+        // those lines came back over and over, and said nothing the tries hadn't.
+        if (bindRefused) {
+            log.i("probe: no ports tried - Android refuses myCar the car's network")
+            return
+        }
         // Never the car's own port: a car that just got ready would take the probe for the phone,
         // see it hang up at once, and some stop listening.
         for (p in listOf(5288, 5277, 80, 443).filter { it != port }) {
@@ -1418,7 +1424,7 @@ object WirelessLink {
                     refusedSince = if (e.message?.contains("ECONNREFUSED") != true) 0L
                     else refusedSince.takeIf { it != 0L } ?: SystemClock.elapsedRealtime()
                 }
-                if (attempt == 0) probe(context, net, ip, port)
+                if (attempt == 0) probe(context, net, ip, port, bindRefused)
                 Thread.sleep(1_000)
             }
         }
