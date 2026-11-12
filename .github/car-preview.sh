@@ -243,9 +243,10 @@ EXTRA="--es appGrid list" shoot grid-vertical-800x480 800 480 160 "48,436;400,40
 GRID_KNOB="wait:6000;tap:48,436;wait:2500;snap:0-grid;rep:8;knob:-1;wait:700;snap:;end"
 GRID_KNOB="$GRID_KNOB;rep:4;knob:-1;wait:400;end;wait:700;snap:up-a-row;rep:4;knob:-1;wait:400;end;wait:700;snap:up-two-rows"
 EXTRA="--es appGrid list --es script '$GRID_KNOB'" shoot grid-vertical-knob 800 480 160 "" "sleep 18"
-# The choice itself, at 800x480: Settings from the grid's second page, scrolled down to "App grid", "List
-# (up and down)" tapped, then the grid from the dock's foot - a list now, with its bar instead of the dots.
-GRID_CHOICE="wait:6000;tap:48,436;wait:2500;snap:0-pages;drag:650,250,150,250,250;wait:1500;tapText:Settings;wait:3000"
+# The choice itself, at 800x480: Settings from the grid's second page (its third tile, at 532,110: found by
+# its name it was taken mid-turn, where Exit is), scrolled down to "App grid", "List (up and down)" tapped,
+# then the grid from the dock's foot - a list now, with its bar instead of the dots.
+GRID_CHOICE="wait:6000;tap:48,436;wait:2500;snap:0-pages;drag:650,250,150,250,250;wait:2500;tap:532,110;wait:3000"
 GRID_CHOICE="$GRID_CHOICE;drag:500,440,500,40,700;wait:1200"
 GRID_CHOICE="$GRID_CHOICE;drag:500,400,500,150,600;wait:2000;snap:1-row;tapText:List (up and down);wait:2000;snap:2-chosen"
 GRID_CHOICE="$GRID_CHOICE;tap:48,436;wait:3000;snap:3-grid"
