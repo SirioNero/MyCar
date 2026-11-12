@@ -15,7 +15,7 @@ import io.github.sirionero.mycar.Protobuf
  * field 8), the way Android Auto feeds it:
  *
  *   -> NavigationStatus         { status = 1 (1 active, 2 inactive, 3 rerouting) }
- *   -> NavigationNextTurnEvent  { road = 1; turn_side = 2; event = 3; turn_number = 5; turn_angle = 6 }
+ *   -> NavigationNextTurnEvent  { road = 1; turn_side = 2; event = 3; image = 4; turn_number = 5; turn_angle = 6 }
  *   -> NavigationNextTurnDistanceEvent { distance_meters = 1; time_to_turn_seconds = 2;
  *                                        display_distance_e3 = 3; display_distance_unit = 4 }
  *
@@ -23,8 +23,9 @@ import io.github.sirionero.mycar.Protobuf
  * Uconnect understands. The turn comes from the map app's trip (what the Car App Library hands
  * to clusters), or from its routing card when it sends no trip.
  *
- * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]). A car that
- * hangs up right after a navigation opens on its cluster gets no more turns ([ClusterBlame], [ClusterCars]).
+ * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]). A turn
+ * carries its picture (image = 4) only for a cluster that wants pictures. A car that hangs up right
+ * after a navigation opens on its cluster gets no more turns ([ClusterBlame], [ClusterCars]).
  */
 class ClusterNav(
     private val spec: ClusterSpec,
@@ -110,9 +111,8 @@ class ClusterNav(
             }
             ClusterNext.Message.TURN -> {
                 val step = turn?.step ?: return TICK_MS
-                sendTurn(step)
                 sentTurn = turnKey
-                blame.turn(SystemClock.elapsedRealtime())
+                if (sendTurn(step)) blame.turn(SystemClock.elapsedRealtime())
             }
             ClusterNext.Message.DISTANCE -> {
                 if (distance == null) return TICK_MS
@@ -133,17 +133,40 @@ class ClusterNav(
         return "$road|$event|$side|${maneuver?.roundaboutExitNumber}"
     }
 
-    private fun sendTurn(step: Step) {
+    /** False when it isn't sent: a cluster that wants pictures gets no turn without one. */
+    private fun sendTurn(step: Step): Boolean {
         val maneuver = step.maneuver
         val (event, side) = maneuver?.let { eventFor(it.type) } ?: (EVENT_UNKNOWN to SIDE_UNSPECIFIED)
         val road = step.road.text().ifBlank { step.cue.text() }
         var body = Protobuf.stringField(1, road) +
             Protobuf.varintField(2, side.toLong()) +
             Protobuf.varintField(3, event.toLong())
+        var drawn = ""
+        spec.pictureSize()?.let { (width, height) ->
+            val started = SystemClock.elapsedRealtime()
+            val picture = drawTurn(maneuver, event, side, width, height) ?: run {
+                MyCarLog.w("cluster: no picture for this turn - not sent, as this cluster wants one")
+                return false
+            }
+            body += Protobuf.bytesField(4, picture.png)
+            val what = if (picture.appIcon) "the app's icon" else "myCar's arrow"
+            drawn = ", ${width}x$height picture of $what (${picture.png.size / 1024} KB, ${SystemClock.elapsedRealtime() - started} ms)"
+        }
         maneuver?.roundaboutExitNumber?.takeIf { it > 0 }?.let { body += Protobuf.varintField(5, it.toLong()) }
         maneuver?.roundaboutExitAngle?.takeIf { it > 0 }?.let { body += Protobuf.varintField(6, it.toLong()) }
         sendOnChannel(MSG_TURN, body)
-        MyCarLog.i("cluster: -> turn event=$event side=$side road=\"$road\"")
+        // Not the road's name: it says where the driver is going.
+        MyCarLog.i("cluster: -> turn event=$event side=$side${if (road.isEmpty()) ", no road name" else ""}$drawn")
+        return true
+    }
+
+    /** The turn as the picture a cluster that wants one gets ([ClusterImage]); null if it can't be made. */
+    private fun drawTurn(maneuver: Maneuver?, event: Int, side: Int, width: Int, height: Int): ClusterImage.Picture? {
+        val clockwise = (maneuver?.type ?: -1) in CLOCKWISE
+        val arrow = ClusterArrow.of(event, side, maneuver?.roundaboutExitAngle ?: 0, clockwise)
+        return runCatching { ClusterImage.picture(ClusterCars.app, maneuver?.icon, arrow, width, height, spec.opaque) }
+            .onFailure { MyCarLog.w("cluster: the turn's picture failed: ${it.javaClass.simpleName}") }
+            .getOrNull()
     }
 
     /**
@@ -174,6 +197,12 @@ class ClusterNav(
         private const val MSG_DISTANCE = 32773
 
         private val STATUS_NAMES = mapOf(1 to "navigating", 2 to "not navigating", 3 to "rerouting")
+
+        /** Roundabouts that traffic goes round clockwise, as where people drive on the left. */
+        private val CLOCKWISE = setOf(
+            Maneuver.TYPE_ROUNDABOUT_ENTER_CW, Maneuver.TYPE_ROUNDABOUT_EXIT_CW,
+            Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW, Maneuver.TYPE_ROUNDABOUT_ENTER_AND_EXIT_CW_WITH_ANGLE,
+        )
 
         private const val SIDE_LEFT = 1
         private const val SIDE_RIGHT = 2

@@ -10,13 +10,15 @@ import kotlinx.coroutines.flow.asStateFlow
  * [io.github.sirionero.mycar.audio.CarRoutes] knows it (its Bluetooth address, or what its head
  * unit says it is): a car that ended the session right after myCar began showing it a navigation
  * ([ClusterBlame]). They still get "not navigating" when the channel opens. The car's Settings
- * say so, and can turn turns back on.
+ * say so, and can turn turns back on. Also lends [ClusterNav] the app, to draw turns as pictures.
  */
 internal object ClusterCars {
 
     private const val PREFS = "mycar_cluster_no_turns"
 
-    @Volatile private var app: Context? = null
+    /** The app, once [init] has run: [ClusterImage] loads the map app's icons with it. */
+    @Volatile var app: Context? = null
+        private set
 
     private val offFlow = MutableStateFlow<Set<String>>(emptySet())
 
