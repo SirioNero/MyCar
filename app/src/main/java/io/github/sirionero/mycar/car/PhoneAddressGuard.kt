@@ -12,7 +12,9 @@ package io.github.sirionero.mycar.car
  * - Not told the address, [LOOK_UNTOLD_MS] in: its music is connected over Bluetooth. Remembered: the
  *   car takes the phone's music over Bluetooth without the address, at a drive that worked that long.
  * - Told, [LOOK_TOLD_MS] in: its music isn't connected over Bluetooth while its calls are. If it was
- *   remembered, the address took the music away: myCar stops telling it.
+ *   remembered, the address took the music away: myCar stops telling it. Not with the sound through
+ *   myCar chosen for the drive: there the music needs no Bluetooth, and nothing would come back.
+ *   Automatic counts, even when it went through myCar for want of that very Bluetooth.
  * A car that never takes the phone's music over Bluetooth (a VW Tayron keeps it for calls) is never
  * remembered; nor is one that needs the address, which without it hangs up within seconds, keeps its
  * own screen, or drops the phone's Bluetooth. A call puts the look off: some cars drop the music's
@@ -45,9 +47,18 @@ internal class PhoneAddressGuard {
     /**
      * The look: the car was [told] the address this drive or not, and was remembered taking the
      * phone's music over Bluetooth without it ([musicWithout]); right now its [music] (A2DP) and its
-     * [calls] (hands-free) are connected to the phone or not, and a call is on or not ([inCall]).
+     * [calls] (hands-free) are connected to the phone or not, a call is on or not ([inCall]), and the
+     * drive's sound route can put the music on Bluetooth ([bluetoothRoute]: Automatic or Bluetooth,
+     * not through myCar).
      */
-    fun look(told: Boolean, musicWithout: Boolean, music: Boolean, calls: Boolean, inCall: Boolean): Verdict {
+    fun look(
+        told: Boolean,
+        musicWithout: Boolean,
+        music: Boolean,
+        calls: Boolean,
+        inCall: Boolean,
+        bluetoothRoute: Boolean,
+    ): Verdict {
         if (inCall || sawCall) {
             // In a call, or just out of one: the car gets a moment to bring its music back. Not for
             // ever, as an app can leave the phone "in communication": then nothing is learnt.
@@ -61,6 +72,9 @@ internal class PhoneAddressGuard {
             // Nothing of the car on Bluetooth, calls included: a car switching off, the phone's
             // Bluetooth off. Not the address's doing.
             !calls -> Verdict.NOTHING
+            // Through myCar chosen: the music doesn't need the car's Bluetooth, and the driver would
+            // be promised music over Bluetooth that this route doesn't play.
+            !bluetoothRoute -> Verdict.NOTHING
             // Never seen with the music without the address: a car that takes only calls over
             // Bluetooth, or one that needs the address.
             !musicWithout -> Verdict.NOTHING

@@ -14,6 +14,7 @@ import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Words
+import io.github.sirionero.mycar.audio.AudioRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -73,12 +74,15 @@ internal object PhoneAddressCheck {
     private fun decide(at: Int, car: String, told: Boolean, music: Boolean, calls: Boolean) {
         val rule = guard ?: return
         val musicWithout = CarBluetooth.tookMusicWithout(car)
-        val verdict = rule.look(told, musicWithout, music, calls, inCall())
+        // The drive's route, as the car's next drive will have it too: through myCar, nothing to give back.
+        val route = CarSettings.audioRoute.value
+        val verdict = rule.look(told, musicWithout, music, calls, inCall(), bluetoothRoute = route != AudioRoute.CAR_LINK)
         if (told && verdict != PhoneAddressGuard.Verdict.LATER) {
             log.i(
                 "phone's address told - the car now: Bluetooth music ${if (music) "connected" else "not connected"}, " +
                     "calls ${if (calls) "connected" else "not connected"}; " +
-                    if (musicWithout) "it took the music without the address before" else "never seen taking the music without it",
+                    (if (musicWithout) "it took the music without the address before" else "never seen taking the music without it") +
+                    "; sound route ${route.id}",
             )
         }
         when (verdict) {
@@ -96,7 +100,7 @@ internal object PhoneAddressCheck {
         // Taken out meanwhile in Settings: no car is told anything any more.
         if (CarBluetooth.writtenAddress(context) == null) return
         CarBluetooth.stopTelling(car)
-        log.i("told the phone's address, this car stopped taking the phone's music over Bluetooth - not telling it again: from the next drive its music goes over Bluetooth")
+        log.i("told the phone's address, this car stopped taking the phone's music over Bluetooth - not telling it again: from the next drive it can take it over Bluetooth again")
         AppSettings.putString(context, KEY_NOTICE, "true")
         noticeLoaded = true
         noticeFlow.value = true
