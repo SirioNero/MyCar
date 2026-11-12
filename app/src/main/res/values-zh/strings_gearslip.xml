@@ -23,8 +23,10 @@
          Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
          and "save" as its Save button says it -->
     <string name="phone_address_not_told_title">myCar 不再把手机地址告诉这辆车</string>
-    <string name="phone_address_not_told_text">这辆车原本通过蓝牙接收手机音乐，但在 myCar 告诉它手机的蓝牙地址（设置 &gt; 连接）后就不再接收了。myCar 不再告诉它：从下次行车起，音乐重新通过蓝牙播放。如果之后这辆车断开手机蓝牙或挂断连接，请再次保存该地址。</string>
+    <string name="phone_address_not_told_text">这辆车原本通过蓝牙接收手机音乐，但在 myCar 告诉它手机的蓝牙地址（设置 &gt; 连接）后就不再接收了。myCar 不再告诉它：从下次行车起，这辆车可以重新通过蓝牙接收手机音乐。如果之后这辆车断开手机蓝牙或挂断连接，请再次保存该地址。</string>
     <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
-         the phone's Bluetooth address took the phone's music over Bluetooth away -->
-    <string name="car_phone_address_not_told">这辆车得知手机地址后，不再通过蓝牙接收手机音乐。myCar 不会再告诉它：从下次行车起，音乐通过蓝牙播放。</string>
+         the phone's Bluetooth address took the phone's music over Bluetooth away. Like the card, it says
+         what the car can do again from the next drive, not where the music will go: the sound route
+         (Automatic) decides that -->
+    <string name="car_phone_address_not_told">这辆车得知手机地址后，不再通过蓝牙接收手机音乐。myCar 不会再告诉它：从下次行车起，它可以重新通过蓝牙接收音乐。</string>
 </resources>

@@ -23,8 +23,10 @@
          Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
          and "save" as its Save button says it -->
     <string name="phone_address_not_told_title">myCar ya no le dice al coche la dirección del teléfono</string>
-    <string name="phone_address_not_told_text">El coche recibía la música del teléfono por Bluetooth, pero dejó de hacerlo cuando myCar le dijo la dirección Bluetooth del teléfono (Ajustes &gt; Conexión). myCar ya no se la dice: desde el próximo viaje la música vuelve a ir por Bluetooth. Si luego el coche le quita el Bluetooth al teléfono, o se desconecta, vuelve a guardar la dirección.</string>
+    <string name="phone_address_not_told_text">El coche recibía la música del teléfono por Bluetooth, pero dejó de hacerlo cuando myCar le dijo la dirección Bluetooth del teléfono (Ajustes &gt; Conexión). myCar ya no se la dice: desde el próximo viaje el coche puede volver a recibir la música del teléfono por Bluetooth. Si luego el coche le quita el Bluetooth al teléfono, o se desconecta, vuelve a guardar la dirección.</string>
     <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
-         the phone's Bluetooth address took the phone's music over Bluetooth away -->
-    <string name="car_phone_address_not_told">Este coche dejó de recibir la música del teléfono por Bluetooth al conocer la dirección del teléfono. myCar no se la volverá a decir: desde el próximo viaje, la música va por Bluetooth.</string>
+         the phone's Bluetooth address took the phone's music over Bluetooth away. Like the card, it says
+         what the car can do again from the next drive, not where the music will go: the sound route
+         (Automatic) decides that -->
+    <string name="car_phone_address_not_told">Este coche dejó de recibir la música del teléfono por Bluetooth al conocer la dirección del teléfono. myCar no se la volverá a decir: desde el próximo viaje, podrá volver a recibir la música por Bluetooth.</string>
 </resources>
