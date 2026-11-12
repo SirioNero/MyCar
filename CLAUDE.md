@@ -1893,6 +1893,110 @@ Tutti i token in un solo posto, `car/design/`:
   `Status.refused`). Pagina della mappa: ultima mappa che non parte da sola e nessun'altra → "Scegli un'app di
   navigazione." invece di "Mappa chiusa." con un "Riapri" a vuoto. Le copie modificate (Waze con Morphe) restano
   col loro testo. Golf e Tayron: nessuna delle loro app rifiuta myCar. Non provato con un'app vera che rifiuta.
+- **Svolte sul quadro strumenti** (0.7.6, branch `fix/cluster-images`; issue #23: una MG ZS 2024 ibrida, unità
+  SAIC "ZS32 Color Radio" con adattatore senza fili, chiudeva la sessione mezzo secondo dopo la prima svolta, a
+  ogni destinazione in Vela o Organic Maps). Il NavigationStatusService (campo 8 del Service) si legge in
+  `car/ClusterSpec.kt` (+ test): `minimum_interval_ms` (1), tipo (2: IMAGE 1, ENUM 2), `image_options` (3) con
+  **l'altezza nel campo 1 e la larghezza nel 2**, poi i bit di colore, come in aasdk e aa-proxy-rs, presi da
+  Android Auto. La MG chiede IMAGE 1920x720, 32 bit, 1000 ms; la Tayron ENUM e 1000 ms; la Golf non ha il
+  servizio. **Ritmo** (`ClusterNext` + test): intervallo = `minimum_interval_ms` fra 500 ms e 10 s
+  (`MAX_INTERVAL_MS`, detto nel log), attese a fette di 500 ms. Alle auto ENUM o che non dicono il tipo stato,
+  svolta e distanza insieme come prima, un giro al massimo per intervallo col dato più recente (`owed`). Alle
+  auto IMAGE un messaggio alla volta, stato → svolta → distanza; dopo una svolta passa prima la distanza in
+  attesa. **Immagine** (`ClusterImage`, `ClusterArrow` + test), solo alle auto IMAGE: campo 4 = PNG della misura
+  chiesta (oltre 1920x1080 pixel ridotto con la stessa forma; sotto 32 bit sfondo nero). È l'icona della manovra
+  dell'app (bianca se ne lascia il colore all'host) nell'80% del lato corto su sfondo trasparente, o una freccia
+  di myCar per tipo di manovra centrata sul suo ingombro. Si rifà solo se cambiano manovra o icona; a 1920x720
+  pesa 9-26 KB; senza PNG la svolta non parte. **Rete di sicurezza** (`ClusterBlame`, `ClusterRecord` + test,
+  `ClusterCars`; preferenze `mycar_cluster_no_turns`, `_strikes`, `_held`, `_notice`; chiave come `CarRoutes`):
+  è un episodio una chiusura dell'auto (EOF, IOException, ByeBye esclusi 1, 2, 6, 7, 8) entro 3 s dai messaggi
+  che aprono una navigazione (stato, prima svolta, prima distanza); "non in navigazione" chiude la finestra.
+  **Due di fila** e l'auto riceve solo "non in navigazione" all'apertura. Un'apertura che passa la finestra
+  azzera il conto; un'auto che mostra una navigazione per un minuto dopo la prima svolta non è mai più
+  incolpata; gli errori di myCar stesso non contano (solo `IOException`). Al viaggio dopo l'auto lo dice una
+  volta da ferma (`CarDriving.videoAllowed`, dopo 10 s, poi ogni 5 s); nelle impostazioni dell'auto, sotto
+  Connessione, "Instrument cluster: No turns for this car" con "Send turns again". Il log della svolta non
+  scrive la strada. Scatto `cluster-turns` (solo se nominato; `--ez clusterTurns true`, `ClusterPreview`). Una
+  revisione indipendente ha trovato falsi positivi della rete (A1), errori di myCar presi per l'auto (A2), ritmo
+  cambiato alle auto ENUM (A3), la distanza che poteva non partire (A4), attese senza tetto (A6), corsa
+  start/stop (A7) e nessun avviso (A8): corretti; non fatto A5 (ripiego sui soli codici, che facevano cadere la
+  MG). Da provare se la MG cade ancora: la MG non manda mai INSTRUMENT_CLUSTER_START (32769) e myCar manda
+  comunque. Non provato con un'auto vera.
+- **Indirizzo del telefono che toglie la musica Bluetooth** (0.7.6, branch `fix/phone-address-guard`; dal log
+  della Golf dell'utente: con l'indirizzo scritto la MIB Standard2 dietro lo smartBox riceve la PairingRequest,
+  risponde `already_paired=true` e da lì non prende più l'A2DP; senza, lo prendeva sempre). Regola pura
+  `car/PhoneAddressGuard.kt` + `PhoneAddressGuardTest`, memoria per auto `car/PhoneAddressCars.kt` +
+  `PhoneAddressCarsTest` (hash dell'indirizzo dell'auto), sguardi in `car/PhoneAddressCheck.kt`: armato da
+  `MyCarRunner` con l'immagine, una volta per viaggio, solo per un'auto già accoppiata che dichiara il suo
+  indirizzo. Senza indirizzo detto, 5 minuti dopo l'immagine e con myCar sullo schermo dell'auto
+  (`CarFocus.projected`; sul suo schermo lo sguardo aspetta), se l'A2DP verso l'auto c'è l'auto è ricordata per
+  quel collegamento (`bluetooth_music_without_address_wireless` / `_cable`: in Wi-Fi un'auto può conoscere il
+  telefono dall'avvio senza fili). Con l'indirizzo detto (`CarBluetooth.toldAddress`), 2 minuti dopo: se l'A2DP
+  manca, il vivavoce c'è, la strada del viaggio non è «Tramite myCar» (Automatico conta, anche passato da myCar
+  proprio per l'A2DP che mancava) e l'auto era ricordata per lo stesso collegamento, non le si dice più
+  (`phone_address_not_told`, per l'auto, anche nella PairingRequest di un abbinamento). Profili da
+  `getProfileProxy` (A2DP, HEADSET) all'indirizzo dell'auto; una chiamata rimanda lo sguardo (15 s, uno in più
+  dopo la fine; al massimo mezz'ora). Il guidatore lo sa da una riga nel log, una scheda sulla Home fino a OK
+  (`ui/PhoneAddressCard.kt`), un avviso in auto da fermi (`CarDriving.videoAllowed`) e una riga sotto
+  l'indirizzo in Impostazioni > Connessione: dicono che dal viaggio dopo l'auto può di nuovo ricevere la musica
+  dal Bluetooth, non dove andrà (con Automatico lo decide il viaggio). Salvare di nuovo l'indirizzo lo ridice a
+  tutte e dimentica la storia delle auto da cui era tenuto. Niente falsi allarmi: la Tayron (Bluetooth solo per
+  le chiamate, strada «Tramite myCar») non scatta mai; un'auto che ha bisogno dell'indirizzo non arriva a 5
+  minuti con l'immagine senza (Bolt 2021 riattacca a 25 s, Civic 2020 tiene il suo schermo). Limite: chi l'ha
+  scritto nella 0.7.4/0.7.5 non ha viaggi senza indirizzo ricordati, e la rete scatta solo dopo uno di almeno 5
+  minuti; per loro la voce ora dice a chi serve e che può togliere la musica Bluetooth ad altre auto (9 lingue e
+  piratesco). Senza indirizzo scritto non cambia niente. Una revisione indipendente ha trovato B2 (strada
+  «Tramite myCar» e frase della scheda) e B3 (schermo dell'auto, cavo e senza fili), corretti. Non provato in
+  auto.
+- **Cinema per le altre app** (0.7.6, richiesta dal forum di GrapheneOS: «i video di NewPipe e simili»,
+  approvata dall'utente; `car/OpenInCinemaActivity.kt`, `car/CinemaAsks.kt`, regola pura `cinema/OpenWith.kt` +
+  `OpenWithTest`): myCar compare come «myCar · Cinema» (nomi, uguale in ogni lingua; «myCar Debug · Cinema»
+  nella build di prova) fra i lettori esterni e nel foglio di condivisione. NewPipe
+  (`NavigationHelper.playOnExternalPlayer`) manda ACTION_VIEW con l'indirizzo dello stream, il tipo del formato
+  (`video/*` se manca; `application/x-mpegURL` per HLS, cioè le dirette; DASH escluso, il MediaPlayer non lo
+  suona) e il titolo in EXTRA_TITLE; ai lettori esterni passa solo flussi con video e audio insieme. Android
+  confronta i tipi lettera per lettera: nel manifest le due grafie di HLS. «Condividi» (ACTION_SEND text/plain):
+  il primo indirizzo web del testo. Activity senza interfaccia (Theme.NoDisplay) e un messaggio sul telefono.
+  Con l'immagine dell'auto (o uno schermo dell'auto su) l'auto passa a Cinema (`CinemaAsks.watch` in `CarUi`;
+  torna a un Cinema già sulla strada), che suona il video nel suo lettore (ripresa per titolo, `open:<titolo>`:
+  l'app rimanda lo stesso video a un indirizzo nuovo; mai per HLS, che può essere in diretta) o apre il link sul
+  suo sito (`OpenWith.siteFor`: stesso host o sotto, youtu.be, senza www./m., host dopo l'ultima @ e fino a una
+  barra rovesciata) o, se di nessuno, in un sito a sé col nome dell'host, che "Continue" riapre
+  (`CinemaContinue.Site.shared`). Auto che si sta collegando: aspetta al massimo 2 minuti. Senza auto: lo dice e
+  non tiene niente (un video che parte da solo a un collegamento dopo sarebbe una sorpresa). Con lo schermo del
+  telefono condiviso la condivisione finisce, come per l'assistente. Solo http/https: niente file né content://
+  (il permesso temporaneo finisce con la schermata che lo riceve; i video del telefono sono già in "On this
+  phone"), niente intent che fanno partire altro, niente intestazioni dall'intent. Nel log della release niente
+  indirizzi né host delle pagine condivise, e la loro icona non resta sul telefono. Valgono tutte le regole di
+  Cinema. Il lettore non salta più in un flusso senza durata (±10 s lo riportavano all'inizio). Scatti
+  `open-with`, `open-with-moving`, `open-with-stream`, `open-with-share`, `open-with-page`, `open-with-no-car`
+  (intent mandati con adb 5 s dopo l'avvio); il video di prova del runner ha l'indice in testa (`+faststart`):
+  il server di Python non risponde a Range, e col moov in fondo il MediaPlayer si fermava con l'errore
+  1/0x80000000. Verificato in CI (API 34). Non provato: NewPipe vero, flussi di YouTube (al runner YouTube
+  chiede di accedere), in auto. Una pagina condivisa, o un video verso un indirizzo di casa
+  (`LocalNetwork.isLocal`, più `OpenWith.oddHost`), si apre solo col sì del guidatore sulla scheda in auto
+  (`CinemaAskCard`: domanda, host e porta, "Not now" / "Open"; Indietro con lo slot `CardBack.cinemaAsk`; una
+  nuova condivisione prende il posto della precedente; senza risposta va via dopo 2 minuti): qualsiasi app può
+  mandarne una, e myCar raggiunge la rete di casa dove quell'app non può. I video verso internet (l'uso con
+  NewPipe) restano senza domanda. "Continue" riapre una pagina condivisa senza scheda (è già un tocco del
+  guidatore). Scatti anche `open-with-home`, `open-with-twice`; il video di prova di internet è quello di MDN (i
+  video d'esempio di Google rispondono 403).
+- **Griglia delle app in elenco e impostazioni dell'auto che restano al loro posto** (0.7.6,
+  `feature/grid-vertical`; dal forum di GrapheneOS: «lo scorrimento da sinistra a destra è meno comodo di quello
+  dal basso in alto di Android Auto»; un tester con Ioniq 5 2023 e Ottocast: «le impostazioni tornavano su molte
+  volte»). "App grid" (chiave `car_app_grid`, `AppGridLayout`): **Pages** (predefinita, com'era) o **List**, in
+  auto prima di "Hidden apps" e sul telefono in Schermo dell'auto. L'elenco sono le righe delle pagine
+  (`TileRow`: stesse icone, colonne e spazi) una sotto l'altra, tutte composte, in `car/AppGridList.kt`
+  (`Column` + `verticalScroll`): la manopola passa da un'icona all'altra e l'elenco scorre fino a quella col
+  fuoco. Al posto dei puntini una barra di 4 dp nel margine destro, solo se c'è altro sotto. Anteprima `--es
+  appGrid list` (solo debug), scatti `grid-vertical`, `-large`, `-800x480`, `-knob`, `settings-app-grid`. Le
+  impostazioni dell'auto tornavano in cima perché la schermata esce dalla composizione ogni volta che sopra ne
+  va un'altra (dashboard dall'orologio del dock, "Choose" del Jolly, tasti dell'auto) o lo schermo dell'auto si
+  rifà (encoder nuovo, fine della condivisione). Prima/dopo nello scatto `settings-scroll`; l'auto che mostra il
+  suo schermo e lo ridà non c'entra. Ora `car/SettingsScroll.kt` (+ `SettingsScrollTest`) tiene la posizione in
+  dp per il viaggio e `CarServices.shutdown` la azzera. Da verificare con un log del tester: tocchi a raffica da
+  un adattatore senza fili presi per lanci veloci. I tocchi hanno l'ora d'arrivo, non quella dell'auto (campo 1
+  dell'InputReport, mai letto). Dashboard e Meteo restano com'erano: mostrano "adesso" in cima.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.
