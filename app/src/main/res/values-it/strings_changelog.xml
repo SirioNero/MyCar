@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 0.7.6-alpha -->
+    <string-array name="changelog_52">
+        <item>Le auto che vogliono un\'immagine di ogni svolta sul quadro strumenti (gli indicatori dietro il volante) ora la ricevono, non più spesso di quanto la chiedono: la MG ZS 2024 chiudeva la connessione appena iniziava un percorso. Se un\'auto chiude ancora la connessione due volte di fila all\'inizio di un percorso, myCar non le manda più svolte e te lo dice; in auto si rimandano da Impostazioni &gt; Connessione.</item>
+        <item>Cinema riproduce i video di NewPipe e delle app simili: scegli «myCar · Cinema» come lettore esterno, oppure condividi un link con myCar. Una pagina web condivisa, o un video dalla rete di casa, si apre solo dopo il tuo sì sullo schermo dell\'auto.</item>
+        <item>La griglia delle app può anche scorrere su e giù come un unico elenco (Griglia delle app, nelle Impostazioni dell\'auto o sul telefono in Impostazioni &gt; Schermo dell\'auto), e le Impostazioni dell\'auto restano dove le hai lasciate per tutto il viaggio, invece di tornare in cima.</item>
+        <item>Se dire a un\'auto l\'indirizzo Bluetooth del telefono le fa smettere di suonare la musica del telefono dal Bluetooth, myCar non lo dice più a quell\'auto e te lo fa sapere.</item>
+    </string-array>
+
     <!-- 0.7.5-alpha -->
     <string-array name="changelog_51">
         <item>Senza fili: se una VPN sul telefono tiene myCar fuori dal Wi-Fi dell\'auto, ora myCar lo dice in pochi secondi, sulla Home e nella sua notifica, e spiega come risolvere.</item>

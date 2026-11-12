@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 0.7.6-alpha -->
+    <string-array name="changelog_52">
+        <item>Os carros que querem uma imagem de cada conversão no painel de instrumentos (os mostradores atrás do volante) agora a recebem, só na frequência que pedem: o MG ZS 2024 encerrava a conexão assim que uma rota começava. Se um carro ainda encerrar a conexão duas vezes seguidas no início de uma rota, o myCar não lhe envia mais conversões e avisa você; no carro, Configurações &gt; Conexão as envia de novo.</item>
+        <item>O Cinema toca vídeos do NewPipe e de apps parecidos: escolha «myCar · Cinema» como player externo, ou compartilhe um link com o myCar. Uma página web compartilhada, ou um vídeo da sua rede de casa, só abre depois que você disser sim na tela do carro.</item>
+        <item>A grade de apps também pode rolar para cima e para baixo como uma lista só (Grade de apps, nas Configurações do carro ou no telefone em Configurações &gt; Tela do carro), e as Configurações do carro ficam onde você as deixou durante toda a viagem, em vez de voltar para o topo.</item>
+        <item>Se informar a um carro o endereço Bluetooth do telefone faz com que ele pare de tocar a música do telefone pelo Bluetooth, o myCar deixa de informá-lo a esse carro e avisa você.</item>
+    </string-array>
+
     <!-- 0.7.5-alpha -->
     <string-array name="changelog_51">
         <item>Sem fio: se uma VPN no telefone deixa o myCar fora do Wi-Fi do carro, o myCar agora avisa em poucos segundos, na tela inicial e na notificação, e explica como resolver.</item>
