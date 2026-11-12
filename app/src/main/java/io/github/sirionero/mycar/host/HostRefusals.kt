@@ -14,8 +14,9 @@ import io.github.sirionero.mycar.BuildConfig
  * every copy it patches with the same key, so a copy patched again to accept myCar has the signer
  * of the one that refused.
  */
-object PatchRefusals {
+object HostRefusals {
 
+    /** Named when it held patched copies only (PatchRefusals): kept, so what it holds stays. */
     private const val PREFS = "mycar_patch_refusals"
 
     /** myCar's release signing certificate, SHA-256, as hosts lists write it. */

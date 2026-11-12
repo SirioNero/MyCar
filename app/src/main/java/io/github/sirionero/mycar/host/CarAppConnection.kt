@@ -338,7 +338,7 @@ class CarAppConnection(private val context: Context) {
         val app = carApp ?: return
         MyCarLog.i("host: handshake accepted; creating the app")
         hostAccepted = true
-        component?.packageName?.let { PatchRefusals.forget(context, it) }
+        component?.packageName?.let { HostRefusals.forget(context, it) }
         val intent = pendingDestination?.let { autoRoute.arm(); navigateIntent(it) }
             ?: Intent(Intent.ACTION_MAIN).setComponent(component)
         if (pendingDestination != null) destinationOnceRunning = null
@@ -932,15 +932,15 @@ class CarAppConnection(private val context: Context) {
     /**
      * A modified copy of an app that refuses myCar on its own (Waze, re-signed by Morphe) that said
      * no before taking myCar as its host: patched for something else, or with hosts that leave myCar
-     * out. Counted as broken again (see [PatchRefusals]), and the car says what to add to the patch.
+     * out. Counted as broken again (see [HostRefusals]), and the car says what to add to the patch.
      */
     private fun noteModifiedRefusal(phase: Phase): String? {
         if (phase != Phase.REJECTED || hostAccepted) return null
         val pkg = component?.packageName ?: return null
         if (!KnownApps.modified(context, pkg)) return null
-        PatchRefusals.remember(context, pkg)
+        HostRefusals.remember(context, pkg)
         MyCarLog.w("host: $pkg is a modified copy and refused myCar - marked broken until it accepts myCar or is installed again")
-        return Words.get(R.string.car_host_modified_refused, _status.value.app ?: pkg, PatchRefusals.hostsEntry(context))
+        return Words.get(R.string.car_host_modified_refused, _status.value.app ?: pkg, HostRefusals.hostsEntry(context))
     }
 
     private fun clearToasts() {

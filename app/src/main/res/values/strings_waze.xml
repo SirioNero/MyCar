@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Waze modified with Morphe that turns myCar down (host/CarAppConnection.kt, host/PatchRefusals.kt) -->
+<!-- Waze modified with Morphe that turns myCar down (host/CarAppConnection.kt, host/HostRefusals.kt) -->
 <resources>
     <!-- In the car, on the map, under "%1$s would not start.": a modified copy of an app that refuses
          myCar on its own (Waze re-signed by Morphe) that refuses it too. %1$s: the app's name, as Waze;
