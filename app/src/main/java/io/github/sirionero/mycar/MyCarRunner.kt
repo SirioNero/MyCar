@@ -164,6 +164,7 @@ class MyCarRunner(
                 if (stopped) return
                 if (read < 0) {
                     log.w("head unit closed the connection (EOF) while in state $state")
+                    carEnded(null)
                     reportDisconnect()
                     return
                 }
@@ -177,6 +178,7 @@ class MyCarRunner(
         } catch (t: Throwable) {
             if (stopped) return
             log.e("transport failed in state $state", t)
+            carEnded(null)
             SessionReport.fail(SessionReport.Category.USB, "transport failed", t, state.name)
             reportDisconnect()
         } finally {
@@ -342,9 +344,19 @@ class MyCarRunner(
         // reportDisconnect). A drive under way ends here: over Wi-Fi a car that moved on to another
         // phone may keep the link open, and the car UI, the encoder and the muted phone went on for nobody.
         if (state == State.DONE) {
+            carEnded(reason ?: 0)
             drainWriterOnExit = true
             running = false
         }
+    }
+
+    /**
+     * The car ended a drive under way, not myCar (nor myCar giving up on a car gone quiet): right
+     * after a navigation opened on its cluster, that's likely the cluster's doing (ClusterNav.carEnded).
+     * [byeBye] is its ByeBye's reason, null when it dropped the connection.
+     */
+    private fun carEnded(byeBye: Int?) {
+        if (state == State.DONE && !gaveUp) clusterNav?.carEnded(byeBye)
     }
 
     private fun onVersionRequest(body: ByteArray) {
@@ -793,7 +805,12 @@ class MyCarRunner(
         }
         val channel = cluster.channel
         log.i("navigation status channel: $channel - ${cluster.describe()}")
-        clusterNav = ClusterNav(cluster) { id, body -> send(id, body, encrypted = true, channel = channel) }
+        // Known as for its audio route: a car that hung up over its cluster gets no turns (ClusterCars).
+        val car = CarRoutes.keyFor(
+            ServiceDiscovery.findHeadUnitInfo(serviceDiscoveryResponse),
+            ServiceDiscovery.findBluetoothService(serviceDiscoveryResponse)?.carAddress,
+        )
+        clusterNav = ClusterNav(cluster, car) { id, body -> send(id, body, encrypted = true, channel = channel) }
         openChannel(channel)
     }
 

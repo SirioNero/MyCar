@@ -1,5 +1,6 @@
 package io.github.sirionero.mycar.car
 
+import android.os.SystemClock
 import androidx.car.app.model.CarText
 import androidx.car.app.model.Distance
 import androidx.car.app.navigation.model.Maneuver
@@ -22,10 +23,13 @@ import io.github.sirionero.mycar.Protobuf
  * Uconnect understands. The turn comes from the map app's trip (what the Car App Library hands
  * to clusters), or from its routing card when it sends no trip.
  *
- * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]).
+ * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]). A car that
+ * hangs up right after a navigation opens on its cluster gets no more turns ([ClusterBlame], [ClusterCars]).
  */
 class ClusterNav(
     private val spec: ClusterSpec,
+    /** The car, as [io.github.sirionero.mycar.audio.CarRoutes] knows it: see [ClusterCars]. */
+    private val car: String,
     private val sendOnChannel: (messageId: Int, body: ByteArray) -> Unit,
 ) {
     val channelId: Int get() = spec.channel
@@ -33,6 +37,7 @@ class ClusterNav(
     private var sentStatus = -1
     private var sentTurn: String? = null
     private var sentDistance: String? = null
+    private val blame = ClusterBlame()
 
     fun onMessage(messageId: Int, body: ByteArray) {
         when (messageId) {
@@ -51,6 +56,9 @@ class ClusterNav(
     private fun start() {
         if (running) return
         running = true
+        if (car in ClusterCars.off.value) {
+            MyCarLog.i("cluster: this car hung up right after a turn on an earlier drive - it gets none, only \"not navigating\" (its Settings in the car can turn turns back on)")
+        }
         Thread({
             while (running) {
                 val wait = runCatching { tick() }.getOrElse {
@@ -66,9 +74,24 @@ class ClusterNav(
         running = false
     }
 
+    /**
+     * The car ended the session, by ByeBye with [byeBye] as its reason or by dropping the connection
+     * (null). Right after a navigation opened on its cluster, the cluster is the likely cause: this
+     * car gets no more turns.
+     */
+    fun carEnded(byeBye: Int?) {
+        val after = blame.blame(SystemClock.elapsedRealtime(), byeBye) ?: return
+        ClusterCars.stopTurns(car)
+        MyCarLog.w(
+            "cluster: the car ended the session $after ms after myCar began showing it a navigation - " +
+                "it gets no more turns on its cluster (its Settings in the car can turn them back on)",
+        )
+    }
+
     /** Sends the message the car is owed, if any ([ClusterNext]): how long until the next look. */
     private fun tick(): Long {
-        val turn = NavTurn.current()
+        // A car that hung up over its cluster stays at "not navigating".
+        val turn = if (car in ClusterCars.off.value) null else NavTurn.current()
         val status = when {
             turn == null -> ClusterNext.NOT_NAVIGATING
             turn.rerouting -> ClusterNext.REROUTING
@@ -83,16 +106,19 @@ class ClusterNav(
                 MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
                 sentStatus = status
                 if (status == ClusterNext.NOT_NAVIGATING) { sentTurn = null; sentDistance = null }
+                blame.status(status, SystemClock.elapsedRealtime())
             }
             ClusterNext.Message.TURN -> {
                 val step = turn?.step ?: return TICK_MS
                 sendTurn(step)
                 sentTurn = turnKey
+                blame.turn(SystemClock.elapsedRealtime())
             }
             ClusterNext.Message.DISTANCE -> {
                 if (distance == null) return TICK_MS
                 sendDistance(distance, turn.seconds)
                 sentDistance = distanceKey
+                blame.distance(SystemClock.elapsedRealtime())
             }
             null -> return TICK_MS
         }

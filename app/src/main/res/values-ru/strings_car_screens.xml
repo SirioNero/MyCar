@@ -48,6 +48,10 @@
     <string name="car_settings_info_vehicle">Автомобиль</string>
     <string name="car_settings_info_video">Видео</string>
     <string name="car_settings_info_certificate">Сертификат</string>
+    <string name="car_settings_info_cluster">Приборная панель</string>
+    <string name="car_settings_cluster_no_turns">Повороты этому автомобилю не отправляются</string>
+    <string name="car_settings_cluster_no_turns_note">Этот автомобиль разорвал соединение сразу после того, как myCar отправил поворот на его приборную панель, поэтому myCar больше их не отправляет. Карта на этом экране по-прежнему их показывает.</string>
+    <string name="car_settings_cluster_turns_again">Снова отправлять повороты</string>
     <string name="car_settings_checking">Проверка…</string>
     <string name="car_settings_unknown_vehicle">Неизвестный автомобиль</string>
     <string name="car_settings_about">О приложении</string>
