@@ -48,6 +48,10 @@
     <string name="car_settings_info_vehicle">Όχημα</string>
     <string name="car_settings_info_video">Βίντεο</string>
     <string name="car_settings_info_certificate">Πιστοποιητικό</string>
+    <string name="car_settings_info_cluster">Πίνακας οργάνων</string>
+    <string name="car_settings_cluster_no_turns">Χωρίς στροφές για αυτό το αυτοκίνητο</string>
+    <string name="car_settings_cluster_no_turns_note">Αυτό το αυτοκίνητο έκλεισε τη σύνδεση αμέσως μετά από μια στροφή που έστειλε το myCar στον πίνακα οργάνων του, γι’ αυτό το myCar δεν του στέλνει πλέον καμία. Ο χάρτης σε αυτή την οθόνη εξακολουθεί να τις δείχνει.</string>
+    <string name="car_settings_cluster_turns_again">Αποστολή των στροφών ξανά</string>
     <string name="car_settings_checking">Έλεγχος…</string>
     <string name="car_settings_unknown_vehicle">Άγνωστο όχημα</string>
     <string name="car_settings_about">Πληροφορίες</string>

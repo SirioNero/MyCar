@@ -275,6 +275,7 @@ fun CarSettingsScreen() {
             )
             Info(stringResource(R.string.car_settings_info_video), display.ifEmpty { "-" })
             Info(stringResource(R.string.car_settings_info_certificate), cert?.headline ?: stringResource(R.string.car_settings_checking))
+            ClusterTurnsSetting()
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

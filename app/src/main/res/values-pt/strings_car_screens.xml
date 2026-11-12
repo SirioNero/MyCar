@@ -48,6 +48,10 @@
     <string name="car_settings_info_vehicle">Veículo</string>
     <string name="car_settings_info_video">Vídeo</string>
     <string name="car_settings_info_certificate">Certificado</string>
+    <string name="car_settings_info_cluster">Painel de instrumentos</string>
+    <string name="car_settings_cluster_no_turns">Sem conversões para este carro</string>
+    <string name="car_settings_cluster_no_turns_note">Este carro encerrou a conexão logo depois que o myCar enviou uma conversão ao painel de instrumentos dele, então o myCar não envia mais nenhuma. O mapa nesta tela continua mostrando as conversões.</string>
+    <string name="car_settings_cluster_turns_again">Enviar as conversões de novo</string>
     <string name="car_settings_checking">Verificando…</string>
     <string name="car_settings_unknown_vehicle">Veículo desconhecido</string>
     <string name="car_settings_about">Sobre</string>
