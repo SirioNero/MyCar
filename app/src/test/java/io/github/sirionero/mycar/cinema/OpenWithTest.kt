@@ -6,7 +6,9 @@ import io.github.sirionero.mycar.cinema.OpenWith.Unusable
 import io.github.sirionero.mycar.cinema.OpenWith.VIEW
 import io.github.sirionero.mycar.cinema.OpenWith.Video
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OpenWithTest {
@@ -116,6 +118,27 @@ class OpenWithTest {
         assertNull(OpenWith.siteFor("https://evil.example\\@www.youtube.com/", sites) { it })
         assertEquals("evil.example", OpenWith.hostOf("https://evil.example\\@www.youtube.com/"))
         assertEquals("[::1]", OpenWith.hostOf("http://[::1]:8080/a.mp4"))
+    }
+
+    @Test
+    fun theDriverReadsTheServerWithoutWhatComesBeforeIt() {
+        assertEquals("example.com:8443", OpenWith.serverOf("https://user:secret@Example.COM:8443/watch"))
+        assertEquals("10.0.2.2:8001", OpenWith.serverOf("http://10.0.2.2:8001/"))
+        assertEquals("www.youtube.com", OpenWith.serverOf("https://www.youtube.com/watch?v=aqz-KE-bpKQ"))
+        assertEquals("[::1]:8095", OpenWith.serverOf("http://[::1]:8095/x.mp4"))
+        assertNull(OpenWith.serverOf("content://x/a.mp4"))
+    }
+
+    @Test
+    fun hostsThatMayLeadHomeWithoutSayingSo() {
+        // This phone, an address written in IPv6, or something that isn't a plain name: the driver says yes first.
+        for (host in listOf("0.0.0.0", "0.1.2.3", "[::]", "[::1]", "[0:0:0:0:0:0:0:1]", "[::ffff:192.168.1.10]", "[2001:db8::1]", "exa_mple.com", "bücher.de")) {
+            assertTrue(host, OpenWith.oddHost(host))
+        }
+        // The private ranges are LocalNetwork.isLocal's; a stream's server, a name, isn't odd.
+        for (host in listOf("rr3---sn-hpa7zn7s.googlevideo.com", "example.com", "0.example.com", "10.0.2.2", "192.168.1.10", "nas.local")) {
+            assertFalse(host, OpenWith.oddHost(host))
+        }
     }
 
     @Test

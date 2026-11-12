@@ -81,6 +81,28 @@ object OpenWith {
         return host.lowercase().trimEnd('.').takeIf { it.isNotEmpty() && it != "[]" }
     }
 
+    /**
+     * Where [url] leads, as the driver reads it before saying yes: its host and port, never what may come
+     * before them ("user:password@"). Null with none.
+     */
+    fun serverOf(url: String): String? {
+        val server = WEB.matchEntire(url)?.groupValues?.get(2)?.substringAfterLast('@') ?: return null
+        return server.lowercase().takeIf { hostIn(it) != null }
+    }
+
+    /**
+     * Whether [host] (as [hostOf] gives it) may lead into the phone or the home network although it names none
+     * of the ranges LocalNetwork.isLocal knows: 0.0.0.0/8 (this phone), any address written in IPv6 (its many
+     * spellings - "::", 0:0:0:0:0:0:0:1, ::ffff:192.168.1.1 - aren't worth telling apart here: a stream's
+     * address has a name), or anything that isn't a plain name or address, which a player might still read as
+     * one of those.
+     */
+    fun oddHost(host: String): Boolean {
+        if (host.startsWith('[') || !PLAIN_HOST.matches(host)) return true
+        val parts = host.split('.')
+        return parts.size == 4 && parts.all { part -> part.isNotEmpty() && part.all(Char::isDigit) } && parts[0].all { it == '0' }
+    }
+
     /** A host as Cinema names a site's (CinemaSite.host): without "www." and "m.". */
     fun bare(host: String): String = host.removePrefix("www.").removePrefix("m.")
 
@@ -127,6 +149,8 @@ object OpenWith {
     private val LINK = Regex("""https?://[^\s<>"']+""", RegexOption.IGNORE_CASE)
     private val CLOSING = charArrayOf('.', ',', ';', ':', '!', '?', '»', '”', '’', ']', '}', '>')
     private val SPACES = Regex("""\s+""")
+    /** A name or an IPv4 address as a host is written plainly: letters, digits, dots and dashes. */
+    private val PLAIN_HOST = Regex("""[a-z0-9.-]+""")
 
     /** Longer than this isn't an address a player or a page gets (a stream's runs to a couple of thousand). */
     private const val MAX_URL = 16_384
