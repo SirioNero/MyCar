@@ -22,8 +22,10 @@
          Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
          and "save" as its Save button says it -->
     <string name="phone_address_not_told_title">myCar больше не сообщает кораблю адрес телефона</string>
-    <string name="phone_address_not_told_text">Корабль принимал песни с телефона по Bluetooth, но перестал, когда myCar сообщил ему адрес Bluetooth телефона (Такелаж &gt; Абордаж). myCar больше не сообщает его: со следующего плавания песни снова идут по Bluetooth. Если после этого корабль обрубит Bluetooth телефона или отдаст швартовы, сохраните адрес ещё раз.</string>
+    <string name="phone_address_not_told_text">Корабль принимал песни с телефона по Bluetooth, но перестал, когда myCar сообщил ему адрес Bluetooth телефона (Такелаж &gt; Абордаж). myCar больше не сообщает его: со следующего плавания корабль снова может принимать песни с телефона по Bluetooth. Если после этого корабль обрубит Bluetooth телефона или отдаст швартовы, сохраните адрес ещё раз.</string>
     <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
-         the phone's Bluetooth address took the phone's music over Bluetooth away -->
-    <string name="car_phone_address_not_told">Этот корабль перестал принимать песни с телефона по Bluetooth, узнав адрес телефона. myCar больше не будет его сообщать: со следующего плавания песни идут по Bluetooth.</string>
+         the phone's Bluetooth address took the phone's music over Bluetooth away. Like the card, it says
+         what the car can do again from the next drive, not where the music will go: the sound route
+         (Automatic) decides that -->
+    <string name="car_phone_address_not_told">Этот корабль перестал принимать песни с телефона по Bluetooth, узнав адрес телефона. myCar больше не будет его сообщать: со следующего плавания он снова сможет принимать песни по Bluetooth.</string>
 </resources>

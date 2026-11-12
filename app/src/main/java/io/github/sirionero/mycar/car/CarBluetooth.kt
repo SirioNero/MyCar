@@ -289,49 +289,35 @@ object CarBluetooth {
         val address = PhoneAddress.tidy(text) ?: return false
         AppSettings.putString(context, KEY_PHONE_ADDRESS, address)
         // Saved again: told again to every car already paired, those it was kept from too. The
-        // driver's way back, should such a car turn out to need it after all. What made myCar keep
-        // it from them is forgotten, or the next drive would keep it from them again: only a new
-        // drive without the address can tell it again.
-        val keptFrom = AppSettings.getString(context, KEY_NOT_TOLD, "").split(",").filter { it.isNotEmpty() }
-        if (keptFrom.isNotEmpty()) {
-            val music = AppSettings.getString(context, KEY_MUSIC_WITHOUT, "").split(",").filter { it.isNotEmpty() }
-            AppSettings.putString(context, KEY_MUSIC_WITHOUT, (music - keptFrom.toSet()).joinToString(","))
-            AppSettings.putString(context, KEY_NOT_TOLD, "")
-        }
+        // driver's way back, should such a car turn out to need it after all (PhoneAddressCars).
+        cars(context).addressSaved()
         PhoneAddressCheck.noticeSeen(context)
         return true
     }
 
-    /** At a drive where myCar didn't tell it the phone's address, this car took the phone's music over Bluetooth. */
-    internal fun tookMusicWithout(carAddress: String): Boolean = hash(carAddress) in hashes(KEY_MUSIC_WITHOUT)
+    /** At a drive over this link (Wi-Fi or cable) where myCar didn't tell it the phone's address, this car took the phone's music over Bluetooth. */
+    internal fun tookMusicWithout(carAddress: String, wireless: Boolean): Boolean =
+        appContext?.let { cars(it).tookMusicWithout(hash(carAddress), wireless) } == true
 
-    /** Remembers [tookMusicWithout] for this car; true the first time. */
-    internal fun rememberMusicWithout(carAddress: String): Boolean = addHash(KEY_MUSIC_WITHOUT, carAddress)
+    /** Remembers [tookMusicWithout] for this car and link; true the first time. */
+    internal fun rememberMusicWithout(carAddress: String, wireless: Boolean): Boolean =
+        appContext?.let { cars(it).rememberMusicWithout(hash(carAddress), wireless) } == true
 
     /** Told the phone's address, this car stopped taking the phone's music over Bluetooth: it isn't told again. */
     internal fun stopTelling(carAddress: String) {
-        addHash(KEY_NOT_TOLD, carAddress)
+        appContext?.let { cars(it).stopTelling(hash(carAddress)) }
     }
 
     /** Some car isn't told the phone's address any more, for Settings > Connection. */
-    fun keptFromSomeCar(context: Context): Boolean = AppSettings.getString(context, KEY_NOT_TOLD, "").isNotEmpty()
+    fun keptFromSomeCar(context: Context): Boolean = cars(context).keptFromSome()
 
-    private fun notTold(carAddress: String): Boolean = hash(carAddress) in hashes(KEY_NOT_TOLD)
+    private fun notTold(carAddress: String): Boolean = appContext?.let { cars(it).notTold(hash(carAddress)) } == true
 
-    private fun hashes(key: String): List<String> {
-        val context = appContext ?: return emptyList()
-        return AppSettings.getString(context, key, "").split(",").filter { it.isNotEmpty() }
-    }
-
-    /** Adds the car's hash to the list under [key]; false when it was there already. */
-    private fun addHash(key: String, carAddress: String): Boolean {
-        val context = appContext ?: return false
-        val list = hashes(key)
-        val entry = hash(carAddress)
-        if (entry in list) return false
-        AppSettings.putString(context, key, (list + entry).joinToString(","))
-        return true
-    }
+    /** What's kept of each car about the phone's address, in myCar's settings. */
+    private fun cars(context: Context) = PhoneAddressCars(
+        read = { AppSettings.getString(context, it, "") },
+        write = { key, value -> AppSettings.putString(context, key, value) },
+    )
 
     private fun declined(address: String): Boolean {
         val context = appContext ?: return false
@@ -345,10 +331,6 @@ object CarBluetooth {
 
     private const val KEY_DECLINED = "bluetooth_pair_declined"
     private const val KEY_PHONE_ADDRESS = "phone_bluetooth_address"
-    /** Hashes of the cars seen taking the phone's music over Bluetooth without the phone's address. */
-    private const val KEY_MUSIC_WITHOUT = "bluetooth_music_without_address"
-    /** Hashes of the cars no longer told the phone's address. */
-    private const val KEY_NOT_TOLD = "phone_address_not_told"
     private const val CAR_REPLY_WAIT_MS = 5_000L
     private const val CAR_BOND_WAIT_MS = 3_000L
     private const val GIVE_UP_MS = 90_000L

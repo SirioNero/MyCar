@@ -43,29 +43,65 @@ class PhoneAddressGuardTest {
         assertEquals(Verdict.NOTHING, look(told = true, musicWithout = true, music = false, calls = false))
     }
 
+    @Test fun `through myCar chosen - the address stays, as nothing would come back`() {
+        // The music needs no Bluetooth on that route, and the driver would be promised music over
+        // Bluetooth that it doesn't play.
+        assertEquals(Verdict.NOTHING, look(told = true, musicWithout = true, music = false, calls = true, bluetoothRoute = false))
+        // Without the address it's learnt all the same: the car takes the music, whatever the route.
+        assertEquals(Verdict.MUSIC_WITHOUT, look(told = false, musicWithout = false, music = true, calls = true, bluetoothRoute = false))
+    }
+
+    @Test fun `Automatic counts, even gone through myCar for want of the music's Bluetooth`() {
+        // Automatic is a route that puts the music on Bluetooth when the car takes it: through myCar
+        // this drive only because the car didn't, the very sign. Its next drive finds the Bluetooth.
+        assertEquals(Verdict.STOP_TELLING, look(told = true, musicWithout = true, music = false, calls = true, bluetoothRoute = true))
+    }
+
+    @Test fun `not told, the car on its own screen - looked at again once it shows myCar`() {
+        val guard = PhoneAddressGuard()
+        // The driver on the car's radio menu at the look: what the car does then isn't learnt.
+        assertEquals(Verdict.LATER, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+        assertEquals(Verdict.LATER, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+        // Back on myCar's screen, the music on Bluetooth: now it counts.
+        assertEquals(Verdict.MUSIC_WITHOUT, guard.at(told = false, musicWithout = false, music = true, calls = true))
+    }
+
+    @Test fun `not told, the car on its own screen to the end - nothing learnt`() {
+        val guard = PhoneAddressGuard()
+        repeat(PhoneAddressGuard.MAX_WAITS) {
+            assertEquals(Verdict.LATER, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+        }
+        assertEquals(Verdict.NOTHING, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+    }
+
+    @Test fun `told, the car's own screen changes nothing`() {
+        // The car connects or drops its music's Bluetooth whichever screen it shows.
+        assertEquals(Verdict.STOP_TELLING, PhoneAddressGuard().at(told = true, musicWithout = true, music = false, calls = true, projected = false))
+    }
+
     @Test fun `a call puts the look off, and the one right after it`() {
         val guard = PhoneAddressGuard()
-        assertEquals(Verdict.LATER, guard.look(told = true, musicWithout = true, music = false, calls = true, inCall = true))
-        assertEquals(Verdict.LATER, guard.look(told = true, musicWithout = true, music = false, calls = true, inCall = true))
+        assertEquals(Verdict.LATER, guard.at(told = true, musicWithout = true, music = false, calls = true, inCall = true))
+        assertEquals(Verdict.LATER, guard.at(told = true, musicWithout = true, music = false, calls = true, inCall = true))
         // Just ended: the car gets a moment to bring its music back.
-        assertEquals(Verdict.LATER, guard.look(told = true, musicWithout = true, music = false, calls = true, inCall = false))
+        assertEquals(Verdict.LATER, guard.at(told = true, musicWithout = true, music = false, calls = true))
         // Back: nothing taken away.
-        assertEquals(Verdict.NOTHING, guard.look(told = true, musicWithout = true, music = true, calls = true, inCall = false))
+        assertEquals(Verdict.NOTHING, guard.at(told = true, musicWithout = true, music = true, calls = true))
 
         val after = PhoneAddressGuard()
-        assertEquals(Verdict.LATER, after.look(told = true, musicWithout = true, music = false, calls = true, inCall = true))
-        assertEquals(Verdict.LATER, after.look(told = true, musicWithout = true, music = false, calls = true, inCall = false))
+        assertEquals(Verdict.LATER, after.at(told = true, musicWithout = true, music = false, calls = true, inCall = true))
+        assertEquals(Verdict.LATER, after.at(told = true, musicWithout = true, music = false, calls = true))
         // Still gone once the call is over and the car had its moment: the address.
-        assertEquals(Verdict.STOP_TELLING, after.look(told = true, musicWithout = true, music = false, calls = true, inCall = false))
+        assertEquals(Verdict.STOP_TELLING, after.at(told = true, musicWithout = true, music = false, calls = true))
     }
 
     @Test fun `a call that never ends - nothing learnt`() {
         val guard = PhoneAddressGuard()
         repeat(PhoneAddressGuard.MAX_WAITS) {
-            assertEquals(Verdict.LATER, guard.look(told = true, musicWithout = true, music = false, calls = true, inCall = true))
+            assertEquals(Verdict.LATER, guard.at(told = true, musicWithout = true, music = false, calls = true, inCall = true))
         }
-        assertEquals(Verdict.NOTHING, guard.look(told = true, musicWithout = true, music = false, calls = true, inCall = true))
-        assertEquals(Verdict.NOTHING, guard.look(told = true, musicWithout = true, music = false, calls = true, inCall = false))
+        assertEquals(Verdict.NOTHING, guard.at(told = true, musicWithout = true, music = false, calls = true, inCall = true))
+        assertEquals(Verdict.NOTHING, guard.at(told = true, musicWithout = true, music = false, calls = true))
     }
 
     @Test fun `a drive counts without the address only if it worked for minutes`() {
@@ -75,6 +111,17 @@ class PhoneAddressGuardTest {
         assertTrue(PhoneAddressGuard.LOOK_TOLD_MS in 60_000L..PhoneAddressGuard.LOOK_UNTOLD_MS)
     }
 
-    private fun look(told: Boolean, musicWithout: Boolean, music: Boolean, calls: Boolean) =
-        PhoneAddressGuard().look(told, musicWithout, music, calls, inCall = false)
+    /** One look of a drive of its own: no call on, the car showing myCar, the route Automatic or Bluetooth unless said. */
+    private fun look(told: Boolean, musicWithout: Boolean, music: Boolean, calls: Boolean, bluetoothRoute: Boolean = true) =
+        PhoneAddressGuard().at(told, musicWithout, music, calls, bluetoothRoute = bluetoothRoute)
+
+    private fun PhoneAddressGuard.at(
+        told: Boolean,
+        musicWithout: Boolean,
+        music: Boolean,
+        calls: Boolean,
+        inCall: Boolean = false,
+        projected: Boolean = true,
+        bluetoothRoute: Boolean = true,
+    ) = this.look(told, musicWithout, music, calls, inCall, projected, bluetoothRoute)
 }
