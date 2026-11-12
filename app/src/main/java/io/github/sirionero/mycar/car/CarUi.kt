@@ -271,6 +271,7 @@ fun CarUi() {
                     navigator.appMenu != null -> navigator.dismissAppMenu()
                     VoiceReply.state.value.phase != VoiceReply.Phase.IDLE -> VoiceReply.cancel()
                     CallPrompt.pending.value != null && CardBack.pair == null -> CallPrompt.pending.value = null
+                    CardBack.cinemaAsk != null && CardBack.pair == null -> CardBack.cinemaAsk?.invoke()
                     VoiceHelp.shown.value -> VoiceHelp.hide()
                     CarAssistant.state.value.phase != CarAssistant.Phase.IDLE -> CarAssistant.cancel()
                     CardBack.pair != null -> CardBack.pair?.invoke()
@@ -409,6 +410,9 @@ fun CarUi() {
                         // A page's dropdown (see WebSelect): under a call's question.
                         WebSelectSheet()
                         CallPromptOverlay()
+                        // Cinema's question before a page or a home video another app sent opens: under the
+                        // Bluetooth card, as a call's question is.
+                        CinemaAskCard()
                         BluetoothPairOverlay()
                         PopupTimer()
                         // The dashboard is already listing them, so it needs no popup.

@@ -12,4 +12,10 @@
     <string name="open_with_no_car">Το myCar δεν είναι γαντζωμένο στο καράβι. Κάντε ρεσάλτο και στείλτε το ξανά: θα σηκωθεί στο Cinema, στην οθόνη του καραβιού.</string>
     <!-- What was sent has no video and no web address (a text, a file). -->
     <string name="open_with_nothing">Κανένα λάφυρο εδώ για το Cinema: στείλτε του ένα βίντεο ή έναν σύνδεσμο σε ιστοσελίδα.</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">Το myCar ρωτά στην οθόνη του καραβιού πριν το σηκώσει στο Cinema.</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">Να σηκωθεί αυτή η σελίδα από το τηλέφωνο;</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">Να σηκωθεί αυτό το βίντεο από το οικιακό σας δίκτυο;</string>
 </resources>

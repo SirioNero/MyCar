@@ -131,9 +131,10 @@ internal fun CinemaScreen() {
     // Only what can still be opened: a site taken off the list on the phone can't (a shared link's site was never on it).
     val again = last?.takeIf { it !is CinemaContinue.Site || it.shared || sites.any { site -> site.url == it.url } }
     // What another app sent ("Open with", "Share"), over whatever Cinema showed: its Close comes back to the tiles.
+    // A page, or a video at home, once the driver said yes on the car's screen (CinemaAskCard).
     val asked by CinemaAsks.asked.collectAsState()
     LaunchedEffect(asked) {
-        val ask = asked?.let(CinemaAsks::take) ?: return@LaunchedEffect
+        val ask = asked?.takeIf { it.agreed }?.let(CinemaAsks::take) ?: return@LaunchedEffect
         shelf = null
         openUrl = null
         playing = null

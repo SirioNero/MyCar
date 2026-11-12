@@ -14,4 +14,10 @@
     <string name="open_with_nothing">Qui non c\'è niente che Cinema possa aprire: mandagli un video, o il link di una pagina web.</string>
     <!-- The name of a video sent without one: in the player's bar, and in "Continue" on Cinema's tiles. -->
     <string name="open_with_untitled">Video</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">myCar chiede sullo schermo dell\'auto prima di aprirlo in Cinema.</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">Aprire questa pagina dal telefono?</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">Aprire questo video dalla rete di casa?</string>
 </resources>

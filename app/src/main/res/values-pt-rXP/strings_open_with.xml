@@ -12,4 +12,10 @@
     <string name="open_with_no_car">O myCar não está a bordo do navio. Aborde e envie de novo: é içado no Cinema, na tela de bordo.</string>
     <!-- What was sent has no video and no web address (a text, a file). -->
     <string name="open_with_nothing">Nenhum tesouro aqui para o Cinema: envie um vídeo ou o link de uma página da web.</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">O myCar pergunta na tela de bordo antes de içar no Cinema.</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">Içar esta página do telefone?</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">Içar este vídeo da sua rede de casa?</string>
 </resources>

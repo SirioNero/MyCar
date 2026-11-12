@@ -8,6 +8,7 @@ import android.os.SystemClock
 import android.widget.Toast
 import androidx.annotation.StringRes
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
@@ -19,9 +20,11 @@ import io.github.sirionero.mycar.mirror.PhoneMirror
  * "Open with" and "Share" from other apps, to Cinema on the car's screen ("myCar · Cinema" in Android's
  * list): NewPipe and its kin hand a video stream to an outside player this way, and any app can share a
  * link. Nothing of its own shows on the phone, only a short message: the car's screen turns to Cinema
- * (see CinemaAsks). With no car connected it says so and keeps nothing: a video that started by itself on
- * a later drive would be a surprise. Only web addresses are taken (see OpenWith), to be played or shown,
- * never to start anything.
+ * (see CinemaAsks). A page, or a video at a home address, opens only once the driver says yes on the car's
+ * screen (CinemaAskCard): any app can send one, and myCar may reach the home network where that app may
+ * not. With no car connected it says so and keeps nothing: a video that started by itself on a later drive
+ * would be a surprise. Only web addresses are taken (see OpenWith), to be played or shown, never to start
+ * anything.
  */
 class OpenInCinemaActivity : Activity() {
 
@@ -60,15 +63,23 @@ class OpenInCinemaActivity : Activity() {
             say(R.string.open_with_no_car, long = true)
             return
         }
-        CinemaAsks.send(askFor(asked) ?: return)
-        MyCarLog.i("cinema: $what from $from - opening in Cinema in the car" + if (now) "" else " once it's connected")
+        val ask = askFor(asked) ?: return
+        CinemaAsks.send(ask)
+        MyCarLog.i(
+            "cinema: $what from $from - " + (if (ask.agreed) "opening in Cinema in the car" else "the car's screen asks the driver first") +
+                if (now) "" else " once it's connected",
+        )
         // The phone's screen shared to the car: no car screen to open it on. The sharing ends, as for the
         // assistant, and the car's screen, back in a moment, opens it.
         if (PhoneMirror.active.value) {
             MyCarLog.i("cinema: the phone's screen was shared - back to myCar's screen")
             PhoneMirror.requestStop()
         }
-        say(if (now) R.string.open_with_opening else R.string.open_with_soon, long = !now)
+        when {
+            !ask.agreed -> say(R.string.open_with_ask_in_car, long = true)
+            now -> say(R.string.open_with_opening, long = false)
+            else -> say(R.string.open_with_soon, long = true)
+        }
     }
 
     /** What the car's screen opens for [asked]; null for nothing it can. */
@@ -84,10 +95,23 @@ class OpenInCinemaActivity : Activity() {
                     resumeKey = if (asked.stream) null else "open:" + (asked.title ?: asked.url),
                 ),
                 at,
+                // A stream's server on the internet plays at once, as with NewPipe; one at home waits for a yes.
+                agreed = !atHome(asked.url),
             )
             is OpenWith.Page -> CinemaAsks.Page(asked.url, at)
             OpenWith.Unusable -> null
         }
+    }
+
+    /**
+     * Whether a video at [url] may be on the home network - a private, link-local or .local address, or one that
+     * may lead there (OpenWith.oddHost) - which myCar may reach where the app that sent it may not: then the
+     * driver says yes first, as for a page. A name the home router answers with a private address can't be told
+     * from here (see LocalNetwork.isLocal).
+     */
+    private fun atHome(url: String): Boolean {
+        val host = OpenWith.hostOf(url) ?: return true
+        return OpenWith.oddHost(host) || LocalNetwork.isLocal("http://$host")
     }
 
     /** The name the app gave it: NewPipe's in EXTRA_TITLE, others' in "title", a shared page's in EXTRA_SUBJECT. */

@@ -12,4 +12,10 @@
     <string name="open_with_no_car">myCar isn\'t aboard the ship. Board it, then send this again: it sails into Cinema, at the helm.</string>
     <!-- What was sent has no video and no web address (a text, a file). -->
     <string name="open_with_nothing">No plunder here for Cinema: send it a video, or a link to a web page.</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">myCar asks at the helm before hoisting it in Cinema.</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">Hoist this page from the phone?</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">Hoist this video from your home network?</string>
 </resources>
