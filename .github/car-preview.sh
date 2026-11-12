@@ -372,8 +372,10 @@ CINEMA_MEDIA=/tmp/cinema-media
 if [ -z "${ONLY:-}" ] || [[ " $ONLY " == *" cinema-"* ]] || [[ " $ONLY " == *" open-with"* ]]; then
 mkdir -p "$CINEMA_MEDIA/tv"
 FFMPEG="docker run --rm -v $CINEMA_MEDIA:/out --entrypoint /ffmpeg mwader/static-ffmpeg:7.1 -loglevel error -y"
+# Its index first (faststart): from the runner's server, which answers no Range request, Android's player
+# reads a film from the start only, and with the index at the end it stopped at once (error 1, 0x80000000).
 $FFMPEG -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=60" -f lavfi -i "sine=f=440:d=60" \
-    -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest /out/test-video.mp4 || echo "cinema: no test video"
+    -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -movflags +faststart /out/test-video.mp4 || echo "cinema: no test video"
 $FFMPEG -f lavfi -i "testsrc=size=1280x720:rate=25:duration=120" -f lavfi -i "sine=f=660:d=120" \
     -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest -f hls -hls_time 4 -hls_list_size 0 /out/tv/live.m3u8 || echo "cinema: no test stream"
 $FFMPEG -f lavfi -i "color=c=0x3D8BFF:s=256x144" -frames:v 1 /out/tv/logo.png || echo "cinema: no test logo"
