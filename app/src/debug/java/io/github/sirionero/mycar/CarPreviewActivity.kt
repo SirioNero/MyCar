@@ -198,6 +198,12 @@ class CarPreviewActivity : ComponentActivity() {
         // --es hideApps mycar:web,mycar:cinema: those off it.
         io.github.sirionero.mycar.car.HiddenApps.reset()
         intent.getStringExtra("hideApps")?.split(',')?.filter { it.isNotBlank() }?.forEach(io.github.sirionero.mycar.car.HiddenApps::hide)
+        // --es appGrid list: the app grid as one list swiped up and down (car Settings > App grid); its
+        // pages every other run, so the shots tap the apps where they always are.
+        CarSettings.setAppGrid(
+            if (intent.getStringExtra("appGrid") == "list") io.github.sirionero.mycar.car.AppGridLayout.LIST
+            else io.github.sirionero.mycar.car.AppGridLayout.PAGES,
+        )
         // --es jolly say: the Jolly key set to a made-up command of that kind (see JollyPreview); nothing
         // every other run, so a tap on it opens its chooser. --ez jollyKey false: off the dock.
         io.github.sirionero.mycar.car.JollyPreview.set(

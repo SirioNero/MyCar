@@ -231,6 +231,18 @@ esac
 shoot grid-hide 1920 720 240 "$GRID_BUTTON;$(at browser),long;960,447;$WAIT"
 EXTRA="--es hideApps mycar:web --ez hiddenApps true" shoot hidden-apps 1920 720 240 "$WAIT"
 EXTRA="--ez hiddenApps true" shoot hidden-apps-none 800 480 160 "$WAIT"
+# The app grid as one list swiped up and down (car Settings > App grid > List; --es appGrid list, debug
+# only): from the dock's foot, then a quick swipe up. The pages' icons, columns and gaps, no dots, a thin
+# bar right of the rows when there's more than the screen holds. At 1920x720 every app fits in two rows,
+# so nothing moves; at Large (1.25) there and at 800x480 the rows go on below.
+EXTRA="--es appGrid list" shoot grid-vertical 1920 720 240 "$GRID_BUTTON;960,560,swipe,960,160;$WAIT"
+EXTRA="--es appGrid list --es carScale 1.25" shoot grid-vertical-large 1920 720 240 "90,637;960,560,swipe,960,160;$WAIT"
+EXTRA="--es appGrid list" shoot grid-vertical-800x480 800 480 160 "48,436;400,400,swipe,400,100;$WAIT"
+# The knob on the list (a script, see PreviewScript): turned back a click at a time, a picture after each,
+# round the dock and on to the last app, at the bottom of the list; then four and four more, a row up each.
+GRID_KNOB="wait:6000;tap:48,436;wait:2500;snap:0-grid;rep:8;knob:-1;wait:700;snap:;end"
+GRID_KNOB="$GRID_KNOB;rep:4;knob:-1;wait:400;end;wait:700;snap:up-a-row;rep:4;knob:-1;wait:400;end;wait:700;snap:up-two-rows"
+EXTRA="--es appGrid list --es script '$GRID_KNOB'" shoot grid-vertical-knob 800 480 160 "" "sleep 18"
 
 # Home with an app chosen to sit beside the map instead (car Settings > Beside the map).
 installed $PLANCIA && EXTRA="--es sidePane $PLANCIA" shoot split-plancia 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
