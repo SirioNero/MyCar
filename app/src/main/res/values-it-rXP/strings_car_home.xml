@@ -92,6 +92,7 @@
     <string name="car_host_would_not_connect">l\'app non ha lasciato abbordare myCar</string>
     <string name="car_host_only_android_auto">Accetta a bordo solo l\'host Android Auto di Google.</string>
     <string name="car_host_not_allowed">Si fida solo degli host del suo elenco (l\'Android Auto di Google e pochi altri), e myCar, che batte bandiera propria, non c\'è.</string>
+    <string name="car_host_refused">%1$s non fa salire a bordo myCar: accoglie solo gli host che conosce, come l\'Android Auto di Google. Solo chi la sviluppa può cambiarlo.</string>
     <string name="car_host_no_answer">Non ha risposto al richiamo di myCar. Le app fatte per le versioni più recenti di Android Auto funzionano solo con quello di Google.</string>
     <string name="car_host_step_failed">%1$s naufragato: %2$s</string>
     <string name="car_host_step_failed_no_reason">%1$s naufragato: nessun motivo indicato</string>

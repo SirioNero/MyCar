@@ -169,6 +169,7 @@
     <string name="car_host_needs_permission">它只接受 Google 自己的 Android Auto：它的服务需要 %1$s 权限，而 myCar 无法获得这项权限。</string>
     <string name="car_host_only_android_auto">它只接受 Google 自己的 Android Auto 主机。</string>
     <string name="car_host_not_allowed">它只信任自己允许列表中的主机（Google 的 Android Auto 和少数其他主机），而 myCar 不在其中。</string>
+    <string name="car_host_refused">%1$s 不接受 myCar：它只让自己认识的主机连接，例如 Google 的 Android Auto。只有它的开发者能改变这一点。</string>
     <string name="car_host_no_answer">它没有回应 myCar。为较新版本 Android Auto 开发的应用只能在 Google 的 Android Auto 上运行。</string>
     <string name="car_host_step_failed">%1$s 失败：%2$s</string>
     <string name="car_host_step_failed_no_reason">%1$s 失败：未说明原因</string>

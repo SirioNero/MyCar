@@ -84,6 +84,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Warning
+import io.github.sirionero.mycar.host.HostRefusals
 import io.github.sirionero.mycar.host.KnownApps
 import io.github.sirionero.mycar.host.CarAppCatalog
 import io.github.sirionero.mycar.host.TemplateApp
@@ -351,12 +352,13 @@ fun CarLauncher() {
 
     fun tileOf(entry: Entry): Tile {
         // Only apps that don't work get a mark. The X rates an app's own car screens; a messenger
-        // shown on myCar's own Messages screen has none, so it never gets one.
+        // shown on myCar's own Messages screen has none, so it never gets one. Nor does the player
+        // of an app whose car screen turned myCar down (HostRefusals): the player is myCar's.
         val pkg = entry.packageName?.takeIf { entry.messaging == null }
         val id = entry.componentId
         return Tile(
             entry, entry.label,
-            broken = pkg != null && (KnownApps.isBroken(context, pkg) || (entry.template != null && KnownApps.screenBroken(pkg))),
+            broken = pkg != null && (KnownApps.isBroken(context, pkg) || (entry.template != null && (KnownApps.screenBroken(pkg) || HostRefusals.refused(context, pkg)))),
             partial = pkg != null && KnownApps.isPartial(pkg),
             onLongClick = id?.let { { navigator.showAppMenu(it) } },
         ) { openApp(entry, id?.let { running[it] }, navigator, frame) }

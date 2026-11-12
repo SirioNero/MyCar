@@ -94,6 +94,7 @@
 
     <string name="car_host_only_android_auto">Δέχεται στο κατάστρωμα μόνο το host του Android Auto της ίδιας της Google.</string>
     <string name="car_host_not_allowed">Εμπιστεύεται μόνο τα host της δικής της λίστας επιτρεπόμενων (το Android Auto της Google και λίγα άλλα), και το myCar, με τη δική του σημαία, δεν είναι σε αυτήν.</string>
+    <string name="car_host_refused">Το %1$s δεν αφήνει το myCar να ανέβει στο κατάστρωμα: δέχεται μόνο τα host που γνωρίζει, όπως το Android Auto της Google. Μόνο ο προγραμματιστής του μπορεί να το αλλάξει.</string>
     <string name="car_host_no_answer">Δεν απάντησε στο κάλεσμα του myCar. Οι εφαρμογές για νεότερες εκδόσεις του Android Auto λειτουργούν μόνο σε αυτό της Google.</string>
     <string name="car_host_step_failed">Το %1$s ναυάγησε: %2$s</string>
     <string name="car_host_step_failed_no_reason">Το %1$s ναυάγησε: δεν δόθηκε αιτία</string>

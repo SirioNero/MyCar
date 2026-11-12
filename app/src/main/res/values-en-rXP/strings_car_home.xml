@@ -103,6 +103,7 @@
     <string name="car_host_needs_permission">It only sails with Google\'s own Android Auto: its service requires the permission %1$s, which myCar can\'t hold.</string>
     <string name="car_host_only_android_auto">It only sails with Google\'s own Android Auto host.</string>
     <string name="car_host_not_allowed">It only welcomes aboard the hosts on its own allow-list (Google\'s Android Auto and a few others), and myCar isn\'t on it.</string>
+    <string name="car_host_refused">%1$s won\'t let myCar aboard: it only welcomes the hosts it knows, such as Google\'s Android Auto. Only its developer can change that.</string>
     <string name="car_host_no_answer">It didn\'t answer myCar\'s hail. Apps built for newer versions of Android Auto only sail with Google\'s.</string>
     <string name="car_host_rejected_at">It wouldn\'t let myCar aboard as a host at %1$s: %2$s</string>
     <string name="car_host_location_notification">myCar is sharing location with the chart in the car</string>

@@ -73,6 +73,14 @@ object KnownApps {
     fun isBroken(context: Context, packageName: String): Boolean =
         packageName in broken && (!patched(context, packageName) || HostRefusals.refused(context, packageName))
 
+    /**
+     * An app whose car screen myCar doesn't start by itself (the map as the car connects): broken
+     * ([isBroken]), or a copy that turned myCar down as its host ([HostRefusals]), whatever app it is.
+     * A refusal is its car screen's alone: a player of its music, myCar's own, works all the same.
+     */
+    fun wontStart(context: Context, packageName: String): Boolean =
+        isBroken(context, packageName) || HostRefusals.refused(context, packageName)
+
     /** A copy of a broken app signed by someone other than its publisher: modified, maybe to accept other hosts. */
     fun modified(context: Context, packageName: String): Boolean =
         packageName in broken && patched(context, packageName)

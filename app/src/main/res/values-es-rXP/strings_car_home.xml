@@ -91,6 +91,7 @@
     <string name="car_host_would_not_connect">la app no ha dejado que myCar la aborde</string>
     <string name="car_host_needs_permission">Solo acepta la bandera del Android Auto de Google: su servicio requiere el permiso %1$s, que myCar no puede tener.</string>
     <string name="car_host_only_android_auto">Solo acepta el host del propio Android Auto de Google: nada de piratas.</string>
+    <string name="car_host_refused">%1$s no deja subir a bordo a myCar: solo acepta a los hosts que conoce, como el Android Auto de Google. Solo quien la desarrolla puede cambiarlo.</string>
     <string name="car_host_location_notification">myCar está compartiendo la ubicación con el mapa de a bordo</string>
     <string name="car_map_no_position_title">La carta no tiene tu ubicación</string>
 
