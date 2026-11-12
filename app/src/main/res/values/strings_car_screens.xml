@@ -20,6 +20,10 @@
     <string name="car_settings_player_size">Size of the player beside the map</string>
     <string name="car_settings_mini_player">Mini player over the whole map</string>
     <string name="car_settings_mini_player_detail">With the player beside the map closed, a small player floats over the map. Hold it, then drag it to move it.</string>
+    <!-- How the app grid scrolls: its pages turned sideways, or all the apps in one list swiped up and down -->
+    <string name="car_settings_app_grid">App grid</string>
+    <string name="car_settings_app_grid_pages">Pages (sideways)</string>
+    <string name="car_settings_app_grid_list">List (up and down)</string>
     <string name="car_settings_hidden_apps">Hidden apps</string>
     <string name="car_settings_hidden_apps_none">None. To hide an app, hold it on the app grid and choose Hide from the app grid.</string>
     <string name="car_settings_hidden_apps_show">Show</string>

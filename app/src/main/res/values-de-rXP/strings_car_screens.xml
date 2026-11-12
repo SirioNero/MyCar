@@ -5,6 +5,9 @@
     <string name="car_settings_player_size">Größe der Drehorgel neben der Karte</string>
     <string name="car_settings_mini_player">Mini-Drehorgel über der ganzen Karte</string>
     <string name="car_settings_mini_player_detail">Ist die Drehorgel neben der Karte geschlossen, treibt eine kleine Drehorgel über der Karte. Halte sie gedrückt und zieh sie, um sie zu verschieben.</string>
+    <string name="car_settings_app_grid">Flottenformation</string>
+    <string name="car_settings_app_grid_pages">Seiten (Backbord bis Steuerbord)</string>
+    <string name="car_settings_app_grid_list">Liste (Krähennest bis Kiel)</string>
     <string name="car_settings_hidden_apps">Blinde Passagiere</string>
     <string name="car_settings_hidden_apps_none">Keine an Bord. Um eine App zu verstauen, halte sie in der Flotte gedrückt und wähle „In der Flotte verstauen“.</string>
     <string name="car_settings_app_theme">App-Anstrich</string>

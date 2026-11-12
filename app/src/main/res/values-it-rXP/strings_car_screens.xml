@@ -6,6 +6,9 @@
     <string name="car_settings_player_size">Stazza dell\'organetto accanto alla mappa</string>
     <string name="car_settings_mini_player">Mini organetto sulla mappa intera</string>
     <string name="car_settings_mini_player_detail">Chiuso l\'organetto accanto alla mappa, un mini organetto galleggia sopra la mappa. Tienilo premuto, poi trascinalo per spostarlo.</string>
+    <string name="car_settings_app_grid">Formazione della flotta</string>
+    <string name="car_settings_app_grid_pages">Pagine (da babordo a tribordo)</string>
+    <string name="car_settings_app_grid_list">Elenco (dalla coffa alla chiglia)</string>
     <string name="car_settings_hidden_apps">App clandestine</string>
     <string name="car_settings_hidden_apps_none">Nessuna clandestina a bordo. Per nascondere un\'app, tienila premuta nella flotta e scegli «Manda sottocoperta dalla flotta».</string>
     <string name="car_settings_hidden_apps_show">Svela</string>

@@ -10,6 +10,9 @@
     <string name="car_settings_player_size">Size of the shanty box beside the chart</string>
     <string name="car_settings_mini_player">Wee shanty box over the whole chart</string>
     <string name="car_settings_mini_player_detail">With the shanty box beside the chart closed, a wee shanty box bobs over the chart. Hold it, then drag it to move it.</string>
+    <string name="car_settings_app_grid">Fleet formation</string>
+    <string name="car_settings_app_grid_pages">Pages (port to starboard)</string>
+    <string name="car_settings_app_grid_list">List (crow\'s nest to keel)</string>
     <string name="car_settings_hidden_apps">Stowaways</string>
     <string name="car_settings_hidden_apps_none">No stowaways. To stow an app away, hold it in the fleet and choose Stow away from the fleet.</string>
     <string name="car_settings_app_theme">App paint</string>

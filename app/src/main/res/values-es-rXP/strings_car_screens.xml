@@ -5,6 +5,9 @@
     <string name="car_settings_player_size">Tamaño de la gramola junto a la carta</string>
     <string name="car_settings_mini_player">Minigramola sobre la carta completa</string>
     <string name="car_settings_mini_player_detail">Con la gramola junto a la carta cerrada, una pequeña gramola flota sobre la carta. Mantenla pulsada y arrástrala para moverla.</string>
+    <string name="car_settings_app_grid">Formación de la flota</string>
+    <string name="car_settings_app_grid_pages">Páginas (de babor a estribor)</string>
+    <string name="car_settings_app_grid_list">Lista (de la cofa a la quilla)</string>
     <string name="car_settings_hidden_apps">Bodega</string>
     <string name="car_settings_hidden_apps_none">Vacía. Para mandar una app a la bodega, mantenla pulsada en la flota y elige Mandar a la bodega.</string>
     <string name="car_settings_app_theme">Pinta de la app</string>

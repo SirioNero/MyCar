@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.car.AppGridLayout
 import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.car.HiddenApps
 import io.github.sirionero.mycar.car.design.AppIcon
@@ -37,12 +38,13 @@ import io.github.sirionero.mycar.car.rememberReplacedByWeb
 import io.github.sirionero.mycar.car.rememberVehicleDataShown
 
 /**
- * Which apps are on the car's app grid, from the phone: all of them but the ones hidden, here or in
- * the car (a long press on an app there, Hide from the app grid). The same list the car's Settings
- * bring back from, on the same key.
+ * The car's app grid from the phone: pages or one list, as in the car's Settings, and which apps are
+ * on it: all of them but the ones hidden, here or in the car (a long press on an app there, Hide from
+ * the app grid). The same list the car's Settings bring back from, on the same key.
  */
 @Composable
 internal fun CarGridSection() {
+    val layout by CarSettings.appGrid.collectAsState()
     val hidden by HiddenApps.ids.collectAsState()
     val order by CarSettings.appOrder.collectAsState()
     val entries = rememberAllEntries()
@@ -54,6 +56,15 @@ internal fun CarGridSection() {
     val count = apps.count { it.componentId in off }
     var open by remember { mutableStateOf(false) }
     SettingsSection {
+        PickRow(
+            stringResource(R.string.car_settings_app_grid),
+            listOf(
+                Pick(AppGridLayout.PAGES, stringResource(R.string.car_settings_app_grid_pages)),
+                Pick(AppGridLayout.LIST, stringResource(R.string.car_settings_app_grid_list)),
+            ),
+            layout,
+        ) { CarSettings.setAppGrid(it) }
+        SettingsDivider()
         SettingsRow(
             stringResource(R.string.settings_grid_apps),
             Modifier.clickable { open = true },

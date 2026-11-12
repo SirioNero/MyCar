@@ -8,6 +8,9 @@
     <string name="car_settings_player_size">Размер шарманки рядом с картой</string>
     <string name="car_settings_mini_player">Мини-шарманка поверх всей карты</string>
     <string name="car_settings_mini_player_detail">Когда шарманка рядом с картой закрыта, поверх карты появляется маленькая шарманка. Удерживайте её и перетащите, чтобы переместить.</string>
+    <string name="car_settings_app_grid">Строй флота</string>
+    <string name="car_settings_app_grid_pages">Страницы (от борта до борта)</string>
+    <string name="car_settings_app_grid_list">Список (от мачты до киля)</string>
     <string name="car_settings_hidden_apps">Безбилетники</string>
     <string name="car_settings_hidden_apps_none">Безбилетников нет. Чтобы спрятать приложение, удерживайте его во флоте и выберите «Убрать из флота».</string>
     <string name="car_settings_app_theme">Окраска приложения</string>

@@ -6,6 +6,9 @@
     <string name="car_settings_player_size">Τονάζ του γραμμοφώνου δίπλα στον χάρτη</string>
     <string name="car_settings_mini_player">Μικρό γραμμόφωνο πάνω από όλο τον χάρτη</string>
     <string name="car_settings_mini_player_detail">Όταν το γραμμόφωνο δίπλα στον χάρτη είναι κλειστό, ένα μικρό γραμμόφωνο επιπλέει πάνω από τον χάρτη. Κρατήστε το πατημένο και σύρετέ το για να το μετακινήσετε.</string>
+    <string name="car_settings_app_grid">Παράταξη του στόλου</string>
+    <string name="car_settings_app_grid_pages">Σελίδες (δεξιά κι αριστερά)</string>
+    <string name="car_settings_app_grid_list">Λίστα (από το κατάρτι ως την καρίνα)</string>
     <string name="car_settings_hidden_apps">Λαθρεπιβάτες</string>
     <string name="car_settings_hidden_apps_none">Κανένας λαθρεπιβάτης στο καράβι. Για να κρύψετε μια εφαρμογή, κρατήστε την πατημένη στον στόλο και επιλέξτε «Στο αμπάρι, εκτός στόλου».</string>
     <string name="car_settings_hidden_apps_show">Στο φως</string>

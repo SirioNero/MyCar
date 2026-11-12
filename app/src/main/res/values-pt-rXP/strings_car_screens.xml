@@ -5,6 +5,9 @@
     <string name="car_settings_player_size">Tamanho da vitrola ao lado do mapa</string>
     <string name="car_settings_mini_player">Minivitrola sobre o mapa inteiro</string>
     <string name="car_settings_mini_player_detail">Com a vitrola ao lado do mapa fechada, uma minivitrola flutua como uma boia sobre o mapa. Mantenha-a pressionada e arraste para movê-la.</string>
+    <string name="car_settings_app_grid">Formação da frota</string>
+    <string name="car_settings_app_grid_pages">Páginas (de bombordo a estibordo)</string>
+    <string name="car_settings_app_grid_list">Lista (do cesto da gávea à quilha)</string>
     <string name="car_settings_hidden_apps">Apps no porão</string>
     <string name="car_settings_hidden_apps_none">Porão vazio. Para mandar um app para o porão, mantenha-o pressionado na frota e escolha Mandar para o porão.</string>
     <string name="car_settings_app_theme">Pintura do app</string>

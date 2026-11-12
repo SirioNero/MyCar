@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Tamanho do player ao lado do mapa</string>
     <string name="car_settings_mini_player">Miniplayer sobre o mapa inteiro</string>
     <string name="car_settings_mini_player_detail">Com o player ao lado do mapa fechado, um pequeno player flutua sobre o mapa. Mantenha-o pressionado e arraste para movê-lo.</string>
+    <string name="car_settings_app_grid">Grade de apps</string>
+    <string name="car_settings_app_grid_pages">Páginas (na horizontal)</string>
+    <string name="car_settings_app_grid_list">Lista (na vertical)</string>
     <string name="car_settings_hidden_apps">Apps ocultos</string>
     <string name="car_settings_hidden_apps_none">Nenhum. Para ocultar um app, mantenha-o pressionado na grade de apps e escolha Ocultar da grade de apps.</string>
     <string name="car_settings_hidden_apps_show">Mostrar</string>

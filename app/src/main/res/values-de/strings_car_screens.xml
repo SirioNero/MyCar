@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Größe des Players neben der Karte</string>
     <string name="car_settings_mini_player">Mini-Player über der ganzen Karte</string>
     <string name="car_settings_mini_player_detail">Ist der Player neben der Karte geschlossen, schwebt ein kleiner Player über der Karte. Halte ihn gedrückt und zieh ihn, um ihn zu verschieben.</string>
+    <string name="car_settings_app_grid">App-Übersicht</string>
+    <string name="car_settings_app_grid_pages">Seiten (seitwärts)</string>
+    <string name="car_settings_app_grid_list">Liste (auf und ab)</string>
     <string name="car_settings_hidden_apps">Ausgeblendete Apps</string>
     <string name="car_settings_hidden_apps_none">Keine. Um eine App auszublenden, halte sie in der App-Übersicht gedrückt und wähle „In der App-Übersicht ausblenden“.</string>
     <string name="car_settings_hidden_apps_show">Anzeigen</string>

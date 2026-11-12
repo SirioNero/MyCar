@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Размер плеера рядом с картой</string>
     <string name="car_settings_mini_player">Мини-плеер поверх всей карты</string>
     <string name="car_settings_mini_player_detail">Когда плеер рядом с картой закрыт, поверх карты появляется маленький плеер. Удерживайте его и перетащите, чтобы переместить.</string>
+    <string name="car_settings_app_grid">Сетка приложений</string>
+    <string name="car_settings_app_grid_pages">Страницы (по горизонтали)</string>
+    <string name="car_settings_app_grid_list">Список (по вертикали)</string>
     <string name="car_settings_hidden_apps">Скрытые приложения</string>
     <string name="car_settings_hidden_apps_none">Нет. Чтобы скрыть приложение, удерживайте его в сетке приложений и выберите «Скрыть из сетки приложений».</string>
     <string name="car_settings_hidden_apps_show">Показать</string>
