@@ -369,7 +369,7 @@ shoot cinema-continue 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECO
 # the groups, then all the channels, and plays the first; the phone's video again with the car
 # moving, covered and still sounding.
 CINEMA_MEDIA=/tmp/cinema-media
-if [ -z "${ONLY:-}" ] || [[ " $ONLY " == *" cinema-"* ]]; then
+if [ -z "${ONLY:-}" ] || [[ " $ONLY " == *" cinema-"* ]] || [[ " $ONLY " == *" open-with"* ]]; then
 mkdir -p "$CINEMA_MEDIA/tv"
 FFMPEG="docker run --rm -v $CINEMA_MEDIA:/out --entrypoint /ffmpeg mwader/static-ffmpeg:7.1 -loglevel error -y"
 $FFMPEG -f lavfi -i "testsrc2=size=1280x720:rate=30:duration=60" -f lavfi -i "sine=f=440:d=60" \
@@ -395,6 +395,30 @@ TV="--es tvList http://10.0.2.2:8001/tv.m3u"
 shoot cinema-videos 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
 EXTRA="$TV" shoot cinema-tv 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$GROUP_ALL;$WAIT;$CHANNEL_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
 EXTRA="--ez moving true" shoot cinema-videos-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT"
+# Cinema for other apps (car/OpenInCinemaActivity.kt), sent with adb 5 s into the shot, as another app sends it:
+# NewPipe's "play with an external player" (the stream's address, its type, its title in EXTRA_TITLE) turns the
+# car's screen to Cinema's player, playing; the same with the car moving, covered and still sounding; a stream
+# (HLS, NewPipe's type for a live one); YouTube's page shared, on Cinema's YouTube at that video; a page off
+# Cinema's list (the runner's), in Cinema's own browser, then the map, the grid and Cinema: "Continue" brings it
+# back. Last, the video sent before the car's screen is up, as with no car: not kept, Home stays as it was.
+OPEN_WITH="$PKG/io.github.sirionero.mycar.car.OpenInCinemaActivity"
+open_with() { adb shell "am start -n $OPEN_WITH -a android.intent.action.VIEW -t $1 -d $2 --es android.intent.extra.TITLE 'Test video'"; }
+share_with() { adb shell "am start -n $OPEN_WITH -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT '$1'"; }
+SENT_VIDEO="open_with video/mp4 http://10.0.2.2:8001/test-video.mp4"
+shoot open-with 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "$SENT_VIDEO"
+EXTRA="--ez moving true" shoot open-with-moving 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "$SENT_VIDEO"
+shoot open-with-stream 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "open_with application/x-mpegURL http://10.0.2.2:8001/tv/live.m3u8"
+shoot open-with-share 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "share_with 'Big Buck Bunny https://www.youtube.com/watch?v=aqz-KE-bpKQ'"
+shoot open-with-page 1920 720 240 "$WAIT;$WAIT;$WAIT;$DOCK_MAP;$WAIT;$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT" "share_with 'On the runner: http://10.0.2.2:8001/'"
+BEFORE="$SENT_VIDEO; sleep 3" shoot open-with-no-car 1920 720 240 "$WAIT;$WAIT"
+case " ${ONLY:-open-with} " in *" open-with"*)
+    echo "--- Cinema for other apps: who takes them on the emulator ---"
+    adb shell cmd package query-activities --components -a android.intent.action.VIEW -t video/mp4 -d http://10.0.2.2:8001/test-video.mp4
+    adb shell cmd package query-activities --components -a android.intent.action.VIEW -t application/x-mpegURL -d http://10.0.2.2:8001/tv/live.m3u8
+    adb shell cmd package query-activities --components -a android.intent.action.SEND -t text/plain | grep -i mycar || echo "share: myCar not among them"
+    echo "--- Cinema for other apps: myCar's log ---"
+    grep -h "cinema:" previews/open-with*/log.txt previews/open-with*/stream.txt 2>/dev/null | cut -c1-300 | head -60 || echo "open-with: nothing in the log" ;;
+esac
 echo "--- Cinema ---"
 grep -h "cinema" previews/cinema*/log.txt 2>/dev/null | head -40 || echo "cinema: nothing in the log"
 grep -h "GET" /tmp/cinema-media.txt 2>/dev/null | head -20 || echo "cinema: nothing asked of the runner"
