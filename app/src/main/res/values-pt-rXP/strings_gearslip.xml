@@ -13,4 +13,16 @@
     <string name="settings_phone_bt_address">Endereço Bluetooth do seu telefone</string>
     <string name="settings_phone_bt_address_off">Não definido. Só para um navio que corta o Bluetooth do telefone, ou solta as amarras, quando o myCar o aborda.</string>
     <string name="settings_phone_bt_address_hint">Nas Configurações do Android &gt; Sobre o telefone (em alguns telefones, em Status): Endereço Bluetooth. O myCar o informa a um navio já pareado com o telefone, para que ele saiba que é o mesmo velho telefone.</string>
+    <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
+         is written but myCar no longer tells it to some car, because told it, that car stopped taking
+         the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->
+    <string name="settings_phone_bt_address_not_told">%1$s. O myCar não o informa aos navios que, com ele, paravam de receber a música do telefone pelo Bluetooth.</string>
+    <!-- Phone, a card on Home (ui/PhoneAddressCard.kt) once myCar stopped telling a car the phone's
+         Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
+         and "save" as its Save button says it -->
+    <string name="phone_address_not_told_title">O myCar não informa mais o endereço do telefone ao navio</string>
+    <string name="phone_address_not_told_text">O navio recebia a música do telefone pelo Bluetooth, mas parou quando o myCar lhe informou o endereço Bluetooth do telefone (Leme &gt; Abordagem). O myCar não o informa mais: a partir da próxima travessia, a música volta a passar pelo Bluetooth. Se depois o navio cortar o Bluetooth do telefone, ou soltar as amarras, salve o endereço de novo.</string>
+    <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
+         the phone's Bluetooth address took the phone's music over Bluetooth away -->
+    <string name="car_phone_address_not_told">Este navio parou de receber a música do telefone pelo Bluetooth ao saber o endereço do telefone. O myCar não o informará mais: a partir da próxima travessia, a música passa pelo Bluetooth.</string>
 </resources>

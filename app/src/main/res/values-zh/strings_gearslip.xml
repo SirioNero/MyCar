@@ -14,4 +14,16 @@
     <string name="settings_phone_bt_address_off">未设置。仅适用于 myCar 连接时会断开手机蓝牙或挂断连接的汽车。</string>
     <string name="settings_phone_bt_address_hint">在 Android 的设置 &gt; 关于手机（部分手机在“状态信息”中）：蓝牙地址。myCar 会把它告诉已与手机配对的汽车，让汽车知道这是同一部手机。</string>
     <string name="settings_phone_bt_address_invalid">这不是蓝牙地址。它的格式类似 12:34:56:78:9A:BC。</string>
+    <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
+         is written but myCar no longer tells it to some car, because told it, that car stopped taking
+         the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->
+    <string name="settings_phone_bt_address_not_told">%1$s。myCar 不会把它告诉那些因此不再通过蓝牙接收手机音乐的汽车。</string>
+    <!-- Phone, a card on Home (ui/PhoneAddressCard.kt) once myCar stopped telling a car the phone's
+         Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
+         and "save" as its Save button says it -->
+    <string name="phone_address_not_told_title">myCar 不再把手机地址告诉这辆车</string>
+    <string name="phone_address_not_told_text">这辆车原本通过蓝牙接收手机音乐，但在 myCar 告诉它手机的蓝牙地址（设置 &gt; 连接）后就不再接收了。myCar 不再告诉它：从下次行车起，音乐重新通过蓝牙播放。如果之后这辆车断开手机蓝牙或挂断连接，请再次保存该地址。</string>
+    <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
+         the phone's Bluetooth address took the phone's music over Bluetooth away -->
+    <string name="car_phone_address_not_told">这辆车得知手机地址后，不再通过蓝牙接收手机音乐。myCar 不会再告诉它：从下次行车起，音乐通过蓝牙播放。</string>
 </resources>

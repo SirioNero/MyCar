@@ -9,8 +9,11 @@ import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
+import androidx.car.app.CarToast
 import io.github.sirionero.mycar.AppSettings
 import io.github.sirionero.mycar.MyCarLog
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,9 +21,10 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * At each drive with a car already paired, whether telling it the phone's Bluetooth address takes its
  * Bluetooth music away ([PhoneAddressGuard]): a look at the car's Bluetooth connections a while after
- * the car showed myCar. When it does, CarBluetooth stops telling that car, and the driver hears why,
- * on the phone's Home until OK. Without an address written nothing is told, and the looks only learn
- * which cars take the phone's music over Bluetooth.
+ * the car showed myCar. When it does, CarBluetooth stops telling that car, and the driver hears why:
+ * on the phone's Home until OK (PhoneAddressCard), and on the car's screen once it's stopped. Without
+ * an address written nothing is told, and the looks only learn which cars take the phone's music
+ * over Bluetooth.
  */
 internal object PhoneAddressCheck {
 
@@ -96,6 +100,17 @@ internal object PhoneAddressCheck {
         AppSettings.putString(context, KEY_NOTICE, "true")
         noticeLoaded = true
         noticeFlow.value = true
+        tellCarWhenStopped(drive)
+    }
+
+    /** The car's screen says it too, once the car is stopped: a glance at a red light, not one at speed. */
+    private fun tellCarWhenStopped(at: Int) {
+        if (at != drive) return
+        if (CarDriving.videoAllowed) {
+            CarToasts.show(this, Words.get(R.string.car_phone_address_not_told), CarToast.LENGTH_LONG)
+        } else {
+            main.postDelayed({ tellCarWhenStopped(at) }, looking, STOPPED_LOOK_MS)
+        }
     }
 
     /**
@@ -150,4 +165,7 @@ internal object PhoneAddressCheck {
     }
 
     private const val KEY_NOTICE = "phone_address_not_told_notice"
+
+    /** While the car moves, how often it's looked at again for a stop. */
+    private const val STOPPED_LOOK_MS = 5_000L
 }
