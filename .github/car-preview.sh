@@ -398,8 +398,8 @@ shoot cinema-videos 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;
 EXTRA="$TV" shoot cinema-tv 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$GROUP_ALL;$WAIT;$CHANNEL_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
 EXTRA="--ez moving true" shoot cinema-videos-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT"
 # Cinema for other apps (car/OpenInCinemaActivity.kt), sent with adb 5 s into the shot, as another app sends it.
-# NewPipe's "play with an external player" (the stream's address, its type, its title in EXTRA_TITLE) with a stream
-# on the internet (Google's sample videos): the car's screen turns to Cinema's player at once, playing; the same
+# NewPipe's "play with an external player" (the stream's address, its type, its title in EXTRA_TITLE) with a video
+# on the internet (NET_VIDEO): the car's screen turns to Cinema's player at once, playing; the same
 # with the car moving, covered and still sounding. What could reach the home network waits for the driver's yes on
 # the car's screen (CinemaAskCard: the question, where it leads, "Not now" and "Open", here tapped): the runner's
 # video (10.0.2.2, a private address), its stream (HLS, NewPipe's type for a live one), YouTube's page shared (then
@@ -410,7 +410,17 @@ EXTRA="--ez moving true" shoot cinema-videos-moving 1920 720 240 "$GRID_BUTTON;$
 OPEN_WITH="$PKG/io.github.sirionero.mycar.car.OpenInCinemaActivity"
 open_with() { adb shell "am start -n $OPEN_WITH -a android.intent.action.VIEW -t $1 -d $2 --es android.intent.extra.TITLE 'Test video'"; }
 share_with() { adb shell "am start -n $OPEN_WITH -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT '$1'"; }
-SENT_VIDEO="open_with video/mp4 https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+# The video on the internet: the first of these the runner reaches (Google's sample videos, tried first, answered
+# 403 in November 2026: the player waited on them for good).
+NET_VIDEO=https://www.w3schools.com/html/mov_bbb.mp4
+case " ${ONLY:-open-with} " in *" open-with"*)
+    for url in https://mdn.github.io/shared-assets/videos/flower.mp4 https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4 \
+        https://www.w3schools.com/html/mov_bbb.mp4; do
+        if curl -sfIL --max-time 15 "$url" > /dev/null; then NET_VIDEO=$url; break; fi
+    done
+    echo "open-with: the video on the internet: $NET_VIDEO" ;;
+esac
+SENT_VIDEO="open_with video/mp4 $NET_VIDEO"
 OPEN_ASKED="1239,435"     # the card's "Open", at 1920x720
 NOT_NOW_ASKED="825,435"   # its "Not now"
 shoot open-with 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "$SENT_VIDEO"
