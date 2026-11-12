@@ -172,6 +172,7 @@
     <string name="car_host_needs_permission">Приложение принимает только Android Auto от Google: его служба требует разрешение %1$s, которое myCar получить не может.</string>
     <string name="car_host_only_android_auto">Приложение принимает только хост Android Auto от Google.</string>
     <string name="car_host_not_allowed">Приложение доверяет только хостам из своего списка разрешённых (Android Auto от Google и ещё нескольким), а myCar в нём нет.</string>
+    <string name="car_host_refused">%1$s не принимает myCar: приложение пускает только знакомые ему хосты, например Android Auto от Google. Изменить это может только его разработчик.</string>
     <string name="car_host_no_answer">Приложение не ответило myCar. Приложения для новых версий Android Auto работают только в Android Auto от Google.</string>
     <string name="car_host_step_failed">Сбой на шаге %1$s: %2$s</string>
     <string name="car_host_step_failed_no_reason">Сбой на шаге %1$s: причина не указана</string>

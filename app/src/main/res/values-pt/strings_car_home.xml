@@ -170,6 +170,7 @@
     <string name="car_host_needs_permission">Ele só aceita o Android Auto do próprio Google: o serviço dele exige a permissão %1$s, que o myCar não pode ter.</string>
     <string name="car_host_only_android_auto">Ele só aceita o host do Android Auto do próprio Google.</string>
     <string name="car_host_not_allowed">Ele só confia nos hosts da própria lista de permitidos (o Android Auto do Google e alguns outros), e o myCar não está nela.</string>
+    <string name="car_host_refused">%1$s não aceita o myCar: só deixa entrar os hosts que conhece, como o Android Auto do Google. Só quem desenvolve o app pode mudar isso.</string>
     <string name="car_host_no_answer">Ele não respondeu ao myCar. Apps feitos para versões mais novas do Android Auto só funcionam no do Google.</string>
     <string name="car_host_step_failed">%1$s falhou: %2$s</string>
     <string name="car_host_step_failed_no_reason">%1$s falhou: nenhum motivo informado</string>

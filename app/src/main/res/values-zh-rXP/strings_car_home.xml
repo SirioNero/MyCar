@@ -98,6 +98,7 @@
     <string name="car_host_needs_permission">它只肯跟 Google 自己的 Android Auto 航行：它的服务需要 %1$s 权限，而 myCar 无法获得这项权限。</string>
     <string name="car_host_only_android_auto">它只肯跟 Google 自己的 Android Auto 主机航行。</string>
     <string name="car_host_not_allowed">它只让自己允许列表中的主机登船（Google 的 Android Auto 和少数其他主机），而 myCar 不在其中。</string>
+    <string name="car_host_refused">%1$s 不让 myCar 登船：它只让自己认识的主机上船，例如 Google 的 Android Auto。只有它的开发者能改变这一点。</string>
     <string name="car_host_no_answer">它没有回应 myCar 的呼喊。为较新版本 Android Auto 开发的应用只在 Google 的 Android Auto 上航行。</string>
     <string name="car_host_rejected_at">它在 %1$s 步骤拒绝让 myCar 作为主机登船：%2$s</string>
     <string name="car_host_location_notification">myCar 正在与车载海图共享位置信息</string>

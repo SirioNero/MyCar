@@ -2,20 +2,25 @@ package io.github.sirionero.mycar.host
 
 import android.content.Context
 import io.github.sirionero.mycar.BuildConfig
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
- * Modified copies of the apps [KnownApps] lists as broken that turned myCar down all the same. A
- * copy signed by someone other than its publisher counts as patched to accept other hosts, but it
- * may have been patched for something else, or with Waze's Morphe patch, which by default lets in
- * Gearslip alone. One that refused is broken again (red X, never started by itself) until it
- * accepts myCar or another copy is installed; its tile still opens it.
+ * Copies of apps that turned myCar down as their host in a way that lasts (see [RefusalRule]).
+ * Modified copies of the apps [KnownApps] lists as broken that refused all the same: a copy signed
+ * by someone other than its publisher counts as patched to accept other hosts, but it may have been
+ * patched for something else, or with Waze's Morphe patch, which by default lets in Gearslip alone.
+ * And any app whose own host check said no: it lets in only the hosts its developer chose. One that
+ * refused is broken (red X, never started by itself) until it accepts myCar or another copy is
+ * installed, an update or a copy patched again; its tile still opens it.
  *
  * Kept with the copy's install time (PackageInfo.lastUpdateTime), not with its signer: Morphe signs
  * every copy it patches with the same key, so a copy patched again to accept myCar has the signer
  * of the one that refused.
  */
-object PatchRefusals {
+object HostRefusals {
 
+    /** Named when it held patched copies only (PatchRefusals): kept, so what it holds stays. */
     private const val PREFS = "mycar_patch_refusals"
 
     /** myCar's release signing certificate, SHA-256, as hosts lists write it. */
@@ -41,6 +46,21 @@ object PatchRefusals {
         val prefs = prefs(context)
         if (!prefs.contains(packageName)) return false
         return sameCopy(prefs.getLong(packageName, 0L), installedAt(context, packageName))
+    }
+
+    /**
+     * What the car says where the installed copy of [packageName], named [label], would start by
+     * itself (beside the map, on a page), if it's one that refused myCar; null if it isn't.
+     */
+    fun why(context: Context, packageName: String, label: String): String? {
+        if (!refused(context, packageName)) return null
+        return words(context, RefusalRule.remembered(KnownApps.modified(context, packageName)), label)
+    }
+
+    /** The car's words for a refusal of [kind] by the app named [label], shown under "… would not start." */
+    fun words(context: Context, kind: RefusalRule.Kind, label: String): String = when (kind) {
+        RefusalRule.Kind.MODIFIED_COPY -> Words.get(R.string.car_host_modified_refused, label, hostsEntry(context))
+        RefusalRule.Kind.HOST_CHECK -> Words.get(R.string.car_host_refused, label)
     }
 
     /**

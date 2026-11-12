@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import android.content.ComponentName
 import android.media.session.PlaybackState
 import io.github.sirionero.mycar.media.MediaArt
 import io.github.sirionero.mycar.media.Lyrics
@@ -60,6 +61,7 @@ import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.car.design.MyCarSpace
 import io.github.sirionero.mycar.car.design.raisedPanel
 import io.github.sirionero.mycar.host.CarAppConnection
+import io.github.sirionero.mycar.host.KnownApps
 import io.github.sirionero.mycar.media.CarMedia
 import io.github.sirionero.mycar.media.NowPlaying
 import kotlinx.coroutines.launch
@@ -228,7 +230,13 @@ private fun MapPane(status: CarAppConnection.Status, frame: CarEnvironment.Frame
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val hasLast = CarSettings.lastNav.value != null
+        // Not one the drive leaves be (see KnownApps.wontStart, an app that turned myCar down): its
+        // "Reopen" would do nothing, so the choice instead.
+        val context = LocalContext.current
+        val last = CarSettings.lastNav.value
+        val hasLast = remember(last, status.phase) {
+            last != null && ComponentName.unflattenFromString(last)?.let { KnownApps.wontStart(context, it.packageName) } != true
+        }
         val hasNavApps by CarServices.hasNavApps.collectAsStateWithLifecycle()
         val scope = androidx.compose.runtime.rememberCoroutineScope()
         when (status.phase) {

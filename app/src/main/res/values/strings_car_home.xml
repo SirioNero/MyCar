@@ -252,6 +252,9 @@
     <string name="car_host_needs_permission">It only accepts Google\'s own Android Auto: its service requires the permission %1$s, which myCar can\'t hold.</string>
     <string name="car_host_only_android_auto">It only accepts Google\'s own Android Auto host.</string>
     <string name="car_host_not_allowed">It only trusts hosts on its own allow-list (Google\'s Android Auto and a few others), and myCar isn\'t on it.</string>
+    <!-- The app's own check of its host said no: it lets in only the hosts its developer chose, so it won't start by itself any more
+         (host/HostRefusals.kt). %1$s: the app's name, as ABRP -->
+    <string name="car_host_refused">%1$s doesn\'t accept myCar: it only lets in the hosts it knows, such as Google\'s Android Auto. Only its developer can change that.</string>
     <string name="car_host_no_answer">It didn\'t answer myCar. Apps built for newer versions of Android Auto only run on Google\'s.</string>
     <!-- %1$s: a step of the connection, a technical name; %2$s: what the app answered -->
     <string name="car_host_step_failed">%1$s failed: %2$s</string>
