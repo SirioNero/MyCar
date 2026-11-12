@@ -24,6 +24,8 @@
     <string name="help_sound_through_mycar">通过 myCar 把声音送上船</string>
     <string name="help_step_connect">插上数据线，或无线登船。</string>
     <string name="help_step_connect_detail">船连上后，myCar 会自动打开。第一次用数据线连接时，Android 会询问要打开哪个应用：选择 myCar，然后点按“始终”。如需无线登船，请先将手机与船配对，然后在母港点按“无线登船”。</string>
+    <string name="help_step_vpn">使用 VPN 时，把 myCar 排除在外以便无线登船。</string>
+    <string name="help_step_vpn_detail">在 VPN 内，Android 不让 myCar 使用船上的 WLAN。请在 VPN 应用中把 myCar 排除在外（在 Tailscale 中：Settings &gt; App split tunneling），在航程中关闭 VPN，或使用数据线。如果开启了“屏蔽未使用 VPN 的所有连接”，Android 也会屏蔽 VPN 之外的 myCar：请在 Android 的 VPN 设置中关闭它。</string>
     <string name="help_step_audio_prompt">不再每趟航程都询问音频。</string>
     <string name="help_step_audio_prompt_detail">在手机上开启 USB 调试，连接到电脑，然后运行一次这条命令。如果跳过，每次起航时都要点按一下，接受 Android 的询问。</string>
     <string name="help_step_notifications_detail">共享音频时，Android 会隐藏通知的内容。同时运行这条命令后，myCar 只会在船歌传到车上时解除隐藏。</string>

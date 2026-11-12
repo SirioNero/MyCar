@@ -1,7 +1,11 @@
 package io.github.sirionero.mycar.ui
 
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.car.CarSettings
 import io.github.sirionero.mycar.audio.AudioRoute
 import androidx.annotation.StringRes
@@ -51,7 +55,7 @@ private class Step(
     val onClick: (() -> Unit)? = null,
 )
 
-private fun inTheCar(onRequestCallScreening: () -> Unit, onOpenUsbC: (() -> Unit)?) = listOfNotNull(
+private fun inTheCar(onRequestCallScreening: () -> Unit, onOpenUsbC: (() -> Unit)?, onOpenVpn: (() -> Unit)?) = listOfNotNull(
     Step(
         R.string.help_step_connect,
         R.string.help_step_connect_detail,
@@ -59,6 +63,10 @@ private fun inTheCar(onRequestCallScreening: () -> Unit, onOpenUsbC: (() -> Unit
     // GrapheneOS can keep the car from seeing the phone on the cable: a step of its own, only there.
     onOpenUsbC?.let {
         Step(R.string.help_step_usb_c, R.string.usb_c_graphene, buttonLabel = R.string.common_open_settings, onClick = it)
+    },
+    // A VPN that carries myCar keeps it off the car's Wi-Fi: a step of its own, only then.
+    onOpenVpn?.let {
+        Step(R.string.help_step_vpn, R.string.help_step_vpn_detail, buttonLabel = R.string.common_open_settings, onClick = it)
     },
     Step(
         R.string.help_step_pair,
@@ -94,8 +102,14 @@ private val USB_AUDIO = listOf(
 fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit, onOpenSetup: () -> Unit) {
     val context = LocalContext.current
     val graphene = remember { runsGrapheneOs(context) }
-    val car = remember(onRequestCallScreening, graphene) {
-        inTheCar(onRequestCallScreening, onOpenUsbC = { openSecuritySettings(context) }.takeIf { graphene })
+    // Inside a VPN now, myCar can't reach the car's Wi-Fi until it's left out of it.
+    val vpn = remember { Tailnet.reach(context) == Tailnet.Reach.IN_VPN }
+    val car = remember(onRequestCallScreening, graphene, vpn) {
+        inTheCar(
+            onRequestCallScreening,
+            onOpenUsbC = { openSecuritySettings(context) }.takeIf { graphene },
+            onOpenVpn = { openVpnSettings(context) }.takeIf { vpn },
+        )
     }
     val route by CarSettings.audioRoute.collectAsState()
 
@@ -139,6 +153,11 @@ fun HelpScreen(onBack: () -> Unit, onRequestCallScreening: () -> Unit, onOpenSet
             Spacer(Modifier.height(16.dp))
         }
     }
+}
+
+/** Android's VPN settings, where each VPN's gear holds "Block connections without VPN". */
+private fun openVpnSettings(context: Context) {
+    runCatching { context.startActivity(Intent(Settings.ACTION_VPN_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }
 
 /** A titled card of numbered steps. */

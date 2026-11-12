@@ -20,6 +20,8 @@
     <string name="help_in_the_car">An Bord</string>
     <string name="help_step_connect">Anschließen oder kabellos entern.</string>
     <string name="help_step_connect_detail">myCar öffnet sich von selbst, wenn sich das Schiff verbindet. Beim ersten Mal mit Kabel fragt Android, welche App sich öffnen soll: Wähle myCar und tippe auf „Immer“. Zum kabellosen Entern kopple zuerst das Telefon mit dem Schiff und tippe dann auf der Startseite auf „Kabellos entern“.</string>
+    <string name="help_step_vpn">Mit einem VPN myCar fürs kabellose Entern davon ausnehmen.</string>
+    <string name="help_step_vpn_detail">Innerhalb eines VPN hält Android myCar vom WLAN des Schiffs fern. Nimm myCar in der App des VPN aus (in Tailscale: „Settings“, „App split tunneling“), schalte das VPN für den Törn aus oder nutze das Kabel. Ist „Verbindungen ohne VPN blockieren“ an, blockiert Android myCar auch außerhalb des VPN: Schalte das in den VPN-Einstellungen von Android aus.</string>
     <string name="help_set_up">Klarmachen</string>
     <string name="help_step_audio_prompt">Die Audiofrage bei jedem Törn abschalten.</string>
     <string name="help_step_audio_prompt_detail">Verbinde das Telefon mit einem Computer mit aktiviertem USB-Debugging und führe das hier einmal aus. Ohne das bestätigst du bei jedem Auslaufen die Frage von Android mit einem Tippen.</string>

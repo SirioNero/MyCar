@@ -24,6 +24,8 @@
     <string name="help_in_the_car">A bordo</string>
     <string name="help_step_connect">Attacca il cavo, o abborda senza fili.</string>
     <string name="help_step_connect_detail">myCar si apre da sola quando la nave si collega. La prima volta col cavo, Android chiede quale app aprire: scegli myCar e tocca Sempre. Per il senza fili, prima accoppia il telefono con la nave, poi tocca «Abborda senza fili» in porto.</string>
+    <string name="help_step_vpn">Con una VPN, lascia fuori myCar per abbordare senza fili.</string>
+    <string name="help_step_vpn_detail">Dentro una VPN, Android tiene myCar fuori dal Wi-Fi della nave. Lascia fuori myCar nell\'app della VPN (in Tailscale: Settings, App split tunneling), spegni la VPN durante la traversata o usa il cavo. Con «Blocca connessioni senza VPN» attivo, Android blocca myCar anche quando è fuori dalla VPN: disattivalo nelle impostazioni VPN di Android.</string>
     <string name="help_step_screening">Respingi le chiamate sconosciute prima che squillino.</string>
     <string name="help_set_up">Prepara</string>
     <string name="help_step_audio_prompt">Niente più domanda per l\'audio a ogni traversata.</string>

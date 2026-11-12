@@ -21,6 +21,8 @@
     <string name="help_in_the_car">Στο καράβι</string>
     <string name="help_step_connect">Βάλτε το καλώδιο ή κάντε ρεσάλτο ασύρματα.</string>
     <string name="help_step_connect_detail">Το myCar ανοίγει μόνο του όταν συνδεθεί το καράβι. Την πρώτη φορά με καλώδιο, το Android ρωτά ποια εφαρμογή να ανοίξει: επιλέξτε το myCar και πατήστε «Πάντα». Για ρεσάλτο ασύρματα, κάντε πρώτα σύζευξη του τηλεφώνου με το καράβι και μετά πατήστε «Ρεσάλτο ασύρματα» στην Αρχική.</string>
+    <string name="help_step_vpn">Με VPN, αφήστε το myCar έξω από αυτό για ρεσάλτο ασύρματα.</string>
+    <string name="help_step_vpn_detail">Μέσα σε ένα VPN, το Android κρατά το myCar έξω από το Wi-Fi του καραβιού. Αφήστε το myCar έξω στην εφαρμογή του VPN (στο Tailscale: Settings, App split tunneling), απενεργοποιήστε το VPN για το ταξίδι ή χρησιμοποιήστε το καλώδιο. Με ενεργό το «Αποκλεισμός συνδέσεων χωρίς VPN», το Android αποκλείει το myCar και έξω από το VPN: απενεργοποιήστε το στις ρυθμίσεις VPN του Android.</string>
     <string name="help_step_audio_prompt">Ξεφορτωθείτε την ερώτηση για τον ήχο σε κάθε ταξίδι.</string>
     <string name="help_step_audio_prompt_detail">Συνδέστε το τηλέφωνο σε έναν υπολογιστή με ενεργό τον εντοπισμό σφαλμάτων USB και εκτελέστε αυτό μία φορά. Αν το παραλείψετε, αποδέχεστε με ένα πάτημα την ερώτηση του Android κάθε φορά που σαλπάρετε.</string>
     <string name="help_step_notifications_detail">Το Android κρύβει το περιεχόμενο των ειδοποιήσεων όσο κάνει κοινή χρήση του ήχου. Εκτελέστε και αυτό, και το myCar το αίρει μόνο όσο η μουσική πηγαίνει στο καράβι.</string>

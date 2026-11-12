@@ -86,6 +86,8 @@ class SessionService : Service() {
             builder.setContentTitle(Words.get(R.string.session_notification_title))
         } else {
             builder.setContentTitle(s.headline).setContentText(s.detail.ifEmpty { null })
+            // All of it when pulled down: some of Home's lines are advice, longer than a line (a VPN in the way).
+            if (s.detail.isNotEmpty()) builder.setStyle(Notification.BigTextStyle().bigText(s.detail))
         }
         return builder.build()
     }

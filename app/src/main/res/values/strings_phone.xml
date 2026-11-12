@@ -50,6 +50,9 @@
     <string name="help_step_connect">Plug in, or connect wirelessly.</string>
     <!-- "Always": Android's button when it asks which app to open for the car. "Connect wirelessly" is the button on Home (wireless_button_connect) -->
     <string name="help_step_connect_detail">myCar opens by itself when the car connects. The first time with the cable, Android asks which app to open: choose myCar and tap Always. For wireless, pair the phone with the car first, then tap Connect wirelessly on Home.</string>
+    <!-- Only while a VPN carries myCar; its button opens Android's VPN settings. "Block connections without VPN": Android's switch there, as Android writes it in your language. "Settings, App split tunneling": the Tailscale app's own words -->
+    <string name="help_step_vpn">With a VPN, leave myCar out of it for wireless.</string>
+    <string name="help_step_vpn_detail">Inside a VPN, Android keeps myCar off the car\'s Wi-Fi. Leave myCar out in the VPN app (in Tailscale: Settings, App split tunneling), turn the VPN off for the drive, or use the cable. With \"Block connections without VPN\" on, Android blocks myCar outside the VPN too: turn that off in Android\'s VPN settings.</string>
     <string name="help_step_pair">Pair over Bluetooth for calls.</string>
     <string name="help_step_pair_detail">Calls play through the car once your phone and the car are paired. myCar offers to pair the first time you plug in.</string>
     <string name="help_step_screening">Turn down unknown callers before they ring.</string>
