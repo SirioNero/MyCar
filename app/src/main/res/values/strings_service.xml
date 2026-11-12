@@ -75,7 +75,10 @@
     <string name="wireless_link_wifi_off">The phone\'s Wi-Fi is off</string>
     <string name="wireless_link_wifi_off_detail">Turn on the phone\'s Wi-Fi: the wireless connection to the car goes over the car\'s Wi-Fi.</string>
     <string name="wireless_link_vpn">A VPN is blocking the car</string>
-    <string name="wireless_link_vpn_detail">myCar joined %1$s\'s network, but a VPN on this phone (Tailscale, for one) won\'t let it reach the car. Connect with the cable, turn the VPN off, or leave myCar out of the VPN in its settings: Plancia and Xonos inside myCar then reach Tailscale addresses through the Plancia and Xonos apps, if they\'re on the phone.</string>
+    <!-- Under "Connecting" while myCar keeps trying, then under the headline above. "Block connections without VPN": Android's switch in its VPN settings, as Android writes it in your language -->
+    <string name="wireless_link_vpn_detail">A VPN on this phone keeps myCar off %1$s\'s Wi-Fi. Leave myCar out of the VPN in its app (excluded apps, split tunneling), turn the VPN off for the drive, or connect with the cable. With \"Block connections without VPN\" on, Android blocks myCar outside the VPN too: turn that off in Android\'s VPN settings.</string>
+    <!-- The same when the VPN is Tailscale. "Settings, App split tunneling": the Tailscale app's own words -->
+    <string name="wireless_link_tailscale_detail">Tailscale keeps myCar off %1$s\'s Wi-Fi. In Tailscale: Settings, App split tunneling, leave myCar out - Plancia and Xonos inside myCar then go through the Plancia and Xonos apps, if they\'re on the phone. Or turn Tailscale off for the drive, or connect with the cable. With \"Block connections without VPN\" on, Android blocks myCar outside Tailscale too: turn that off in Android\'s VPN settings.</string>
     <string name="wireless_link_no_connection">Car\'s Wi-Fi joined, but no connection</string>
     <!-- %2$s: the car's address, like 192.168.1.1:5288 -->
     <string name="wireless_link_no_connection_detail">myCar joined %1$s\'s network but couldn\'t reach Android Auto at %2$s.</string>

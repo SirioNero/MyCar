@@ -54,7 +54,8 @@
     <string name="wireless_link_wifi_off">手机的 WLAN 已关闭</string>
     <string name="wireless_link_wifi_off_detail">请打开手机的 WLAN：与汽车的无线连接要经过汽车的 WLAN。</string>
     <string name="wireless_link_vpn">VPN 阻止了与汽车的连接</string>
-    <string name="wireless_link_vpn_detail">myCar 已加入 %1$s 的网络，但这部手机上的 VPN（例如 Tailscale）不让它连接汽车。请使用数据线连接、关闭 VPN，或在 VPN 的设置中把 myCar 排除在外：这样 myCar 中的 Plancia 和 Xonos 会通过 Plancia 和 Xonos 应用访问 Tailscale 地址（如果手机上装有这两个应用）。</string>
+    <string name="wireless_link_vpn_detail">这部手机上的 VPN 不让 myCar 使用 %1$s 的 WLAN。请在 VPN 应用中把 myCar 排除在外（排除的应用或拆分隧道），在行程中关闭 VPN，或使用数据线连接。如果开启了“屏蔽未使用 VPN 的所有连接”，Android 也会屏蔽 VPN 之外的 myCar：请在 Android 的 VPN 设置中关闭它。</string>
+    <string name="wireless_link_tailscale_detail">Tailscale 不让 myCar 使用 %1$s 的 WLAN。在 Tailscale 中依次进入 Settings &gt; App split tunneling，把 myCar 排除在外——这样 myCar 中的 Plancia 和 Xonos 会通过 Plancia 和 Xonos 应用连接（如果手机上装有这两个应用）。也可以在行程中关闭 Tailscale，或使用数据线连接。如果开启了“屏蔽未使用 VPN 的所有连接”，Android 也会屏蔽 Tailscale 之外的 myCar：请在 Android 的 VPN 设置中关闭它。</string>
     <string name="wireless_link_no_connection">已加入汽车的 WLAN，但无法连接</string>
     <string name="wireless_link_no_connection_detail">myCar 已加入 %1$s 的网络，但无法通过 %2$s 访问 Android Auto。</string>
     <string name="wireless_link_local_network_detail">Android 不让 myCar 访问本地网络，而汽车的 WLAN 就是本地网络：请在手机上给 myCar 授予“附近的设备”权限，然后重新连接。</string>
