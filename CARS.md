@@ -21,6 +21,7 @@ and some don't say.
 | Ford | 2018 | SYNC 3.0 (Panasonic) |
 | Ford Fiesta | 2019 | SYNC 3.2 (Panasonic) |
 | Ford Fusion | 2018 | SYNC 3.1 (Panasonic) |
+| Hyundai Inster | 2026 | Wired (reported by a myCar driver) |
 | Jeep Cherokee | 2019 | Uconnect 8.4 (Delphi) |
 | MG | 2019 | Desay SV |
 | Ram 1500 | 2018 | Uconnect 8.4 (Panasonic) |
@@ -30,6 +31,7 @@ and some don't say.
 | Toyota RAV4 | 2020 | Pioneer T1 |
 | Volkswagen | 2018 | MIB Standard2 (Delphi) |
 | Volkswagen | 2024 | ICAS3 |
+| Volkswagen Golf 8 | 2023 | With the CarService certificate (reported by a myCar driver) |
 | Volvo XC90 | 2022 | SPA Plus (Mitsubishi Electric) |
 | Wuling | 2021 | Desay SV |
 | [LIVI](https://github.com/f-io/LIVI), the open-source head unit | | |
