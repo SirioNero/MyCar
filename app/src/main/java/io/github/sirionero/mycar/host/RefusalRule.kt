@@ -21,8 +21,8 @@ object RefusalRule {
 
     /**
      * How the host check says no, by version of the Car App Library: "Unknown host '<host>',
-     * uid:<uid>" up to 1.7 (an IllegalArgumentException), "Unrecognized host with uid <uid>" and "The
-     * host is not allowed to call this service" after (SecurityExceptions).
+     * uid:<uid>" in the older ones (an IllegalArgumentException, as ABRP's), "Unrecognized host with
+     * uid <uid>" or "The host is not allowed to call this service" in the newer (SecurityExceptions).
      */
     private val SAID_NO = listOf("Unknown host", "Unrecognized host", "The host is not allowed")
 
