@@ -81,7 +81,7 @@ class ClusterNextTest {
     }
 
     @Test
-    fun `at the start "not navigating" goes out once, and nothing after`() {
+    fun `at the start not navigating goes out once, and nothing after`() {
         val sent = run(1000, 5000) { Now(NOT_NAVIGATING) }
         assertEquals(listOf(0L to Message.STATUS), sent)
     }

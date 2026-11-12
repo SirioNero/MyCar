@@ -76,7 +76,7 @@ class ClusterBlameTest {
     }
 
     @Test
-    fun `only "not navigating" sent, nothing to blame`() {
+    fun `only not navigating sent, nothing to blame`() {
         val blame = ClusterBlame()
         blame.status(NOT_NAVIGATING, 0)
         assertNull(blame.blame(500, null))
