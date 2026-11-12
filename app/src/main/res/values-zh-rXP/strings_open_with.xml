@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cinema for other apps (car/OpenInCinemaActivity.kt): a video sent with "Open with", or a link with
+  "Share", opens in Cinema on the car's screen. Said on the phone, in a short message.
+-->
+<resources>
+    <!-- The car is connected: the video plays, or the page opens, in Cinema now. -->
+    <string name="open_with_opening">扬帆！正在船上屏幕的 Cinema 中打开。</string>
+    <!-- The car is connecting: it opens once the car's screen is there. -->
+    <string name="open_with_soon">一登船，就会在船上屏幕的 Cinema 中打开。</string>
+    <!-- No car connected: nothing is kept for later. -->
+    <string name="open_with_no_car">myCar 还没登船。请先登船，再重新发送：它会在船上屏幕的 Cinema 中打开。</string>
+    <!-- What was sent has no video and no web address (a text, a file). -->
+    <string name="open_with_nothing">这里没有 Cinema 能打开的宝藏：请发送视频，或网页链接。</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">myCar 会先在船上屏幕上询问，再在 Cinema 中扬帆打开。</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">要扬帆打开手机发来的这个网页吗？</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">要扬帆打开家庭网络中的这个视频吗？</string>
+</resources>

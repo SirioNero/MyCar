@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cinema for other apps (car/OpenInCinemaActivity.kt): a video sent with "Open with", or a link with
+  "Share", opens in Cinema on the car's screen. Said on the phone, in a short message.
+-->
+<resources>
+    <!-- The car is connected: the video plays, or the page opens, in Cinema now. -->
+    <string name="open_with_opening">Ανοίγει στο Cinema, στην οθόνη του αυτοκινήτου.</string>
+    <!-- The car is connecting: it opens once the car's screen is there. -->
+    <string name="open_with_soon">Θα ανοίξει στο Cinema, στην οθόνη του αυτοκινήτου, μόλις συνδεθεί το αυτοκίνητο.</string>
+    <!-- No car connected: nothing is kept for later. -->
+    <string name="open_with_no_car">Το myCar δεν είναι συνδεδεμένο στο αυτοκίνητο. Συνδέστε το και στείλτε το ξανά: θα ανοίξει στο Cinema, στην οθόνη του αυτοκινήτου.</string>
+    <!-- What was sent has no video and no web address (a text, a file). -->
+    <string name="open_with_nothing">Δεν υπάρχει εδώ κάτι που να μπορεί να ανοίξει το Cinema: στείλτε του ένα βίντεο ή έναν σύνδεσμο σε ιστοσελίδα.</string>
+    <!-- The name of a video sent without one: in the player's bar, and in "Continue" on Cinema's tiles. -->
+    <string name="open_with_untitled">Βίντεο</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">Το myCar ρωτά στην οθόνη του αυτοκινήτου πριν το ανοίξει στο Cinema.</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">Άνοιγμα αυτής της σελίδας από το τηλέφωνο;</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">Άνοιγμα αυτού του βίντεο από το οικιακό σας δίκτυο;</string>
+</resources>
