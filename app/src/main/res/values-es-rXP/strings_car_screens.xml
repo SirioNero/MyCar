@@ -5,6 +5,9 @@
     <string name="car_settings_player_size">Tamaño de la gramola junto a la carta</string>
     <string name="car_settings_mini_player">Minigramola sobre la carta completa</string>
     <string name="car_settings_mini_player_detail">Con la gramola junto a la carta cerrada, una pequeña gramola flota sobre la carta. Mantenla pulsada y arrástrala para moverla.</string>
+    <string name="car_settings_app_grid">Formación de la flota</string>
+    <string name="car_settings_app_grid_pages">Páginas (de babor a estribor)</string>
+    <string name="car_settings_app_grid_list">Lista (de la cofa a la quilla)</string>
     <string name="car_settings_hidden_apps">Bodega</string>
     <string name="car_settings_hidden_apps_none">Vacía. Para mandar una app a la bodega, mantenla pulsada en la flota y elige Mandar a la bodega.</string>
     <string name="car_settings_app_theme">Pinta de la app</string>
@@ -23,6 +26,9 @@
     <string name="car_settings_connection">Abordaje</string>
     <string name="car_settings_info_vehicle">Barco</string>
     <string name="car_settings_unknown_vehicle">Barco desconocido</string>
+    <string name="car_settings_cluster_no_turns">Sin giros para este barco</string>
+    <string name="car_settings_cluster_no_turns_note">Este barco cerró la conexión dos veces seguidas justo después de que myCar enviara un giro a su cuadro de instrumentos, así que myCar ya no le envía ninguno. La carta de esta pantalla los sigue mostrando.</string>
+    <string name="car_cluster_no_turns_notice">Este barco cerró la conexión dos veces seguidas justo tras un giro en el cuadro de instrumentos: ya no recibe giros ahí. Se vuelven a enviar en Aparejos > Abordaje.</string>
     <string name="car_settings_about">Bandera</string>
     <string name="car_settings_whats_new_after_updates">Nuevo botín tras actualizar</string>
     <string name="car_settings_whats_new_after_updates_note">Muestra la lista del nuevo botín una vez, la primera vez que el barco se conecta después de que zarpe una versión nueva.</string>

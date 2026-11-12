@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cinema for other apps (car/OpenInCinemaActivity.kt): a video sent with "Open with", or a link with
+  "Share", opens in Cinema on the car's screen. Said on the phone, in a short message.
+-->
+<resources>
+    <!-- The car is connected: the video plays, or the page opens, in Cinema now. -->
+    <string name="open_with_opening">Si apre in Cinema, sullo schermo dell\'auto.</string>
+    <!-- The car is connecting: it opens once the car's screen is there. -->
+    <string name="open_with_soon">Si apre in Cinema, sullo schermo dell\'auto, appena l\'auto è collegata.</string>
+    <!-- No car connected: nothing is kept for later. -->
+    <string name="open_with_no_car">myCar non è collegata all\'auto. Collegala, poi invialo di nuovo: si apre in Cinema, sullo schermo dell\'auto.</string>
+    <!-- What was sent has no video and no web address (a text, a file). -->
+    <string name="open_with_nothing">Qui non c\'è niente che Cinema possa aprire: mandagli un video, o il link di una pagina web.</string>
+    <!-- The name of a video sent without one: in the player's bar, and in "Continue" on Cinema's tiles. -->
+    <string name="open_with_untitled">Video</string>
+    <!-- A page, or a video on the home network: it opens only once the driver taps Open on the car's screen. -->
+    <string name="open_with_ask_in_car">myCar chiede sullo schermo dell\'auto prima di aprirlo in Cinema.</string>
+    <!-- On the car's screen, over a page sent from the phone, above its address and the buttons Not now and Open. -->
+    <string name="open_with_confirm_page">Aprire questa pagina dal telefono?</string>
+    <!-- On the car's screen, over a video sent from the phone whose address is on the home network. -->
+    <string name="open_with_confirm_home">Aprire questo video dalla rete di casa?</string>
+</resources>

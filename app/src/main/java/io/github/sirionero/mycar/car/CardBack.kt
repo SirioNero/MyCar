@@ -15,6 +15,9 @@ import kotlin.reflect.KMutableProperty0
 internal object CardBack {
     var whatsNew: (() -> Unit)? = null
     var pair: (() -> Unit)? = null
+
+    /** Cinema's question before what another app sent opens (CinemaAskCard): Back is "Not now". */
+    var cinemaAsk: (() -> Unit)? = null
 }
 
 /** Holds [slot] while composed, with [action] for the car's Back; lets go when the card goes. */

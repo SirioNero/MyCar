@@ -26,17 +26,21 @@ import io.github.sirionero.mycar.car.CarBluetooth
 /**
  * Settings > Connection: the phone's own Bluetooth address, written by hand, which Android doesn't
  * give apps. Only for the few cars that need it to tell the phone connecting from the one paired
- * with them (CarBluetooth); empty, as by default, nothing changes.
+ * with them (CarBluetooth); empty, as by default, nothing changes. A car that, told it, stopped
+ * taking the phone's music over Bluetooth isn't told it any more (PhoneAddressCheck): said under
+ * the address, until it's saved again.
  */
 @Composable
 internal fun PhoneAddressRow() {
     val context = LocalContext.current
     var address by remember { mutableStateOf(CarBluetooth.writtenAddress(context)) }
+    var keptFromCar by remember { mutableStateOf(CarBluetooth.keptFromSomeCar(context)) }
     var editing by remember { mutableStateOf(false) }
     SettingsRow(
         stringResource(R.string.settings_phone_bt_address),
         Modifier.clickable { editing = true },
-        subtitle = address ?: stringResource(R.string.settings_phone_bt_address_off),
+        subtitle = address?.let { if (keptFromCar) stringResource(R.string.settings_phone_bt_address_not_told, it) else it }
+            ?: stringResource(R.string.settings_phone_bt_address_off),
         icon = ImageVector.vectorResource(R.drawable.sym_bluetooth),
     )
     if (editing) {
@@ -47,6 +51,7 @@ internal fun PhoneAddressRow() {
                 CarBluetooth.writeAddress(context, text).also { saved ->
                     if (saved) {
                         address = CarBluetooth.writtenAddress(context)
+                        keptFromCar = CarBluetooth.keptFromSomeCar(context)
                         editing = false
                     }
                 }

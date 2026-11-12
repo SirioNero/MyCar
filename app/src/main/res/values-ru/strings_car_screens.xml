@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Размер плеера рядом с картой</string>
     <string name="car_settings_mini_player">Мини-плеер поверх всей карты</string>
     <string name="car_settings_mini_player_detail">Когда плеер рядом с картой закрыт, поверх карты появляется маленький плеер. Удерживайте его и перетащите, чтобы переместить.</string>
+    <string name="car_settings_app_grid">Сетка приложений</string>
+    <string name="car_settings_app_grid_pages">Страницы (по горизонтали)</string>
+    <string name="car_settings_app_grid_list">Список (по вертикали)</string>
     <string name="car_settings_hidden_apps">Скрытые приложения</string>
     <string name="car_settings_hidden_apps_none">Нет. Чтобы скрыть приложение, удерживайте его в сетке приложений и выберите «Скрыть из сетки приложений».</string>
     <string name="car_settings_hidden_apps_show">Показать</string>
@@ -48,6 +51,11 @@
     <string name="car_settings_info_vehicle">Автомобиль</string>
     <string name="car_settings_info_video">Видео</string>
     <string name="car_settings_info_certificate">Сертификат</string>
+    <string name="car_settings_info_cluster">Приборная панель</string>
+    <string name="car_settings_cluster_no_turns">Повороты этому автомобилю не отправляются</string>
+    <string name="car_settings_cluster_no_turns_note">Этот автомобиль дважды подряд разорвал соединение сразу после того, как myCar отправил поворот на его приборную панель, поэтому myCar больше их не отправляет. Карта на этом экране по-прежнему их показывает.</string>
+    <string name="car_settings_cluster_turns_again">Снова отправлять повороты</string>
+    <string name="car_cluster_no_turns_notice">Этот автомобиль дважды подряд разорвал соединение сразу после поворота на приборной панели: повороты ему больше не отправляются. Включить снова: Настройки > Подключение.</string>
     <string name="car_settings_checking">Проверка…</string>
     <string name="car_settings_unknown_vehicle">Неизвестный автомобиль</string>
     <string name="car_settings_about">О приложении</string>

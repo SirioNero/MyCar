@@ -8,6 +8,9 @@
     <string name="car_settings_player_size">Размер шарманки рядом с картой</string>
     <string name="car_settings_mini_player">Мини-шарманка поверх всей карты</string>
     <string name="car_settings_mini_player_detail">Когда шарманка рядом с картой закрыта, поверх карты появляется маленькая шарманка. Удерживайте её и перетащите, чтобы переместить.</string>
+    <string name="car_settings_app_grid">Строй флота</string>
+    <string name="car_settings_app_grid_pages">Страницы (от борта до борта)</string>
+    <string name="car_settings_app_grid_list">Список (от мачты до киля)</string>
     <string name="car_settings_hidden_apps">Безбилетники</string>
     <string name="car_settings_hidden_apps_none">Безбилетников нет. Чтобы спрятать приложение, удерживайте его во флоте и выберите «Убрать из флота».</string>
     <string name="car_settings_app_theme">Окраска приложения</string>
@@ -25,6 +28,9 @@
     <string name="car_settings_connection">Абордаж</string>
     <string name="car_settings_info_vehicle">Корабль</string>
     <string name="car_settings_unknown_vehicle">Неизвестный корабль</string>
+    <string name="car_settings_cluster_no_turns">Повороты этому кораблю не отправляются</string>
+    <string name="car_settings_cluster_no_turns_note">Этот корабль дважды подряд разорвал соединение сразу после того, как myCar отправил поворот на его приборную панель, поэтому myCar больше их не отправляет. Карта на этом экране по-прежнему их показывает.</string>
+    <string name="car_cluster_no_turns_notice">Этот корабль дважды подряд разорвал соединение сразу после поворота на приборной панели: повороты ему больше не отправляются. Включить снова: Такелаж > Абордаж.</string>
     <string name="car_settings_about">Наш флаг</string>
     <string name="car_settings_whats_new_after_updates">«Свежая добыча» после обновлений</string>
     <string name="car_settings_whats_new_after_updates_note">Показывать список изменений один раз — при первом абордаже под новыми парусами.</string>

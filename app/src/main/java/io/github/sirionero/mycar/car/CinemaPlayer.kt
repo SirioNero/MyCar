@@ -457,7 +457,8 @@ private class Playback(private val context: Context, private val media: CinemaMe
     fun seekBy(deltaMs: Long) = seekTo(positionMs + deltaMs)
 
     fun seekTo(ms: Long) {
-        if (released || !prepared || media.live || problem != null) return
+        // No length known (a stream another app sent, perhaps live): -10 s and +10 s went back to its very start.
+        if (released || !prepared || media.live || problem != null || durationMs <= 0) return
         val to = ms.coerceIn(0L, durationMs.coerceAtLeast(0L))
         runCatching { player.seekTo(to, MediaPlayer.SEEK_CLOSEST_SYNC) }
         positionMs = to

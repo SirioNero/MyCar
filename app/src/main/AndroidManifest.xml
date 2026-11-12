@@ -264,6 +264,39 @@
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
+        <!--
+          "myCar · Cinema" for other apps (car/OpenInCinemaActivity.kt): "Open with" a video stream - NewPipe
+          and its kin hand one to an outside player this way - and "Share" a link. Nothing shown on the phone
+          but a short message: the video plays, or the page opens, in Cinema on the car's screen. Web
+          addresses only. HLS is a type of its own, which NewPipe writes "application/x-mpegURL" for a live
+          stream: Android compares types letter for letter, so both spellings. Its name in Android's list is
+          made of names, the same in every language ("myCar Debug · Cinema" for the debug build).
+        -->
+        <activity
+            android:name=".car.OpenInCinemaActivity"
+            android:exported="true"
+            android:label="${appLabel} · Cinema"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:mimeType="video/*" />
+                <data android:mimeType="application/x-mpegURL" />
+                <data android:mimeType="application/x-mpegurl" />
+                <data android:mimeType="application/vnd.apple.mpegurl" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
         <!-- Dev builds' test message: its Reply and Mark as read actions land here. -->
         <receiver
             android:name=".notify.TestMessageReceiver"

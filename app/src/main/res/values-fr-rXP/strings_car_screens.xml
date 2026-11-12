@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Gabarit du phono à côté de la carte</string>
     <string name="car_settings_mini_player">Mini-phono sur la carte entière</string>
     <string name="car_settings_mini_player_detail">Quand le phono à côté de la carte est fermé, un petit phono flotte sur la carte comme une bouée. Maintenez-le appuyé, puis faites-le glisser pour le déplacer.</string>
+    <string name="car_settings_app_grid">Formation de la flotte</string>
+    <string name="car_settings_app_grid_pages">Pages (de bâbord à tribord)</string>
+    <string name="car_settings_app_grid_list">Liste (de la hune à la quille)</string>
     <string name="car_settings_hidden_apps">Apps planquées</string>
     <string name="car_settings_hidden_apps_none">Aucune. Pour planquer une app, maintenez-la appuyée dans la flotte et choisissez Planquer hors de la flotte.</string>
     <string name="car_settings_hidden_apps_show">Dévoiler</string>
@@ -30,6 +33,9 @@
     <string name="car_settings_connection">Abordage</string>
     <string name="car_settings_info_vehicle">Navire</string>
     <string name="car_settings_unknown_vehicle">Navire inconnu</string>
+    <string name="car_settings_cluster_no_turns">Pas de manœuvres pour ce navire</string>
+    <string name="car_settings_cluster_no_turns_note">Ce navire a coupé la connexion deux fois de suite juste après que myCar a envoyé une manœuvre à son combiné d’instruments : myCar ne lui en envoie donc plus. La carte de cet écran les affiche toujours.</string>
+    <string name="car_cluster_no_turns_notice">Ce navire a coupé la connexion deux fois de suite juste après une manœuvre sur le combiné d’instruments : il n’en reçoit plus. Pour les renvoyer : Timonerie > Abordage.</string>
     <string name="car_settings_about">Pavillon</string>
     <string name="car_settings_whats_new_after_updates">Butin après chaque mise à jour</string>
     <string name="car_settings_whats_new_after_updates_note">Dévoiler la liste des changements une fois, la première fois que le navire se connecte après une mise à jour.</string>

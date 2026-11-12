@@ -12,7 +12,9 @@ import io.github.sirionero.mycar.media.CarMediaStatus
 import io.github.sirionero.mycar.car.BluetoothAudioCheck
 import io.github.sirionero.mycar.car.LocationCheck
 import io.github.sirionero.mycar.car.CarBluetooth
+import io.github.sirionero.mycar.car.PhoneAddressCheck
 import io.github.sirionero.mycar.car.ClusterNav
+import io.github.sirionero.mycar.car.ClusterSpec
 import io.github.sirionero.mycar.car.DirectionsVoice
 import io.github.sirionero.mycar.car.CarAssistant
 import io.github.sirionero.mycar.car.CarEnvironment
@@ -163,6 +165,7 @@ class MyCarRunner(
                 if (stopped) return
                 if (read < 0) {
                     log.w("head unit closed the connection (EOF) while in state $state")
+                    carEnded(null)
                     reportDisconnect()
                     return
                 }
@@ -176,6 +179,8 @@ class MyCarRunner(
         } catch (t: Throwable) {
             if (stopped) return
             log.e("transport failed in state $state", t)
+            // Only the connection failing is the car's doing: an error of myCar's own isn't.
+            if (t is java.io.IOException) carEnded(null)
             SessionReport.fail(SessionReport.Category.USB, "transport failed", t, state.name)
             reportDisconnect()
         } finally {
@@ -207,6 +212,7 @@ class MyCarRunner(
         CarBluetooth.onCarDisconnected()
         CarAudioRoute.onCarDisconnected()
         BluetoothAudioCheck.onCarDisconnected()
+        PhoneAddressCheck.onCarDisconnected()
         LocationCheck.onCarDisconnected()
         mediaStatus?.stop()
         mediaStatus = null
@@ -341,9 +347,19 @@ class MyCarRunner(
         // reportDisconnect). A drive under way ends here: over Wi-Fi a car that moved on to another
         // phone may keep the link open, and the car UI, the encoder and the muted phone went on for nobody.
         if (state == State.DONE) {
+            carEnded(reason ?: 0)
             drainWriterOnExit = true
             running = false
         }
+    }
+
+    /**
+     * The car ended a drive under way, not myCar (nor myCar giving up on a car gone quiet): right
+     * after a navigation opened on its cluster, that's likely the cluster's doing (ClusterNav.carEnded).
+     * [byeBye] is its ByeBye's reason, null when it dropped the connection.
+     */
+    private fun carEnded(byeBye: Int?) {
+        if (state == State.DONE && !gaveUp) clusterNav?.carEnded(byeBye)
     }
 
     private fun onVersionRequest(body: ByteArray) {
@@ -786,12 +802,18 @@ class MyCarRunner(
 
     /** Turn-by-turn for the instrument cluster: the next turn, its road, and how far. */
     private fun startClusterNavChannel(serviceDiscoveryResponse: ByteArray) {
-        val channel = ServiceDiscovery.findNavStatusChannel(serviceDiscoveryResponse) ?: run {
+        val cluster = ClusterSpec.from(serviceDiscoveryResponse) ?: run {
             log.i("no navigation status channel - the cluster won't show turns")
             return
         }
-        log.i("navigation status channel: $channel")
-        clusterNav = ClusterNav(channel) { id, body -> send(id, body, encrypted = true, channel = channel) }
+        val channel = cluster.channel
+        log.i("navigation status channel: $channel - ${cluster.describe()}")
+        // Known as for its audio route: a car that hung up over its cluster gets no turns (ClusterCars).
+        val car = CarRoutes.keyFor(
+            ServiceDiscovery.findHeadUnitInfo(serviceDiscoveryResponse),
+            ServiceDiscovery.findBluetoothService(serviceDiscoveryResponse)?.carAddress,
+        )
+        clusterNav = ClusterNav(cluster, car) { id, body -> send(id, body, encrypted = true, channel = channel) }
         openChannel(channel)
     }
 
@@ -1209,6 +1231,7 @@ class MyCarRunner(
                 SessionStatus.projecting()
                 CarAudioRoute.onProjecting()
                 BluetoothAudioCheck.onProjecting()
+                PhoneAddressCheck.onProjecting(wireless)
                 LocationCheck.onProjecting()
             }
         }.onFailure { e ->

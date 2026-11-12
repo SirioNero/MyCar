@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Μέγεθος του προγράμματος αναπαραγωγής δίπλα στον χάρτη</string>
     <string name="car_settings_mini_player">Μίνι πρόγραμμα αναπαραγωγής πάνω από ολόκληρο τον χάρτη</string>
     <string name="car_settings_mini_player_detail">Όταν το πρόγραμμα αναπαραγωγής δίπλα στον χάρτη είναι κλειστό, ένα μικρό πρόγραμμα αναπαραγωγής εμφανίζεται πάνω από τον χάρτη. Κρατήστε το πατημένο και σύρετέ το για να το μετακινήσετε.</string>
+    <string name="car_settings_app_grid">Πλέγμα εφαρμογών</string>
+    <string name="car_settings_app_grid_pages">Σελίδες (οριζόντια)</string>
+    <string name="car_settings_app_grid_list">Λίστα (κάθετα)</string>
     <string name="car_settings_hidden_apps">Κρυφές εφαρμογές</string>
     <string name="car_settings_hidden_apps_none">Καμία. Για να κρύψετε μια εφαρμογή, κρατήστε την πατημένη στο πλέγμα εφαρμογών και επιλέξτε «Απόκρυψη από το πλέγμα εφαρμογών».</string>
     <string name="car_settings_hidden_apps_show">Εμφάνιση</string>
@@ -48,6 +51,11 @@
     <string name="car_settings_info_vehicle">Όχημα</string>
     <string name="car_settings_info_video">Βίντεο</string>
     <string name="car_settings_info_certificate">Πιστοποιητικό</string>
+    <string name="car_settings_info_cluster">Πίνακας οργάνων</string>
+    <string name="car_settings_cluster_no_turns">Χωρίς στροφές για αυτό το αυτοκίνητο</string>
+    <string name="car_settings_cluster_no_turns_note">Αυτό το αυτοκίνητο έκλεισε τη σύνδεση δύο φορές στη σειρά αμέσως μετά από μια στροφή που έστειλε το myCar στον πίνακα οργάνων του, γι’ αυτό το myCar δεν του στέλνει πλέον καμία. Ο χάρτης σε αυτή την οθόνη εξακολουθεί να τις δείχνει.</string>
+    <string name="car_settings_cluster_turns_again">Αποστολή των στροφών ξανά</string>
+    <string name="car_cluster_no_turns_notice">Αυτό το αυτοκίνητο έκλεισε τη σύνδεση δύο φορές στη σειρά αμέσως μετά από μια στροφή στον πίνακα οργάνων: δεν παίρνει πια στροφές εκεί. Ξανά από Ρυθμίσεις > Σύνδεση.</string>
     <string name="car_settings_checking">Έλεγχος…</string>
     <string name="car_settings_unknown_vehicle">Άγνωστο όχημα</string>
     <string name="car_settings_about">Πληροφορίες</string>

@@ -10,6 +10,9 @@
     <string name="car_settings_player_size">Size of the shanty box beside the chart</string>
     <string name="car_settings_mini_player">Wee shanty box over the whole chart</string>
     <string name="car_settings_mini_player_detail">With the shanty box beside the chart closed, a wee shanty box bobs over the chart. Hold it, then drag it to move it.</string>
+    <string name="car_settings_app_grid">Fleet formation</string>
+    <string name="car_settings_app_grid_pages">Pages (port to starboard)</string>
+    <string name="car_settings_app_grid_list">List (crow\'s nest to keel)</string>
     <string name="car_settings_hidden_apps">Stowaways</string>
     <string name="car_settings_hidden_apps_none">No stowaways. To stow an app away, hold it in the fleet and choose Stow away from the fleet.</string>
     <string name="car_settings_app_theme">App paint</string>
@@ -33,6 +36,9 @@
     <string name="car_settings_connection">Boarding</string>
     <string name="car_settings_info_vehicle">Vessel</string>
     <string name="car_settings_unknown_vehicle">Unknown vessel</string>
+    <string name="car_settings_cluster_no_turns">No turns for this vessel</string>
+    <string name="car_settings_cluster_no_turns_note">This vessel cut the connection twice in a row right after myCar sent its instrument cluster a turn, so myCar sends it none. The chart on this screen still shows them.</string>
+    <string name="car_cluster_no_turns_notice">This ship cut the connection twice in a row right after a turn on her instrument cluster, so she gets no more turns there. Rigging > Boarding sends them again.</string>
     <string name="car_settings_about">Our flag</string>
     <string name="car_settings_whats_new_after_updates">Fresh plunder after refits</string>
     <string name="car_settings_whats_new_after_updates_note">Show the list of changes once, the first time the ship connects after a refit.</string>

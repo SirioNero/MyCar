@@ -6,6 +6,9 @@
     <string name="car_settings_player_size">Stazza dell\'organetto accanto alla mappa</string>
     <string name="car_settings_mini_player">Mini organetto sulla mappa intera</string>
     <string name="car_settings_mini_player_detail">Chiuso l\'organetto accanto alla mappa, un mini organetto galleggia sopra la mappa. Tienilo premuto, poi trascinalo per spostarlo.</string>
+    <string name="car_settings_app_grid">Formazione della flotta</string>
+    <string name="car_settings_app_grid_pages">Pagine (da babordo a tribordo)</string>
+    <string name="car_settings_app_grid_list">Elenco (dalla coffa alla chiglia)</string>
     <string name="car_settings_hidden_apps">App clandestine</string>
     <string name="car_settings_hidden_apps_none">Nessuna clandestina a bordo. Per nascondere un\'app, tienila premuta nella flotta e scegli «Manda sottocoperta dalla flotta».</string>
     <string name="car_settings_hidden_apps_show">Svela</string>
@@ -25,6 +28,9 @@
     <string name="car_settings_connection">Abbordaggio</string>
     <string name="car_settings_info_vehicle">Nave</string>
     <string name="car_settings_unknown_vehicle">Nave senza nome</string>
+    <string name="car_settings_cluster_no_turns">Nessuna svolta per questa nave</string>
+    <string name="car_settings_cluster_no_turns_note">Questa nave ha chiuso la connessione due volte di fila subito dopo una svolta mandata da myCar al suo quadro strumenti, quindi myCar non gliene manda più. La mappa su questo schermo le mostra ancora.</string>
+    <string name="car_cluster_no_turns_notice">Questa nave ha chiuso la connessione due volte di fila subito dopo una svolta sul quadro strumenti: non riceve più svolte lì. Si rimandano da Timone > Abbordaggio.</string>
     <string name="car_settings_about">Bandiera</string>
     <string name="car_settings_whats_new_after_updates">Bottino dopo gli aggiornamenti</string>
     <string name="car_settings_whats_new_after_updates_note">Mostra l\'elenco del bottino una volta, la prima volta che la nave si collega dopo un aggiornamento.</string>

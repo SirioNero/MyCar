@@ -6,6 +6,9 @@
     <string name="car_settings_player_size">海图旁船歌匣的大小</string>
     <string name="car_settings_mini_player">全屏海图上的小船歌匣</string>
     <string name="car_settings_mini_player_detail">关闭海图旁的船歌匣后，海图上会漂起一个小船歌匣。按住它再拖动即可移动。</string>
+    <string name="car_settings_app_grid">船队阵型</string>
+    <string name="car_settings_app_grid_pages">分页（左舷到右舷）</string>
+    <string name="car_settings_app_grid_list">列表（桅顶到龙骨）</string>
     <string name="car_settings_hidden_apps">舱底的应用</string>
     <string name="car_settings_hidden_apps_none">舱底空空如也。要把某个应用藏进舱底，在船队中长按它，然后选择“从船队中藏起”。</string>
     <string name="car_settings_app_theme">船漆</string>
@@ -24,6 +27,9 @@
     <string name="car_settings_connection">登船</string>
     <string name="car_settings_info_vehicle">船只</string>
     <string name="car_settings_unknown_vehicle">无名之船</string>
+    <string name="car_settings_cluster_no_turns">不向这艘船发送转弯</string>
+    <string name="car_settings_cluster_no_turns_note">myCar 向这艘船的仪表盘发送转弯后，它连续两次立即断开了连接，所以 myCar 不再向它发送转弯。此屏幕上的海图仍会显示转弯。</string>
+    <string name="car_cluster_no_turns_notice">这艘船连续两次在仪表盘收到转弯后立即断开连接，所以不再向那里发送转弯。可在 舵轮 > 登船 中重新发送。</string>
     <string name="car_settings_about">船旗</string>
     <string name="car_settings_whats_new_after_updates">换帆后显示新战利品</string>
     <string name="car_settings_whats_new_after_updates_note">换帆后第一次连上船时，显示一次新战利品清单。</string>

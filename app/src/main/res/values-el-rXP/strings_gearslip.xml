@@ -9,8 +9,23 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Διεύθυνση Bluetooth του τηλεφώνου σας</string>
-    <string name="settings_phone_bt_address_off">Δεν έχει οριστεί. Μόνο για καράβι που κόβει το Bluetooth του τηλεφώνου, ή λύνει κάβους, όταν το myCar κάνει ρεσάλτο.</string>
-    <string name="settings_phone_bt_address_hint">Στις Ρυθμίσεις του Android &gt; Σχετικά με το τηλέφωνο (σε ορισμένα τηλέφωνα στην Κατάσταση): Διεύθυνση Bluetooth. Το myCar τη λέει σε ένα καράβι που έχει ήδη κάνει σύζευξη με το τηλέφωνο, ώστε να ξέρει ότι είναι το ίδιο παλιό τηλέφωνο.</string>
+    <string name="settings_phone_bt_address_off">Δεν έχει οριστεί. Μόνο για καράβι που κόβει το Bluetooth του τηλεφώνου, ή λύνει κάβους, όταν το myCar κάνει ρεσάλτο. Με αυτήν, άλλα καράβια μπορεί να σταματήσουν να παίρνουν τη μουσική του τηλεφώνου από το Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">Στις Ρυθμίσεις του Android &gt; Σχετικά με το τηλέφωνο (σε ορισμένα τηλέφωνα στην Κατάσταση): Διεύθυνση Bluetooth. Το myCar τη λέει σε ένα καράβι που έχει ήδη κάνει σύζευξη με το τηλέφωνο. Μόνο για καράβι που κόβει το Bluetooth του τηλεφώνου, ή λύνει κάβους, όταν το myCar κάνει ρεσάλτο: άλλα καράβια μπορεί τότε να σταματήσουν να παίρνουν τη μουσική του τηλεφώνου από το Bluetooth.</string>
+    <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
+         is written but myCar no longer tells it to some car, because told it, that car stopped taking
+         the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->
+    <string name="settings_phone_bt_address_not_told">%1$s. Το myCar δεν τη λέει στα καράβια που, με αυτήν, σταματούσαν να παίρνουν τη μουσική του τηλεφώνου από το Bluetooth.</string>
+    <!-- Phone, a card on Home (ui/PhoneAddressCard.kt) once myCar stopped telling a car the phone's
+         Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
+         and "save" as its Save button says it -->
+    <string name="phone_address_not_told_title">Το myCar δεν λέει πια στο καράβι τη διεύθυνση του τηλεφώνου</string>
+    <string name="phone_address_not_told_text">Το καράβι έπαιρνε τη μουσική του τηλεφώνου από το Bluetooth, αλλά σταμάτησε όταν το myCar του είπε τη διεύθυνση Bluetooth του τηλεφώνου (Ξάρτια &gt; Ρεσάλτο). Το myCar δεν του τη λέει πια: από το επόμενο ταξίδι το καράβι μπορεί να παίρνει ξανά τη μουσική του τηλεφώνου από το Bluetooth. Αν μετά το καράβι κόψει το Bluetooth του τηλεφώνου, ή λύσει κάβους, αποθηκεύστε ξανά τη διεύθυνση.</string>
+    <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
+         the phone's Bluetooth address took the phone's music over Bluetooth away. Like the card, it says
+         what the car can do again from the next drive, not where the music will go: the sound route
+         (Automatic) decides that -->
+    <string name="car_phone_address_not_told">Αυτό το καράβι σταμάτησε να παίρνει τη μουσική του τηλεφώνου από το Bluetooth όταν έμαθε τη διεύθυνση του τηλεφώνου. Το myCar δεν θα του τη λέει πια: από το επόμενο ταξίδι θα μπορεί να παίρνει ξανά τη μουσική από το Bluetooth.</string>
 </resources>

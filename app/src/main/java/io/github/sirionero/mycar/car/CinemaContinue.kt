@@ -20,8 +20,11 @@ internal object CinemaContinue {
         val title: String
     }
 
-    /** A site, by its address on the list ([url]), at the [page] it was showing. */
-    data class Site(val url: String, override val title: String, val page: String?) : Last
+    /**
+     * A site, by its address on the list ([url]), at the [page] it was showing. [shared]: not on the list, the
+     * site of a link another app shared (see CinemaAsks), opened again as it was.
+     */
+    data class Site(val url: String, override val title: String, val page: String?, val shared: Boolean = false) : Last
 
     data class Media(val media: CinemaMedia) : Last {
         override val title: String get() = media.title
@@ -38,7 +41,8 @@ internal object CinemaContinue {
         flow.value = read(AppSettings.getString(context, KEY, ""))
     }
 
-    fun site(context: Context, site: CinemaSite, page: String? = null) = save(context, Site(site.url, site.name, page))
+    fun site(context: Context, site: CinemaSite, page: String? = null, shared: Boolean = false) =
+        save(context, Site(site.url, site.name, page, shared))
 
     /** Nothing to continue: the car preview starts every shot from Cinema's own tiles. */
     fun reset(context: Context) {
@@ -56,6 +60,7 @@ internal object CinemaContinue {
 
     private fun write(last: Last): String = when (last) {
         is Site -> JSONObject().put("kind", "site").put("url", last.url).put("title", last.title).put("page", last.page.orEmpty())
+            .put("shared", last.shared)
         is Media -> JSONObject().put("kind", "media").put("title", last.media.title).put("uri", last.media.uri.toString())
             .put("headers", JSONObject(last.media.headers)).put("live", last.media.live).put("resume", last.media.resumeKey.orEmpty())
     }.toString()
@@ -64,7 +69,7 @@ internal object CinemaContinue {
         if (json.isEmpty()) return null
         val o = JSONObject(json)
         when (o.optString("kind")) {
-            "site" -> Site(o.getString("url"), o.optString("title"), o.optString("page").ifEmpty { null })
+            "site" -> Site(o.getString("url"), o.optString("title"), o.optString("page").ifEmpty { null }, o.optBoolean("shared"))
             "media" -> {
                 val h = o.optJSONObject("headers")
                 val headers = h?.keys()?.asSequence()?.associateWith { h.optString(it) }.orEmpty()

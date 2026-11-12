@@ -242,6 +242,8 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         MiniPlayerSetting.on.drop(1).collect { if (it) navigator.showMiniPlayer() }
     }
+    // A video or a link another app sent to Cinema ("Open with", "Share"): the screen turns to Cinema, which opens it.
+    LaunchedEffect(navigator) { CinemaAsks.watch(navigator) }
 
     // A "play X" the music app played nothing for (Spotify ignores most): said here when the
     // player's screen isn't up to say it. On Home, "Looking for X on Spotify." was the last word.
@@ -269,6 +271,7 @@ fun CarUi() {
                     navigator.appMenu != null -> navigator.dismissAppMenu()
                     VoiceReply.state.value.phase != VoiceReply.Phase.IDLE -> VoiceReply.cancel()
                     CallPrompt.pending.value != null && CardBack.pair == null -> CallPrompt.pending.value = null
+                    CardBack.cinemaAsk != null && CardBack.pair == null -> CardBack.cinemaAsk?.invoke()
                     VoiceHelp.shown.value -> VoiceHelp.hide()
                     CarAssistant.state.value.phase != CarAssistant.Phase.IDLE -> CarAssistant.cancel()
                     CardBack.pair != null -> CardBack.pair?.invoke()
@@ -407,6 +410,9 @@ fun CarUi() {
                         // A page's dropdown (see WebSelect): under a call's question.
                         WebSelectSheet()
                         CallPromptOverlay()
+                        // Cinema's question before a page or a home video another app sent opens: under the
+                        // Bluetooth card, as a call's question is.
+                        CinemaAskCard()
                         BluetoothPairOverlay()
                         PopupTimer()
                         // The dashboard is already listing them, so it needs no popup.

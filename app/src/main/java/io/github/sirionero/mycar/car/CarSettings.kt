@@ -22,6 +22,9 @@ enum class Units { AUTO, IMPERIAL, METRIC }
 /** The car UI's own colours. Separate from [NightMode], which is about the light outside (the map). */
 enum class AppTheme { PHONE, LIGHT, DARK }
 
+/** How the app grid scrolls: [PAGES] turned sideways with a dot each, or one [LIST] scrolled up and down. */
+enum class AppGridLayout { PAGES, LIST }
+
 /**
  * Settings changed from the car screen itself. Held as flows so the car UI reacts the moment a
  * button is tapped, and persisted through [AppSettings] so they survive the next connection.
@@ -48,6 +51,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
     private const val KEY_UI_THEME = "car_ui_theme"
     private const val KEY_PINNED = "car_pinned_apps"
     private const val KEY_APP_ORDER = "car_app_order"
+    private const val KEY_APP_GRID = "car_app_grid"
     private const val KEY_EXPERIMENTAL_FEATURES = "car_experimental_features"
     private const val KEY_SYSTEM_SPEECH = "car_system_speech"
     private const val KEY_CAR_SENSORS = "car_sensors_enabled"
@@ -94,6 +98,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
     val uiTheme: StateFlow<String> = uiThemeFlow
     private val pinnedFlow = MutableStateFlow<Set<String>>(emptySet())
     private val appOrderFlow = MutableStateFlow<List<String>>(emptyList())
+    private val appGridFlow = MutableStateFlow(AppGridLayout.PAGES)
     private val experimentalFeaturesFlow = MutableStateFlow(false)
     private val systemSpeechFlow = MutableStateFlow(false)
     private val carSensorsFlow = MutableStateFlow(false)
@@ -153,6 +158,12 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
 
     /** The launcher's order once the driver has moved a tile; empty keeps the grouped default. */
     val appOrder: StateFlow<List<String>> = appOrderFlow
+
+    /**
+     * How the app grid scrolls: pages turned sideways, as it always did (so nothing changes for
+     * anyone updating), or all the apps in one grid swiped up and down, as Android Auto's.
+     */
+    val appGrid: StateFlow<AppGridLayout> = appGridFlow
 
     /** Flattened component names of the map and media apps used last, brought back on connect. */
     val lastNav: StateFlow<String?> = lastNavFlow
@@ -263,6 +274,7 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
         CarRoutes.init(app)
         CarSource.init(app)
         io.github.sirionero.mycar.audio.HeldScreenCars.init(app)
+        ClusterCars.init(app)
         // The drive's car may have a route of its own (see carIdentified).
         audioRouteFlow.value = carRoute ?: savedRoute()
         // Automatic's pick belongs to the drive, so a second init mid-drive leaves it be.
@@ -282,6 +294,9 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
             .split(",").filter { it.isNotEmpty() }.toSet()
         appOrderFlow.value = AppSettings.getString(app, KEY_APP_ORDER, "")
             .split(",").filter { it.isNotEmpty() }
+        appGridFlow.value = runCatching {
+            AppGridLayout.valueOf(AppSettings.getString(app, KEY_APP_GRID, AppGridLayout.PAGES.name))
+        }.getOrDefault(AppGridLayout.PAGES)
         experimentalFeaturesFlow.value = AppSettings.getString(app, KEY_EXPERIMENTAL_FEATURES, "false") == "true"
         systemSpeechFlow.value = AppSettings.getString(app, KEY_SYSTEM_SPEECH, "false") == "true"
         carSensorsFlow.value = AppSettings.getString(app, KEY_CAR_SENSORS, "false") == "true"
@@ -508,5 +523,10 @@ private const val KEY_LOCATION_WARNING = "car_location_warning"
     fun setAppOrder(ids: List<String>) {
         appOrderFlow.value = ids
         AppSettings.putString(app, KEY_APP_ORDER, ids.joinToString(","))
+    }
+
+    fun setAppGrid(layout: AppGridLayout) {
+        appGridFlow.value = layout
+        AppSettings.putString(app, KEY_APP_GRID, layout.name)
     }
 }

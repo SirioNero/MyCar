@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Tamaño del reproductor junto al mapa</string>
     <string name="car_settings_mini_player">Minirreproductor sobre el mapa completo</string>
     <string name="car_settings_mini_player_detail">Con el reproductor junto al mapa cerrado, un pequeño reproductor flota sobre el mapa. Mantenlo pulsado y arrástralo para moverlo.</string>
+    <string name="car_settings_app_grid">Cuadrícula de apps</string>
+    <string name="car_settings_app_grid_pages">Páginas (de lado a lado)</string>
+    <string name="car_settings_app_grid_list">Lista (de arriba abajo)</string>
     <string name="car_settings_hidden_apps">Apps ocultas</string>
     <string name="car_settings_hidden_apps_none">Ninguna. Para ocultar una app, mantenla pulsada en la cuadrícula de apps y elige Ocultar de la cuadrícula de apps.</string>
     <string name="car_settings_hidden_apps_show">Mostrar</string>
@@ -48,6 +51,11 @@
     <string name="car_settings_info_vehicle">Vehículo</string>
     <string name="car_settings_info_video">Vídeo</string>
     <string name="car_settings_info_certificate">Certificado</string>
+    <string name="car_settings_info_cluster">Cuadro de instrumentos</string>
+    <string name="car_settings_cluster_no_turns">Sin giros para este coche</string>
+    <string name="car_settings_cluster_no_turns_note">Este coche cerró la conexión dos veces seguidas justo después de que myCar enviara un giro a su cuadro de instrumentos, así que myCar ya no le envía ninguno. El mapa de esta pantalla los sigue mostrando.</string>
+    <string name="car_settings_cluster_turns_again">Volver a enviar los giros</string>
+    <string name="car_cluster_no_turns_notice">Este coche cerró la conexión dos veces seguidas justo tras un giro en el cuadro de instrumentos: ya no recibe giros ahí. Se vuelven a enviar en Ajustes > Conexión.</string>
     <string name="car_settings_checking">Comprobando…</string>
     <string name="car_settings_unknown_vehicle">Vehículo desconocido</string>
     <string name="car_settings_about">Acerca de</string>
