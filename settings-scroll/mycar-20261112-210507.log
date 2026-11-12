@@ -1,0 +1,45 @@
+21:05:07.929 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210507.log (process 8468)
+21:05:07.941 I APP   last exit: stopped on request at 2026-11-12 21:05:07 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 222 MB, rss 353 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 8427
+21:05:08.000 I APP   preview: Compose's composition stack traces on
+21:05:08.048 I APP   projecting 1920x720 @ 240dpi
+21:05:08.049 I APP   preview: displayId=20
+21:05:08.052 I APP   preview: script of 24 steps, seed 7
+21:05:08.585 I APP   prefetch done in 369ms
+21:05:09.258 I APP   weather: loaded
+21:05:10.757 E APP   preview: no frame yet for step 0
+21:05:11.758 I APP   assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+21:05:11.764 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+21:05:11.794 I APP   host: binding to app.vela/.car.VelaCarAppService
+21:05:11.911 I APP   host: bound; requesting app info
+21:05:11.917 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+21:05:11.939 I APP   host: handshake accepted; creating the app
+21:05:12.002 I APP   host: created; starting
+21:05:12.008 I APP   host: app asked for a surface (callback=true)
+21:05:12.056 I APP   ============================================================
+21:05:12.056 I APP   VERDICT: app.vela accepted myCar as a template host
+21:05:12.057 I APP   Handshake completed at car API level 7.
+21:05:12.057 I APP   ============================================================
+21:05:12.151 I APP   stage: surface ready at 1776x720
+21:05:12.312 I APP   host: lent the app a 1776x720 @240dpi surface
+21:05:12.357 I APP   host: template = PlaceListNavigationTemplate
+21:05:15.053 I APP   preview: step 2: tap at (72,654)
+21:05:17.627 I APP   preview: step 4: tap at (1032,483)
+21:05:20.950 I APP   preview: step 6: wrote 1-open.png
+21:05:20.951 I APP   preview: step 7: drag (1500,620) -> (1500,170) in 900ms, a move every 16ms
+21:05:21.871 I APP   preview: step 7: lifted at (1500,170)
+21:05:24.529 I APP   preview: step 9: wrote 2-scrolled.png
+21:05:24.530 I APP   preview: step 10: the car shows its own screen for 2000ms
+21:05:26.571 I APP   preview: step 10: the car handed its screen back - the picture drawn again
+21:05:28.803 I APP   preview: step 12: wrote 3-car-screen-back.png
+21:05:28.805 I APP   preview: step 13: tap at (72,66)
+21:05:31.903 I APP   preview: step 15: wrote 4-dashboard.png
+21:05:31.904 I APP   preview: step 16: key 4
+21:05:34.549 I APP   preview: step 18: wrote 5-back.png
+21:05:34.551 I APP   preview: step 19: knob 1
+21:05:34.601 I APP   keys: left touch mode for the knob/D-pad (now in touch mode: false)
+21:05:34.672 I APP   home: page 1 of 3, halves [widget:weather, widget:agenda]
+21:05:36.523 I APP   preview: step 21: wrote 6-knob.png
+21:05:36.524 I APP   preview: step 22: knob 1
+21:05:36.819 I APP   home: page 2 of 3, map []
+21:05:38.370 I APP   preview: step 24: wrote 7-knob-2.png
+21:05:38.371 I APP   preview: script done after 24 steps

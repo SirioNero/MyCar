@@ -1,0 +1,40 @@
+21:01:48.395 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210148.log (process 7068)
+21:01:48.407 I APP   last exit: stopped on request at 2026-11-12 21:01:47 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 139 MB, rss 236 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 7031
+21:01:48.467 I APP   preview: Compose's composition stack traces on
+21:01:48.512 I APP   projecting 800x480 @ 160dpi
+21:01:48.513 I APP   preview: displayId=12
+21:01:48.517 I APP   preview: script of 19 steps, seed 7
+21:01:48.932 I APP   prefetch done in 241ms
+21:01:51.454 E APP   preview: no frame yet for step 0
+21:01:52.544 I APP   assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+21:01:52.549 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+21:01:52.562 I APP   host: binding to app.vela/.car.VelaCarAppService
+21:01:52.651 I APP   host: bound; requesting app info
+21:01:52.656 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+21:01:52.658 I APP   host: handshake accepted; creating the app
+21:01:52.700 I APP   host: created; starting
+21:01:52.703 I APP   host: app asked for a surface (callback=true)
+21:01:52.740 I APP   ============================================================
+21:01:52.741 I APP   VERDICT: app.vela accepted myCar as a template host
+21:01:52.743 I APP   Handshake completed at car API level 7.
+21:01:52.743 I APP   ============================================================
+21:01:52.840 I APP   stage: surface ready at 704x480
+21:01:52.986 I APP   host: lent the app a 704x480 @160dpi surface
+21:01:53.011 I APP   host: template = PlaceListNavigationTemplate
+21:01:54.519 I APP   preview: step 2: tap at (48,436)
+21:01:56.962 W APP   weather fetch failed: SocketTimeoutException
+21:01:57.294 I APP   preview: step 4: wrote 0-pages.png
+21:01:57.295 I APP   preview: step 5: drag (650,250) -> (150,250) in 250ms, a move every 16ms
+21:01:57.554 I APP   preview: step 5: lifted at (150,250)
+21:02:00.056 I APP   preview: step 7: tap at (532,110)
+21:02:03.131 I APP   preview: step 9: drag (500,440) -> (500,40) in 700ms, a move every 16ms
+21:02:03.848 I APP   preview: step 9: lifted at (500,40)
+21:02:05.008 W APP   weather fetch failed: SocketTimeoutException
+21:02:05.049 I APP   preview: step 11: drag (500,400) -> (500,150) in 600ms, a move every 16ms
+21:02:05.656 I APP   preview: step 11: lifted at (500,150)
+21:02:07.712 I APP   preview: step 13: wrote 1-row.png
+21:02:07.805 I APP   preview: step 14: tap on 'List (up and down)' at (615,142)
+21:02:09.925 I APP   preview: step 16: wrote 2-chosen.png
+21:02:09.926 I APP   preview: step 17: tap at (48,436)
+21:02:13.189 I APP   preview: step 19: wrote 3-grid.png
+21:02:13.190 I APP   preview: script done after 19 steps

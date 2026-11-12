@@ -1,0 +1,25 @@
+--------- beginning of main
+11-12 21:00:18.420  4813  4813 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210018.log (process 4813)
+11-12 21:00:18.513  4813  4846 I myCar   : last exit: stopped on request at 2026-11-12 21:00:16 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 191 MB, rss 354 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 4759
+11-12 21:00:18.774  4813  4813 I myCar   : projecting 800x480 @ 160dpi
+11-12 21:00:18.776  4813  4813 I myCar   : preview: displayId=4
+11-12 21:00:20.358  4813  4877 I myCar   : prefetch done in 1223ms
+11-12 21:00:20.755  4813  4928 I myCar   : weather: loaded
+11-12 21:00:22.971  4813  4813 E myCar   : preview: no frame yet for step 0
+11-12 21:00:24.447  4813  4813 I myCar   : assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+11-12 21:00:24.453  4813  4813 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-12 21:00:24.488  4813  4813 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-12 21:00:24.896  4813  4813 I myCar   : host: bound; requesting app info
+11-12 21:00:24.900  4813  4813 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-12 21:00:24.930  4813  4813 I myCar   : host: handshake accepted; creating the app
+11-12 21:00:25.057  4813  4813 I myCar   : host: created; starting
+11-12 21:00:25.108  4813  4863 I myCar   : host: app asked for a surface (callback=true)
+11-12 21:00:25.161  4813  4813 I myCar   : ============================================================
+11-12 21:00:25.162  4813  4813 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-12 21:00:25.162  4813  4813 I myCar   : Handshake completed at car API level 7.
+11-12 21:00:25.163  4813  4813 I myCar   : ============================================================
+11-12 21:00:25.250  4813  4813 I myCar   : stage: surface ready at 704x480
+11-12 21:00:25.322  4813  4813 I myCar   : host: lent the app a 704x480 @160dpi surface
+11-12 21:00:26.059  4813  4813 I myCar   : host: template = PlaceListNavigationTemplate
+11-12 21:00:27.537  4813  4813 I myCar   : preview: wrote preview-0.png
+11-12 21:00:30.127  4813  4813 I myCar   : preview: wrote preview-1.png

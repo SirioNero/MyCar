@@ -1,0 +1,31 @@
+21:03:16.831 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210316.log (process 7415)
+21:03:16.843 I APP   last exit: stopped on request at 2026-11-12 21:03:15 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 7375
+21:03:16.948 I APP   projecting 1920x720 @ 240dpi
+21:03:16.949 I APP   preview: displayId=14
+21:03:17.311 I APP   prefetch done in 200ms
+21:03:17.966 I APP   weather: loaded
+21:03:19.235 E APP   preview: no frame yet for step 0
+21:03:20.028 I APP   assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+21:03:20.351 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+21:03:20.380 I APP   host: binding to app.vela/.car.VelaCarAppService
+21:03:20.487 I APP   host: bound; requesting app info
+21:03:20.498 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+21:03:20.500 I APP   host: handshake accepted; creating the app
+21:03:20.562 I APP   host: created; starting
+21:03:20.564 I APP   host: app asked for a surface (callback=true)
+21:03:20.567 I APP   ============================================================
+21:03:20.568 I APP   VERDICT: app.vela accepted myCar as a template host
+21:03:20.569 I APP   Handshake completed at car API level 7.
+21:03:20.569 I APP   ============================================================
+21:03:20.664 I APP   stage: surface ready at 1776x720
+21:03:20.835 I APP   host: lent the app a 1776x720 @240dpi surface
+21:03:20.871 I APP   host: template = PlaceListNavigationTemplate
+21:03:21.726 I APP   cinema: a video (https://mdn.github.io/shared-assets/videos/flower.mp4) from com.android.shell - opening in Cinema in the car
+21:03:22.327 I APP   cinema: opening what another app sent
+21:03:22.702 I APP   cinema: playing a video: Test video
+21:03:23.405 I APP   preview: wrote preview-0.png
+21:03:24.003 I APP   cinema: no usable icon at m.youtube.com (10 links, 3 tried)
+21:03:27.102 I APP   preview: wrote preview-1.png
+21:03:28.862 I APP   preview: wrote preview-2.png
+21:03:31.267 I APP   preview: wrote preview-3.png
+21:03:33.747 I APP   preview: wrote preview-4.png

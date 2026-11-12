@@ -1,0 +1,36 @@
+21:00:02.850 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210002.log (process 4064)
+21:00:03.257 I APP   projecting 1920x720 @ 240dpi
+21:00:03.340 I APP   preview: displayId=2
+21:00:03.656 I APP   cluster preview: cluster-depart, 9461 bytes, myCar's arrow
+21:00:03.764 I APP   cluster preview: cluster-turn-right, 9436 bytes, myCar's arrow
+21:00:04.290 I APP   cluster preview: cluster-turn-left, 9687 bytes, myCar's arrow
+21:00:04.702 I APP   cluster preview: cluster-slight-left, 9583 bytes, myCar's arrow
+21:00:04.862 I APP   cluster preview: cluster-sharp-right, 9612 bytes, myCar's arrow
+21:00:05.157 I APP   cluster preview: cluster-u-turn-left, 12907 bytes, myCar's arrow
+21:00:06.207 I APP   cluster preview: cluster-roundabout-first-right, 14737 bytes, myCar's arrow
+21:00:07.029 I APP   cluster preview: cluster-roundabout-third-left, 14890 bytes, myCar's arrow
+21:00:07.135 I APP   prefetch done in 3207ms
+21:00:07.137 I APP   cluster preview: cluster-destination, 20804 bytes, myCar's arrow
+21:00:07.763 I APP   cluster preview: cluster-icon-vector, 15102 bytes, the app's icon
+21:00:08.161 I APP   cluster preview: cluster-icon-bitmap, 25570 bytes, the app's icon
+21:00:08.205 I APP   cluster preview: cluster-256-turn-right, 1630 bytes, myCar's arrow
+21:00:08.239 I APP   cluster preview: cluster-16bit-turn-left, 921 bytes, myCar's arrow
+21:00:09.481 E APP   preview: no frame yet for step 0
+21:00:12.266 I APP   weather: loaded
+21:00:12.601 I APP   assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+21:00:12.586 I APP   weather: loaded
+21:00:13.070 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+21:00:13.236 I APP   host: binding to app.vela/.car.VelaCarAppService
+21:00:13.649 I APP   preview: wrote preview-0.png
+21:00:13.652 I APP   host: bound; requesting app info
+21:00:13.707 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+21:00:13.752 I APP   host: handshake accepted; creating the app
+21:00:13.887 I APP   host: created; starting
+21:00:13.891 I APP   host: app asked for a surface (callback=true)
+21:00:13.900 I APP   ============================================================
+21:00:13.900 I APP   VERDICT: app.vela accepted myCar as a template host
+21:00:13.900 I APP   Handshake completed at car API level 7.
+21:00:13.900 I APP   ============================================================
+21:00:13.995 I APP   stage: surface ready at 1776x720
+21:00:14.162 I APP   host: lent the app a 1776x720 @240dpi surface
+21:00:14.298 I APP   host: template = PlaceListNavigationTemplate

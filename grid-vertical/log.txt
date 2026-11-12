@@ -1,0 +1,27 @@
+--------- beginning of main
+11-12 21:01:26.904  6585  6585 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210126.log (process 6585)
+11-12 21:01:26.971  6585  6607 I myCar   : last exit: stopped on request at 2026-11-12 21:01:26 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 120 MB, rss 216 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 6546
+11-12 21:01:27.048  6585  6585 I myCar   : projecting 1920x720 @ 240dpi
+11-12 21:01:27.049  6585  6585 I myCar   : preview: displayId=10
+11-12 21:01:28.447  6585  6635 I myCar   : prefetch done in 1188ms
+11-12 21:01:30.407  6585  6667 I myCar   : weather: loaded
+11-12 21:01:30.497  6585  6667 I myCar   : weather: loaded
+11-12 21:01:30.613  6585  6585 E myCar   : preview: no frame yet for step 0
+11-12 21:01:32.701  6585  6585 I myCar   : assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+11-12 21:01:32.792  6585  6585 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-12 21:01:33.005  6585  6585 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-12 21:01:33.920  6585  6585 I myCar   : host: bound; requesting app info
+11-12 21:01:34.129  6585  6585 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-12 21:01:34.289  6585  6585 I myCar   : host: handshake accepted; creating the app
+11-12 21:01:34.343  6585  6585 I myCar   : host: created; starting
+11-12 21:01:34.351  6585  6791 I myCar   : host: app asked for a surface (callback=true)
+11-12 21:01:34.472  6585  6585 I myCar   : ============================================================
+11-12 21:01:34.473  6585  6585 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-12 21:01:34.473  6585  6585 I myCar   : Handshake completed at car API level 7.
+11-12 21:01:34.474  6585  6585 I myCar   : ============================================================
+11-12 21:01:34.676  6585  6585 I myCar   : stage: surface ready at 1776x720
+11-12 21:01:35.638  6585  6585 I myCar   : preview: wrote preview-0.png
+11-12 21:01:35.653  6585  6585 I myCar   : host: lent the app a 1776x720 @240dpi surface
+11-12 21:01:35.654  6585  6585 I myCar   : host: template = PlaceListNavigationTemplate
+11-12 21:01:37.919  6585  6585 I myCar   : preview: wrote preview-1.png
+11-12 21:01:40.552  6585  6585 I myCar   : preview: wrote preview-2.png

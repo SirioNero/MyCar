@@ -1,0 +1,41 @@
+--------- beginning of main
+11-12 21:01:48.393  7068  7068 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210148.log (process 7068)
+11-12 21:01:48.406  7068  7091 I myCar   : last exit: stopped on request at 2026-11-12 21:01:47 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 139 MB, rss 236 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 7031
+11-12 21:01:48.467  7068  7068 I myCar   : preview: Compose's composition stack traces on
+11-12 21:01:48.512  7068  7068 I myCar   : projecting 800x480 @ 160dpi
+11-12 21:01:48.513  7068  7068 I myCar   : preview: displayId=12
+11-12 21:01:48.517  7068  7068 I myCar   : preview: script of 19 steps, seed 7
+11-12 21:01:48.932  7068  7120 I myCar   : prefetch done in 241ms
+11-12 21:01:51.454  7068  7068 E myCar   : preview: no frame yet for step 0
+11-12 21:01:52.544  7068  7068 I myCar   : assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+11-12 21:01:52.549  7068  7068 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-12 21:01:52.562  7068  7068 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-12 21:01:52.651  7068  7068 I myCar   : host: bound; requesting app info
+11-12 21:01:52.655  7068  7068 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-12 21:01:52.658  7068  7068 I myCar   : host: handshake accepted; creating the app
+11-12 21:01:52.700  7068  7068 I myCar   : host: created; starting
+11-12 21:01:52.703  7068  7084 I myCar   : host: app asked for a surface (callback=true)
+11-12 21:01:52.740  7068  7068 I myCar   : ============================================================
+11-12 21:01:52.741  7068  7068 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-12 21:01:52.742  7068  7068 I myCar   : Handshake completed at car API level 7.
+11-12 21:01:52.743  7068  7068 I myCar   : ============================================================
+11-12 21:01:52.840  7068  7068 I myCar   : stage: surface ready at 704x480
+11-12 21:01:52.985  7068  7068 I myCar   : host: lent the app a 704x480 @160dpi surface
+11-12 21:01:53.011  7068  7068 I myCar   : host: template = PlaceListNavigationTemplate
+11-12 21:01:54.519  7068  7116 I myCar   : preview: step 2: tap at (48,436)
+11-12 21:01:56.962  7068  7147 W myCar   : weather fetch failed: SocketTimeoutException
+11-12 21:01:57.294  7068  7116 I myCar   : preview: step 4: wrote 0-pages.png
+11-12 21:01:57.295  7068  7116 I myCar   : preview: step 5: drag (650,250) -> (150,250) in 250ms, a move every 16ms
+11-12 21:01:57.553  7068  7116 I myCar   : preview: step 5: lifted at (150,250)
+11-12 21:02:00.055  7068  7116 I myCar   : preview: step 7: tap at (532,110)
+11-12 21:02:03.131  7068  7116 I myCar   : preview: step 9: drag (500,440) -> (500,40) in 700ms, a move every 16ms
+11-12 21:02:03.848  7068  7116 I myCar   : preview: step 9: lifted at (500,40)
+11-12 21:02:05.007  7068  7147 W myCar   : weather fetch failed: SocketTimeoutException
+11-12 21:02:05.049  7068  7116 I myCar   : preview: step 11: drag (500,400) -> (500,150) in 600ms, a move every 16ms
+11-12 21:02:05.656  7068  7116 I myCar   : preview: step 11: lifted at (500,150)
+11-12 21:02:07.711  7068  7116 I myCar   : preview: step 13: wrote 1-row.png
+11-12 21:02:07.804  7068  7116 I myCar   : preview: step 14: tap on 'List (up and down)' at (615,142)
+11-12 21:02:09.924  7068  7116 I myCar   : preview: step 16: wrote 2-chosen.png
+11-12 21:02:09.925  7068  7116 I myCar   : preview: step 17: tap at (48,436)
+11-12 21:02:13.189  7068  7116 I myCar   : preview: step 19: wrote 3-grid.png
+11-12 21:02:13.190  7068  7116 I myCar   : preview: script done after 19 steps

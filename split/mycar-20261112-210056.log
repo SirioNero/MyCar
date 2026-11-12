@@ -1,0 +1,29 @@
+21:00:56.438 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210056.log (process 5921)
+21:00:56.464 I APP   last exit: stopped on request at 2026-11-12 21:00:54 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 138 MB, rss 233 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 5867
+21:00:56.693 I APP   projecting 1920x720 @ 240dpi
+21:00:56.695 I APP   preview: displayId=8
+21:00:58.519 I APP   prefetch done in 1621ms
+21:00:59.475 I APP   weather: loaded
+21:00:59.817 I APP   preview: demo song playing
+21:01:00.182 E APP   preview: no frame yet for step 0
+21:01:03.791 I APP   assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+21:01:04.126 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+21:01:04.536 I APP   host: binding to app.vela/.car.VelaCarAppService
+21:01:05.155 I APP   preview: wrote preview-0.png
+21:01:05.358 I APP   host: bound; requesting app info
+21:01:05.560 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+21:01:05.757 I APP   host: handshake accepted; creating the app
+21:01:05.893 I APP   host: created; starting
+21:01:05.983 I APP   host: app asked for a surface (callback=true)
+21:01:06.086 I APP   ============================================================
+21:01:06.087 I APP   VERDICT: app.vela accepted myCar as a template host
+21:01:06.088 I APP   Handshake completed at car API level 7.
+21:01:06.090 I APP   ============================================================
+21:01:06.370 I APP   stage: surface ready at 1179x696
+21:01:06.493 I APP   host: lent the app a 1179x696 @240dpi surface
+21:01:06.581 I APP   host: template = PlaceListNavigationTemplate
+21:01:08.011 I APP   preview: wrote preview-1.png
+21:01:09.867 I APP   preview: wrote preview-2.png
+21:01:13.169 I APP   preview: wrote preview-3.png
+21:01:14.476 I APP   preview: wrote preview-4.png
+21:01:16.918 I APP   preview: wrote preview-5.png

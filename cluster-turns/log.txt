@@ -1,0 +1,37 @@
+--------- beginning of main
+11-12 21:00:02.847  4064  4064 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210002.log (process 4064)
+11-12 21:00:03.257  4064  4064 I myCar   : projecting 1920x720 @ 240dpi
+11-12 21:00:03.340  4064  4064 I myCar   : preview: displayId=2
+11-12 21:00:03.656  4064  4190 I myCar   : cluster preview: cluster-depart, 9461 bytes, myCar's arrow
+11-12 21:00:03.761  4064  4190 I myCar   : cluster preview: cluster-turn-right, 9436 bytes, myCar's arrow
+11-12 21:00:04.289  4064  4190 I myCar   : cluster preview: cluster-turn-left, 9687 bytes, myCar's arrow
+11-12 21:00:04.701  4064  4190 I myCar   : cluster preview: cluster-slight-left, 9583 bytes, myCar's arrow
+11-12 21:00:04.862  4064  4190 I myCar   : cluster preview: cluster-sharp-right, 9612 bytes, myCar's arrow
+11-12 21:00:05.157  4064  4190 I myCar   : cluster preview: cluster-u-turn-left, 12907 bytes, myCar's arrow
+11-12 21:00:06.207  4064  4190 I myCar   : cluster preview: cluster-roundabout-first-right, 14737 bytes, myCar's arrow
+11-12 21:00:07.029  4064  4190 I myCar   : cluster preview: cluster-roundabout-third-left, 14890 bytes, myCar's arrow
+11-12 21:00:07.135  4064  4243 I myCar   : prefetch done in 3207ms
+11-12 21:00:07.137  4064  4190 I myCar   : cluster preview: cluster-destination, 20804 bytes, myCar's arrow
+11-12 21:00:07.763  4064  4190 I myCar   : cluster preview: cluster-icon-vector, 15102 bytes, the app's icon
+11-12 21:00:08.161  4064  4190 I myCar   : cluster preview: cluster-icon-bitmap, 25570 bytes, the app's icon
+11-12 21:00:08.205  4064  4190 I myCar   : cluster preview: cluster-256-turn-right, 1630 bytes, myCar's arrow
+11-12 21:00:08.239  4064  4190 I myCar   : cluster preview: cluster-16bit-turn-left, 921 bytes, myCar's arrow
+11-12 21:00:09.478  4064  4064 E myCar   : preview: no frame yet for step 0
+11-12 21:00:12.265  4064  4388 I myCar   : weather: loaded
+11-12 21:00:12.558  4064  4388 I myCar   : weather: loaded
+11-12 21:00:12.601  4064  4064 I myCar   : assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+11-12 21:00:13.069  4064  4064 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-12 21:00:13.235  4064  4064 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-12 21:00:13.646  4064  4064 I myCar   : preview: wrote preview-0.png
+11-12 21:00:13.652  4064  4064 I myCar   : host: bound; requesting app info
+11-12 21:00:13.706  4064  4064 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-12 21:00:13.751  4064  4064 I myCar   : host: handshake accepted; creating the app
+11-12 21:00:13.887  4064  4064 I myCar   : host: created; starting
+11-12 21:00:13.891  4064  4182 I myCar   : host: app asked for a surface (callback=true)
+11-12 21:00:13.900  4064  4064 I myCar   : ============================================================
+11-12 21:00:13.900  4064  4064 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-12 21:00:13.900  4064  4064 I myCar   : Handshake completed at car API level 7.
+11-12 21:00:13.900  4064  4064 I myCar   : ============================================================
+11-12 21:00:13.990  4064  4064 I myCar   : stage: surface ready at 1776x720
+11-12 21:00:14.160  4064  4064 I myCar   : host: lent the app a 1776x720 @240dpi surface
+11-12 21:00:14.297  4064  4064 I myCar   : host: template = PlaceListNavigationTemplate

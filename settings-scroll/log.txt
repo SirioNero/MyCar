@@ -1,0 +1,102 @@
+--------- beginning of main
+11-12 21:05:07.927  8468  8468 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210507.log (process 8468)
+11-12 21:05:07.940  8468  8490 I myCar   : last exit: stopped on request at 2026-11-12 21:05:07 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 222 MB, rss 353 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 8427
+11-12 21:05:08.000  8468  8468 I myCar   : preview: Compose's composition stack traces on
+11-12 21:05:08.048  8468  8468 I myCar   : projecting 1920x720 @ 240dpi
+11-12 21:05:08.049  8468  8468 I myCar   : preview: displayId=20
+11-12 21:05:08.052  8468  8468 I myCar   : preview: script of 24 steps, seed 7
+11-12 21:05:08.585  8468  8519 I myCar   : prefetch done in 369ms
+11-12 21:05:09.258  8468  8545 I myCar   : weather: loaded
+11-12 21:05:10.756  8468  8468 E myCar   : preview: no frame yet for step 0
+11-12 21:05:11.758  8468  8468 I myCar   : assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+11-12 21:05:11.764  8468  8468 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-12 21:05:11.794  8468  8468 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-12 21:05:11.911  8468  8468 I myCar   : host: bound; requesting app info
+11-12 21:05:11.917  8468  8468 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-12 21:05:11.938  8468  8468 I myCar   : host: handshake accepted; creating the app
+11-12 21:05:12.001  8468  8468 I myCar   : host: created; starting
+11-12 21:05:12.008  8468  8594 I myCar   : host: app asked for a surface (callback=true)
+11-12 21:05:12.056  8468  8468 I myCar   : ============================================================
+11-12 21:05:12.056  8468  8468 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-12 21:05:12.057  8468  8468 I myCar   : Handshake completed at car API level 7.
+11-12 21:05:12.057  8468  8468 I myCar   : ============================================================
+11-12 21:05:12.151  8468  8468 I myCar   : stage: surface ready at 1776x720
+11-12 21:05:12.311  8468  8468 I myCar   : host: lent the app a 1776x720 @240dpi surface
+11-12 21:05:12.356  8468  8468 I myCar   : host: template = PlaceListNavigationTemplate
+11-12 21:05:15.053  8468  8515 I myCar   : preview: step 2: tap at (72,654)
+11-12 21:05:17.626  8468  8515 I myCar   : preview: step 4: tap at (1032,483)
+11-12 21:05:20.949  8468  8515 I myCar   : preview: step 6: wrote 1-open.png
+11-12 21:05:20.951  8468  8515 I myCar   : preview: step 7: drag (1500,620) -> (1500,170) in 900ms, a move every 16ms
+11-12 21:05:21.870  8468  8515 I myCar   : preview: step 7: lifted at (1500,170)
+11-12 21:05:24.528  8468  8515 I myCar   : preview: step 9: wrote 2-scrolled.png
+11-12 21:05:24.530  8468  8515 I myCar   : preview: step 10: the car shows its own screen for 2000ms
+11-12 21:05:26.571  8468  8515 I myCar   : preview: step 10: the car handed its screen back - the picture drawn again
+11-12 21:05:28.802  8468  8515 I myCar   : preview: step 12: wrote 3-car-screen-back.png
+11-12 21:05:28.804  8468  8515 I myCar   : preview: step 13: tap at (72,66)
+11-12 21:05:31.903  8468  8515 I myCar   : preview: step 15: wrote 4-dashboard.png
+11-12 21:05:31.904  8468  8515 I myCar   : preview: step 16: key 4
+11-12 21:05:34.549  8468  8515 I myCar   : preview: step 18: wrote 5-back.png
+11-12 21:05:34.550  8468  8515 I myCar   : preview: step 19: knob 1
+11-12 21:05:34.598  8468  8468 W myCar   : preview: focus nothing -> AndroidComposeView@592d8d6 [1/3]
+11-12 21:05:34.598  8468  8468 W myCar   :   io.github.sirionero.mycar.CrashProbe$$ExternalSyntheticLambda0.onGlobalFocusChanged(D8$$SyntheticClass:0)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.ViewTreeObserver.dispatchOnGlobalFocusChange(ViewTreeObserver.java:1121)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.View.handleFocusGainInternal(View.java:8000)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.ViewGroup.handleFocusGainInternal(ViewGroup.java:847)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.View.requestFocusNoSearch(View.java:14509)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.View.requestFocus(View.java:14483)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.ViewGroup.requestFocus(ViewGroup.java:3322)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.platform.AndroidComposeView.requestOwnerFocus-7o62pno(AndroidComposeView.android.kt:1409)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusOwnerImpl.requestOwnerFocus-7o62pno(FocusOwnerImpl.kt:111)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusTransactionsKt.requestOwnerFocus-Etdf9zw(FocusTransactions.kt:305)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusTransactionsKt.requestOwnerFocus-Etdf9zw$default(FocusTransactions.kt:302)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusTransactionsKt.performRequestFocus(FocusTransactions.kt:70)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusTargetNode.assignFocus-3ESFkO8(FocusTargetNode.kt:117)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusTargetNode.requestFocus-3ESFkO8(FocusTargetNode.kt:106)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.platform.AndroidComposeView$requestFocusBypassUnfocusableComposeView$requestFocusWithPrevRect$1.invoke(AndroidComposeView.android.kt:1361)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.platform.AndroidComposeView$requestFocusBypassUnfocusableComposeView$requestFocusWithPrevRect$1.invoke(AndroidComposeView.android.kt:1357)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusOwnerImpl$focusSearch$1.invoke(FocusOwnerImpl.kt:354)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusOwnerImpl$focusSearch$1.invoke(FocusOwnerImpl.kt:350)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.TwoDimensionalFocusSearchKt.findChildCorrespondingToFocusEnter--OM-vw8(TwoDimensionalFocusSearch.kt:155)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.TwoDimensionalFocusSearchKt.twoDimensionalFocusSearch-sMXa3k8(TwoDimensionalFocusSearch.kt:61)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusTraversalKt.focusSearch-0X8WOeE(FocusTraversal.kt:124)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.focus.FocusOwnerImpl.focusSearch-ULY8qGw(FocusOwnerImpl.kt:350)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.platform.AndroidComposeView.requestFocusBypassUnfocusableComposeView(AndroidComposeView.android.kt:1357)
+11-12 21:05:34.598  8468  8468 W myCar   :   androidx.compose.ui.platform.AndroidComposeView.requestFocus(AndroidComposeView.android.kt:1388)
+11-12 21:05:34.598  8468  8468 W myCar   :   android.view.ViewGroup.onRequestFocusInDescendants(ViewGroup.java:3374)
+11-12 21:05:34.599  8468  8468 W myCar   : preview: focus nothing -> AndroidComposeView@592d8d6 [2/3]
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.requestFocus(ViewGroup.java:3323)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.onRequestFocusInDescendants(ViewGroup.java:3374)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.requestFocus(ViewGroup.java:3323)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.onRequestFocusInDescendants(ViewGroup.java:3374)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.requestFocus(ViewGroup.java:3323)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.onRequestFocusInDescendants(ViewGroup.java:3374)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.requestFocus(ViewGroup.java:3328)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.View.requestFocus(View.java:14450)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.View.restoreDefaultFocus(View.java:14429)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewGroup.restoreDefaultFocus(ViewGroup.java:3390)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewRootImpl.leaveTouchMode(ViewRootImpl.java:6187)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewRootImpl.ensureTouchModeLocally(ViewRootImpl.java:6120)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.ViewRootImpl.ensureTouchMode(ViewRootImpl.java:6102)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.view.View.requestFocusFromTouch(View.java:14535)
+11-12 21:05:34.599  8468  8468 W myCar   :   io.github.sirionero.mycar.ScreenProjector.dispatchKey(ScreenProjector.kt:233)
+11-12 21:05:34.599  8468  8468 W myCar   :   io.github.sirionero.mycar.PreviewScript.perform$lambda$13(PreviewScript.kt:236)
+11-12 21:05:34.599  8468  8468 W myCar   :   io.github.sirionero.mycar.PreviewScript$$ExternalSyntheticLambda11.invoke(D8$$SyntheticClass:0)
+11-12 21:05:34.599  8468  8468 W myCar   :   io.github.sirionero.mycar.PreviewScript.onMain$lambda$0(PreviewScript.kt:315)
+11-12 21:05:34.599  8468  8468 W myCar   :   io.github.sirionero.mycar.PreviewScript$$ExternalSyntheticLambda1.call(D8$$SyntheticClass:0)
+11-12 21:05:34.599  8468  8468 W myCar   :   java.util.concurrent.FutureTask.run(FutureTask.java:264)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.os.Handler.handleCallback(Handler.java:958)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.os.Handler.dispatchMessage(Handler.java:99)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.os.Looper.loopOnce(Looper.java:205)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.os.Looper.loop(Looper.java:294)
+11-12 21:05:34.599  8468  8468 W myCar   :   android.app.ActivityThread.main(ActivityThread.java:8177)
+11-12 21:05:34.599  8468  8468 W myCar   : preview: focus nothing -> AndroidComposeView@592d8d6 [3/3]
+11-12 21:05:34.599  8468  8468 W myCar   :   java.lang.reflect.Method.invoke(Method.java:-2)
+11-12 21:05:34.599  8468  8468 W myCar   :   com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-12 21:05:34.599  8468  8468 W myCar   :   com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-12 21:05:34.601  8468  8468 I myCar   : keys: left touch mode for the knob/D-pad (now in touch mode: false)
+11-12 21:05:34.672  8468  8468 I myCar   : home: page 1 of 3, halves [widget:weather, widget:agenda]
+11-12 21:05:36.523  8468  8515 I myCar   : preview: step 21: wrote 6-knob.png
+11-12 21:05:36.524  8468  8515 I myCar   : preview: step 22: knob 1
+11-12 21:05:36.819  8468  8468 I myCar   : home: page 2 of 3, map []
+11-12 21:05:38.369  8468  8515 I myCar   : preview: step 24: wrote 7-knob-2.png
+11-12 21:05:38.370  8468  8515 I myCar   : preview: script done after 24 steps

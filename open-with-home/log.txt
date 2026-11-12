@@ -1,0 +1,34 @@
+--------- beginning of main
+11-12 21:03:49.556  7726  7726 I myCar   : log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210349.log (process 7726)
+11-12 21:03:49.569  7726  7750 I myCar   : last exit: stopped on request at 2026-11-12 21:03:48 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 0 MB, rss 0 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 7686
+11-12 21:03:49.682  7726  7726 I myCar   : projecting 1920x720 @ 240dpi
+11-12 21:03:49.683  7726  7726 I myCar   : preview: displayId=16
+11-12 21:03:50.073  7726  7776 I myCar   : prefetch done in 215ms
+11-12 21:03:50.279  7726  7803 I myCar   : weather: loaded
+11-12 21:03:51.998  7726  7726 E myCar   : preview: no frame yet for step 0
+11-12 21:03:52.992  7726  7726 I myCar   : assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+11-12 21:03:52.997  7726  7726 I myCar   : location keep-alive: running (phone locked: false, myCar's accessibility: off)
+11-12 21:03:53.028  7726  7726 I myCar   : host: binding to app.vela/.car.VelaCarAppService
+11-12 21:03:53.157  7726  7726 I myCar   : host: bound; requesting app info
+11-12 21:03:53.163  7726  7726 I myCar   : host: app api 1..7 (library 1.4.0), host 8 -> 7
+11-12 21:03:53.165  7726  7726 I myCar   : host: handshake accepted; creating the app
+11-12 21:03:53.235  7726  7726 I myCar   : host: created; starting
+11-12 21:03:53.239  7726  7742 I myCar   : host: app asked for a surface (callback=true)
+11-12 21:03:53.283  7726  7726 I myCar   : ============================================================
+11-12 21:03:53.284  7726  7726 I myCar   : VERDICT: app.vela accepted myCar as a template host
+11-12 21:03:53.285  7726  7726 I myCar   : Handshake completed at car API level 7.
+11-12 21:03:53.285  7726  7726 I myCar   : ============================================================
+11-12 21:03:53.394  7726  7726 I myCar   : stage: surface ready at 1776x720
+11-12 21:03:53.459  7726  7726 I myCar   : host: lent the app a 1776x720 @240dpi surface
+11-12 21:03:53.598  7726  7726 I myCar   : host: template = PlaceListNavigationTemplate
+11-12 21:03:54.577  7726  7726 I myCar   : cinema: a video (http://10.0.2.2:8001/test-video.mp4) from com.android.shell - the car's screen asks the driver first
+11-12 21:03:56.108  7726  7726 I myCar   : preview: wrote preview-0.png
+11-12 21:03:58.616  7726  7726 I myCar   : preview: wrote preview-1.png
+11-12 21:03:59.654  7726  7726 I myCar   : cinema: the driver opened what another app sent
+11-12 21:03:59.843  7726  7726 I myCar   : cinema: opening what another app sent
+11-12 21:04:00.060  7726  7726 I myCar   : cinema: playing a video: Test video
+11-12 21:04:01.276  7726  7889 I myCar   : cinema: no usable icon at m.youtube.com (8 links, 3 tried)
+11-12 21:04:01.407  7726  7726 I myCar   : preview: wrote preview-2.png
+11-12 21:04:03.808  7726  7726 I myCar   : preview: wrote preview-3.png
+11-12 21:04:06.178  7726  7726 I myCar   : preview: wrote preview-4.png
+11-12 21:04:08.714  7726  7726 I myCar   : preview: wrote preview-5.png

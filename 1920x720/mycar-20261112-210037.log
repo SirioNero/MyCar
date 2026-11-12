@@ -1,0 +1,24 @@
+21:00:37.480 I APP   log file: /storage/emulated/0/Android/data/io.github.sirionero.mycar.dev/files/mycar-20261112-210037.log (process 5365)
+21:00:37.600 I APP   last exit: stopped on request at 2026-11-12 21:00:35 (io.github.sirionero.mycar.dev, status 0, importance 100, pss 114 MB, rss 210 MB): [FORCE STOP] stop io.github.sirionero.mycar.dev due to from pid 5324
+21:00:37.827 I APP   projecting 1920x720 @ 240dpi
+21:00:37.829 I APP   preview: displayId=6
+21:00:39.167 I APP   prefetch done in 911ms
+21:00:42.306 E APP   preview: no frame yet for step 0
+21:00:44.484 I APP   assistant: speech engine com.google.android.tts (Speech Services by Google; installed: com.google.android.tts), voice en-US-language - en_US: available (1)
+21:00:44.672 I APP   location keep-alive: running (phone locked: false, myCar's accessibility: off)
+21:00:44.812 I APP   host: binding to app.vela/.car.VelaCarAppService
+21:00:45.882 I APP   host: bound; requesting app info
+21:00:46.044 I APP   host: app api 1..7 (library 1.4.0), host 8 -> 7
+21:00:46.148 I APP   host: handshake accepted; creating the app
+21:00:46.364 I APP   host: created; starting
+21:00:46.374 I APP   host: app asked for a surface (callback=true)
+21:00:47.351 W APP   weather fetch failed: SocketTimeoutException
+21:00:47.744 I APP   preview: wrote preview-0.png
+21:00:47.821 I APP   ============================================================
+21:00:47.821 I APP   VERDICT: app.vela accepted myCar as a template host
+21:00:47.821 I APP   Handshake completed at car API level 7.
+21:00:47.822 I APP   ============================================================
+21:00:48.076 I APP   stage: surface ready at 1776x720
+21:00:48.643 I APP   host: lent the app a 1776x720 @240dpi surface
+21:00:48.914 I APP   host: template = PlaceListNavigationTemplate
+21:00:49.211 I APP   preview: wrote preview-1.png
