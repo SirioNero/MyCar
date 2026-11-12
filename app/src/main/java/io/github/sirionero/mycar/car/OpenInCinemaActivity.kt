@@ -13,6 +13,7 @@ import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
 import io.github.sirionero.mycar.Words
 import io.github.sirionero.mycar.cinema.OpenWith
+import io.github.sirionero.mycar.mirror.PhoneMirror
 
 /**
  * "Open with" and "Share" from other apps, to Cinema on the car's screen ("myCar · Cinema" in Android's
@@ -61,6 +62,12 @@ class OpenInCinemaActivity : Activity() {
         }
         CinemaAsks.send(askFor(asked) ?: return)
         MyCarLog.i("cinema: $what from $from - opening in Cinema in the car" + if (now) "" else " once it's connected")
+        // The phone's screen shared to the car: no car screen to open it on. The sharing ends, as for the
+        // assistant, and the car's screen, back in a moment, opens it.
+        if (PhoneMirror.active.value) {
+            MyCarLog.i("cinema: the phone's screen was shared - back to myCar's screen")
+            PhoneMirror.requestStop()
+        }
         say(if (now) R.string.open_with_opening else R.string.open_with_soon, long = !now)
     }
 
