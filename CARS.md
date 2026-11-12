@@ -21,8 +21,10 @@ and some don't say.
 | Ford | 2018 | SYNC 3.0 (Panasonic) |
 | Ford Fiesta | 2019 | SYNC 3.2 (Panasonic) |
 | Ford Fusion | 2018 | SYNC 3.1 (Panasonic) |
-| Hyundai Inster | 2026 | Wired (reported by a myCar driver) |
+| Hyundai Inster | 2026 | Wired, with the CarService certificate (reported by a myCar driver) |
+| Hyundai Ioniq 5 | 2023 | Wireless through an Ottocast Mini adapter, with the CarService certificate (reported by a myCar driver) |
 | Jeep Cherokee | 2019 | Uconnect 8.4 (Delphi) |
+| Jeep Cherokee | 2027 | (reported by a myCar driver) |
 | MG | 2019 | Desay SV |
 | Ram 1500 | 2018 | Uconnect 8.4 (Panasonic) |
 | Renault Clio V | 2019-2024 | Easy Link |
@@ -43,6 +45,7 @@ and some don't say.
 | Honda | 2016 | The connection drops before Gearslip reaches the screen. |
 | Honda | 2019 | The connection drops before Gearslip reaches the screen. |
 | Mitsubishi Attrage | 2020 | The connection drops before Gearslip reaches the screen. |
+| MG ZS hybrid | 2024 | The connection drops when a map starts navigating; 0.7.6 should fix it. |
 
 Some cars reject the certificate before they say what they are, so they can't appear
 here by name. Most of these are from around 2020 or later.
