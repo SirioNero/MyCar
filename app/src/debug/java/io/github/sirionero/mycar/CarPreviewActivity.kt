@@ -289,6 +289,13 @@ class CarPreviewActivity : ComponentActivity() {
             }
         }
 
+        // --ez clusterTurns true: the pictures a cluster that wants turns as images gets (issue #23),
+        // as cluster-*.png beside the shots (see ClusterPreview).
+        if (intent.getBooleanExtra("clusterTurns", false)) {
+            val dir = requireNotNull(getExternalFilesDir(null))
+            Thread({ io.github.sirionero.mycar.car.ClusterPreview.write(this, dir) }, "cluster-preview").start()
+        }
+
         // Stand in for the car's media sink, so the phone half of the audio path runs for real.
         if (intent.getBooleanExtra("audio", false)) {
             CarAudio.onConsentRequested = {

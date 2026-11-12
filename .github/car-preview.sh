@@ -132,6 +132,12 @@ case " ${ONLY:-last-exit} " in *" last-exit "*)
     grep -h "Android ended this run" previews/last-exit/mycar-*.log 2>/dev/null | cut -c1-250 | head -5 || true ;;
 esac
 
+# The pictures myCar draws for a cluster that wants turns as images (issue #23: a 2024 MG ZS asks
+# for 1920x720 at 32 bits), as cluster-*.png from the debug preview (ClusterPreview): only when named.
+case " ${ONLY:-} " in *" cluster-turns "*)
+    EXTRA="--ez clusterTurns true" shoot cluster-turns 1920 720 240 "$WAIT" ;;
+esac
+
 # The hunt for "LayoutNode should be attached to an owner": scripted shots, only when named (crash-*).
 source .github/car-preview-crash.sh
 
