@@ -4,7 +4,7 @@
     <string-array name="changelog_52">
         <item>Les voitures qui veulent une image de chaque manœuvre sur le combiné d’instruments (les cadrans derrière le volant) la reçoivent maintenant, pas plus souvent qu’elles ne la demandent : la MG ZS 2024 raccrochait dès qu’un itinéraire commençait. Si une voiture raccroche encore deux fois de suite au début d’un itinéraire, myCar ne lui envoie plus de manœuvres et vous le dit ; dans la voiture, Paramètres &gt; Connexion les renvoie.</item>
         <item>Cinema lit les vidéos de NewPipe et des applis semblables : choisissez « myCar · Cinema » comme lecteur externe, ou partagez un lien avec myCar. Une page web partagée, ou une vidéo du réseau de la maison, ne s’ouvre qu’après votre oui sur l’écran de la voiture.</item>
-        <item>La grille des apps peut aussi défiler de haut en bas en une seule liste (Paramètres &gt; Grille des apps, dans la voiture ou sur le téléphone), et les Paramètres de la voiture restent là où vous les avez laissés pendant tout le trajet, au lieu de revenir en haut.</item>
+        <item>La grille des apps peut aussi défiler de haut en bas en une seule liste (Grille des apps, dans les Paramètres de la voiture ou sur le téléphone dans Paramètres &gt; Écran de la voiture), et les Paramètres de la voiture restent là où vous les avez laissés pendant tout le trajet, au lieu de revenir en haut.</item>
         <item>Si donner à une voiture l’adresse Bluetooth du téléphone l’empêche de lire la musique du téléphone par le Bluetooth, myCar ne la donne plus à cette voiture et vous le dit.</item>
     </string-array>
 

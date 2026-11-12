@@ -4,7 +4,7 @@
     <string-array name="changelog_52">
         <item>Los coches que quieren una imagen de cada giro en el cuadro de instrumentos (los indicadores detrás del volante) ahora la reciben, solo con la frecuencia que piden: el MG ZS 2024 colgaba en cuanto empezaba una ruta. Si aun así un coche cuelga dos veces seguidas al empezar una ruta, myCar ya no le envía giros y te lo dice; en el coche se vuelven a enviar desde Ajustes &gt; Conexión.</item>
         <item>Cinema reproduce vídeos de NewPipe y apps similares: elige «myCar · Cinema» como reproductor externo, o comparte un enlace con myCar. Una página web compartida, o un vídeo de tu red de casa, solo se abre después de que digas que sí en la pantalla del coche.</item>
-        <item>La cuadrícula de apps también puede desplazarse de arriba abajo como una sola lista (Ajustes &gt; Cuadrícula de apps, en el coche o en el teléfono), y los Ajustes del coche se quedan donde los dejaste durante todo el viaje, en vez de volver arriba del todo.</item>
+        <item>La cuadrícula de apps también puede desplazarse de arriba abajo como una sola lista (Cuadrícula de apps, en los Ajustes del coche o en el teléfono en Ajustes &gt; Pantalla del coche), y los Ajustes del coche se quedan donde los dejaste durante todo el viaje, en vez de volver arriba del todo.</item>
         <item>Si decirle a un coche la dirección Bluetooth del teléfono hace que deje de reproducir la música del teléfono por Bluetooth, myCar deja de decírsela a ese coche y te avisa.</item>
     </string-array>
 

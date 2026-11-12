@@ -3,7 +3,7 @@
     <string-array name="changelog_52">
         <item>Los barcos que quieren una imagen de cada giro en el cuadro de instrumentos (los indicadores detrás del volante) ahora la reciben, solo con la frecuencia que piden: el MG ZS 2024 cerraba la conexión en cuanto se fijaba un rumbo. Si aun así un barco la cierra dos veces seguidas al fijar un rumbo, myCar ya no le envía giros y te lo dice; a bordo se vuelven a enviar desde Aparejos &gt; Abordaje.</item>
         <item>Cinema reproduce vídeos de NewPipe y apps similares: elige «myCar · Cinema» como reproductor externo, o comparte un enlace con myCar. Una página web compartida, o un vídeo de tu red de casa, solo se iza después de que digas que sí en la pantalla del barco.</item>
-        <item>La flota también puede desplazarse de la cofa a la quilla como una sola lista (Aparejos &gt; Formación de la flota, a bordo o en el teléfono), y los Aparejos del barco se quedan donde los dejaste durante toda la travesía, en vez de volver arriba del todo.</item>
+        <item>La flota también puede desplazarse de la cofa a la quilla como una sola lista (Formación de la flota, en los Aparejos del barco o en el teléfono en Aparejos &gt; Timón), y los Aparejos del barco se quedan donde los dejaste durante toda la travesía, en vez de volver arriba del todo.</item>
         <item>Si decirle a un barco la dirección Bluetooth del teléfono hace que deje de reproducir las tonadas del teléfono por Bluetooth, myCar deja de decírsela a ese barco y te avisa.</item>
     </string-array>
 

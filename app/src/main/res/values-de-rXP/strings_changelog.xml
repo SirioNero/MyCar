@@ -3,7 +3,7 @@
     <string-array name="changelog_52">
         <item>Schiffe, die zu jeder Abbiegung ein Bild im Kombiinstrument (den Anzeigen hinter dem Lenkrad) wollen, bekommen jetzt eins, nur so oft, wie sie danach fragen: Der MG ZS 2024 kappte die Verbindung, sobald ein Kurs begann. Kappt ein Schiff beim Start eines Kurses trotzdem zweimal hintereinander die Verbindung, schickt myCar ihm keine Abbiegungen mehr und sagt es dir; an Bord lassen sie sich unter Takelage &gt; Entern wieder senden.</item>
         <item>Cinema spielt Videos aus NewPipe und ähnlichen Apps ab: Wähle „myCar · Cinema“ als externen Player oder teile einen Link mit myCar. Eine geteilte Webseite oder ein Video aus deinem Heimnetz wird erst gehisst, wenn du auf dem Bordbildschirm Aye sagst.</item>
-        <item>Die Flotte lässt sich auch als eine einzige Liste vom Krähennest bis zum Kiel scrollen (Takelage &gt; Flottenformation, an Bord oder auf dem Telefon), und die Takelage an Bord bleibt den ganzen Törn über dort, wo du sie verlassen hast, statt wieder nach oben zu springen.</item>
+        <item>Die Flotte lässt sich auch als eine einzige Liste vom Krähennest bis zum Kiel scrollen (Flottenformation, in der Takelage an Bord oder auf dem Telefon unter Takelage &gt; Bordbildschirm), und die Takelage an Bord bleibt den ganzen Törn über dort, wo du sie verlassen hast, statt wieder nach oben zu springen.</item>
         <item>Hört ein Schiff auf, die Shantys des Telefons über Bluetooth zu spielen, sobald myCar ihm die Bluetooth-Adresse des Telefons verrät, sagt myCar sie diesem Schiff nicht mehr und gibt dir Bescheid.</item>
     </string-array>
 

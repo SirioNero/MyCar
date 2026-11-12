@@ -3,7 +3,7 @@
     <string-array name="changelog_52">
         <item>Le navi che vogliono un\'immagine di ogni svolta sul quadro strumenti (gli indicatori dietro il volante) ora la ricevono, non più spesso di quanto la chiedono: la MG ZS 2024 chiudeva la connessione appena si metteva in rotta. Se una nave chiude ancora la connessione due volte di fila quando si mette in rotta, myCar non le manda più svolte e te lo dice; a bordo si rimandano da Timone &gt; Abbordaggio.</item>
         <item>Cinema riproduce i video di NewPipe e delle app simili: scegli «myCar · Cinema» come lettore esterno, oppure condividi un link con myCar. Una pagina web condivisa, o un video dalla rete di casa, si issa solo dopo il tuo sì sullo schermo di bordo.</item>
-        <item>La flotta può anche scorrere dalla coffa alla chiglia come un unico elenco (Timone &gt; Formazione della flotta, a bordo o sul telefono), e a bordo il Timone resta dove l\'hai lasciato per tutta la traversata, invece di tornare in cima.</item>
+        <item>La flotta può anche scorrere dalla coffa alla chiglia come un unico elenco (Formazione della flotta, nel Timone a bordo o sul telefono nel Timone &gt; Schermo di bordo), e a bordo il Timone resta dove l\'hai lasciato per tutta la traversata, invece di tornare in cima.</item>
         <item>Se dire a una nave l\'indirizzo Bluetooth del telefono le fa smettere di suonare le ballate del telefono dal Bluetooth, myCar non lo dice più a quella nave e te lo fa sapere.</item>
     </string-array>
 

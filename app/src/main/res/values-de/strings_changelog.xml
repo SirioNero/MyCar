@@ -4,7 +4,7 @@
     <string-array name="changelog_52">
         <item>Autos, die zu jeder Abbiegung ein Bild im Kombiinstrument (den Anzeigen hinter dem Lenkrad) wollen, bekommen jetzt eins, nur so oft, wie sie danach fragen: Der MG ZS 2024 legte auf, sobald eine Route begann. Legt ein Auto beim Start einer Route trotzdem zweimal hintereinander auf, schickt myCar ihm keine Abbiegungen mehr und sagt es dir; im Auto lassen sie sich unter Einstellungen &gt; Verbindung wieder senden.</item>
         <item>Cinema spielt Videos aus NewPipe und ähnlichen Apps ab: Wähle „myCar · Cinema“ als externen Player oder teile einen Link mit myCar. Eine geteilte Webseite oder ein Video aus deinem Heimnetz öffnet sich erst, wenn du auf dem Bildschirm des Autos Ja sagst.</item>
-        <item>Die App-Übersicht lässt sich auch als eine einzige Liste auf und ab scrollen (Einstellungen &gt; App-Übersicht, im Auto oder auf dem Telefon), und die Einstellungen im Auto bleiben die ganze Fahrt über dort, wo du sie verlassen hast, statt wieder nach oben zu springen.</item>
+        <item>Die App-Übersicht lässt sich auch als eine einzige Liste auf und ab scrollen (App-Übersicht, in den Einstellungen im Auto oder auf dem Telefon unter Einstellungen &gt; Bildschirm des Autos), und die Einstellungen im Auto bleiben die ganze Fahrt über dort, wo du sie verlassen hast, statt wieder nach oben zu springen.</item>
         <item>Hört ein Auto auf, die Musik des Telefons über Bluetooth zu spielen, sobald myCar ihm die Bluetooth-Adresse des Telefons mitteilt, teilt myCar sie diesem Auto nicht mehr mit und sagt es dir.</item>
     </string-array>
 

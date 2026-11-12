@@ -3,7 +3,7 @@
     <string-array name="changelog_52">
         <item>Les navires qui veulent une image de chaque manœuvre sur le combiné d’instruments (les cadrans derrière le volant) la reçoivent maintenant, pas plus souvent qu’ils ne la demandent : la MG ZS 2024 coupait la connexion dès qu’un itinéraire commençait. Si un navire coupe encore la connexion deux fois de suite au début d’un itinéraire, myCar ne lui envoie plus de manœuvres et vous le dit ; à bord, Timonerie &gt; Abordage les renvoie.</item>
         <item>Cinema lit les vidéos de NewPipe et des applis semblables : choisissez « myCar · Cinema » comme lecteur externe, ou partagez un lien avec myCar. Une page web partagée, ou une vidéo du réseau de la maison, n’est hissée qu’après votre oui sur l’écran de bord.</item>
-        <item>La flotte peut aussi défiler de la hune à la quille en une seule liste (Timonerie &gt; Formation de la flotte, à bord ou sur le téléphone), et la Timonerie de bord reste là où vous l’avez laissée pendant toute la traversée, au lieu de revenir en haut.</item>
+        <item>La flotte peut aussi défiler de la hune à la quille en une seule liste (Formation de la flotte, dans la Timonerie de bord ou sur le téléphone dans Timonerie &gt; Écran de bord), et la Timonerie de bord reste là où vous l’avez laissée pendant toute la traversée, au lieu de revenir en haut.</item>
         <item>Si donner à un navire l’adresse Bluetooth du téléphone l’empêche de jouer les chants du téléphone par le Bluetooth, myCar ne la donne plus à ce navire et vous le dit.</item>
     </string-array>
 
