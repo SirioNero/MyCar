@@ -443,14 +443,22 @@ private fun AppPart(entry: Entry, app: TemplateApp, runs: Boolean, onHold: () ->
     val frame by CarEnvironment.frame.collectAsState()
     val status by CarServices.browse.status.collectAsState()
     var started by remember { mutableStateOf(false) }
+    // Turned myCar down as its host (see HostRefusals): not started here by itself, only by Try again.
+    val refused = rememberRefusal(app, status.phase)
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE_PHASES
         val closed = app.component in CarServices.closedBrowse
-        if (!closed && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
+        if (!closed && refused == null && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
         started = true
     }
     Box(modifier.raisedPanel().background(MaterialTheme.colorScheme.surface), contentAlignment = Alignment.Center) {
-        if (status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
+        val here = CarServices.browse.connectedComponent == app.component
+        val failed = status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED
+        // Said for it until it's tried here again, and then if it refuses once more.
+        val why = refused?.takeUnless { here } ?: status.detail?.takeIf { failed && here && status.refused }
+        if (why != null) {
+            RefusedAppPart(app.label, why) { CarServices.connectBrowse(app, frame) }
+        } else if (failed) {
             Text(
                 stringResource(R.string.car_home_app_failed, app.label),
                 style = MaterialTheme.typography.titleMedium,

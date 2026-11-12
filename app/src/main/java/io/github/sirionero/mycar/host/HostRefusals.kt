@@ -48,6 +48,15 @@ object HostRefusals {
         return sameCopy(prefs.getLong(packageName, 0L), installedAt(context, packageName))
     }
 
+    /**
+     * What the car says where the installed copy of [packageName], named [label], would start by
+     * itself (beside the map, on a page), if it's one that refused myCar; null if it isn't.
+     */
+    fun why(context: Context, packageName: String, label: String): String? {
+        if (!refused(context, packageName)) return null
+        return words(context, RefusalRule.remembered(KnownApps.modified(context, packageName)), label)
+    }
+
     /** The car's words for a refusal of [kind] by the app named [label], shown under "… would not start." */
     fun words(context: Context, kind: RefusalRule.Kind, label: String): String = when (kind) {
         RefusalRule.Kind.MODIFIED_COPY -> Words.get(R.string.car_host_modified_refused, label, hostsEntry(context))
