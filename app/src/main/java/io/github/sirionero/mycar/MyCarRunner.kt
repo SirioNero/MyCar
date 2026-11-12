@@ -178,7 +178,8 @@ class MyCarRunner(
         } catch (t: Throwable) {
             if (stopped) return
             log.e("transport failed in state $state", t)
-            carEnded(null)
+            // Only the connection failing is the car's doing: an error of myCar's own isn't.
+            if (t is java.io.IOException) carEnded(null)
             SessionReport.fail(SessionReport.Category.USB, "transport failed", t, state.name)
             reportDisconnect()
         } finally {
