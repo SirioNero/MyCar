@@ -23,9 +23,10 @@ import io.github.sirionero.mycar.Protobuf
  * Uconnect understands. The turn comes from the map app's trip (what the Car App Library hands
  * to clusters), or from its routing card when it sends no trip.
  *
- * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]). A turn
- * carries its picture (image = 4) only for a cluster that wants pictures. A car that hangs up right
- * after a navigation opens on its cluster gets no more turns ([ClusterBlame], [ClusterCars]).
+ * At the pace the car asks for ([ClusterSpec], [ClusterNext]): one message at a time for a cluster
+ * that wants pictures, whose turns carry one (image = 4); the rest together, as before. A car that
+ * hangs up right after a navigation opens on its cluster gets no more turns ([ClusterBlame],
+ * [ClusterCars]).
  */
 class ClusterNav(
     private val spec: ClusterSpec,
@@ -98,7 +99,10 @@ class ClusterNav(
         )
     }
 
-    /** Sends the message the car is owed, if any ([ClusterNext]): how long until the next look. */
+    /**
+     * Sends what the car is owed ([ClusterNext]): one message for a cluster that wants pictures, all
+     * of them together for every other one. How long until the next look.
+     */
     private fun tick(): Long {
         // A car that hung up over its cluster stays at "not navigating".
         val turn = if (car in ClusterCars.off.value) null else NavTurn.current()
@@ -109,27 +113,35 @@ class ClusterNav(
         }
         val turnKey = turn?.let { keyOf(it.step) }
         val distance = turn?.distance
-        val distanceKey = distance?.let { "${it.displayDistance}|${it.displayUnit}|${turn.seconds ?: -1}" }
-        when (ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance)) {
-            ClusterNext.Message.STATUS -> {
-                sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
-                MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
-                sentStatus = status
-                if (status == ClusterNext.NOT_NAVIGATING) { sentTurn = null; sentDistance = null }
-                blame.status(status, SystemClock.elapsedRealtime())
+        val seconds = turn?.seconds
+        val distanceKey = distance?.let { "${it.displayDistance}|${it.displayUnit}|${seconds ?: -1}" }
+        val messages = if (spec.oneAtATime) {
+            listOfNotNull(ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance))
+        } else {
+            ClusterNext.owed(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance)
+        }
+        if (messages.isEmpty()) return TICK_MS
+        for (message in messages) {
+            when (message) {
+                ClusterNext.Message.STATUS -> {
+                    sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
+                    MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
+                    sentStatus = status
+                    if (status == ClusterNext.NOT_NAVIGATING) { sentTurn = null; sentDistance = null }
+                    blame.status(status, SystemClock.elapsedRealtime())
+                }
+                ClusterNext.Message.TURN -> {
+                    val step = turn?.step ?: continue
+                    sentTurn = turnKey
+                    if (sendTurn(step)) blame.turn(SystemClock.elapsedRealtime())
+                }
+                ClusterNext.Message.DISTANCE -> {
+                    if (distance == null) continue
+                    sendDistance(distance, seconds)
+                    sentDistance = distanceKey
+                    blame.distance(SystemClock.elapsedRealtime())
+                }
             }
-            ClusterNext.Message.TURN -> {
-                val step = turn?.step ?: return TICK_MS
-                sentTurn = turnKey
-                if (sendTurn(step)) blame.turn(SystemClock.elapsedRealtime())
-            }
-            ClusterNext.Message.DISTANCE -> {
-                if (distance == null) return TICK_MS
-                sendDistance(distance, turn.seconds)
-                sentDistance = distanceKey
-                blame.distance(SystemClock.elapsedRealtime())
-            }
-            null -> return TICK_MS
         }
         return spec.intervalMs
     }

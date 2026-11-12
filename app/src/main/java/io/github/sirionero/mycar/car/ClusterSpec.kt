@@ -43,6 +43,12 @@ class ClusterSpec(
         return maxOf(1, (imageWidth * scale).toInt()) to maxOf(1, (imageHeight * scale).toInt())
     }
 
+    /**
+     * A cluster that wants pictures gets one message at a time ([ClusterNext]); every other one gets
+     * its messages together, as before.
+     */
+    val oneAtATime: Boolean get() = type == IMAGE
+
     /** Fewer than 32 bits of colour leave no room for transparency: the picture gets a black ground then. */
     val opaque: Boolean get() = colourDepthBits in 1..31
 
@@ -64,7 +70,8 @@ class ClusterSpec(
             minIntervalMs > FLOOR_MS -> "the car asks for $minIntervalMs ms"
             else -> "the car asks for ${if (minIntervalMs > 0) "$minIntervalMs ms" else "nothing"}, myCar leaves $FLOOR_MS ms"
         }
-        return "$what; one message at a time, ${intervalMs}ms apart ($pace)"
+        val rounds = if (oneAtATime) "one message at a time" else "its messages together, a round at most"
+        return "$what; $rounds every ${intervalMs}ms ($pace)"
     }
 
     companion object {

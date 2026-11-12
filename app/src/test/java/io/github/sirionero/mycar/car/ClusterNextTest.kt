@@ -16,9 +16,10 @@ class ClusterNextTest {
 
     /**
      * The car's side of ClusterNav's loop: one look every 500 ms when there's nothing to send, the
-     * car's interval after a message. [at] says what the map app says at each moment.
+     * car's interval after a round. [oneAtATime]: a cluster that wants pictures. [at] says what the map
+     * app says at each moment.
      */
-    private fun run(intervalMs: Long, untilMs: Long, at: (Long) -> Now): List<Pair<Long, Message>> {
+    private fun run(intervalMs: Long, untilMs: Long, oneAtATime: Boolean = true, at: (Long) -> Now): List<Pair<Long, Message>> {
         val sent = mutableListOf<Pair<Long, Message>>()
         var status = -1
         var turn: String? = null
@@ -26,18 +27,23 @@ class ClusterNextTest {
         var t = 0L
         while (t <= untilMs) {
             val now = at(t)
-            val next = ClusterNext.of(now.status, status, now.turn, turn, now.distance, distance)
-            when (next) {
-                Message.STATUS -> {
-                    status = now.status
-                    if (status == NOT_NAVIGATING) { turn = null; distance = null }
-                }
-                Message.TURN -> turn = now.turn
-                Message.DISTANCE -> distance = now.distance
-                null -> {}
+            val round = if (oneAtATime) {
+                listOfNotNull(ClusterNext.of(now.status, status, now.turn, turn, now.distance, distance))
+            } else {
+                ClusterNext.owed(now.status, status, now.turn, turn, now.distance, distance)
             }
-            next?.let { sent += t to it }
-            t += if (next != null) intervalMs else 500
+            for (message in round) {
+                when (message) {
+                    Message.STATUS -> {
+                        status = now.status
+                        if (status == NOT_NAVIGATING) { turn = null; distance = null }
+                    }
+                    Message.TURN -> turn = now.turn
+                    Message.DISTANCE -> distance = now.distance
+                }
+                sent += t to message
+            }
+            t += if (round.isNotEmpty()) intervalMs else 500
         }
         return sent
     }
@@ -53,6 +59,35 @@ class ClusterNextTest {
     fun `a car that asks for nothing gets them half a second apart, as myCar always looked`() {
         val sent = run(500, 1200) { Now(NAVIGATING, "depart", "300 m") }
         assertEquals(listOf(0L to Message.STATUS, 500L to Message.TURN, 1000L to Message.DISTANCE), sent)
+    }
+
+    @Test
+    fun `a car that takes codes gets status, turn and distance together, as before`() {
+        val sent = run(1000, 3000, oneAtATime = false) { Now(NAVIGATING, "depart", "300 m") }
+        assertEquals(listOf(0L to Message.STATUS, 0L to Message.TURN, 0L to Message.DISTANCE), sent)
+    }
+
+    @Test
+    fun `a car that takes codes gets one round per interval, with the newest of everything`() {
+        // The distance changes every 100 ms, the turn at 1.5 s: rounds at 0, 1 s, 2 s... carry only the newest.
+        val sent = run(1000, 2500, oneAtATime = false) { t ->
+            Now(NAVIGATING, if (t < 1500) "depart" else "turn right", "${1000 - t / 100} m")
+        }
+        assertEquals(
+            listOf(
+                0L to Message.STATUS, 0L to Message.TURN, 0L to Message.DISTANCE,
+                1000L to Message.DISTANCE,
+                2000L to Message.TURN, 2000L to Message.DISTANCE,
+            ),
+            sent,
+        )
+    }
+
+    @Test
+    fun `together, rerouting and not navigating send only their status`() {
+        assertEquals(listOf(Message.STATUS), ClusterNext.owed(REROUTING, NAVIGATING, "depart", "depart", "20 m", "300 m"))
+        assertEquals(listOf(Message.STATUS), ClusterNext.owed(NOT_NAVIGATING, NAVIGATING, null, "depart", null, "300 m"))
+        assertEquals(emptyList<Message>(), ClusterNext.owed(NOT_NAVIGATING, NOT_NAVIGATING, null, null, null, null))
     }
 
     @Test
