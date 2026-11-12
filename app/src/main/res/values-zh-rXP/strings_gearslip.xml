@@ -9,8 +9,21 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">你手机的蓝牙地址</string>
-    <string name="settings_phone_bt_address_off">未设置。仅适用于 myCar 登船时会切断手机蓝牙或解缆离去的船。</string>
-    <string name="settings_phone_bt_address_hint">在 Android 的设置 &gt; 关于手机（部分手机在“状态信息”中）：蓝牙地址。myCar 会把它告诉已与手机配对的船，让它知道还是那部老手机。</string>
+    <string name="settings_phone_bt_address_off">未设置。仅适用于 myCar 登船时会切断手机蓝牙或解缆离去的船。设置后，其他船可能不再通过蓝牙接收手机船歌。</string>
+    <string name="settings_phone_bt_address_hint">在 Android 的设置 &gt; 关于手机（部分手机在“状态信息”中）：蓝牙地址。myCar 会把它告诉已与手机配对的船。仅适用于 myCar 登船时会切断手机蓝牙或解缆离去的船：其他船可能因此不再通过蓝牙接收手机船歌。</string>
+    <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
+         is written but myCar no longer tells it to some car, because told it, that car stopped taking
+         the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->
+    <string name="settings_phone_bt_address_not_told">%1$s。myCar 不会把它告诉那些因此不再通过蓝牙接收手机船歌的船。</string>
+    <!-- Phone, a card on Home (ui/PhoneAddressCard.kt) once myCar stopped telling a car the phone's
+         Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
+         and "save" as its Save button says it -->
+    <string name="phone_address_not_told_title">myCar 不再把手机地址告诉这艘船</string>
+    <string name="phone_address_not_told_text">这艘船原本通过蓝牙接收手机船歌，但在 myCar 告诉它手机的蓝牙地址（舵轮 &gt; 登船）后就不再接收了。myCar 不再告诉它：从下次航程起，船歌重新通过蓝牙播放。如果之后这艘船切断手机蓝牙或解缆离去，请再次把地址存进舱。</string>
+    <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
+         the phone's Bluetooth address took the phone's music over Bluetooth away -->
+    <string name="car_phone_address_not_told">这艘船得知手机地址后，不再通过蓝牙接收手机船歌。myCar 不会再告诉它：从下次航程起，船歌通过蓝牙播放。</string>
 </resources>

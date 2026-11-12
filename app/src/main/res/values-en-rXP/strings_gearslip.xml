@@ -9,8 +9,21 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Yer phone\'s Bluetooth address</string>
-    <string name="settings_phone_bt_address_off">Not set. Only for a ship that cuts the phone\'s Bluetooth, or casts off, when myCar boards her.</string>
-    <string name="settings_phone_bt_address_hint">In Android\'s Settings &gt; About phone (on some phones under Status): Bluetooth address. myCar tells it to a ship already paired with the phone, so she knows it\'s the same old phone.</string>
+    <string name="settings_phone_bt_address_off">Not set. Only for a ship that cuts the phone\'s Bluetooth, or casts off, when myCar boards her. With it, other ships may stop taking the phone\'s shanties over Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">In Android\'s Settings &gt; About phone (on some phones under Status): Bluetooth address. myCar tells it to a ship already paired with the phone. Only for a ship that cuts the phone\'s Bluetooth, or casts off, when myCar boards her: other ships may then stop taking the phone\'s shanties over Bluetooth.</string>
+    <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
+         is written but myCar no longer tells it to some car, because told it, that car stopped taking
+         the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->
+    <string name="settings_phone_bt_address_not_told">%1$s. myCar keeps it from ships that stopped taking the phone\'s shanties over Bluetooth with it.</string>
+    <!-- Phone, a card on Home (ui/PhoneAddressCard.kt) once myCar stopped telling a car the phone's
+         Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
+         and "save" as its Save button says it -->
+    <string name="phone_address_not_told_title">myCar no longer tells the ship the phone\'s address</string>
+    <string name="phone_address_not_told_text">The ship took the phone\'s shanties over Bluetooth, but stopped once myCar told her the phone\'s Bluetooth address (Rigging &gt; Boarding). myCar keeps it from her now: from the next voyage the shanties go over Bluetooth again. If the ship then cuts the phone\'s Bluetooth, or casts off, stash the address again.</string>
+    <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
+         the phone's Bluetooth address took the phone's music over Bluetooth away -->
+    <string name="car_phone_address_not_told">This ship stopped taking the phone\'s shanties over Bluetooth once she knew the phone\'s address. myCar won\'t tell her again: from the next voyage, shanties over Bluetooth.</string>
 </resources>

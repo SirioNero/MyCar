@@ -45,7 +45,8 @@ import java.security.MessageDigest
  * can't tell that the phone connecting is the one they're paired with without it: a 2021 Bolt hung
  * up on Gearslip's cable until it was sent (Gearslip issue #18). With an address written, a car already
  * paired gets its channel opened and the same request at every connection, as Android Auto does,
- * and no pairing is started. Without one, nothing changes.
+ * and no pairing is started. Without one, nothing changes. A car that, told the address, stops
+ * taking the phone's music over Bluetooth isn't told it again (PhoneAddressCheck).
  */
 object CarBluetooth {
 
@@ -71,16 +72,26 @@ object CarBluetooth {
     @Volatile private var pairing = false
     /** Already paired, with the phone's address written: the channel is open only to say which phone this is. */
     @Volatile private var announcing = false
+    /** This drive's car was already paired with the phone when it came. */
+    @Volatile private var paired = false
     private var receiver: BroadcastReceiver? = null
 
     /** The car's Bluetooth address, when it named one in its service list. */
     val carAddress: String? get() = car?.service?.carAddress
+
+    /** This drive's car, already paired with the phone when it came: its Bluetooth address. Null otherwise. */
+    val pairedCarAddress: String? get() = car?.takeIf { paired }?.service?.carAddress
+
+    /** myCar told this drive's car the phone's address: the PairingRequest went with it. */
+    @Volatile var toldAddress = false
+        private set
 
     /** The car's Bluetooth channel once the driver has asked to pair, or while telling the car which phone this is; -1 otherwise. */
     val channelId: Int get() = car?.takeIf { pairing || announcing }?.service?.serviceId ?: -1
 
     fun init(context: Context) {
         appContext = context.applicationContext
+        PhoneAddressCheck.init(context)
     }
 
     /** Called once the car lists its services. Asks on the car screen only if there's pairing to do. */
@@ -92,15 +103,20 @@ object CarBluetooth {
         car = Car(service, open, send)
         bondStarted = false
         announcing = false
+        paired = false
+        toldAddress = false
         log.i("the car offers Bluetooth pairing, methods=${service.pairingMethods}")
         val device = device() ?: return
+        paired = device.bondState == BluetoothDevice.BOND_BONDED
         when {
-            device.bondState == BluetoothDevice.BOND_BONDED && writtenAddress() != null -> {
+            paired && writtenAddress() != null && notTold(service.carAddress) ->
+                log.i("already paired with this car - not telling it the phone's address: told it, the car stopped taking the phone's music over Bluetooth")
+            paired && writtenAddress() != null -> {
                 log.i("already paired with this car - telling it which phone this is, with the address written in Settings")
                 announcing = true
                 open()
             }
-            device.bondState == BluetoothDevice.BOND_BONDED -> log.i("already paired with this car")
+            paired -> log.i("already paired with this car")
             declined(service.carAddress) -> log.i("not paired, and the driver said not now for this car")
             else -> _prompt.value = Prompt.ASK
         }
@@ -110,6 +126,8 @@ object CarBluetooth {
         car = null
         pairing = false
         announcing = false
+        paired = false
+        toldAddress = false
         main.post {
             stopWatching()
             _prompt.value = Prompt.NONE
@@ -165,6 +183,8 @@ object CarBluetooth {
                     Protobuf.stringField(1, phoneAddress()) + Protobuf.varintField(2, method.toLong()),
                 )
                 log.i("-> PairingRequest(method=$method)")
+                // Only now does the car know which phone this is: PhoneAddressCheck looks at what it does with it.
+                if (announcing) toldAddress = true
             }
             MSG_PAIRING_RESPONSE -> {
                 val fields = Wire.fields(body)
@@ -248,12 +268,13 @@ object CarBluetooth {
     }
 
     /**
-     * The address written in Settings, else what Android gives apps (02:00:00:00:00:00, not the real
-     * one). Sent either way, as the field is required. Never logged nor reported: it names the phone.
+     * The address written in Settings, unless this car isn't told it any more; else what Android gives
+     * apps (02:00:00:00:00:00, not the real one). Sent either way, as the field is required. Never
+     * logged nor reported: it names the phone.
      */
     @SuppressLint("MissingPermission", "HardwareIds")
     private fun phoneAddress(): String =
-        writtenAddress()
+        writtenAddress()?.takeUnless { car?.service?.carAddress?.let { notTold(it) } == true }
             ?: runCatching { appContext?.getSystemService(BluetoothManager::class.java)?.adapter?.address }.getOrNull()
             ?: PhoneAddress.HIDDEN
 
@@ -267,6 +288,48 @@ object CarBluetooth {
     fun writeAddress(context: Context, text: String): Boolean {
         val address = PhoneAddress.tidy(text) ?: return false
         AppSettings.putString(context, KEY_PHONE_ADDRESS, address)
+        // Saved again: told again to every car already paired, those it was kept from too. The
+        // driver's way back, should such a car turn out to need it after all. What made myCar keep
+        // it from them is forgotten, or the next drive would keep it from them again: only a new
+        // drive without the address can tell it again.
+        val keptFrom = AppSettings.getString(context, KEY_NOT_TOLD, "").split(",").filter { it.isNotEmpty() }
+        if (keptFrom.isNotEmpty()) {
+            val music = AppSettings.getString(context, KEY_MUSIC_WITHOUT, "").split(",").filter { it.isNotEmpty() }
+            AppSettings.putString(context, KEY_MUSIC_WITHOUT, (music - keptFrom.toSet()).joinToString(","))
+            AppSettings.putString(context, KEY_NOT_TOLD, "")
+        }
+        PhoneAddressCheck.noticeSeen(context)
+        return true
+    }
+
+    /** At a drive where myCar didn't tell it the phone's address, this car took the phone's music over Bluetooth. */
+    internal fun tookMusicWithout(carAddress: String): Boolean = hash(carAddress) in hashes(KEY_MUSIC_WITHOUT)
+
+    /** Remembers [tookMusicWithout] for this car; true the first time. */
+    internal fun rememberMusicWithout(carAddress: String): Boolean = addHash(KEY_MUSIC_WITHOUT, carAddress)
+
+    /** Told the phone's address, this car stopped taking the phone's music over Bluetooth: it isn't told again. */
+    internal fun stopTelling(carAddress: String) {
+        addHash(KEY_NOT_TOLD, carAddress)
+    }
+
+    /** Some car isn't told the phone's address any more, for Settings > Connection. */
+    fun keptFromSomeCar(context: Context): Boolean = AppSettings.getString(context, KEY_NOT_TOLD, "").isNotEmpty()
+
+    private fun notTold(carAddress: String): Boolean = hash(carAddress) in hashes(KEY_NOT_TOLD)
+
+    private fun hashes(key: String): List<String> {
+        val context = appContext ?: return emptyList()
+        return AppSettings.getString(context, key, "").split(",").filter { it.isNotEmpty() }
+    }
+
+    /** Adds the car's hash to the list under [key]; false when it was there already. */
+    private fun addHash(key: String, carAddress: String): Boolean {
+        val context = appContext ?: return false
+        val list = hashes(key)
+        val entry = hash(carAddress)
+        if (entry in list) return false
+        AppSettings.putString(context, key, (list + entry).joinToString(","))
         return true
     }
 
@@ -282,6 +345,10 @@ object CarBluetooth {
 
     private const val KEY_DECLINED = "bluetooth_pair_declined"
     private const val KEY_PHONE_ADDRESS = "phone_bluetooth_address"
+    /** Hashes of the cars seen taking the phone's music over Bluetooth without the phone's address. */
+    private const val KEY_MUSIC_WITHOUT = "bluetooth_music_without_address"
+    /** Hashes of the cars no longer told the phone's address. */
+    private const val KEY_NOT_TOLD = "phone_address_not_told"
     private const val CAR_REPLY_WAIT_MS = 5_000L
     private const val CAR_BOND_WAIT_MS = 3_000L
     private const val GIVE_UP_MS = 90_000L

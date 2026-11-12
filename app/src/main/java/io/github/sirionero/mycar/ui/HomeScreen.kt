@@ -123,6 +123,7 @@ fun HomeScreen(
                     ChargingNoCarCard()
                     if (live) BluetoothMissingCard()
                     if (live) AudioDeniedCard()
+                    PhoneAddressCard()
                     VoiceDownloadCard()
                     // The first drive that worked asks once to share it, right under the result.
                     val car = workedCar

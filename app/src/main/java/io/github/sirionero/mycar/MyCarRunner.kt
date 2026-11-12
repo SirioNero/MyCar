@@ -12,6 +12,7 @@ import io.github.sirionero.mycar.media.CarMediaStatus
 import io.github.sirionero.mycar.car.BluetoothAudioCheck
 import io.github.sirionero.mycar.car.LocationCheck
 import io.github.sirionero.mycar.car.CarBluetooth
+import io.github.sirionero.mycar.car.PhoneAddressCheck
 import io.github.sirionero.mycar.car.ClusterNav
 import io.github.sirionero.mycar.car.DirectionsVoice
 import io.github.sirionero.mycar.car.CarAssistant
@@ -207,6 +208,7 @@ class MyCarRunner(
         CarBluetooth.onCarDisconnected()
         CarAudioRoute.onCarDisconnected()
         BluetoothAudioCheck.onCarDisconnected()
+        PhoneAddressCheck.onCarDisconnected()
         LocationCheck.onCarDisconnected()
         mediaStatus?.stop()
         mediaStatus = null
@@ -1209,6 +1211,7 @@ class MyCarRunner(
                 SessionStatus.projecting()
                 CarAudioRoute.onProjecting()
                 BluetoothAudioCheck.onProjecting()
+                PhoneAddressCheck.onProjecting()
                 LocationCheck.onProjecting()
             }
         }.onFailure { e ->

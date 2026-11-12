@@ -9,8 +9,21 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Dirección Bluetooth de tu teléfono</string>
-    <string name="settings_phone_bt_address_off">Sin configurar. Solo para un barco que le quita el Bluetooth al teléfono, o suelta amarras, cuando myCar lo aborda.</string>
-    <string name="settings_phone_bt_address_hint">En los Ajustes de Android &gt; Información del teléfono (en algunos teléfonos, dentro de Estado): Dirección de Bluetooth. myCar se la dice a un barco ya vinculado con el teléfono, para que sepa que es el mismo teléfono de siempre.</string>
+    <string name="settings_phone_bt_address_off">Sin configurar. Solo para un barco que le quita el Bluetooth al teléfono, o suelta amarras, cuando myCar lo aborda. Con ella, otros barcos pueden dejar de recibir las tonadas del teléfono por Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">En los Ajustes de Android &gt; Información del teléfono (en algunos teléfonos, dentro de Estado): Dirección de Bluetooth. myCar se la dice a un barco ya vinculado con el teléfono. Solo para un barco que le quita el Bluetooth al teléfono, o suelta amarras, cuando myCar lo aborda: otros barcos pueden dejar de recibir las tonadas del teléfono por Bluetooth.</string>
+    <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
+         is written but myCar no longer tells it to some car, because told it, that car stopped taking
+         the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->
+    <string name="settings_phone_bt_address_not_told">%1$s. myCar no se la dice a los barcos que, con ella, dejaban de recibir las tonadas del teléfono por Bluetooth.</string>
+    <!-- Phone, a card on Home (ui/PhoneAddressCard.kt) once myCar stopped telling a car the phone's
+         Bluetooth address, until OK: its title and text. Settings > Connection as the app names them,
+         and "save" as its Save button says it -->
+    <string name="phone_address_not_told_title">myCar ya no le dice al barco la dirección del teléfono</string>
+    <string name="phone_address_not_told_text">El barco recibía las tonadas del teléfono por Bluetooth, pero dejó de hacerlo cuando myCar le dijo la dirección Bluetooth del teléfono (Aparejos &gt; Abordaje). myCar ya no se la dice: desde la próxima travesía las tonadas vuelven a ir por Bluetooth. Si luego el barco le quita el Bluetooth al teléfono, o suelta amarras, vuelve a meter la dirección en el cofre.</string>
+    <!-- In the car, a toast once the car is stopped, at the drive where myCar found that telling the car
+         the phone's Bluetooth address took the phone's music over Bluetooth away -->
+    <string name="car_phone_address_not_told">Este barco dejó de recibir las tonadas del teléfono por Bluetooth al conocer la dirección del teléfono. myCar no se la volverá a decir: desde la próxima travesía, las tonadas van por Bluetooth.</string>
 </resources>
