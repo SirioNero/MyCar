@@ -68,7 +68,13 @@ class ClusterNav(
                     MyCarLog.w("cluster: ${it.message}")
                     TICK_MS
                 }
-                Thread.sleep(wait)
+                // In slices: a stop is seen within one, however long the car wants between messages.
+                var left = wait
+                while (left > 0 && running && !ended) {
+                    val slice = minOf(left, TICK_MS)
+                    Thread.sleep(slice)
+                    left -= slice
+                }
             }
         }, "mycar-cluster").start()
     }

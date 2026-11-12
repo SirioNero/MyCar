@@ -68,6 +68,14 @@ class ClusterSpecTest {
     }
 
     @Test
+    fun `an interval longer than 10 s is kept to 10 s, and the log says so`() {
+        val spec = ClusterSpec(1, minIntervalMs = 60_000, type = ClusterSpec.ENUM)
+        assertEquals(ClusterSpec.MAX_INTERVAL_MS, spec.intervalMs)
+        assertTrue(spec.describe(), "keeps to 10000" in spec.describe())
+        assertEquals(10_000L, ClusterSpec(1, minIntervalMs = 10_000).intervalMs)
+    }
+
+    @Test
     fun `a negative interval counts as none`() {
         val spec = ClusterSpec.from(cluster(v(1, -5) + v(2, 2)))!!
         assertEquals(0, spec.minIntervalMs)
