@@ -1,14 +1,20 @@
 package io.github.sirionero.mycar.car
 
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
+import androidx.car.app.CarToast
 import androidx.car.app.model.CarText
 import androidx.car.app.model.Distance
 import androidx.car.app.navigation.model.Maneuver
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.RoutingInfo
 import androidx.car.app.navigation.model.Step
+import androidx.core.graphics.drawable.IconCompat
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * The next turn on the car's instrument cluster, over its NavigationStatusService (Service
@@ -23,9 +29,10 @@ import io.github.sirionero.mycar.Protobuf
  * Uconnect understands. The turn comes from the map app's trip (what the Car App Library hands
  * to clusters), or from its routing card when it sends no trip.
  *
- * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]). A turn
- * carries its picture (image = 4) only for a cluster that wants pictures. A car that hangs up right
- * after a navigation opens on its cluster gets no more turns ([ClusterBlame], [ClusterCars]).
+ * At the pace the car asks for ([ClusterSpec], [ClusterNext]): one message at a time for a cluster
+ * that wants pictures, whose turns carry one (image = 4); the rest together, as before. A car that
+ * hangs up right after a navigation opens on its cluster, twice in a row, gets no more turns
+ * ([ClusterBlame], [ClusterRecord], [ClusterCars]).
  */
 class ClusterNav(
     private val spec: ClusterSpec,
@@ -35,10 +42,21 @@ class ClusterNav(
 ) {
     val channelId: Int get() = spec.channel
     @Volatile private var running = false
+    /** Stopped for good: the channel's open answer, read on another thread, can come after [stop]. */
+    @Volatile private var ended = false
     private var sentStatus = -1
     private var sentTurn: String? = null
     private var sentDistance: String? = null
+    /** The message that went last, so a distance waiting behind a turn gets its turn ([ClusterNext.of]). */
+    private var lastSent: ClusterNext.Message? = null
+    /** The last turn's picture and what it shows: a turn whose words change, not its manoeuvre, keeps it. */
+    private var pictureKey: String? = null
+    private var lastPicture: ClusterImage.Picture? = null
     private val blame = ClusterBlame()
+    /** The car has shown a navigation on its cluster, at an earlier drive or this one: never blamed. */
+    @Volatile private var held = false
+    /** For the notice at the drive after the car lost its turns ([tellWhenStopped]). */
+    private val main = Handler(Looper.getMainLooper())
 
     fun onMessage(messageId: Int, body: ByteArray) {
         when (messageId) {
@@ -55,42 +73,94 @@ class ClusterNav(
     }
 
     private fun start() {
-        if (running) return
+        if (running || ended) return
         running = true
         if (car in ClusterCars.off.value) {
-            MyCarLog.i("cluster: this car hung up right after a turn on an earlier drive - it gets none, only \"not navigating\" (its Settings in the car can turn turns back on)")
+            MyCarLog.i("cluster: this car hung up right after the first turns, twice in a row - it gets none, only \"not navigating\" (its Settings in the car can turn turns back on)")
         }
         Thread({
-            while (running) {
+            // Here, not on the thread that reads the car: it reads the phone's storage.
+            held = ClusterCars.record(car).held
+            // After the car's screen is up: its start clears the toasts left from before.
+            if (ClusterCars.noticeDue(car)) main.postDelayed({ tellWhenStopped() }, NOTICE_AFTER_MS)
+            while (running && !ended) {
                 val wait = runCatching { tick() }.getOrElse {
                     MyCarLog.w("cluster: ${it.message}")
                     TICK_MS
                 }
-                Thread.sleep(wait)
+                // In slices: a stop is seen within one, however long the car wants between messages.
+                var left = wait
+                while (left > 0 && running && !ended) {
+                    val slice = minOf(left, TICK_MS)
+                    Thread.sleep(slice)
+                    left -= slice
+                }
             }
         }, "mycar-cluster").start()
     }
 
     fun stop() {
+        ended = true
         running = false
+        main.removeCallbacksAndMessages(null)
+    }
+
+    /**
+     * At the drive after this car lost its turns, its screen says so once the car is stopped: a
+     * glance at a red light, not one at speed. Looked at again every few seconds for the drive.
+     */
+    private fun tellWhenStopped() {
+        if (ended) return
+        if (!CarDriving.videoAllowed) {
+            main.postDelayed({ tellWhenStopped() }, STOPPED_LOOK_MS)
+            return
+        }
+        CarToasts.show(this, Words.get(R.string.car_cluster_no_turns_notice), CarToast.LENGTH_LONG)
+        ClusterCars.noticeGiven(car)
+        MyCarLog.i("cluster: told the driver this car gets no turns on its cluster")
     }
 
     /**
      * The car ended the session, by ByeBye with [byeBye] as its reason or by dropping the connection
-     * (null). Right after a navigation opened on its cluster, the cluster is the likely cause: this
-     * car gets no more turns.
+     * (null). Right after a navigation opened on its cluster, the cluster may be the cause: twice in
+     * a row, and this car gets no more turns ([ClusterRecord]).
      */
     fun carEnded(byeBye: Int?) {
         val after = blame.blame(SystemClock.elapsedRealtime(), byeBye) ?: return
-        ClusterCars.stopTurns(car)
-        MyCarLog.w(
-            "cluster: the car ended the session $after ms after myCar began showing it a navigation - " +
-                "it gets no more turns on its cluster (its Settings in the car can turn them back on)",
-        )
+        val what = "the car ended the session $after ms after a navigation opened on its cluster"
+        if (held) {
+            MyCarLog.i("cluster: $what - not counted: it has shown navigations there")
+            return
+        }
+        val record = ClusterCars.hungUp(car)
+        if (record.off) {
+            MyCarLog.w("cluster: $what, ${record.strikes} times in a row - it gets no more turns there (its Settings in the car can turn them back on)")
+        } else {
+            MyCarLog.w("cluster: $what - ${record.strikes} of ${ClusterRecord.TIMES} in a row before it gets no more turns")
+        }
     }
 
-    /** Sends the message the car is owed, if any ([ClusterNext]): how long until the next look. */
+    /** What the clock says while the session is up ([ClusterBlame.check]), kept for the car. */
+    private fun noteTheTime() {
+        when (blame.check(SystemClock.elapsedRealtime())) {
+            ClusterBlame.Event.SURVIVED -> if (ClusterCars.tookIt(car)) {
+                MyCarLog.i("cluster: the car took the opening of a navigation - its hang-ups in a row start over")
+            }
+            ClusterBlame.Event.HELD -> if (!held) {
+                held = true
+                ClusterCars.showedIt(car)
+                MyCarLog.i("cluster: the car has shown a navigation on its cluster for a minute - a hang-up is never put down to it")
+            }
+            null -> Unit
+        }
+    }
+
+    /**
+     * Sends what the car is owed ([ClusterNext]): one message for a cluster that wants pictures, all
+     * of them together for every other one. How long until the next look.
+     */
     private fun tick(): Long {
+        noteTheTime()
         // A car that hung up over its cluster stays at "not navigating".
         val turn = if (car in ClusterCars.off.value) null else NavTurn.current()
         val status = when {
@@ -100,27 +170,36 @@ class ClusterNav(
         }
         val turnKey = turn?.let { keyOf(it.step) }
         val distance = turn?.distance
-        val distanceKey = distance?.let { "${it.displayDistance}|${it.displayUnit}|${turn.seconds ?: -1}" }
-        when (ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance)) {
-            ClusterNext.Message.STATUS -> {
-                sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
-                MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
-                sentStatus = status
-                if (status == ClusterNext.NOT_NAVIGATING) { sentTurn = null; sentDistance = null }
-                blame.status(status, SystemClock.elapsedRealtime())
+        val seconds = turn?.seconds
+        val distanceKey = distance?.let { "${it.displayDistance}|${it.displayUnit}|${seconds ?: -1}" }
+        val messages = if (spec.oneAtATime) {
+            listOfNotNull(ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance, lastSent))
+        } else {
+            ClusterNext.owed(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance)
+        }
+        if (messages.isEmpty()) return TICK_MS
+        for (message in messages) {
+            lastSent = message
+            when (message) {
+                ClusterNext.Message.STATUS -> {
+                    sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
+                    MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
+                    sentStatus = status
+                    if (status == ClusterNext.NOT_NAVIGATING) { sentTurn = null; sentDistance = null }
+                    blame.status(status, SystemClock.elapsedRealtime())
+                }
+                ClusterNext.Message.TURN -> {
+                    val step = turn?.step ?: continue
+                    sentTurn = turnKey
+                    if (sendTurn(step)) blame.turn(SystemClock.elapsedRealtime())
+                }
+                ClusterNext.Message.DISTANCE -> {
+                    if (distance == null) continue
+                    sendDistance(distance, seconds)
+                    sentDistance = distanceKey
+                    blame.distance(SystemClock.elapsedRealtime())
+                }
             }
-            ClusterNext.Message.TURN -> {
-                val step = turn?.step ?: return TICK_MS
-                sentTurn = turnKey
-                if (sendTurn(step)) blame.turn(SystemClock.elapsedRealtime())
-            }
-            ClusterNext.Message.DISTANCE -> {
-                if (distance == null) return TICK_MS
-                sendDistance(distance, turn.seconds)
-                sentDistance = distanceKey
-                blame.distance(SystemClock.elapsedRealtime())
-            }
-            null -> return TICK_MS
         }
         return spec.intervalMs
     }
@@ -144,13 +223,18 @@ class ClusterNav(
         var drawn = ""
         spec.pictureSize()?.let { (width, height) ->
             val started = SystemClock.elapsedRealtime()
-            val picture = drawTurn(maneuver, event, side, width, height) ?: run {
+            val key = pictureKeyOf(maneuver, event, side)
+            val same = lastPicture?.takeIf { key == pictureKey }
+            val picture = same ?: drawTurn(maneuver, event, side, width, height) ?: run {
                 MyCarLog.w("cluster: no picture for this turn - not sent, as this cluster wants one")
                 return false
             }
+            pictureKey = key
+            lastPicture = picture
             body += Protobuf.bytesField(4, picture.png)
             val what = if (picture.appIcon) "the app's icon" else "myCar's arrow"
-            drawn = ", ${width}x$height picture of $what (${picture.png.size / 1024} KB, ${SystemClock.elapsedRealtime() - started} ms)"
+            val made = if (same != null) "the one before" else "${SystemClock.elapsedRealtime() - started} ms"
+            drawn = ", ${width}x$height picture of $what (${picture.png.size / 1024} KB, $made)"
         }
         maneuver?.roundaboutExitNumber?.takeIf { it > 0 }?.let { body += Protobuf.varintField(5, it.toLong()) }
         maneuver?.roundaboutExitAngle?.takeIf { it > 0 }?.let { body += Protobuf.varintField(6, it.toLong()) }
@@ -158,6 +242,22 @@ class ClusterNav(
         // Not the road's name: it says where the driver is going.
         MyCarLog.i("cluster: -> turn event=$event side=$side${if (road.isEmpty()) ", no road name" else ""}$drawn")
         return true
+    }
+
+    /**
+     * What a turn's picture shows: its manoeuvre and the app's icon, not the words beside it. A bitmap
+     * icon says nothing about itself, so the manoeuvre tells one from the next.
+     */
+    private fun pictureKeyOf(maneuver: Maneuver?, event: Int, side: Int): String {
+        val icon = maneuver?.icon
+        val source = icon?.icon
+        val drawn = when (source?.type) {
+            null -> "none"
+            IconCompat.TYPE_RESOURCE -> "res:${source.resPackage}:${source.resId}"
+            IconCompat.TYPE_URI, IconCompat.TYPE_URI_ADAPTIVE_BITMAP -> "uri:${source.uri}"
+            else -> "type:${source.type}"
+        }
+        return "$event|$side|${maneuver?.type}|${maneuver?.roundaboutExitAngle}|$drawn|${icon?.tint?.type}"
     }
 
     /** The turn as the picture a cluster that wants one gets ([ClusterImage]); null if it can't be made. */
@@ -189,6 +289,9 @@ class ClusterNav(
     companion object {
         /** How often myCar looks at the map app while it has nothing to send. */
         private const val TICK_MS = 500L
+        /** The notice of a car without turns: not before the car's screen is up, then a look this often. */
+        private const val NOTICE_AFTER_MS = 10_000L
+        private const val STOPPED_LOOK_MS = 5_000L
         private const val MSG_CHANNEL_OPEN_RESPONSE = 8
         private const val MSG_START = 32769
         private const val MSG_STOP = 32770

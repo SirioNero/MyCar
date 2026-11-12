@@ -26,8 +26,11 @@ class ClusterSpec(
     val imageHeight: Int = 0,
     val colourDepthBits: Int = 0,
 ) {
-    /** The time myCar leaves between two messages: the car's, never less than it always left. */
-    val intervalMs: Long get() = maxOf(minIntervalMs.toLong(), FLOOR_MS)
+    /**
+     * The time myCar leaves between two messages: the car's, never less than it always left, nor
+     * more than [MAX_INTERVAL_MS].
+     */
+    val intervalMs: Long get() = minIntervalMs.toLong().coerceIn(FLOOR_MS, MAX_INTERVAL_MS)
 
     /**
      * The size of a turn's picture, width to height: what the car asks for, or the same shape within
@@ -39,6 +42,12 @@ class ClusterSpec(
         val scale = minOf(1.0, kotlin.math.sqrt(MAX_PIXELS / (imageWidth.toDouble() * imageHeight)))
         return maxOf(1, (imageWidth * scale).toInt()) to maxOf(1, (imageHeight * scale).toInt())
     }
+
+    /**
+     * A cluster that wants pictures gets one message at a time ([ClusterNext]); every other one gets
+     * its messages together, as before.
+     */
+    val oneAtATime: Boolean get() = type == IMAGE
 
     /** Fewer than 32 bits of colour leave no room for transparency: the picture gets a black ground then. */
     val opaque: Boolean get() = colourDepthBits in 1..31
@@ -56,9 +65,13 @@ class ClusterSpec(
             type == ENUM -> "the cluster takes turn codes"
             else -> "the cluster doesn't say how it shows turns: codes, as always"
         }
-        val pace = if (minIntervalMs > FLOOR_MS) "the car asks for $minIntervalMs ms"
-        else "the car asks for ${if (minIntervalMs > 0) "$minIntervalMs ms" else "nothing"}, myCar leaves $FLOOR_MS ms"
-        return "$what; one message at a time, ${intervalMs}ms apart ($pace)"
+        val pace = when {
+            minIntervalMs > MAX_INTERVAL_MS -> "the car asks for $minIntervalMs ms, myCar keeps to $MAX_INTERVAL_MS"
+            minIntervalMs > FLOOR_MS -> "the car asks for $minIntervalMs ms"
+            else -> "the car asks for ${if (minIntervalMs > 0) "$minIntervalMs ms" else "nothing"}, myCar leaves $FLOOR_MS ms"
+        }
+        val rounds = if (oneAtATime) "one message at a time" else "its messages together, a round at most"
+        return "$what; $rounds every ${intervalMs}ms ($pace)"
     }
 
     companion object {
@@ -67,6 +80,9 @@ class ClusterSpec(
 
         /** What myCar always left between two looks at the map app: no car gets messages faster than before. */
         const val FLOOR_MS = 500L
+
+        /** The most myCar leaves between two messages, whatever the car asks: longer, the cluster lags behind the road. */
+        const val MAX_INTERVAL_MS = 10_000L
 
         /** A Full HD picture at most: an absurd size would only cost memory. */
         const val MAX_PIXELS = 1920.0 * 1080

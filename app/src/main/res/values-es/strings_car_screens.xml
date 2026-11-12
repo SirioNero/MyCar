@@ -53,8 +53,9 @@
     <string name="car_settings_info_certificate">Certificado</string>
     <string name="car_settings_info_cluster">Cuadro de instrumentos</string>
     <string name="car_settings_cluster_no_turns">Sin giros para este coche</string>
-    <string name="car_settings_cluster_no_turns_note">Este coche cerró la conexión justo después de que myCar enviara un giro a su cuadro de instrumentos, así que myCar ya no le envía ninguno. El mapa de esta pantalla los sigue mostrando.</string>
+    <string name="car_settings_cluster_no_turns_note">Este coche cerró la conexión dos veces seguidas justo después de que myCar enviara un giro a su cuadro de instrumentos, así que myCar ya no le envía ninguno. El mapa de esta pantalla los sigue mostrando.</string>
     <string name="car_settings_cluster_turns_again">Volver a enviar los giros</string>
+    <string name="car_cluster_no_turns_notice">Este coche cerró la conexión dos veces seguidas justo tras un giro en el cuadro de instrumentos: ya no recibe giros ahí. Se vuelven a enviar en Ajustes > Conexión.</string>
     <string name="car_settings_checking">Comprobando…</string>
     <string name="car_settings_unknown_vehicle">Vehículo desconocido</string>
     <string name="car_settings_about">Acerca de</string>

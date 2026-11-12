@@ -27,7 +27,8 @@
     <string name="car_settings_info_vehicle">Καράβι</string>
     <string name="car_settings_unknown_vehicle">Άγνωστο καράβι</string>
     <string name="car_settings_cluster_no_turns">Χωρίς στροφές για αυτό το καράβι</string>
-    <string name="car_settings_cluster_no_turns_note">Αυτό το καράβι έκλεισε τη σύνδεση αμέσως μετά από μια στροφή που έστειλε το myCar στον πίνακα οργάνων του, γι’ αυτό το myCar δεν του στέλνει πλέον καμία. Ο χάρτης σε αυτή την οθόνη εξακολουθεί να τις δείχνει.</string>
+    <string name="car_settings_cluster_no_turns_note">Αυτό το καράβι έκλεισε τη σύνδεση δύο φορές στη σειρά αμέσως μετά από μια στροφή που έστειλε το myCar στον πίνακα οργάνων του, γι’ αυτό το myCar δεν του στέλνει πλέον καμία. Ο χάρτης σε αυτή την οθόνη εξακολουθεί να τις δείχνει.</string>
+    <string name="car_cluster_no_turns_notice">Αυτό το καράβι έκλεισε τη σύνδεση δύο φορές στη σειρά αμέσως μετά από μια στροφή στον πίνακα οργάνων: δεν παίρνει πια στροφές εκεί. Ξανά από Ξάρτια > Ρεσάλτο.</string>
     <string name="car_settings_about">Σημαία</string>
     <string name="car_settings_whats_new_after_updates">Νέα λάφυρα μετά από ενημερώσεις</string>
     <string name="car_settings_whats_new_after_updates_note">Δείχνει τη λίστα με τα νέα λάφυρα μία φορά, την πρώτη φορά που γίνεται ρεσάλτο μετά από μια ενημέρωση.</string>

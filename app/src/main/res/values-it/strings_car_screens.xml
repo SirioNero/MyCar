@@ -53,8 +53,9 @@
     <string name="car_settings_info_certificate">Certificato</string>
     <string name="car_settings_info_cluster">Quadro strumenti</string>
     <string name="car_settings_cluster_no_turns">Nessuna svolta per quest\'auto</string>
-    <string name="car_settings_cluster_no_turns_note">Quest\'auto ha chiuso la connessione subito dopo una svolta mandata da myCar al suo quadro strumenti, quindi myCar non gliene manda più. La mappa su questo schermo le mostra ancora.</string>
+    <string name="car_settings_cluster_no_turns_note">Quest\'auto ha chiuso la connessione due volte di fila subito dopo una svolta mandata da myCar al suo quadro strumenti, quindi myCar non gliene manda più. La mappa su questo schermo le mostra ancora.</string>
     <string name="car_settings_cluster_turns_again">Manda di nuovo le svolte</string>
+    <string name="car_cluster_no_turns_notice">Quest\'auto ha chiuso la connessione due volte di fila subito dopo una svolta sul quadro strumenti: non riceve più svolte lì. Si rimandano da Impostazioni > Connessione.</string>
     <string name="car_settings_checking">Controllo…</string>
     <string name="car_settings_unknown_vehicle">Veicolo sconosciuto</string>
     <string name="car_settings_about">Informazioni</string>

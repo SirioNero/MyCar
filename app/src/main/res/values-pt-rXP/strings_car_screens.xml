@@ -23,7 +23,8 @@
     <string name="car_settings_info_vehicle">Navio</string>
     <string name="car_settings_unknown_vehicle">Navio desconhecido</string>
     <string name="car_settings_cluster_no_turns">Sem conversões para este navio</string>
-    <string name="car_settings_cluster_no_turns_note">Este navio encerrou a conexão logo depois que o myCar enviou uma conversão ao painel de instrumentos dele, então o myCar não envia mais nenhuma. O mapa nesta tela continua mostrando as conversões.</string>
+    <string name="car_settings_cluster_no_turns_note">Este navio encerrou a conexão duas vezes seguidas logo depois que o myCar enviou uma conversão ao painel de instrumentos dele, então o myCar não envia mais nenhuma. O mapa nesta tela continua mostrando as conversões.</string>
+    <string name="car_cluster_no_turns_notice">Este navio encerrou a conexão duas vezes seguidas logo após uma conversão no painel de instrumentos: não recebe mais conversões lá. Para enviá-las de novo: Leme > Abordagem.</string>
     <string name="car_settings_about">Bandeira</string>
     <string name="car_settings_whats_new_after_updates">Butim novo após atualizações</string>
     <string name="car_settings_whats_new_after_updates_note">Mostra a lista de mudanças uma vez, na primeira abordagem do navio depois de uma atualização.</string>

@@ -1,10 +1,12 @@
 package io.github.sirionero.mycar.car
 
 /**
- * The cluster's messages go one at a time, [ClusterSpec.intervalMs] apart, each with the newest
- * state: the 2024 MG ZS of issue #23 asks for a second between messages, and got the status, the
- * turn and the distance in the same millisecond. What goes next: the status first, then the turn,
- * then how far it is - a turn and a distance only while navigating (not while rerouting), as always.
+ * Which of the cluster's messages go now, each with the newest state: the status first, then the
+ * turn, then how far it is - a turn and a distance only while navigating (not while rerouting), as
+ * always. A cluster that wants pictures gets one message at a time, [ClusterSpec.intervalMs] apart:
+ * the 2024 MG ZS of issue #23 asks for a second between messages, and got the status, the turn and
+ * the distance in the same millisecond. Every other one gets what it's owed together, as myCar always
+ * sent it, in rounds that keep the car's interval: the cars that took turns before take them as before.
  */
 internal object ClusterNext {
 
@@ -16,8 +18,28 @@ internal object ClusterNext {
     const val REROUTING = 3
 
     /**
-     * The message the car is owed, or null when it has the newest of everything. [turn] and
+     * Every message the car is owed, in order; empty when it has the newest of everything. [turn] and
      * [distance] stand for what they say (null when there's none), the sent ones for what went last.
+     */
+    fun owed(
+        status: Int,
+        sentStatus: Int,
+        turn: String?,
+        sentTurn: String?,
+        distance: String?,
+        sentDistance: String?,
+    ): List<Message> = buildList {
+        if (status != sentStatus) add(Message.STATUS)
+        if (status == NAVIGATING) {
+            if (turn != null && turn != sentTurn) add(Message.TURN)
+            if (distance != null && distance != sentDistance) add(Message.DISTANCE)
+        }
+    }
+
+    /**
+     * The one message that goes next, for a cluster that takes one at a time; null when none is owed.
+     * Right after a turn ([last]) a distance waiting goes before a newer turn: a turn whose words
+     * change every second (a cue that counts down the metres) would never let it through.
      */
     fun of(
         status: Int,
@@ -26,11 +48,10 @@ internal object ClusterNext {
         sentTurn: String?,
         distance: String?,
         sentDistance: String?,
-    ): Message? = when {
-        status != sentStatus -> Message.STATUS
-        status != NAVIGATING -> null
-        turn != null && turn != sentTurn -> Message.TURN
-        distance != null && distance != sentDistance -> Message.DISTANCE
-        else -> null
+        last: Message? = null,
+    ): Message? {
+        val owed = owed(status, sentStatus, turn, sentTurn, distance, sentDistance)
+        if (last == Message.TURN && Message.STATUS !in owed && Message.DISTANCE in owed) return Message.DISTANCE
+        return owed.firstOrNull()
     }
 }

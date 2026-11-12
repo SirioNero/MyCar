@@ -53,8 +53,9 @@
     <string name="car_settings_info_certificate">Zertifikat</string>
     <string name="car_settings_info_cluster">Kombiinstrument</string>
     <string name="car_settings_cluster_no_turns">Keine Abbiegungen für dieses Auto</string>
-    <string name="car_settings_cluster_no_turns_note">Dieses Auto hat die Verbindung direkt beendet, nachdem myCar seinem Kombiinstrument eine Abbiegung geschickt hatte. Deshalb schickt myCar ihm keine mehr. Die Karte auf diesem Bildschirm zeigt sie weiterhin.</string>
+    <string name="car_settings_cluster_no_turns_note">Dieses Auto hat die Verbindung zweimal hintereinander direkt beendet, nachdem myCar seinem Kombiinstrument eine Abbiegung geschickt hatte. Deshalb schickt myCar ihm keine mehr. Die Karte auf diesem Bildschirm zeigt sie weiterhin.</string>
     <string name="car_settings_cluster_turns_again">Abbiegungen wieder senden</string>
+    <string name="car_cluster_no_turns_notice">Dieses Auto hat die Verbindung zweimal hintereinander direkt nach einer Abbiegung im Kombiinstrument beendet: Es bekommt dort keine mehr. Wieder senden: Einstellungen > Verbindung.</string>
     <string name="car_settings_checking">Wird geprüft…</string>
     <string name="car_settings_unknown_vehicle">Unbekanntes Fahrzeug</string>
     <string name="car_settings_about">Info</string>
