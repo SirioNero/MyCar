@@ -577,6 +577,15 @@ fi
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
+# The car's settings scrolled down, then what might take them back to the top (a tester's Ioniq 5 over a
+# wireless adapter: "the settings menu did scroll back up quite many times"): the car showing its own
+# screen and handing it back, the dashboard from the dock's clock and the car's Back to the settings, two
+# turns of the knob. A script (see PreviewScript), a picture after each step, in settings-scroll/.
+SETTINGS_SCROLL="wait:7000;tap:$GRID_BUTTON;wait:2500;tap:$(at settings);wait:3000;snap:1-open"
+SETTINGS_SCROLL="$SETTINGS_SCROLL;drag:1500,620,1500,170,900;wait:2500;snap:2-scrolled;focus:2000;wait:2000;snap:3-car-screen-back"
+SETTINGS_SCROLL="$SETTINGS_SCROLL;tap:72,66;wait:2500;snap:4-dashboard;key:4;wait:2500;snap:5-back"
+SETTINGS_SCROLL="$SETTINGS_SCROLL;knob:1;wait:1500;snap:6-knob;knob:1;wait:1500;snap:7-knob-2"
+EXTRA="--es script '$SETTINGS_SCROLL'" shoot settings-scroll 1920 720 240 "" "sleep 25"
 
 # The car's browser on a page that is one big dropdown (<select>): a tap opens myCar's own list over
 # the car's screen (car/WebSelect.kt; Android's dialog can't show there, and before 0.5.19 it closed
