@@ -21,11 +21,14 @@ import io.github.sirionero.mycar.Protobuf
  * Newer cars also take a NavigationState message; the deprecated pair above is what a 2018
  * Uconnect understands. The turn comes from the map app's trip (what the Car App Library hands
  * to clusters), or from its routing card when it sends no trip.
+ *
+ * One message at a time, at the pace the car asks for ([ClusterSpec], [ClusterNext]).
  */
 class ClusterNav(
-    val channelId: Int,
+    private val spec: ClusterSpec,
     private val sendOnChannel: (messageId: Int, body: ByteArray) -> Unit,
 ) {
+    val channelId: Int get() = spec.channel
     @Volatile private var running = false
     private var sentStatus = -1
     private var sentTurn: String? = null
@@ -50,8 +53,11 @@ class ClusterNav(
         running = true
         Thread({
             while (running) {
-                runCatching { tick() }.onFailure { MyCarLog.w("cluster: ${it.message}") }
-                Thread.sleep(TICK_MS)
+                val wait = runCatching { tick() }.getOrElse {
+                    MyCarLog.w("cluster: ${it.message}")
+                    TICK_MS
+                }
+                Thread.sleep(wait)
             }
         }, "mycar-cluster").start()
     }
@@ -60,31 +66,51 @@ class ClusterNav(
         running = false
     }
 
-    private fun tick() {
+    /** Sends the message the car is owed, if any ([ClusterNext]): how long until the next look. */
+    private fun tick(): Long {
         val turn = NavTurn.current()
         val status = when {
-            turn == null -> STATUS_INACTIVE
-            turn.rerouting -> STATUS_REROUTING
-            else -> STATUS_ACTIVE
+            turn == null -> ClusterNext.NOT_NAVIGATING
+            turn.rerouting -> ClusterNext.REROUTING
+            else -> ClusterNext.NAVIGATING
         }
-        if (status != sentStatus) {
-            sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
-            MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
-            sentStatus = status
-            if (status == STATUS_INACTIVE) { sentTurn = null; sentDistance = null }
+        val turnKey = turn?.let { keyOf(it.step) }
+        val distance = turn?.distance
+        val distanceKey = distance?.let { "${it.displayDistance}|${it.displayUnit}|${turn.seconds ?: -1}" }
+        when (ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance)) {
+            ClusterNext.Message.STATUS -> {
+                sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
+                MyCarLog.i("cluster: -> ${STATUS_NAMES[status]}")
+                sentStatus = status
+                if (status == ClusterNext.NOT_NAVIGATING) { sentTurn = null; sentDistance = null }
+            }
+            ClusterNext.Message.TURN -> {
+                val step = turn?.step ?: return TICK_MS
+                sendTurn(step)
+                sentTurn = turnKey
+            }
+            ClusterNext.Message.DISTANCE -> {
+                if (distance == null) return TICK_MS
+                sendDistance(distance, turn.seconds)
+                sentDistance = distanceKey
+            }
+            null -> return TICK_MS
         }
-        if (turn == null || status == STATUS_REROUTING) return
-        sendTurn(turn.step)
-        turn.distance?.let { sendDistance(it, turn.seconds) }
+        return spec.intervalMs
+    }
+
+    /** What tells one turn from the next for the car: road, code, side and roundabout exit, as always. */
+    private fun keyOf(step: Step): String {
+        val maneuver = step.maneuver
+        val (event, side) = maneuver?.let { eventFor(it.type) } ?: (EVENT_UNKNOWN to SIDE_UNSPECIFIED)
+        val road = step.road.text().ifBlank { step.cue.text() }
+        return "$road|$event|$side|${maneuver?.roundaboutExitNumber}"
     }
 
     private fun sendTurn(step: Step) {
         val maneuver = step.maneuver
         val (event, side) = maneuver?.let { eventFor(it.type) } ?: (EVENT_UNKNOWN to SIDE_UNSPECIFIED)
         val road = step.road.text().ifBlank { step.cue.text() }
-        val key = "$road|$event|$side|${maneuver?.roundaboutExitNumber}"
-        if (key == sentTurn) return
-        sentTurn = key
         var body = Protobuf.stringField(1, road) +
             Protobuf.varintField(2, side.toLong()) +
             Protobuf.varintField(3, event.toLong())
@@ -100,9 +126,6 @@ class ClusterNav(
      */
     private fun sendDistance(distance: Distance, seconds: Long?) {
         val meters = NavTurn.toMeters(distance)
-        val key = "${distance.displayDistance}|${distance.displayUnit}|${seconds ?: -1}"
-        if (key == sentDistance) return
-        sentDistance = key
         sendOnChannel(
             MSG_DISTANCE,
             Protobuf.varintField(1, meters.toLong()) +
@@ -115,6 +138,7 @@ class ClusterNav(
     private fun CarText?.text() = this?.toString().orEmpty()
 
     companion object {
+        /** How often myCar looks at the map app while it has nothing to send. */
         private const val TICK_MS = 500L
         private const val MSG_CHANNEL_OPEN_RESPONSE = 8
         private const val MSG_START = 32769
@@ -123,9 +147,6 @@ class ClusterNav(
         private const val MSG_TURN = 32772
         private const val MSG_DISTANCE = 32773
 
-        private const val STATUS_ACTIVE = 1
-        private const val STATUS_INACTIVE = 2
-        private const val STATUS_REROUTING = 3
         private val STATUS_NAMES = mapOf(1 to "navigating", 2 to "not navigating", 3 to "rerouting")
 
         private const val SIDE_LEFT = 1
