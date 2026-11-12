@@ -289,8 +289,15 @@ object CarBluetooth {
         val address = PhoneAddress.tidy(text) ?: return false
         AppSettings.putString(context, KEY_PHONE_ADDRESS, address)
         // Saved again: told again to every car already paired, those it was kept from too. The
-        // driver's way back, should such a car turn out to need it after all.
-        AppSettings.putString(context, KEY_NOT_TOLD, "")
+        // driver's way back, should such a car turn out to need it after all. What made myCar keep
+        // it from them is forgotten, or the next drive would keep it from them again: only a new
+        // drive without the address can tell it again.
+        val keptFrom = AppSettings.getString(context, KEY_NOT_TOLD, "").split(",").filter { it.isNotEmpty() }
+        if (keptFrom.isNotEmpty()) {
+            val music = AppSettings.getString(context, KEY_MUSIC_WITHOUT, "").split(",").filter { it.isNotEmpty() }
+            AppSettings.putString(context, KEY_MUSIC_WITHOUT, (music - keptFrom.toSet()).joinToString(","))
+            AppSettings.putString(context, KEY_NOT_TOLD, "")
+        }
         PhoneAddressCheck.noticeSeen(context)
         return true
     }
