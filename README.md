@@ -176,7 +176,9 @@ behind it all — still or moving.
   searching, a site's computer layout when you prefer it. Next to the sites, the videos on your
   phone (they start again where you left them) and TV: add an IPTV list (M3U) from your provider, a
   public list or a TV server at home, and its channels show with their logos and groups. Both play
-  on Android's own player, with nothing extra to install. Video shows only when the car is parked:
+  on Android's own player, with nothing extra to install. A video from NewPipe and apps like it
+  (play with an external player, then "myCar · Cinema"), or a link you share to myCar, opens in
+  Cinema on the car's screen. Video shows only when the car is parked:
   while it moves the picture is covered and the sound carries on. That's a setting, on by default,
   which myCar strongly advises keeping on. Protected video (Netflix, Prime Video, Disney+, DAZN)
   most likely stays black in the car: Android hides it from a screen sent to the car as video.
