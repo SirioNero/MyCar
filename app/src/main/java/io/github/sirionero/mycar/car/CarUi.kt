@@ -502,7 +502,7 @@ private fun BrowseAppScreen(navigator: CarNavigator) {
     }
     val failed = status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED
     if (failed || timedOut) {
-        AppWontStart(status.app, leave)
+        AppWontStart(status.app, status.detail?.takeIf { failed && status.refused }, leave)
         return
     }
     AppBackKey(CarServices.browse, active = true)
@@ -514,9 +514,12 @@ private const val APP_START_TIMEOUT_MS = 15_000L
 /** How small a screen starts as it settles in, before growing to full size. */
 private const val SCREEN_ENTER_SCALE = 0.97f
 
-/** What a car app that won't run under myCar gets instead of a loading screen that never ends. */
+/**
+ * What a car app that won't run under myCar gets instead of a loading screen that never ends. [why]:
+ * the app turned myCar down as its host (see HostRefusals), in plain words, said instead of the guess.
+ */
 @Composable
-private fun AppWontStart(app: String?, onBack: () -> Unit) {
+private fun AppWontStart(app: String?, why: String?, onBack: () -> Unit) {
     Column(
         Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -528,7 +531,7 @@ private fun AppWontStart(app: String?, onBack: () -> Unit) {
             fontWeight = FontWeight.SemiBold,
         )
         Text(
-            stringResource(R.string.car_ui_app_wont_start_detail),
+            why ?: stringResource(R.string.car_ui_app_wont_start_detail),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

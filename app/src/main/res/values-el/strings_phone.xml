@@ -29,6 +29,8 @@
     <string name="help_sound_through_mycar">Ήχος μέσω του myCar</string>
     <string name="help_step_connect">Συνδέστε το καλώδιο ή συνδεθείτε ασύρματα.</string>
     <string name="help_step_connect_detail">Το myCar ανοίγει μόνο του όταν συνδεθεί το αυτοκίνητο. Την πρώτη φορά με καλώδιο, το Android ρωτά ποια εφαρμογή να ανοίξει: επιλέξτε το myCar και πατήστε «Πάντα». Για ασύρματη σύνδεση, κάντε πρώτα σύζευξη του τηλεφώνου με το αυτοκίνητο και μετά πατήστε «Ασύρματη σύνδεση» στην Αρχική.</string>
+    <string name="help_step_vpn">Με VPN, αφήστε το myCar έξω από αυτό για ασύρματη σύνδεση.</string>
+    <string name="help_step_vpn_detail">Μέσα σε ένα VPN, το Android κρατά το myCar έξω από το Wi-Fi του αυτοκινήτου. Αφήστε το myCar έξω στην εφαρμογή του VPN (στο Tailscale: Settings, App split tunneling), απενεργοποιήστε το VPN για τη διαδρομή ή χρησιμοποιήστε το καλώδιο. Με ενεργό το «Αποκλεισμός συνδέσεων χωρίς VPN», το Android αποκλείει το myCar και έξω από το VPN: απενεργοποιήστε το στις ρυθμίσεις VPN του Android.</string>
     <string name="help_step_pair">Κάντε σύζευξη μέσω Bluetooth για τις κλήσεις.</string>
     <string name="help_step_pair_detail">Οι κλήσεις ακούγονται από το αυτοκίνητο μόλις γίνει σύζευξη του τηλεφώνου με το αυτοκίνητο. Το myCar προτείνει τη σύζευξη την πρώτη φορά που θα συνδέσετε το καλώδιο.</string>
     <string name="help_step_screening">Απορρίψτε τις άγνωστες κλήσεις πριν χτυπήσουν.</string>

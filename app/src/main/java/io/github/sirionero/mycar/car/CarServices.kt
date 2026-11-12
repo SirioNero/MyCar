@@ -561,8 +561,8 @@ object CarServices {
                 .filter { it.isNavigation }
             _hasNavApps.value = navApps.isNotEmpty()
             // Never auto-pick one already known to fail outright - a driver who plugs in should
-            // land on a map, not on the one tile marked with a red X.
-            val candidates = navApps.filterNot { KnownApps.isBroken(ctx, it.component.packageName) }
+            // land on a map, not on the one tile marked with a red X. Nor one that turned myCar down.
+            val candidates = navApps.filterNot { KnownApps.wontStart(ctx, it.component.packageName) }
             val last = CarSettings.lastNav.value
             // The one used last, or - first run, nothing on record yet - whichever comes first:
             // a driver who plugs in for the first time shouldn't have to go pick one by hand

@@ -98,14 +98,18 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
     val navigator = LocalCarNavigator.current
     val status by CarServices.browse.status.collectAsState()
     var started by remember { mutableStateOf(false) }
+    // Turned myCar down as its host (see HostRefusals): not started here by itself, only by Retry.
+    val refused = rememberRefusal(app, status.phase)
     LaunchedEffect(app.component) {
         val live = CarServices.browse.status.value.phase in LIVE
         val closed = app.component in CarServices.closedBrowse
-        if (!closed && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
+        if (!closed && refused == null && (!live || CarServices.browse.connectedComponent != app.component)) CarServices.connectBrowse(app, frame)
         started = true
     }
     Box(modifier.background(MaterialTheme.colorScheme.surface), contentAlignment = Alignment.Center) {
-        if (status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
+        // Said for it until it's tried here again: from then on its connection speaks for it.
+        val waits = refused != null && CarServices.browse.connectedComponent != app.component
+        if (waits || status.phase == CarAppConnection.Phase.REJECTED || status.phase == CarAppConnection.Phase.FAILED) {
             // Why, and a way on: only the sentence, it held a third of Home for the whole drive.
             Column(
                 Modifier.padding(24.dp),
@@ -113,7 +117,7 @@ internal fun SideAppPane(app: TemplateApp, frame: CarEnvironment.Frame, modifier
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(stringResource(R.string.car_home_app_failed, app.label), style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
-                status.detail?.let {
+                (if (waits) refused else status.detail)?.let {
                     Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

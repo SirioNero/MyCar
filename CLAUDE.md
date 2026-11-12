@@ -1710,7 +1710,7 @@ Tutti i token in un solo posto, `car/design/`:
   (`*,io.github.sirionero.mycar.dev` per la build di prova) e si rifà la patch (README, "Some apps refuse
   myCar"). Una copia rifirmata di un'app rotta (`KnownApps.modified`, oggi solo Waze) che rifiuta myCar prima
   dell'handshake (anche i 10 s senza risposta: è così che rifiuta la Car App Library) è ricordata in
-  `host/PatchRefusals.kt` (pacchetto → `lastUpdateTime`, perché Morphe firma ogni copia con la stessa chiave):
+  `host/HostRefusals.kt`, fino alla 0.7.4 `PatchRefusals` (pacchetto → `lastUpdateTime`, perché Morphe firma ogni copia con la stessa chiave):
   X rossa e niente avvio automatico, ma la tessera la apre ancora; si dimentica al primo handshake accettato o
   con un'altra copia. In auto il rifiuto dice cosa aggiungere (`car_host_modified_refused`). Non provato con una
   Waze vera.
@@ -1855,6 +1855,44 @@ Tutti i token in un solo posto, `car/design/`:
   erano estratti degli script di Spotify pubblicati per sbaglio dalle prime sonde su `ci/car-preview`, ancora
   serviti da 4 commit non più raggiungibili (solo il supporto di GitHub può toglierli: l'utente decide dopo il
   rilascio). Non provato con un account Spotify né in auto.
+- **Una VPN tiene myCar fuori dal Wi-Fi dell'auto** (0.7.5, `fix/vpn-wireless`; dal forum di GrapheneOS: Ioniq 5
+  con un adattatore Ottocast, `probe: …:5288 failed: … EPERM` ripetuto). Dentro una VPN non scavalcabile Android
+  rifiuta il legame alla rete dell'auto (EPERM: `checkUserNetworkAccessLocked` di netd, solo se la VPN si
+  applica all'uid ed è sicura). I tentativi passano allora dalla strada normale, che va nella VPN o, col ripiego
+  `RULE_PRIORITY_VPN_FALLTHROUGH`, sulla rete principale del telefono: all'auto arriva solo se il Wi-Fi del
+  telefono è il suo. "A VPN is blocking the car" arrivava solo dopo un minuto intero, e un'auto che richiede il
+  Wi-Fi fa ripartire i tentativi: non arrivava mai. Ora `wireless/VpnBlock.kt` (+ `VpnBlockTest`): 10 s dal
+  primo rifiuto e due tentativi sulla strada normale senza risposta, contati su tutto l'avvio, una volta per
+  avvio. Un ECONNREFUSED è dell'auto solo con il suo Wi-Fi tra quelli del telefono (`CarNetwork` CAR/MAYBE), e
+  allora non si dice niente. Detto, la riga sotto "Connecting" (Home e notifica del viaggio, espandibile con
+  `BigTextStyle`) resta quella per tutto l'avvio (`WirelessLink.connecting`, `vpnSaid`; azzerata a un nuovo
+  avvio e al TCP riuscito). Testo: escludere myCar nell'app della VPN, spegnerla durante il viaggio o il cavo;
+  con «Blocca connessioni senza VPN» Android blocca anche le app escluse (`Vpn.setVpnForcedLocked`). Tailscale
+  per nome (`Tailnet.vpnIsTailscale`: DNS 100.100.100.100 o indirizzi 100.64/10). Se nessuna VPN porta più myCar
+  (`vpnActive`) i tentativi tornano subito sulla rete dell'auto; la sonda col legame rifiutato non prova le
+  porte. Aiuto "How to connect": passo VPN solo con una VPN che porta myCar (`Tailnet.reach` IN_VPN), con "Open
+  settings" alle impostazioni VPN di Android. Tutto questo scatta solo dopo un EPERM: con myCar esclusa da
+  Tailscale (le auto dell'utente) il legame riesce e niente cambia (controllato nel codice). Da fare se serve:
+  «Blocca connessioni senza VPN» con myCar esclusa dà EACCES, non EPERM, e non è riconosciuto (lo dice solo il
+  testo). Non provato con una VPN vera né in auto.
+- **App che rifiutano myCar come host** (0.7.5, `fix/refusing-apps`; dal forum: ABRP su una Hyundai Inster col
+  cavo, "It failed at onHandshakeCompleted: Unknown host 'io.github.sirionero.mycar', uid:…"). Il controllo
+  dell'host della Car App Library di alcune app (`HostValidator` con un elenco suo) non accetta il permesso
+  `TEMPLATE_RENDERER` di myCar, che il validatore standard accetta: da myCar non si scavalca. Regola pura
+  `host/RefusalRule.kt` + `RefusalRuleTest`: conta solo un rifiuto a `onHandshakeCompleted` col messaggio
+  "Unknown host '…'" (versioni vecchie della libreria, IllegalArgumentException) o "Unrecognized host…" / "The
+  host is not allowed…" (versioni nuove, SecurityException, prima `car_host_not_allowed`); timeout, crash e
+  altri errori restano come prima, e un'app che ha accettato myCar (`hostAccepted`) non si segna mai.
+  `host/PatchRefusals.kt` è diventato `host/HostRefusals.kt` (preferenze ancora `mycar_patch_refusals`) e
+  ricorda anche queste app (pacchetto → `lastUpdateTime`): X rossa sulla tessera della schermata (non sul
+  lettore, che è di myCar), mai avviata da sola (mappa all'avvio `KnownApps.wontStart`; accanto alla mappa e
+  nelle pagine `rememberRefusal`/`RefusedAppPart`: il perché e "Riprova"), la tessera la prova ancora;
+  dimenticata al primo handshake accettato o quando l'app si aggiorna. In auto `car_host_refused` (9 lingue,
+  piratesco dove c'è accanto): «X non accetta myCar: lascia entrare solo gli host che conosce, come l'Android
+  Auto di Google. Solo chi la sviluppa può cambiarlo.», anche a tutto schermo (`AppWontStart`,
+  `Status.refused`). Pagina della mappa: ultima mappa che non parte da sola e nessun'altra → "Scegli un'app di
+  navigazione." invece di "Mappa chiusa." con un "Riapri" a vuoto. Le copie modificate (Waze con Morphe) restano
+  col loro testo. Golf e Tayron: nessuna delle loro app rifiuta myCar. Non provato con un'app vera che rifiuta.
 - Dipendenze approvate dall'utente: OkHttp e androidx.webkit (Plancia integrata), Media3 `session`
   e `common` (Xonos integrato: Apache 2.0, nessuna telemetria).
 - Sfondi "stile umbrelOS" ma **nostri**: le immagini di umbrelOS hanno una licenza non libera.

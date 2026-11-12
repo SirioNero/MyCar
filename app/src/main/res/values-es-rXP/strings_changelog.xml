@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>Abordaje sin cable: si una VPN del teléfono deja a myCar fuera del Wi-Fi del barco, ahora myCar lo dice en pocos segundos, en su pantalla principal y en su notificación, y explica cómo enderezar el rumbo.</item>
+        <item>Las apps que no dejan subir a bordo a myCar, como ABRP, ahora dicen por qué con palabras sencillas, llevan una X roja y ya no zarpan solas.</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>Nueva bandera Jolly Roger en el mástil, encima del loro de a bordo: un toque hace lo que elijas: llamar a un contacto, parlamentar con una IA, activar algo en Home Assistant (una escena, una luz, el portón), fijar rumbo a un puerto, dar una orden al loro o abordar una app. Mantenla pulsada para cambiarla, a bordo o en el teléfono en Aparejos &gt; Timón. ¿No la necesitas? Arríala ahí y el mástil queda como antes.</item>
         <item>Una llamada en curso ahora es una pequeña burbuja que flota sobre todas las pantallas hasta que termina, con la foto de la persona con la que hablas, el tiempo que lleva y un botón rojo para colgar. Tócala para abrir el Teléfono; mantenla pulsada y arrástrala adonde quieras: ahí echa el ancla también para las próximas llamadas.</item>

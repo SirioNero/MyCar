@@ -71,6 +71,8 @@ class CarAppConnection(private val context: Context) {
         val template: String? = null,
         val surfaceRequested: Boolean = false,
         val surfaceAttached: Boolean = false,
+        /** The app turned myCar down as its host for good (see [HostRefusals]): [detail] says why in plain words. */
+        val refused: Boolean = false,
     )
 
     /** The Surface lent to the app, plus the size the app should draw at. */
@@ -232,6 +234,10 @@ class CarAppConnection(private val context: Context) {
         return Words.get(kind, step, firstLine.substringAfterLast("Exception: ", firstLine))
     }
 
+    /** The first line of the stack trace an app answered a failure with: the exception and its message. */
+    private fun firstLineOf(value: Any?): String? =
+        (value as? androidx.car.app.FailureResponse)?.stackTrace?.lineSequence()?.firstOrNull { it.isNotBlank() }
+
     fun disconnect() = disconnect(keepLocation = false)
 
     private fun disconnect(keepLocation: Boolean) {
@@ -297,7 +303,7 @@ class CarAppConnection(private val context: Context) {
         navigationManager = null
         surfaceCallback = null
         hostAccepted = false
-        update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info", surfaceRequested = false, surfaceAttached = false) }
+        update { it.copy(phase = Phase.HANDSHAKE, detail = "bound, asking for app info", surfaceRequested = false, surfaceAttached = false, refused = false) }
         MyCarLog.i("host: bound; requesting app info")
         main.removeCallbacks(handshakeTimeout)
         main.postDelayed(handshakeTimeout, HANDSHAKE_TIMEOUT_MS)
@@ -338,7 +344,7 @@ class CarAppConnection(private val context: Context) {
         val app = carApp ?: return
         MyCarLog.i("host: handshake accepted; creating the app")
         hostAccepted = true
-        component?.packageName?.let { PatchRefusals.forget(context, it) }
+        component?.packageName?.let { HostRefusals.forget(context, it) }
         val intent = pendingDestination?.let { autoRoute.arm(); navigateIntent(it) }
             ?: Intent(Intent.ACTION_MAIN).setComponent(component)
         if (pendingDestination != null) destinationOnceRunning = null
@@ -864,7 +870,7 @@ class CarAppConnection(private val context: Context) {
                 val value = response?.let { runCatching { it.get() }.getOrNull() }
                 main.post {
                     if (binding !== app) return@post
-                    if (fatal) fail(Phase.REJECTED, describeFailure(name, value))
+                    if (fatal) fail(Phase.REJECTED, describeFailure(name, value), RefusalRule.hostCheckSaidNo(name, firstLineOf(value)))
                     else MyCarLog.w("host: ${describeFailure(name, value)} - it keeps running")
                 }
             }
@@ -921,26 +927,33 @@ class CarAppConnection(private val context: Context) {
         return configuration
     }
 
-    private fun fail(phase: Phase, detail: String) {
+    /** [hostCheck]: the app's own host check said no (see [RefusalRule.hostCheckSaidNo]). */
+    private fun fail(phase: Phase, detail: String, hostCheck: Boolean = false) {
         clearToasts()
         _trip.value = null
         MyCarLog.e("host: $detail")
-        val shown = noteModifiedRefusal(phase) ?: detail
-        update { it.copy(phase = phase, detail = shown) }
+        val refusal = noteRefusal(phase, hostCheck)
+        update { it.copy(phase = phase, detail = refusal ?: detail, refused = refusal != null) }
     }
 
     /**
-     * A modified copy of an app that refuses myCar on its own (Waze, re-signed by Morphe) that said
-     * no before taking myCar as its host: patched for something else, or with hosts that leave myCar
-     * out. Counted as broken again (see [PatchRefusals]), and the car says what to add to the patch.
+     * A refusal that lasts (see [RefusalRule]), before the app took myCar as its host: a modified copy
+     * of an app that refuses myCar on its own (Waze, re-signed by Morphe), patched for something else
+     * or with hosts that leave myCar out, whatever said no; or any app whose own host check said no.
+     * Counted as broken (see [HostRefusals]), and the car says what to add to the patch, or that only
+     * the app's developer can let myCar in, instead of the library's words.
      */
-    private fun noteModifiedRefusal(phase: Phase): String? {
-        if (phase != Phase.REJECTED || hostAccepted) return null
+    private fun noteRefusal(phase: Phase, hostCheck: Boolean): String? {
         val pkg = component?.packageName ?: return null
-        if (!KnownApps.modified(context, pkg)) return null
-        PatchRefusals.remember(context, pkg)
-        MyCarLog.w("host: $pkg is a modified copy and refused myCar - marked broken until it accepts myCar or is installed again")
-        return Words.get(R.string.car_host_modified_refused, _status.value.app ?: pkg, PatchRefusals.hostsEntry(context))
+        val kind = RefusalRule.kind(phase == Phase.REJECTED, hostAccepted, KnownApps.modified(context, pkg), hostCheck) ?: return null
+        HostRefusals.remember(context, pkg)
+        MyCarLog.w(
+            when (kind) {
+                RefusalRule.Kind.MODIFIED_COPY -> "host: $pkg is a modified copy and refused myCar - marked broken until it accepts myCar or is installed again"
+                RefusalRule.Kind.HOST_CHECK -> "host: $pkg's own host check refused myCar - marked broken until it accepts myCar or is updated"
+            },
+        )
+        return HostRefusals.words(context, kind, _status.value.app ?: pkg)
     }
 
     private fun clearToasts() {

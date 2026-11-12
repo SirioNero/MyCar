@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 0.7.5-alpha -->
+    <string-array name="changelog_51">
+        <item>无线连接：如果手机上的 VPN 让 myCar 连不上车辆的 Wi-Fi，myCar 现在会在几秒内于主屏和通知中说明，并告诉你如何解决。</item>
+        <item>拒绝 myCar 的应用（例如 ABRP）现在会用简单的话说明原因，显示红色 X，并且不再自行启动。</item>
+    </string-array>
+
     <!-- 0.7.4-alpha -->
     <string-array name="changelog_50">
         <item>停靠栏的麦克风上方新增 Jolly 按钮：点一下即执行你选的操作：呼叫联系人、与 AI 对话、在 Home Assistant 中执行操作（场景、灯、大门）、前往某地、给助手下达指令或打开应用。长按即可更改，在车上或在手机的“设置 &gt; 车机屏幕”中都能改。用不着？在那里关闭它，停靠栏就和以前一样。</item>

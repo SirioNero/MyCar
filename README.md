@@ -271,6 +271,9 @@ behind it all — still or moving.
   `e477a4794b984927360e9ae4a31e87cb08a26c54e0e27e4334116d1c7cdccc31,io.github.sirionero.mycar`
   after Gearslip's entry (`*,io.github.sirionero.mycar.dev` for myCar's debug build), then patch
   Waze again. A modified Waze that refuses myCar gets a red X, and the car says what to add.
+  Any other app whose own list of hosts leaves myCar out (ABRP, for one) gets a red X too and no
+  longer starts by itself, and the car says that only its developer can change that: its tile
+  still tries it, and an update of the app clears the mark.
 - **myCar can't be installed next to Gearslip.** Both define the permission that car apps
   look for, and Android lets only one signing key define it. Uninstall Gearslip first.
 - **Calls use the car's Bluetooth,** as they do in Android Auto. Pair the phone with the

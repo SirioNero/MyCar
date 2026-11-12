@@ -65,6 +65,9 @@ object Tailnet {
         link != null && (link.dnsServers.any { isTailnetAddress(it.hostAddress.orEmpty()) } ||
             link.linkAddresses.any { isTailnetAddress(it.address.hostAddress.orEmpty()) })
 
+    /** Whether the phone's VPN is Tailscale: to call it by its name when it keeps myCar off the car's Wi-Fi. */
+    fun vpnIsTailscale(context: Context): Boolean = isTailscale(vpnLink(context))
+
     /**
      * Whether [url] looks like an address inside a tailnet: a name without dots (MagicDNS), a
      * *.ts.net name, a name in one of the VPN's search domains, or a tailnet address (100.64.0.0/10,

@@ -21,6 +21,8 @@
     <string name="help_in_the_car">À bord</string>
     <string name="help_step_connect">Branchez le câble, ou montez à bord sans fil.</string>
     <string name="help_step_connect_detail">myCar s’ouvre tout seul quand le navire se connecte. La première fois avec le câble, Android demande quelle app ouvrir : choisissez myCar et appuyez sur Toujours. Pour le sans-fil, associez d’abord le téléphone au navire, puis appuyez sur Abordage sans fil dans l’Accueil.</string>
+    <string name="help_step_vpn">Avec un VPN, excluez-en myCar pour l’abordage sans fil.</string>
+    <string name="help_step_vpn_detail">Dans un VPN, Android tient myCar à l’écart du Wi-Fi du navire. Excluez myCar dans l’app du VPN (dans Tailscale : Settings, App split tunneling), désactivez le VPN pendant la traversée ou utilisez le câble. Avec « Bloquer les connexions sans VPN » activé, Android bloque aussi myCar hors du VPN : désactivez-le dans les paramètres VPN d’Android.</string>
     <string name="help_step_screening">Repoussez les appels inconnus avant qu’ils sonnent.</string>
     <string name="help_step_screening_detail">Choisissez myCar comme appli d’identification de l’appelant et de spam. Sans cela, l’écran de bord affiche quand même chaque appel, et vous pouvez y répondre ou le refuser.</string>
     <string name="help_set_up">Gréer</string>

@@ -92,6 +92,7 @@
     <string name="car_host_needs_permission">Приложение ходит только под флагом Android Auto от Google: его служба требует разрешение %1$s, которое myCar получить не может.</string>
     <string name="car_host_only_android_auto">Приложение пускает на борт только хост Android Auto от Google.</string>
     <string name="car_host_not_allowed">Приложение пускает на борт только хосты из своего списка разрешённых (Android Auto от Google и ещё несколько), а myCar в нём нет.</string>
+    <string name="car_host_refused">%1$s не пускает myCar на борт: принимает только знакомые ему хосты, например Android Auto от Google. Изменить это может только его разработчик.</string>
     <string name="car_host_no_answer">Приложение не ответило на оклик myCar. Приложения для новых версий Android Auto ходят только под флагом Android Auto от Google.</string>
     <string name="car_host_rejected_at">Приложение не пустило myCar на борт как хост на шаге %1$s: %2$s</string>
     <string name="car_host_location_notification">myCar передаёт местоположение карте на борту</string>

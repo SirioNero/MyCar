@@ -19,11 +19,13 @@ import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
 import android.provider.Settings
+import androidx.annotation.StringRes
 import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.SessionStatus
+import io.github.sirionero.mycar.Tailnet
 import io.github.sirionero.mycar.Wire
 import io.github.sirionero.mycar.Words
 import java.io.DataInputStream
@@ -167,6 +169,16 @@ object WirelessLink {
     @Volatile private var joined = false
     /** The current start-up's failure is said already (the phone's Wi-Fi off): its channel's end says nothing more. */
     @Volatile private var saidWhy = false
+    /**
+     * What the current start-up, start-overs included, has seen since Android first refused myCar the
+     * car's network ([VpnBlock]): when that was (elapsedRealtime, 0: never), the tries over the phone's
+     * ordinary route since that the car didn't answer, and whether it answered one.
+     */
+    @Volatile private var vpnRefusedAt = 0L
+    @Volatile private var vpnUnanswered = 0
+    @Volatile private var vpnAnswered = false
+    /** Said: a VPN keeps myCar off the car's Wi-Fi. Home's line for the rest of the start-up ([connecting]); null until then. */
+    @Volatile private var vpnSaid: VpnSaid? = null
     /** The current start-up's channel: when it opened, whether a quick call opened it ([KnockPlan]), and the car's Wi-Fi details came on it. */
     @Volatile private var channelOpenedAt = 0L
     @Volatile private var quickChannel = false
@@ -270,6 +282,7 @@ object WirelessLink {
         if (!again) {
             retriesLeft = AUTO_RETRIES
             slowKnocks = false
+            forgetVpn()
         }
         pictured = false
         joined = false
@@ -591,7 +604,7 @@ object WirelessLink {
         val shown = shownName(device)
         // The car's Bluetooth address only in the debug build: logs get shared, in public too.
         log.i("--- wireless start-up with $name (${if (BuildConfig.DEBUG) device.address else "…" + device.address.takeLast(5)}) ---")
-        if (!quiet) SessionStatus.connecting(R.string.wireless_link_bt_reaching, shown)
+        if (!quiet) connecting(R.string.wireless_link_bt_reaching, shown)
         val listenMs = when {
             quiet -> AGAIN_LISTEN_MS
             byItself -> AUTO_LISTEN_MS
@@ -663,7 +676,7 @@ object WirelessLink {
         log.i("Bluetooth: channel open")
         channelOpenedAt = SystemClock.elapsedRealtime()
         quickChannel = quick
-        if (mine == startRun) SessionStatus.connecting(R.string.wireless_link_bt_talking, shown)
+        if (mine == startRun) connecting(R.string.wireless_link_bt_talking, shown)
         // A car whose Android Auto isn't ready yet can take the channel and say nothing: the start-up
         // stayed on "talking to the car" for good, holding the drive's service, and every arrival of
         // the car after it was taken for a drive under way. Closed, it starts over (channelEnded).
@@ -827,7 +840,7 @@ object WirelessLink {
             if (listener === server) listener = null
             return null
         }
-        if (!quiet) SessionStatus.connecting(R.string.wireless_link_bt_waiting, shownName(device))
+        if (!quiet) connecting(R.string.wireless_link_bt_waiting, shownName(device))
         log.i("Bluetooth: Android Auto service published, waiting ${listenMs / 1000}s for $name")
         // The first channel either way wins; the other is closed. [WaitOver] once the wait has ended.
         val won = java.util.concurrent.atomic.AtomicReference<Any?>(null)
@@ -974,7 +987,7 @@ object WirelessLink {
             runCatching { rfcomm?.close() }
             return
         }
-        if (mine == startRun) SessionStatus.connecting(R.string.wireless_link_wifi_joining, name)
+        if (mine == startRun) connecting(R.string.wireless_link_wifi_joining, name)
         val spec = WifiNetworkSpecifier.Builder().setSsid(ssid).apply {
             runCatching { MacAddress.fromString(bssid) }.getOrNull()
                 ?.takeIf { it != MacAddress.fromString("00:00:00:00:00:00") }
@@ -1072,7 +1085,7 @@ object WirelessLink {
      * means the car drops the phone's traffic, usually because it is still waiting for a step.
      */
     @SuppressLint("MissingPermission")
-    private fun probe(context: Context, net: Network, ip: String, port: Int) {
+    private fun probe(context: Context, net: Network, ip: String, port: Int, bindRefused: Boolean) {
         runCatching {
             val manager = context.getSystemService(ConnectivityManager::class.java)
             val link = manager?.getLinkProperties(net)
@@ -1086,6 +1099,12 @@ object WirelessLink {
                     "active network ${manager?.activeNetwork}, car network $net, VPN ${if (vpnActive(context)) "on" else "off"}",
             )
         }.onFailure { log.w("probe: couldn't read the link (${it.message})") }
+        // Bound to the car's network, every port is refused the same way (EPERM): in a tester's log
+        // those lines came back over and over, and said nothing the tries hadn't.
+        if (bindRefused) {
+            log.i("probe: no ports tried - Android refuses myCar the car's network")
+            return
+        }
         // Never the car's own port: a car that just got ready would take the probe for the phone,
         // see it hang up at once, and some stop listening.
         for (p in listOf(5288, 5277, 80, 443).filter { it != port }) {
@@ -1191,11 +1210,61 @@ object WirelessLink {
         return found.get()
     }
 
+    /** Home's line once a VPN is known to keep myCar off the car's Wi-Fi: [detail], with the car's name. */
+    private class VpnSaid(@StringRes val detail: Int, val car: String)
+
+    /** A new start-up, or a drive on the car's Wi-Fi: what the last one saw of a VPN no longer holds. */
+    private fun forgetVpn() {
+        vpnRefusedAt = 0L
+        vpnUnanswered = 0
+        vpnAnswered = false
+        vpnSaid = null
+    }
+
+    /**
+     * The start-up's stage under "Connecting", on Home and in the drive service's notification - or,
+     * once a VPN is known to keep myCar off the car's Wi-Fi ([vpnSaid]), that, for the rest of the
+     * start-up: a car that asks for its Wi-Fi again put "joining" back over it within seconds.
+     */
+    private fun connecting(@StringRes stage: Int, vararg args: Any) {
+        val vpn = vpnSaid
+        if (vpn != null) SessionStatus.connecting(vpn.detail, vpn.car) else SessionStatus.connecting(stage, *args)
+    }
+
+    /** The words for a VPN that keeps myCar off the car's Wi-Fi: Tailscale by its name (Tailnet). */
+    @StringRes
+    private fun vpnDetail(context: Context): Int =
+        if (Tailnet.vpnIsTailscale(context)) R.string.wireless_link_tailscale_detail else R.string.wireless_link_vpn_detail
+
+    /**
+     * A try over the phone's ordinary route failed, Android having refused myCar the car's network.
+     * Once that route is known not to reach the car ([VpnBlock]), Home and the drive service's
+     * notification say a VPN keeps myCar off the car's Wi-Fi, and what to do: once, for the rest of
+     * the start-up. The tries go on - they get through as soon as the VPN lets myCar go.
+     */
+    private fun ordinaryTryFailed(context: Context, error: String?, verdict: CarNetwork.Verdict?, name: String, run: Int, mine: Int) {
+        // An older start-up's tries, ending: not this one's to count.
+        if (mine != startRun) return
+        val carWifi = verdict == CarNetwork.Verdict.CAR || verdict == CarNetwork.Verdict.MAYBE
+        if (VpnBlock.answered(error, carWifi)) vpnAnswered = true else vpnUnanswered++
+        val refusedAt = vpnRefusedAt
+        val since = if (refusedAt == 0L) null else SystemClock.elapsedRealtime() - refusedAt
+        if (run != tcpRun || !VpnBlock.due(since, vpnUnanswered, vpnAnswered, said = vpnSaid != null)) return
+        val said = VpnSaid(vpnDetail(context), name)
+        vpnSaid = said
+        log.w(
+            "TCP: Android keeps myCar off the car's network and the ordinary route doesn't reach the car " +
+                "($vpnUnanswered tries unanswered in ${(since ?: 0L) / 1000}s) - " +
+                "${if (said.detail == R.string.wireless_link_tailscale_detail) "Tailscale" else "a VPN"} carries myCar: telling the driver",
+        )
+        SessionStatus.connecting(said.detail, said.car)
+    }
+
     private fun connectTcp(
         context: Context, output: OutputStream, name: String, net: Network, ip: String, port: Int, run: Int, mine: Int,
         cb: ConnectivityManager.NetworkCallback, carSsid: String, carBssid: String,
     ) {
-        SessionStatus.connecting(R.string.wireless_link_wifi_reaching, name)
+        connecting(R.string.wireless_link_wifi_reaching, name)
         lostNetwork = null
         val joinedAt = SystemClock.elapsedRealtime()
         // The first of the car's refusals in a row on its own network, 0 without one (TcpTries.stalePort).
@@ -1220,6 +1289,13 @@ object WirelessLink {
             if (run != tcpRun) {
                 log.i("TCP: stopping the tries on the old network - the car started over")
                 return
+            }
+            // The VPN that kept myCar off the car's network no longer carries it - turned off, or myCar
+            // left out of it, as the driver was told: the car's network again, not the ordinary route
+            // for the rest of the minute.
+            if (bindRefused && !vpnActive(context)) {
+                bindRefused = false
+                log.i("TCP: no VPN carries myCar any more - back to the car's network")
             }
             // The phone's own Wi-Fi on the car's network wins when it is the car's (CarNetwork): that
             // is how Android Auto itself connects, and a Pixel 6 passed pings but no TCP over the side
@@ -1285,6 +1361,8 @@ object WirelessLink {
                 )
                 break
             }
+            // The try goes over the ordinary route because Android refused the car's network (VpnBlock).
+            val behindVpn = bindRefused
             // The try goes over the car's own network, or its Wi-Fi joined by hand: a refusal there is the car's.
             var viaCar = false
             try {
@@ -1320,6 +1398,8 @@ object WirelessLink {
                     // The drive takes the service over: the screen stops it when the drive ends.
                     ownsService = false
                 }
+                // Through, the VPN let go or never in the way: a later join of this start-up starts afresh.
+                forgetVpn()
                 log.i("TCP: connected to $ip:$port (try ${attempt + 1})")
                 val start = onConnected
                 if (start == null) {
@@ -1336,13 +1416,15 @@ object WirelessLink {
                 if (attempt < 3 || attempt % 10 == 9) log.w("TCP: try ${attempt + 1} to $ip:$port failed: ${e.message}")
                 if (!bindRefused && e.message?.contains("EPERM") == true) {
                     bindRefused = true
+                    if (mine == startRun && vpnRefusedAt == 0L) vpnRefusedAt = SystemClock.elapsedRealtime()
                     log.i("TCP: Android won't let myCar use the car's network directly; trying the phone's ordinary route")
                 }
+                if (behindVpn) ordinaryTryFailed(context, e.message, verdict, name, run, mine)
                 if (viaCar) {
                     refusedSince = if (e.message?.contains("ECONNREFUSED") != true) 0L
                     else refusedSince.takeIf { it != 0L } ?: SystemClock.elapsedRealtime()
                 }
-                if (attempt == 0) probe(context, net, ip, port)
+                if (attempt == 0) probe(context, net, ip, port, bindRefused)
                 Thread.sleep(1_000)
             }
         }
@@ -1363,7 +1445,7 @@ object WirelessLink {
         if (!stale && vpnActive(context)) {
             SessionStatus.failed(
                 R.string.wireless_link_vpn,
-                R.string.wireless_link_vpn_detail,
+                vpnSaid?.detail ?: vpnDetail(context),
                 name,
             )
             endJoin(noStartOver = true)
