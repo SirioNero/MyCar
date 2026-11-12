@@ -9,10 +9,11 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Indirizzo Bluetooth del telefono</string>
-    <string name="settings_phone_bt_address_off">Non impostato. Solo per un\'auto che toglie il Bluetooth al telefono, o si scollega, quando myCar si collega.</string>
-    <string name="settings_phone_bt_address_hint">Nelle Impostazioni di Android &gt; Informazioni sul telefono (su alcuni telefoni sotto Stato): Indirizzo Bluetooth. myCar lo dice a un\'auto già accoppiata al telefono, così l\'auto sa che è lo stesso telefono.</string>
+    <string name="settings_phone_bt_address_off">Non impostato. Solo per un\'auto che toglie il Bluetooth al telefono, o si scollega, quando myCar si collega. Con l\'indirizzo, altre auto possono smettere di ricevere la musica del telefono dal Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">Nelle Impostazioni di Android &gt; Informazioni sul telefono (su alcuni telefoni sotto Stato): Indirizzo Bluetooth. myCar lo dice a un\'auto già accoppiata al telefono. Solo per un\'auto che toglie il Bluetooth al telefono, o si scollega, quando myCar si collega: altre auto possono smettere di ricevere la musica del telefono dal Bluetooth.</string>
     <string name="settings_phone_bt_address_invalid">Non è un indirizzo Bluetooth. Ha questa forma: 12:34:56:78:9A:BC.</string>
     <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
          is written but myCar no longer tells it to some car, because told it, that car stopped taking

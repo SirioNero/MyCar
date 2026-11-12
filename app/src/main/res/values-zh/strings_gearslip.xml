@@ -9,10 +9,11 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">手机的蓝牙地址</string>
-    <string name="settings_phone_bt_address_off">未设置。仅适用于 myCar 连接时会断开手机蓝牙或挂断连接的汽车。</string>
-    <string name="settings_phone_bt_address_hint">在 Android 的设置 &gt; 关于手机（部分手机在“状态信息”中）：蓝牙地址。myCar 会把它告诉已与手机配对的汽车，让汽车知道这是同一部手机。</string>
+    <string name="settings_phone_bt_address_off">未设置。仅适用于 myCar 连接时会断开手机蓝牙或挂断连接的汽车。设置后，其他汽车可能不再通过蓝牙接收手机音乐。</string>
+    <string name="settings_phone_bt_address_hint">在 Android 的设置 &gt; 关于手机（部分手机在“状态信息”中）：蓝牙地址。myCar 会把它告诉已与手机配对的汽车。仅适用于 myCar 连接时会断开手机蓝牙或挂断连接的汽车：其他汽车可能因此不再通过蓝牙接收手机音乐。</string>
     <string name="settings_phone_bt_address_invalid">这不是蓝牙地址。它的格式类似 12:34:56:78:9A:BC。</string>
     <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
          is written but myCar no longer tells it to some car, because told it, that car stopped taking

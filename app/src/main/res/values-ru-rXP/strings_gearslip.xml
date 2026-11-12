@@ -9,10 +9,11 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Адрес Bluetooth вашего телефона</string>
-    <string name="settings_phone_bt_address_off">Не задан. Только для корабля, который рубит Bluetooth телефона или отдаёт швартовы, когда myCar берёт его на абордаж.</string>
-    <string name="settings_phone_bt_address_hint">В настройках Android &gt; О телефоне (на некоторых телефонах в разделе «Общая информация»): Адрес Bluetooth. myCar сообщает его кораблю, уже сопряжённому с телефоном, чтобы он знал: это тот же старый телефон.</string>
+    <string name="settings_phone_bt_address_off">Не задан. Только для корабля, который рубит Bluetooth телефона или отдаёт швартовы, когда myCar берёт его на абордаж. С ним другие корабли могут перестать принимать песни с телефона по Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">В настройках Android &gt; О телефоне (на некоторых телефонах в разделе «Общая информация»): Адрес Bluetooth. myCar сообщает его кораблю, уже сопряжённому с телефоном. Только для корабля, который рубит Bluetooth телефона или отдаёт швартовы, когда myCar берёт его на абордаж: другие корабли могут тогда перестать принимать песни с телефона по Bluetooth.</string>
     <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
          is written but myCar no longer tells it to some car, because told it, that car stopped taking
          the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->

@@ -9,10 +9,11 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Endereço Bluetooth do seu telefone</string>
-    <string name="settings_phone_bt_address_off">Não definido. Só para um navio que corta o Bluetooth do telefone, ou solta as amarras, quando o myCar o aborda.</string>
-    <string name="settings_phone_bt_address_hint">Nas Configurações do Android &gt; Sobre o telefone (em alguns telefones, em Status): Endereço Bluetooth. O myCar o informa a um navio já pareado com o telefone, para que ele saiba que é o mesmo velho telefone.</string>
+    <string name="settings_phone_bt_address_off">Não definido. Só para um navio que corta o Bluetooth do telefone, ou solta as amarras, quando o myCar o aborda. Com ele, outros navios podem parar de receber a música do telefone pelo Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">Nas Configurações do Android &gt; Sobre o telefone (em alguns telefones, em Status): Endereço Bluetooth. O myCar o informa a um navio já pareado com o telefone. Só para um navio que corta o Bluetooth do telefone, ou solta as amarras, quando o myCar o aborda: outros navios podem então parar de receber a música do telefone pelo Bluetooth.</string>
     <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
          is written but myCar no longer tells it to some car, because told it, that car stopped taking
          the phone's music over Bluetooth (car/PhoneAddressCheck.kt). %1$s is the address -->

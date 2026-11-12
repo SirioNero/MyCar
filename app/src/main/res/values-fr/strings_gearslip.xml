@@ -9,10 +9,11 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Adresse Bluetooth du téléphone</string>
-    <string name="settings_phone_bt_address_off">Non définie. Seulement pour une voiture qui coupe le Bluetooth du téléphone, ou raccroche, quand myCar se connecte.</string>
-    <string name="settings_phone_bt_address_hint">Dans les Paramètres d\'Android &gt; À propos du téléphone (sur certains téléphones, sous État) : Adresse Bluetooth. myCar la donne à une voiture déjà associée au téléphone, pour qu\'elle sache que c\'est le même téléphone.</string>
+    <string name="settings_phone_bt_address_off">Non définie. Seulement pour une voiture qui coupe le Bluetooth du téléphone, ou raccroche, quand myCar se connecte. Avec elle, d\'autres voitures peuvent cesser de recevoir la musique du téléphone par le Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">Dans les Paramètres d\'Android &gt; À propos du téléphone (sur certains téléphones, sous État) : Adresse Bluetooth. myCar la donne à une voiture déjà associée au téléphone. Seulement pour une voiture qui coupe le Bluetooth du téléphone, ou raccroche, quand myCar se connecte : d\'autres voitures peuvent alors cesser de recevoir la musique du téléphone par le Bluetooth.</string>
     <string name="settings_phone_bt_address_invalid">Ce n\'est pas une adresse Bluetooth. Elle ressemble à 12:34:56:78:9A:BC.</string>
     <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
          is written but myCar no longer tells it to some car, because told it, that car stopped taking

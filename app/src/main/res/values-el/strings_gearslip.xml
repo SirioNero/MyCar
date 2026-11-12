@@ -9,10 +9,11 @@
          written by hand (Android hides it from apps), sent to a car already paired with the phone.
          The row's title, the line under it when none is written, the line under the field in its
          dialog (where Android shows it: use the names Android gives these pages in your language),
-         and the error when what's written isn't an address -->
+         and the error when what's written isn't an address. The line and the dialog's say who it's
+         for, and that other cars, told it, may stop taking the phone's music over Bluetooth -->
     <string name="settings_phone_bt_address">Διεύθυνση Bluetooth του τηλεφώνου</string>
-    <string name="settings_phone_bt_address_off">Δεν έχει οριστεί. Μόνο για αυτοκίνητο που κλείνει το Bluetooth του τηλεφώνου, ή αποσυνδέεται, όταν συνδέεται το myCar.</string>
-    <string name="settings_phone_bt_address_hint">Στις Ρυθμίσεις του Android &gt; Σχετικά με το τηλέφωνο (σε ορισμένα τηλέφωνα στην Κατάσταση): Διεύθυνση Bluetooth. Το myCar τη λέει σε ένα αυτοκίνητο που έχει ήδη κάνει σύζευξη με το τηλέφωνο, ώστε να ξέρει ότι είναι το ίδιο τηλέφωνο.</string>
+    <string name="settings_phone_bt_address_off">Δεν έχει οριστεί. Μόνο για αυτοκίνητο που κλείνει το Bluetooth του τηλεφώνου, ή αποσυνδέεται, όταν συνδέεται το myCar. Με αυτήν, άλλα αυτοκίνητα μπορεί να σταματήσουν να παίρνουν τη μουσική του τηλεφώνου από το Bluetooth.</string>
+    <string name="settings_phone_bt_address_hint">Στις Ρυθμίσεις του Android &gt; Σχετικά με το τηλέφωνο (σε ορισμένα τηλέφωνα στην Κατάσταση): Διεύθυνση Bluetooth. Το myCar τη λέει σε ένα αυτοκίνητο που έχει ήδη κάνει σύζευξη με το τηλέφωνο. Μόνο για αυτοκίνητο που κλείνει το Bluetooth του τηλεφώνου, ή αποσυνδέεται, όταν συνδέεται το myCar: άλλα αυτοκίνητα μπορεί τότε να σταματήσουν να παίρνουν τη μουσική του τηλεφώνου από το Bluetooth.</string>
     <string name="settings_phone_bt_address_invalid">Αυτή δεν είναι διεύθυνση Bluetooth. Μοιάζει με 12:34:56:78:9A:BC.</string>
     <!-- Phone, Settings > Connection (ui/PhoneAddressRow.kt): the line under the row when the address
          is written but myCar no longer tells it to some car, because told it, that car stopped taking
