@@ -1284,6 +1284,13 @@ object WirelessLink {
                 log.i("TCP: stopping the tries on the old network - the car started over")
                 return
             }
+            // The VPN that kept myCar off the car's network no longer carries it - turned off, or myCar
+            // left out of it, as the driver was told: the car's network again, not the ordinary route
+            // for the rest of the minute.
+            if (bindRefused && !vpnActive(context)) {
+                bindRefused = false
+                log.i("TCP: no VPN carries myCar any more - back to the car's network")
+            }
             // The phone's own Wi-Fi on the car's network wins when it is the car's (CarNetwork): that
             // is how Android Auto itself connects, and a Pixel 6 passed pings but no TCP over the side
             // connection Android opens for myCar's request. One that may be the car's is tried every
