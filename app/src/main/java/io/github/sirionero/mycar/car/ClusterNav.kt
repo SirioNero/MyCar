@@ -35,6 +35,8 @@ class ClusterNav(
 ) {
     val channelId: Int get() = spec.channel
     @Volatile private var running = false
+    /** Stopped for good: the channel's open answer, read on another thread, can come after [stop]. */
+    @Volatile private var ended = false
     private var sentStatus = -1
     private var sentTurn: String? = null
     private var sentDistance: String? = null
@@ -55,13 +57,13 @@ class ClusterNav(
     }
 
     private fun start() {
-        if (running) return
+        if (running || ended) return
         running = true
         if (car in ClusterCars.off.value) {
             MyCarLog.i("cluster: this car hung up right after a turn on an earlier drive - it gets none, only \"not navigating\" (its Settings in the car can turn turns back on)")
         }
         Thread({
-            while (running) {
+            while (running && !ended) {
                 val wait = runCatching { tick() }.getOrElse {
                     MyCarLog.w("cluster: ${it.message}")
                     TICK_MS
@@ -72,6 +74,7 @@ class ClusterNav(
     }
 
     fun stop() {
+        ended = true
         running = false
     }
 
