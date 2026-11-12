@@ -19,8 +19,8 @@ class PhoneAddressGuardTest {
     }
 
     @Test fun `the Golf - told the address, its music gone with its calls there - not told again`() {
-        // The log of 12 November: after the PairingRequest the music never connected (07:46:18, and
-        // Automatic at 07:48:20), the hands-free did (07:48:12).
+        // As in the driver's log: after the PairingRequest the music never connected (not at the
+        // check 20 s in, nor for Automatic 2 minutes later), the hands-free did.
         assertEquals(Verdict.STOP_TELLING, look(told = true, musicWithout = true, music = false, calls = true))
     }
 
@@ -39,7 +39,7 @@ class PhoneAddressGuardTest {
     }
 
     @Test fun `told, with no calls either - a car switching off, Bluetooth off - nothing`() {
-        // As at the end of the Golf's drive (08:05:33, 08:06:17): neither music nor calls.
+        // As when the Golf switched off at the end of its drive: neither music nor calls.
         assertEquals(Verdict.NOTHING, look(told = true, musicWithout = true, music = false, calls = false))
     }
 

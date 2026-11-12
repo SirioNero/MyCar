@@ -13,7 +13,7 @@ package io.github.sirionero.mycar.car
  *   car takes the phone's music over Bluetooth without the address, at a drive that worked that long.
  * - Told, [LOOK_TOLD_MS] in: its music isn't connected over Bluetooth while its calls are. If it was
  *   remembered, the address took the music away: myCar stops telling it.
- * A car that never takes the phone's music over Bluetooth (a 2025 Tayron keeps it for calls) is never
+ * A car that never takes the phone's music over Bluetooth (a VW Tayron keeps it for calls) is never
  * remembered; nor is one that needs the address, which without it hangs up within seconds, keeps its
  * own screen, or drops the phone's Bluetooth. A call puts the look off: some cars drop the music's
  * Bluetooth for one, and take a few seconds to bring it back.
