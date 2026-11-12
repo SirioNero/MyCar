@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Tamaño del reproductor junto al mapa</string>
     <string name="car_settings_mini_player">Minirreproductor sobre el mapa completo</string>
     <string name="car_settings_mini_player_detail">Con el reproductor junto al mapa cerrado, un pequeño reproductor flota sobre el mapa. Mantenlo pulsado y arrástralo para moverlo.</string>
+    <string name="car_settings_app_grid">Cuadrícula de apps</string>
+    <string name="car_settings_app_grid_pages">Páginas (de lado a lado)</string>
+    <string name="car_settings_app_grid_list">Lista (de arriba abajo)</string>
     <string name="car_settings_hidden_apps">Apps ocultas</string>
     <string name="car_settings_hidden_apps_none">Ninguna. Para ocultar una app, mantenla pulsada en la cuadrícula de apps y elige Ocultar de la cuadrícula de apps.</string>
     <string name="car_settings_hidden_apps_show">Mostrar</string>

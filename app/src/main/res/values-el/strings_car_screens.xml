@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Μέγεθος του προγράμματος αναπαραγωγής δίπλα στον χάρτη</string>
     <string name="car_settings_mini_player">Μίνι πρόγραμμα αναπαραγωγής πάνω από ολόκληρο τον χάρτη</string>
     <string name="car_settings_mini_player_detail">Όταν το πρόγραμμα αναπαραγωγής δίπλα στον χάρτη είναι κλειστό, ένα μικρό πρόγραμμα αναπαραγωγής εμφανίζεται πάνω από τον χάρτη. Κρατήστε το πατημένο και σύρετέ το για να το μετακινήσετε.</string>
+    <string name="car_settings_app_grid">Πλέγμα εφαρμογών</string>
+    <string name="car_settings_app_grid_pages">Σελίδες (οριζόντια)</string>
+    <string name="car_settings_app_grid_list">Λίστα (κάθετα)</string>
     <string name="car_settings_hidden_apps">Κρυφές εφαρμογές</string>
     <string name="car_settings_hidden_apps_none">Καμία. Για να κρύψετε μια εφαρμογή, κρατήστε την πατημένη στο πλέγμα εφαρμογών και επιλέξτε «Απόκρυψη από το πλέγμα εφαρμογών».</string>
     <string name="car_settings_hidden_apps_show">Εμφάνιση</string>

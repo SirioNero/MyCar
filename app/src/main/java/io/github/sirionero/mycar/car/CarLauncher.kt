@@ -338,7 +338,10 @@ internal fun launchEntry(entry: Entry, navigator: CarNavigator, frame: CarEnviro
     entry.messaging?.let { navigator.messages(it.packageName, it.label) }
 }
 
-/** The app launcher: every app as pages of icons, grouped Phone, Maps, Music, Messaging, Web, Screen sharing, Settings. */
+/**
+ * The app launcher: every app as pages of icons, or one list of them (see [AppGridLayout]), grouped
+ * Phone, Maps, Music, Messaging, Web, Screen sharing, Settings.
+ */
 @Composable
 fun CarLauncher() {
     val context = LocalContext.current
@@ -368,10 +371,11 @@ fun CarLauncher() {
     // Apps the driver hid, and a music service's own app beside its web player, stay off the grid.
     val offGrid = rememberOffTheGrid(all)
     val tiles = launcherOrder(all.filterNot(offGrid), showVehicleData, appOrder).map(::tileOf)
+    val layout by CarSettings.appGrid.collectAsState()
 
     Box(Modifier.fillMaxSize()) {
         rememberWallpaper()?.let { WallpaperBackground(it, Modifier.matchParentSize()) }
-        AppGrid(tiles)
+        AppGrid(tiles, list = layout == AppGridLayout.LIST)
     }
 }
 
@@ -380,11 +384,12 @@ private const val ICON_PX = 192
 
 /**
  * The launcher's pages: as many columns and rows of icons as the screen holds, swiped sideways,
- * with a dot per page underneath. Icons grow to [MyCarSize.GridIconMax] where there's room.
+ * with a dot per page underneath. Icons grow to [MyCarSize.GridIconMax] where there's room. As a
+ * [list], the same rows one under the other, swiped up and down (see [AppGridList]).
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppGrid(tiles: List<Tile>) {
+private fun AppGrid(tiles: List<Tile>, list: Boolean) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(horizontal = MyCarSpace.L, vertical = MyCarSpace.M)) {
         val dotsHeight = 24.dp
         val columns = (maxWidth / MyCarSize.GridCellMinWidth).toInt().coerceIn(3, 8)
@@ -399,23 +404,39 @@ private fun AppGrid(tiles: List<Tile>) {
         // Icon and name sit centred in the cell, all at the same height: a second line ("Browse")
         // hangs below instead of lifting its icon out of line with the rest of the row.
         val cellTop = ((cellHeight - iconSize - labelHeight) / 2).coerceAtLeast(0.dp)
+        if (list) {
+            // Rows as tall as a page's, with the dots' strip too for the list. Its bar goes in the
+            // gutter right of the rows.
+            AppGridList(gutter = MyCarSpace.L) {
+                tiles.chunked(columns).forEach { rowTiles ->
+                    TileRow(rowTiles, columns, iconSize, cellTop, Modifier.height(cellHeight))
+                }
+            }
+            return@BoxWithConstraints
+        }
         val pagerState = rememberPagerState(pageCount = { pages })
         Column(Modifier.fillMaxSize()) {
             HorizontalPager(state = pagerState, modifier = Modifier.weight(1f).fillMaxWidth()) { page ->
                 val pageTiles = tiles.drop(page * perPage).take(perPage)
                 Column(Modifier.fillMaxSize()) {
                     repeat(rows) { row ->
-                        Row(Modifier.weight(1f).fillMaxWidth()) {
-                            repeat(columns) { column ->
-                                Box(Modifier.weight(1f).fillMaxHeight().padding(top = cellTop), contentAlignment = Alignment.TopCenter) {
-                                    pageTiles.getOrNull(row * columns + column)?.let { AppCell(it, iconSize) }
-                                }
-                            }
-                        }
+                        TileRow(pageTiles.drop(row * columns).take(columns), columns, iconSize, cellTop, Modifier.weight(1f))
                     }
                 }
             }
             PageDots(pages, pagerState.currentPage, Modifier.height(dotsHeight).fillMaxWidth())
+        }
+    }
+}
+
+/** One row of the grid: [columns] cells as wide as each other, with [rowTiles] in them from the left. */
+@Composable
+private fun TileRow(rowTiles: List<Tile>, columns: Int, iconSize: Dp, cellTop: Dp, modifier: Modifier) {
+    Row(modifier.fillMaxWidth()) {
+        repeat(columns) { column ->
+            Box(Modifier.weight(1f).fillMaxHeight().padding(top = cellTop), contentAlignment = Alignment.TopCenter) {
+                rowTiles.getOrNull(column)?.let { AppCell(it, iconSize) }
+            }
         }
     }
 }

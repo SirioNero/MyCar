@@ -237,6 +237,26 @@ esac
 shoot grid-hide 1920 720 240 "$GRID_BUTTON;$(at browser),long;960,447;$WAIT"
 EXTRA="--es hideApps mycar:web --ez hiddenApps true" shoot hidden-apps 1920 720 240 "$WAIT"
 EXTRA="--ez hiddenApps true" shoot hidden-apps-none 800 480 160 "$WAIT"
+# The app grid as one list swiped up and down (car Settings > App grid > List; --es appGrid list, debug
+# only): from the dock's foot, then a quick swipe up. The pages' icons, columns and gaps, no dots, a thin
+# bar right of the rows when there's more than the screen holds. At 1920x720 every app fits in two rows,
+# so nothing moves; at Large (1.25) there and at 800x480 the rows go on below.
+EXTRA="--es appGrid list" shoot grid-vertical 1920 720 240 "$GRID_BUTTON;960,560,swipe,960,160;$WAIT"
+EXTRA="--es appGrid list --es carScale 1.25" shoot grid-vertical-large 1920 720 240 "90,637;960,560,swipe,960,160;$WAIT"
+EXTRA="--es appGrid list" shoot grid-vertical-800x480 800 480 160 "48,436;400,400,swipe,400,100;$WAIT"
+# The knob on the list (a script, see PreviewScript): turned back a click at a time, a picture after each,
+# round the dock and on to the last app, at the bottom of the list; then four and four more, a row up each.
+GRID_KNOB="wait:6000;tap:48,436;wait:2500;snap:0-grid;rep:8;knob:-1;wait:700;snap:;end"
+GRID_KNOB="$GRID_KNOB;rep:4;knob:-1;wait:400;end;wait:700;snap:up-a-row;rep:4;knob:-1;wait:400;end;wait:700;snap:up-two-rows"
+EXTRA="--es appGrid list --es script '$GRID_KNOB'" shoot grid-vertical-knob 800 480 160 "" "sleep 18"
+# The choice itself, at 800x480: Settings from the grid's second page (its third tile, at 532,110: found by
+# its name it was taken mid-turn, where Exit is), scrolled down to "App grid", "List (up and down)" tapped,
+# then the grid from the dock's foot - a list now, with its bar instead of the dots.
+GRID_CHOICE="wait:6000;tap:48,436;wait:2500;snap:0-pages;drag:650,250,150,250,250;wait:2500;tap:532,110;wait:3000"
+GRID_CHOICE="$GRID_CHOICE;drag:500,440,500,40,700;wait:1200"
+GRID_CHOICE="$GRID_CHOICE;drag:500,400,500,150,600;wait:2000;snap:1-row;tapText:List (up and down);wait:2000;snap:2-chosen"
+GRID_CHOICE="$GRID_CHOICE;tap:48,436;wait:3000;snap:3-grid"
+EXTRA="--es script '$GRID_CHOICE'" shoot settings-app-grid 800 480 160 "" "sleep 22"
 
 # Home with an app chosen to sit beside the map instead (car Settings > Beside the map).
 installed $PLANCIA && EXTRA="--es sidePane $PLANCIA" shoot split-plancia 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT"
@@ -627,6 +647,15 @@ fi
 # myCar's own screens: the phone and the car settings.
 shoot phone 1920 720 240 "$GRID_BUTTON;$(at phone);$WAIT"
 shoot settings 1920 720 240 "$GRID_BUTTON;$(at settings);$WAIT"
+# The car's settings scrolled down, then what might take them back to the top (a tester's Ioniq 5 over a
+# wireless adapter: "the settings menu did scroll back up quite many times"): the car showing its own
+# screen and handing it back, the dashboard from the dock's clock and the car's Back to the settings, two
+# turns of the knob. A script (see PreviewScript), a picture after each step, in settings-scroll/.
+SETTINGS_SCROLL="wait:7000;tap:$GRID_BUTTON;wait:2500;tap:$(at settings);wait:3000;snap:1-open"
+SETTINGS_SCROLL="$SETTINGS_SCROLL;drag:1500,620,1500,170,900;wait:2500;snap:2-scrolled;focus:2000;wait:2000;snap:3-car-screen-back"
+SETTINGS_SCROLL="$SETTINGS_SCROLL;tap:72,66;wait:2500;snap:4-dashboard;key:4;wait:2500;snap:5-back"
+SETTINGS_SCROLL="$SETTINGS_SCROLL;knob:1;wait:1500;snap:6-knob;knob:1;wait:1500;snap:7-knob-2"
+EXTRA="--es script '$SETTINGS_SCROLL'" shoot settings-scroll 1920 720 240 "" "sleep 25"
 
 # The car's browser on a page that is one big dropdown (<select>): a tap opens myCar's own list over
 # the car's screen (car/WebSelect.kt; Android's dialog can't show there, and before 0.5.19 it closed

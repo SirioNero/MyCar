@@ -894,6 +894,8 @@ object CarServices {
         CarToasts.clearAll()
         VoiceHelp.hide()
         CarSettings.forgetOpenWhatsNew()
+        // The car's Settings open at the top again, next drive.
+        SettingsScroll.forget()
         media.forgetLosses()
         clearSectionCache()
         navStopped = false

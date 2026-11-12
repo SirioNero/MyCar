@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Dimensione del lettore accanto alla mappa</string>
     <string name="car_settings_mini_player">Mini lettore sulla mappa intera</string>
     <string name="car_settings_mini_player_detail">Chiuso il lettore accanto alla mappa, un piccolo lettore resta sopra la mappa. Tienilo premuto, poi trascinalo per spostarlo.</string>
+    <string name="car_settings_app_grid">Griglia delle app</string>
+    <string name="car_settings_app_grid_pages">Pagine (di lato)</string>
+    <string name="car_settings_app_grid_list">Elenco (su e giù)</string>
     <string name="car_settings_hidden_apps">App nascoste</string>
     <string name="car_settings_hidden_apps_none">Nessuna. Per nascondere un\'app, tienila premuta nella griglia delle app e scegli «Nascondi dalla griglia delle app».</string>
     <string name="car_settings_hidden_apps_show">Mostra</string>

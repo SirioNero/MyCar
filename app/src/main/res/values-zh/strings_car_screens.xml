@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">地图旁播放器的大小</string>
     <string name="car_settings_mini_player">全屏地图上的迷你播放器</string>
     <string name="car_settings_mini_player_detail">关闭地图旁的播放器后，地图上会浮现一个小播放器。按住它再拖动即可移动。</string>
+    <string name="car_settings_app_grid">应用网格</string>
+    <string name="car_settings_app_grid_pages">分页（左右滑动）</string>
+    <string name="car_settings_app_grid_list">列表（上下滑动）</string>
     <string name="car_settings_hidden_apps">隐藏的应用</string>
     <string name="car_settings_hidden_apps_none">无。要隐藏某个应用，在应用网格中长按它，然后选择“从应用网格中隐藏”。</string>
     <string name="car_settings_hidden_apps_show">显示</string>

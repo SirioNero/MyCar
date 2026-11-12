@@ -6,6 +6,9 @@
     <string name="car_settings_player_size">海图旁船歌匣的大小</string>
     <string name="car_settings_mini_player">全屏海图上的小船歌匣</string>
     <string name="car_settings_mini_player_detail">关闭海图旁的船歌匣后，海图上会漂起一个小船歌匣。按住它再拖动即可移动。</string>
+    <string name="car_settings_app_grid">船队阵型</string>
+    <string name="car_settings_app_grid_pages">分页（左舷到右舷）</string>
+    <string name="car_settings_app_grid_list">列表（桅顶到龙骨）</string>
     <string name="car_settings_hidden_apps">舱底的应用</string>
     <string name="car_settings_hidden_apps_none">舱底空空如也。要把某个应用藏进舱底，在船队中长按它，然后选择“从船队中藏起”。</string>
     <string name="car_settings_app_theme">船漆</string>

@@ -72,6 +72,7 @@ fun CarSettingsScreen() {
     val autoplay by CarSettings.autoplay.collectAsState()
     val radioFirst by CarSettings.radioFirst.collectAsState()
     val playerSize by CarSettings.playerSize.collectAsState()
+    val appGrid by CarSettings.appGrid.collectAsState()
     val miniPlayer by MiniPlayerSetting.on.collectAsState()
     val videoCover by VideoCoverSetting.on.collectAsState()
     val webMusicOn by WebMusic.on.collectAsState()
@@ -90,7 +91,8 @@ fun CarSettingsScreen() {
     Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            // Where the driver left it this drive, not the top, when the screen comes back.
+            .verticalScroll(rememberSettingsScroll())
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
@@ -137,6 +139,15 @@ fun CarSettingsScreen() {
         ) { MiniPlayerSetting.setOn(it) }
 
         HomePagesSettings()
+
+        ChoiceRow(
+            stringResource(R.string.car_settings_app_grid),
+            listOf(
+                AppGridLayout.PAGES to stringResource(R.string.car_settings_app_grid_pages),
+                AppGridLayout.LIST to stringResource(R.string.car_settings_app_grid_list),
+            ),
+            appGrid,
+        ) { CarSettings.setAppGrid(it) }
 
         HiddenAppsSettings()
 

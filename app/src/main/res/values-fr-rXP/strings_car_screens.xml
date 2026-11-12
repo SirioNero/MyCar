@@ -12,6 +12,9 @@
     <string name="car_settings_player_size">Gabarit du phono à côté de la carte</string>
     <string name="car_settings_mini_player">Mini-phono sur la carte entière</string>
     <string name="car_settings_mini_player_detail">Quand le phono à côté de la carte est fermé, un petit phono flotte sur la carte comme une bouée. Maintenez-le appuyé, puis faites-le glisser pour le déplacer.</string>
+    <string name="car_settings_app_grid">Formation de la flotte</string>
+    <string name="car_settings_app_grid_pages">Pages (de bâbord à tribord)</string>
+    <string name="car_settings_app_grid_list">Liste (de la hune à la quille)</string>
     <string name="car_settings_hidden_apps">Apps planquées</string>
     <string name="car_settings_hidden_apps_none">Aucune. Pour planquer une app, maintenez-la appuyée dans la flotte et choisissez Planquer hors de la flotte.</string>
     <string name="car_settings_hidden_apps_show">Dévoiler</string>
