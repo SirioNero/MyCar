@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_52">
+        <item>Ships that want a picture of each turn on the instrument cluster (the dials behind the wheel) now get one, only as often as they ask: the MG ZS 2024 cut the connection as soon as a course began. If a ship still cuts it twice in a row as a course begins, myCar sends her no more turns and tells ye; aboard, Rigging &gt; Boarding sends them again.</item>
+        <item>Cinema plays videos from NewPipe and its kin: pick \"myCar · Cinema\" as the external player, or share a link to myCar. A shared web page, or a video from yer home network, is hoisted only after ye say aye at the helm.</item>
+        <item>The fleet can also scroll from crow\'s nest to keel as one list (Rigging &gt; Fleet formation, aboard or on the phone), and the ship\'s Rigging stays where ye left it for the whole voyage instead of jumping back to the top.</item>
+        <item>If telling a ship the phone\'s Bluetooth address makes her stop playing the phone\'s shanties over Bluetooth, myCar stops telling that ship and says so.</item>
+    </string-array>
+
     <string-array name="changelog_51">
         <item>Boarding wirelessly: if a VPN on yer phone keeps myCar off the ship\'s Wi-Fi, myCar now says so within seconds, on Home and in its notification, and tells ye how to set it right.</item>
         <item>Apps that won\'t let myCar aboard, such as ABRP, now say why in plain words, get a red X and no longer set sail by themselves.</item>

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_52">
+        <item>Os navios que querem uma imagem de cada conversão no painel de instrumentos (os mostradores atrás do volante) agora a recebem, só na frequência que pedem: o MG ZS 2024 encerrava a conexão assim que uma rota começava. Se um navio ainda encerrar a conexão duas vezes seguidas no início de uma rota, o myCar não lhe envia mais conversões e avisa você; a bordo, Leme &gt; Abordagem as envia de novo.</item>
+        <item>O Cinema toca vídeos do NewPipe e de apps parecidos: escolha «myCar · Cinema» como player externo, ou compartilhe um link com o myCar. Uma página web compartilhada, ou um vídeo da sua rede de casa, só é içado depois que você disser sim na tela de bordo.</item>
+        <item>A frota também pode rolar do cesto da gávea à quilha como uma lista só (Leme &gt; Formação da frota, a bordo ou no telefone), e o Leme de bordo fica onde você o deixou durante toda a travessia, em vez de voltar para o topo.</item>
+        <item>Se informar a um navio o endereço Bluetooth do telefone faz com que ele pare de tocar as cantigas do telefone pelo Bluetooth, o myCar deixa de informá-lo a esse navio e avisa você.</item>
+    </string-array>
+
     <string-array name="changelog_51">
         <item>Abordagem sem fio: se uma VPN no telefone deixa o myCar fora do Wi-Fi do navio, o myCar agora avisa em poucos segundos, na tela inicial e na notificação, e explica como acertar o rumo.</item>
         <item>Os apps que não deixam o myCar subir a bordo, como o ABRP, agora dizem o porquê em palavras simples, ganham um X vermelho e não zarpam mais sozinhos.</item>

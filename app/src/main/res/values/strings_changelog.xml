@@ -5,6 +5,14 @@
   "Settings >" are the app's own: translate them as the app's screens say them.
 -->
 <resources>
+    <!-- 0.7.6-alpha -->
+    <string-array name="changelog_52">
+        <item>Cars that want a picture of each turn on the instrument cluster (the dials behind the steering wheel) now get one, only as often as they ask: the MG ZS 2024 hung up as soon as a route started. If a car still hangs up twice in a row as a route starts, myCar sends it no more turns and tells you; Settings &gt; Connection on the car sends them again.</item>
+        <item>Cinema plays videos from NewPipe and similar apps: pick \"myCar · Cinema\" as the external player, or share a link to myCar. A shared web page, or a video from your home network, opens only after you say yes on the car\'s screen.</item>
+        <item>The app grid can also scroll up and down as one list (Settings &gt; App grid, in the car or on the phone), and the car\'s Settings stay where you left them for the whole drive instead of jumping back to the top.</item>
+        <item>If telling a car the phone\'s Bluetooth address makes it stop playing the phone\'s music over Bluetooth, myCar stops telling that car and says so.</item>
+    </string-array>
+
     <!-- 0.7.5-alpha -->
     <string-array name="changelog_51">
         <item>Wireless: if a VPN on the phone keeps myCar off the car\'s Wi-Fi, myCar now says so within seconds, on Home and in its notification, and tells you how to fix it.</item>
