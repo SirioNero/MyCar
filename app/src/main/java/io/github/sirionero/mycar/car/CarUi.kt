@@ -242,6 +242,8 @@ fun CarUi() {
     LaunchedEffect(navigator) {
         MiniPlayerSetting.on.drop(1).collect { if (it) navigator.showMiniPlayer() }
     }
+    // A video or a link another app sent to Cinema ("Open with", "Share"): the screen turns to Cinema, which opens it.
+    LaunchedEffect(navigator) { CinemaAsks.watch(navigator) }
 
     // A "play X" the music app played nothing for (Spotify ignores most): said here when the
     // player's screen isn't up to say it. On Home, "Looking for X on Spotify." was the last word.

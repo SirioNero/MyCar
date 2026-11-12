@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cinema for other apps (car/OpenInCinemaActivity.kt): a video sent with "Open with", or a link with
+  "Share", opens in Cinema on the car's screen. Said on the phone, in a short message.
+-->
+<resources>
+    <!-- The car is connected: the video plays, or the page opens, in Cinema now. -->
+    <string name="open_with_opening">正在车机屏幕上的 Cinema 中打开。</string>
+    <!-- The car is connecting: it opens once the car's screen is there. -->
+    <string name="open_with_soon">汽车连接后，会立即在车机屏幕上的 Cinema 中打开。</string>
+    <!-- No car connected: nothing is kept for later. -->
+    <string name="open_with_no_car">myCar 未连接到汽车。请先连接，再重新发送：它会在车机屏幕上的 Cinema 中打开。</string>
+    <!-- What was sent has no video and no web address (a text, a file). -->
+    <string name="open_with_nothing">这里没有 Cinema 能打开的内容：请发送视频，或网页链接。</string>
+    <!-- The name of a video sent without one: in the player's bar, and in "Continue" on Cinema's tiles. -->
+    <string name="open_with_untitled">视频</string>
+</resources>

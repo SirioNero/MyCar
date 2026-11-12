@@ -68,6 +68,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import io.github.sirionero.mycar.BuildConfig
 import io.github.sirionero.mycar.LocalNetwork
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
@@ -80,6 +81,7 @@ import io.github.sirionero.mycar.car.design.MyCarSpace
 import io.github.sirionero.mycar.car.design.glassFinish
 import io.github.sirionero.mycar.cinema.Cinema
 import io.github.sirionero.mycar.cinema.CinemaSite
+import io.github.sirionero.mycar.cinema.OpenWith
 import io.github.sirionero.mycar.cinema.SiteIcons
 import io.github.sirionero.mycar.cinema.TvList
 import io.github.sirionero.mycar.cinema.TvLists
@@ -113,17 +115,40 @@ internal fun CinemaScreen() {
     // The phone's videos (PHONE_SHELF) or a TV list (by its address), and what plays from there.
     var shelf by rememberSaveable { mutableStateOf<String?>(null) }
     var playing by remember { mutableStateOf<CinemaMedia?>(null) }
+    // The site of a link another app shared (CinemaAsks) when it's none of the list's: opened as one of its own.
+    var shared by remember { mutableStateOf<CinemaSite?>(null) }
+    // Links sent so far: a site opens afresh at the new one, even the site already on screen.
+    var sent by remember { mutableIntStateOf(0) }
     // A shelf keeps its place in its grid while one of its videos plays.
     val shelves = rememberSaveableStateHolder()
-    val open = sites.firstOrNull { it.url == openUrl }
+    val open = sites.firstOrNull { it.url == openUrl } ?: shared?.takeIf { it.url == openUrl }
     val list = tvLists.firstOrNull { it.url == shelf }
     val media = playing
     val play: (CinemaMedia) -> Unit = {
         playing = it
         CinemaContinue.media(context, it)
     }
-    // Only what can still be opened: a site taken off the list on the phone can't.
-    val again = last?.takeIf { it !is CinemaContinue.Site || sites.any { site -> site.url == it.url } }
+    // Only what can still be opened: a site taken off the list on the phone can't (a shared link's site was never on it).
+    val again = last?.takeIf { it !is CinemaContinue.Site || it.shared || sites.any { site -> site.url == it.url } }
+    // What another app sent ("Open with", "Share"), over whatever Cinema showed: its Close comes back to the tiles.
+    val asked by CinemaAsks.asked.collectAsState()
+    LaunchedEffect(asked) {
+        val ask = asked?.let(CinemaAsks::take) ?: return@LaunchedEffect
+        shelf = null
+        openUrl = null
+        playing = null
+        when (ask) {
+            is CinemaAsks.Video -> play(ask.media)
+            is CinemaAsks.Page -> {
+                val site = OpenWith.siteFor(ask.url, sites) { it.url }
+                shared = if (site == null) CinemaSite(OpenWith.nameFor(ask.url), ask.url) else null
+                startPage = ask.url
+                openUrl = (site ?: shared)?.url
+                sent++
+            }
+        }
+        MyCarLog.i("cinema: opening what another app sent")
+    }
     when {
         media != null -> key(media) { CinemaPlayer(media, onClose = { playing = null }) }
         shelf == PHONE_SHELF -> shelves.SaveableStateProvider(PHONE_SHELF) {
@@ -137,6 +162,7 @@ internal fun CinemaScreen() {
             onContinue = {
                 when (val l = again) {
                     is CinemaContinue.Site -> {
+                        if (l.shared) shared = CinemaSite(l.title, l.url)
                         startPage = l.page
                         openUrl = l.url
                     }
@@ -151,7 +177,7 @@ internal fun CinemaScreen() {
             },
             onShelf = { shelf = it },
         )
-        else -> key(open.url) { CinemaSiteView(open, startAt = startPage, onClose = { openUrl = null }) }
+        else -> key(open.url, sent) { CinemaSiteView(open, startAt = startPage, shared = open !in sites, onClose = { openUrl = null }) }
     }
 }
 
@@ -251,9 +277,11 @@ private fun InitialTile(site: CinemaSite, size: androidx.compose.ui.unit.Dp) {
 /**
  * One site, under a slim bar: back a page, the site's name, Close. The car's Back leaves a
  * full-screen video first, then steps back through the site, then goes back to the sites.
+ * [shared]: not on the list, the site of a link another app shared - its address stays out of the
+ * log, as a video's does, and its icon isn't kept.
  */
 @Composable
-private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Unit) {
+private fun CinemaSiteView(site: CinemaSite, startAt: String?, shared: Boolean, onClose: () -> Unit) {
     val context = LocalContext.current
     val navigator = LocalCarNavigator.current
     val ring = String.format("#%06X", MaterialTheme.colorScheme.primary.toArgb() and 0xFFFFFF)
@@ -339,15 +367,16 @@ private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Un
                         settings.userAgentString = userAgentFor(this, site.desktop)
                         webViewClient = CinemaClient(
                             ring,
+                            quiet = shared && !BuildConfig.DEBUG,
                             onLoading = { url ->
                                 offHomeNetwork = false
                                 unreachable = false
                                 lastUrl = url
-                                if (url != null && url.startsWith("http")) CinemaContinue.site(context, site, url)
+                                if (url != null && url.startsWith("http")) CinemaContinue.site(context, site, url, shared)
                             },
                             onVisited = { url ->
                                 lastUrl = url
-                                CinemaContinue.site(context, site, url)
+                                CinemaContinue.site(context, site, url, shared)
                             },
                             onOffHomeNetwork = { offHomeNetwork = true },
                             onUnreachable = { unreachable = true },
@@ -361,7 +390,8 @@ private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Un
                         webChromeClient = CinemaChrome(
                             onShow = { view, callback -> fullScreen = view to callback },
                             onHide = { fullScreen = null },
-                            onIcon = { SiteIcons.offer(ctx, site.host, it) },
+                            // For its tile: a shared link's site has none, and leaves no icon behind on the phone.
+                            onIcon = { if (!shared) SiteIcons.offer(ctx, site.host, it) },
                         )
                         addJavascriptInterface(
                             FieldFocusBridge(onFocus = { fieldText = it }, onBlur = { fieldText = null }),
@@ -426,7 +456,10 @@ private fun CinemaSiteView(site: CinemaSite, startAt: String?, onClose: () -> Un
             )
         }
     }
-    LaunchedEffect(Unit) { MyCarLog.i("cinema: opening ${site.host}${if (site.desktop) " as on a computer" else ""}") }
+    LaunchedEffect(Unit) {
+        val named = if (shared && !BuildConfig.DEBUG) "a page another app shared" else site.host
+        MyCarLog.i("cinema: opening $named${if (site.desktop) " as on a computer" else ""}")
+    }
 }
 
 /** The slim bar over a site: back a page, its name, and Close back to the sites. */
@@ -524,6 +557,8 @@ private val CHROME_VERSION = Regex("Chrome/([\\d.]+)")
 
 private class CinemaClient(
     private val ring: String,
+    /** A page another app shared, in the release build: its address stays out of the log. */
+    private val quiet: Boolean,
     private val onLoading: (String?) -> Unit,
     /** A page the site moved to without loading one (YouTube, Twitch, RaiPlay): for "Continue". */
     private val onVisited: (String) -> Unit,
@@ -562,7 +597,7 @@ private class CinemaClient(
 
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         if (request?.isForMainFrame == true) {
-            MyCarLog.w("cinema: ${request.url} didn't load - ${error?.errorCode} ${error?.description}")
+            MyCarLog.w("cinema: ${if (quiet) "the shared page" else request.url} didn't load - ${error?.errorCode} ${error?.description}")
             if (view != null && LocalNetwork.blocks(view.context, listOf(request.url.toString()))) {
                 onOffHomeNetwork()
             } else if (error?.errorCode in NO_NETWORK) {

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cinema for other apps (car/OpenInCinemaActivity.kt): a video sent with "Open with", or a link with
+  "Share", opens in Cinema on the car's screen. Said on the phone, in a short message.
+-->
+<resources>
+    <!-- The car is connected: the video plays, or the page opens, in Cinema now. -->
+    <string name="open_with_opening">Hissé dans Cinema, sur l’écran de bord.</string>
+    <!-- The car is connecting: it opens once the car's screen is there. -->
+    <string name="open_with_soon">Hissé dans Cinema, sur l’écran de bord, dès que vous montez à bord.</string>
+    <!-- No car connected: nothing is kept for later. -->
+    <string name="open_with_no_car">myCar n’est pas à bord du navire. Montez à bord, puis renvoyez ceci : c’est hissé dans Cinema, sur l’écran de bord.</string>
+    <!-- What was sent has no video and no web address (a text, a file). -->
+    <string name="open_with_nothing">Aucun butin ici pour Cinema : envoyez-lui une vidéo, ou le lien d’une page web.</string>
+</resources>
