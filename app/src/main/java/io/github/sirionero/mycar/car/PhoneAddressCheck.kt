@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.car.app.CarToast
 import io.github.sirionero.mycar.AppSettings
+import io.github.sirionero.mycar.CarFocus
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.R
 import io.github.sirionero.mycar.Words
@@ -38,15 +39,18 @@ internal object PhoneAddressCheck {
     private var guard: PhoneAddressGuard? = null
     /** Counts drives: an answer from Bluetooth that comes after its drive ended is dropped. */
     private var drive = 0
+    /** This drive reaches the car over Wi-Fi, not the cable: what a car does without the address is kept for each. */
+    private var wifi = false
 
     fun init(context: Context) {
         appContext = context.applicationContext
     }
 
-    /** The car shows myCar. Called again whenever the video restarts, so it arms once per drive. */
-    fun onProjecting() = main.post {
+    /** The car shows myCar, over Wi-Fi or not. Called again whenever the video restarts, so it arms once per drive. */
+    fun onProjecting(wireless: Boolean) = main.post {
         if (guard != null) return@post
         guard = PhoneAddressGuard()
+        wifi = wireless
         val at = drive
         // One of the two does something, as the car was told the address or not.
         main.postDelayed({ look(at, told = true) }, looking, PhoneAddressGuard.LOOK_TOLD_MS)
@@ -64,36 +68,45 @@ internal object PhoneAddressCheck {
         if (at != drive) return
         val car = CarBluetooth.pairedCarAddress ?: return
         if (CarBluetooth.toldAddress != told) return
+        val projected = CarFocus.projected.value
+        // Not told, with the car on its own screen: the rule puts the look off, Bluetooth needn't be asked.
+        if (!told && !projected) return decide(at, car, told, music = false, calls = false, projected = false)
         connected(BluetoothProfile.A2DP, car) { music ->
             connected(BluetoothProfile.HEADSET, car) { calls ->
-                if (at == drive && music != null && calls != null) decide(at, car, told, music, calls)
+                if (at == drive && music != null && calls != null) decide(at, car, told, music, calls, projected)
             }
         }
     }
 
-    private fun decide(at: Int, car: String, told: Boolean, music: Boolean, calls: Boolean) {
+    private fun decide(at: Int, car: String, told: Boolean, music: Boolean, calls: Boolean, projected: Boolean) {
         val rule = guard ?: return
-        val musicWithout = CarBluetooth.tookMusicWithout(car)
+        val musicWithout = CarBluetooth.tookMusicWithout(car, wifi)
         // The drive's route, as the car's next drive will have it too: through myCar, nothing to give back.
         val route = CarSettings.audioRoute.value
-        val verdict = rule.look(told, musicWithout, music, calls, inCall(), bluetoothRoute = route != AudioRoute.CAR_LINK)
+        val verdict = rule.look(
+            told, musicWithout, music, calls, inCall(),
+            projected = projected,
+            bluetoothRoute = route != AudioRoute.CAR_LINK,
+        )
         if (told && verdict != PhoneAddressGuard.Verdict.LATER) {
             log.i(
                 "phone's address told - the car now: Bluetooth music ${if (music) "connected" else "not connected"}, " +
                     "calls ${if (calls) "connected" else "not connected"}; " +
                     (if (musicWithout) "it took the music without the address before" else "never seen taking the music without it") +
-                    "; sound route ${route.id}",
+                    " over ${link()}; sound route ${route.id}",
             )
         }
         when (verdict) {
             PhoneAddressGuard.Verdict.LATER -> main.postDelayed({ look(at, told) }, looking, PhoneAddressGuard.AGAIN_MS)
             PhoneAddressGuard.Verdict.NOTHING -> Unit
-            PhoneAddressGuard.Verdict.MUSIC_WITHOUT -> if (CarBluetooth.rememberMusicWithout(car)) {
-                log.i("this car takes the phone's music over Bluetooth without the phone's address - remembered")
+            PhoneAddressGuard.Verdict.MUSIC_WITHOUT -> if (CarBluetooth.rememberMusicWithout(car, wifi)) {
+                log.i("this car takes the phone's music over Bluetooth without the phone's address over ${link()} - remembered")
             }
             PhoneAddressGuard.Verdict.STOP_TELLING -> stopTelling(car)
         }
     }
+
+    private fun link() = if (wifi) "Wi-Fi" else "the cable"
 
     private fun stopTelling(car: String) {
         val context = appContext ?: return

@@ -57,6 +57,28 @@ class PhoneAddressGuardTest {
         assertEquals(Verdict.STOP_TELLING, look(told = true, musicWithout = true, music = false, calls = true, bluetoothRoute = true))
     }
 
+    @Test fun `not told, the car on its own screen - looked at again once it shows myCar`() {
+        val guard = PhoneAddressGuard()
+        // The driver on the car's radio menu at the look: what the car does then isn't learnt.
+        assertEquals(Verdict.LATER, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+        assertEquals(Verdict.LATER, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+        // Back on myCar's screen, the music on Bluetooth: now it counts.
+        assertEquals(Verdict.MUSIC_WITHOUT, guard.at(told = false, musicWithout = false, music = true, calls = true))
+    }
+
+    @Test fun `not told, the car on its own screen to the end - nothing learnt`() {
+        val guard = PhoneAddressGuard()
+        repeat(PhoneAddressGuard.MAX_WAITS) {
+            assertEquals(Verdict.LATER, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+        }
+        assertEquals(Verdict.NOTHING, guard.at(told = false, musicWithout = false, music = true, calls = true, projected = false))
+    }
+
+    @Test fun `told, the car's own screen changes nothing`() {
+        // The car connects or drops its music's Bluetooth whichever screen it shows.
+        assertEquals(Verdict.STOP_TELLING, PhoneAddressGuard().at(told = true, musicWithout = true, music = false, calls = true, projected = false))
+    }
+
     @Test fun `a call puts the look off, and the one right after it`() {
         val guard = PhoneAddressGuard()
         assertEquals(Verdict.LATER, guard.at(told = true, musicWithout = true, music = false, calls = true, inCall = true))
@@ -89,7 +111,7 @@ class PhoneAddressGuardTest {
         assertTrue(PhoneAddressGuard.LOOK_TOLD_MS in 60_000L..PhoneAddressGuard.LOOK_UNTOLD_MS)
     }
 
-    /** One look of a drive of its own, no call on, the route Automatic or Bluetooth unless said. */
+    /** One look of a drive of its own: no call on, the car showing myCar, the route Automatic or Bluetooth unless said. */
     private fun look(told: Boolean, musicWithout: Boolean, music: Boolean, calls: Boolean, bluetoothRoute: Boolean = true) =
         PhoneAddressGuard().at(told, musicWithout, music, calls, bluetoothRoute = bluetoothRoute)
 
@@ -99,6 +121,7 @@ class PhoneAddressGuardTest {
         music: Boolean,
         calls: Boolean,
         inCall: Boolean = false,
+        projected: Boolean = true,
         bluetoothRoute: Boolean = true,
-    ) = this.look(told, musicWithout, music, calls, inCall, bluetoothRoute)
+    ) = this.look(told, musicWithout, music, calls, inCall, projected, bluetoothRoute)
 }

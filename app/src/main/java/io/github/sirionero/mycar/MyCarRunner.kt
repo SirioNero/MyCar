@@ -1211,7 +1211,7 @@ class MyCarRunner(
                 SessionStatus.projecting()
                 CarAudioRoute.onProjecting()
                 BluetoothAudioCheck.onProjecting()
-                PhoneAddressCheck.onProjecting()
+                PhoneAddressCheck.onProjecting(wireless)
                 LocationCheck.onProjecting()
             }
         }.onFailure { e ->
