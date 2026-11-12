@@ -26,6 +26,7 @@
     <string name="car_settings_unknown_vehicle">无名之船</string>
     <string name="car_settings_cluster_no_turns">不向这艘船发送转弯</string>
     <string name="car_settings_cluster_no_turns_note">myCar 向这艘船的仪表盘发送转弯后，它连续两次立即断开了连接，所以 myCar 不再向它发送转弯。此屏幕上的海图仍会显示转弯。</string>
+    <string name="car_cluster_no_turns_notice">这艘船连续两次在仪表盘收到转弯后立即断开连接，所以不再向那里发送转弯。可在 舵轮 > 登船 中重新发送。</string>
     <string name="car_settings_about">船旗</string>
     <string name="car_settings_whats_new_after_updates">换帆后显示新战利品</string>
     <string name="car_settings_whats_new_after_updates_note">换帆后第一次连上船时，显示一次新战利品清单。</string>

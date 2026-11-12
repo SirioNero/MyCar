@@ -52,6 +52,7 @@
     <string name="car_settings_cluster_no_turns">不向这辆车发送转弯</string>
     <string name="car_settings_cluster_no_turns_note">myCar 向这辆车的仪表盘发送转弯后，它连续两次立即断开了连接，所以 myCar 不再向它发送转弯。此屏幕上的地图仍会显示转弯。</string>
     <string name="car_settings_cluster_turns_again">重新发送转弯</string>
+    <string name="car_cluster_no_turns_notice">这辆车连续两次在仪表盘收到转弯后立即断开连接，所以不再向那里发送转弯。可在 设置 > 连接 中重新发送。</string>
     <string name="car_settings_checking">正在检查…</string>
     <string name="car_settings_unknown_vehicle">未知车辆</string>
     <string name="car_settings_about">关于</string>

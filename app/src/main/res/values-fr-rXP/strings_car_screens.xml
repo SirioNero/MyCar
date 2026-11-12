@@ -32,6 +32,7 @@
     <string name="car_settings_unknown_vehicle">Navire inconnu</string>
     <string name="car_settings_cluster_no_turns">Pas de manœuvres pour ce navire</string>
     <string name="car_settings_cluster_no_turns_note">Ce navire a coupé la connexion deux fois de suite juste après que myCar a envoyé une manœuvre à son combiné d’instruments : myCar ne lui en envoie donc plus. La carte de cet écran les affiche toujours.</string>
+    <string name="car_cluster_no_turns_notice">Ce navire a coupé la connexion deux fois de suite juste après une manœuvre sur le combiné d’instruments : il n’en reçoit plus. Pour les renvoyer : Timonerie > Abordage.</string>
     <string name="car_settings_about">Pavillon</string>
     <string name="car_settings_whats_new_after_updates">Butin après chaque mise à jour</string>
     <string name="car_settings_whats_new_after_updates_note">Dévoiler la liste des changements une fois, la première fois que le navire se connecte après une mise à jour.</string>

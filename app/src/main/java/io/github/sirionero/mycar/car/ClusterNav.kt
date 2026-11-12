@@ -1,6 +1,9 @@
 package io.github.sirionero.mycar.car
 
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
+import androidx.car.app.CarToast
 import androidx.car.app.model.CarText
 import androidx.car.app.model.Distance
 import androidx.car.app.navigation.model.Maneuver
@@ -10,6 +13,8 @@ import androidx.car.app.navigation.model.Step
 import androidx.core.graphics.drawable.IconCompat
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
+import io.github.sirionero.mycar.R
+import io.github.sirionero.mycar.Words
 
 /**
  * The next turn on the car's instrument cluster, over its NavigationStatusService (Service
@@ -50,6 +55,8 @@ class ClusterNav(
     private val blame = ClusterBlame()
     /** The car has shown a navigation on its cluster, at an earlier drive or this one: never blamed. */
     @Volatile private var held = false
+    /** For the notice at the drive after the car lost its turns ([tellWhenStopped]). */
+    private val main = Handler(Looper.getMainLooper())
 
     fun onMessage(messageId: Int, body: ByteArray) {
         when (messageId) {
@@ -74,6 +81,8 @@ class ClusterNav(
         Thread({
             // Here, not on the thread that reads the car: it reads the phone's storage.
             held = ClusterCars.record(car).held
+            // After the car's screen is up: its start clears the toasts left from before.
+            if (ClusterCars.noticeDue(car)) main.postDelayed({ tellWhenStopped() }, NOTICE_AFTER_MS)
             while (running && !ended) {
                 val wait = runCatching { tick() }.getOrElse {
                     MyCarLog.w("cluster: ${it.message}")
@@ -93,6 +102,22 @@ class ClusterNav(
     fun stop() {
         ended = true
         running = false
+        main.removeCallbacksAndMessages(null)
+    }
+
+    /**
+     * At the drive after this car lost its turns, its screen says so once the car is stopped: a
+     * glance at a red light, not one at speed. Looked at again every few seconds for the drive.
+     */
+    private fun tellWhenStopped() {
+        if (ended) return
+        if (!CarDriving.videoAllowed) {
+            main.postDelayed({ tellWhenStopped() }, STOPPED_LOOK_MS)
+            return
+        }
+        CarToasts.show(this, Words.get(R.string.car_cluster_no_turns_notice), CarToast.LENGTH_LONG)
+        ClusterCars.noticeGiven(car)
+        MyCarLog.i("cluster: told the driver this car gets no turns on its cluster")
     }
 
     /**
@@ -264,6 +289,9 @@ class ClusterNav(
     companion object {
         /** How often myCar looks at the map app while it has nothing to send. */
         private const val TICK_MS = 500L
+        /** The notice of a car without turns: not before the car's screen is up, then a look this often. */
+        private const val NOTICE_AFTER_MS = 10_000L
+        private const val STOPPED_LOOK_MS = 5_000L
         private const val MSG_CHANNEL_OPEN_RESPONSE = 8
         private const val MSG_START = 32769
         private const val MSG_STOP = 32770

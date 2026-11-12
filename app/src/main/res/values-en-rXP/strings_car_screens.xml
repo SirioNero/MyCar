@@ -35,6 +35,7 @@
     <string name="car_settings_unknown_vehicle">Unknown vessel</string>
     <string name="car_settings_cluster_no_turns">No turns for this vessel</string>
     <string name="car_settings_cluster_no_turns_note">This vessel cut the connection twice in a row right after myCar sent its instrument cluster a turn, so myCar sends it none. The chart on this screen still shows them.</string>
+    <string name="car_cluster_no_turns_notice">This ship cut the connection twice in a row right after a turn on her instrument cluster, so she gets no more turns there. Rigging > Boarding sends them again.</string>
     <string name="car_settings_about">Our flag</string>
     <string name="car_settings_whats_new_after_updates">Fresh plunder after refits</string>
     <string name="car_settings_whats_new_after_updates_note">Show the list of changes once, the first time the ship connects after a refit.</string>
