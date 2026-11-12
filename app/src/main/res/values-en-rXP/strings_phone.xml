@@ -23,6 +23,8 @@
     <string name="help_in_the_car">Aboard</string>
     <string name="help_step_connect">Plug in, or board wirelessly.</string>
     <string name="help_step_connect_detail">myCar opens by itself when the ship connects. The first time with the cable, Android asks which app to open: choose myCar and tap Always. For wireless, pair the phone with the ship first, then tap Board wirelessly on Home.</string>
+    <string name="help_step_vpn">With a VPN, leave myCar out of it to board wirelessly.</string>
+    <string name="help_step_vpn_detail">Inside a VPN, Android keeps myCar off the ship\'s Wi-Fi. Leave myCar out in the VPN app (in Tailscale: Settings, App split tunneling), turn the VPN off for the voyage, or use the cable. With \"Block connections without VPN\" on, Android blocks myCar outside the VPN too: turn that off in Android\'s VPN settings.</string>
     <string name="help_step_screening">Repel unknown callers before they ring.</string>
     <string name="help_set_up">Fit out</string>
     <string name="help_step_audio_prompt">Stop the audio prompt each voyage.</string>

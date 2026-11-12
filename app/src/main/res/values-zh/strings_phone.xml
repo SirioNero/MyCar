@@ -29,6 +29,8 @@
     <string name="help_sound_through_mycar">通过 myCar 传输声音</string>
     <string name="help_step_connect">插上数据线，或无线连接。</string>
     <string name="help_step_connect_detail">汽车连接后，myCar 会自动打开。第一次用数据线连接时，Android 会询问要打开哪个应用：选择 myCar，然后点按“始终”。如需无线连接，请先将手机与汽车配对，然后在主页上点按“无线连接”。</string>
+    <string name="help_step_vpn">使用 VPN 时，把 myCar 排除在外以便无线连接。</string>
+    <string name="help_step_vpn_detail">在 VPN 内，Android 不让 myCar 使用汽车的 WLAN。请在 VPN 应用中把 myCar 排除在外（在 Tailscale 中：Settings &gt; App split tunneling），在行程中关闭 VPN，或使用数据线。如果开启了“屏蔽未使用 VPN 的所有连接”，Android 也会屏蔽 VPN 之外的 myCar：请在 Android 的 VPN 设置中关闭它。</string>
     <string name="help_step_pair">通过蓝牙配对，用于通话。</string>
     <string name="help_step_pair_detail">手机与汽车配对后，通话会通过汽车播放。首次插上数据线时，myCar 会提议配对。</string>
     <string name="help_step_screening">在响铃前拒接陌生来电。</string>

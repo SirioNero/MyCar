@@ -29,6 +29,8 @@
     <string name="help_sound_through_mycar">Звук через myCar</string>
     <string name="help_step_connect">Подключите кабель или подключитесь без него.</string>
     <string name="help_step_connect_detail">myCar открывается сам, когда автомобиль подключается. В первый раз при подключении кабелем Android спросит, какое приложение открыть: выберите myCar и нажмите «Всегда». Для подключения без кабеля сначала выполните сопряжение телефона с автомобилем, затем нажмите «Подключить без кабеля» на главном экране.</string>
+    <string name="help_step_vpn">С VPN исключите из него myCar для подключения без кабеля.</string>
+    <string name="help_step_vpn_detail">Внутри VPN Android не пускает myCar в Wi-Fi автомобиля. Исключите myCar в приложении VPN (в Tailscale: «Settings», «App split tunneling»), выключите VPN на время поездки или используйте кабель. Если включено «Блокировать соединения без VPN», Android блокирует myCar и вне VPN: выключите это в настройках VPN Android.</string>
     <string name="help_step_pair">Выполните сопряжение по Bluetooth для звонков.</string>
     <string name="help_step_pair_detail">После сопряжения телефона и автомобиля звонки звучат через автомобиль. myCar предложит сопряжение при первом подключении.</string>
     <string name="help_step_screening">Отклоняйте неизвестные звонки до того, как они зазвонят.</string>

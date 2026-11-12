@@ -29,6 +29,8 @@
     <string name="help_sound_through_mycar">Sonido a través de myCar</string>
     <string name="help_step_connect">Conecta el cable o conéctate sin cable.</string>
     <string name="help_step_connect_detail">myCar se abre solo cuando el coche se conecta. La primera vez con cable, Android pregunta qué app abrir: elige myCar y toca Siempre. Para conectar sin cable, vincula primero el teléfono con el coche y luego toca Conectar sin cable en Inicio.</string>
+    <string name="help_step_vpn">Con una VPN, deja fuera a myCar para conectar sin cable.</string>
+    <string name="help_step_vpn_detail">Dentro de una VPN, Android no deja a myCar usar el Wi-Fi del coche. Deja fuera a myCar en la app de la VPN (en Tailscale: Settings, App split tunneling), desactiva la VPN durante el viaje o usa el cable. Con «Bloquear conexiones sin VPN» activado, Android también bloquea myCar cuando está fuera de la VPN: desactívalo en los ajustes de VPN de Android.</string>
     <string name="help_step_pair">Vincula por Bluetooth para las llamadas.</string>
     <string name="help_step_pair_detail">Las llamadas suenan en el coche una vez que tu teléfono y el coche están vinculados. myCar te ofrece vincularlos la primera vez que conectas el cable.</string>
     <string name="help_step_screening">Rechaza las llamadas desconocidas antes de que suenen.</string>

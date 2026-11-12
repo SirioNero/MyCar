@@ -29,6 +29,8 @@
     <string name="help_sound_through_mycar">Ton über myCar</string>
     <string name="help_step_connect">Anschließen oder kabellos verbinden.</string>
     <string name="help_step_connect_detail">myCar öffnet sich von selbst, wenn sich das Auto verbindet. Beim ersten Mal mit Kabel fragt Android, welche App sich öffnen soll: Wähle myCar und tippe auf „Immer“. Für eine kabellose Verbindung kopple zuerst das Telefon mit dem Auto und tippe dann auf der Startseite auf „Kabellos verbinden“.</string>
+    <string name="help_step_vpn">Mit einem VPN myCar fürs kabellose Verbinden davon ausnehmen.</string>
+    <string name="help_step_vpn_detail">Innerhalb eines VPN hält Android myCar vom WLAN des Autos fern. Nimm myCar in der App des VPN aus (in Tailscale: „Settings“, „App split tunneling“), schalte das VPN für die Fahrt aus oder nutze das Kabel. Ist „Verbindungen ohne VPN blockieren“ an, blockiert Android myCar auch außerhalb des VPN: Schalte das in den VPN-Einstellungen von Android aus.</string>
     <string name="help_step_pair">Für Anrufe per Bluetooth koppeln.</string>
     <string name="help_step_pair_detail">Anrufe laufen über das Auto, sobald dein Telefon und das Auto gekoppelt sind. myCar bietet das Koppeln an, wenn du das Telefon zum ersten Mal anschließt.</string>
     <string name="help_step_screening">Unbekannte Anrufer ablehnen, bevor es klingelt.</string>
