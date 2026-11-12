@@ -26,8 +26,8 @@ import io.github.sirionero.mycar.Protobuf
  *
  * At the pace the car asks for ([ClusterSpec], [ClusterNext]): one message at a time for a cluster
  * that wants pictures, whose turns carry one (image = 4); the rest together, as before. A car that
- * hangs up right after a navigation opens on its cluster gets no more turns ([ClusterBlame],
- * [ClusterCars]).
+ * hangs up right after a navigation opens on its cluster, twice in a row, gets no more turns
+ * ([ClusterBlame], [ClusterRecord], [ClusterCars]).
  */
 class ClusterNav(
     private val spec: ClusterSpec,
@@ -48,6 +48,8 @@ class ClusterNav(
     private var pictureKey: String? = null
     private var lastPicture: ClusterImage.Picture? = null
     private val blame = ClusterBlame()
+    /** The car has shown a navigation on its cluster, at an earlier drive or this one: never blamed. */
+    @Volatile private var held = false
 
     fun onMessage(messageId: Int, body: ByteArray) {
         when (messageId) {
@@ -67,9 +69,11 @@ class ClusterNav(
         if (running || ended) return
         running = true
         if (car in ClusterCars.off.value) {
-            MyCarLog.i("cluster: this car hung up right after a turn on an earlier drive - it gets none, only \"not navigating\" (its Settings in the car can turn turns back on)")
+            MyCarLog.i("cluster: this car hung up right after the first turns, twice in a row - it gets none, only \"not navigating\" (its Settings in the car can turn turns back on)")
         }
         Thread({
+            // Here, not on the thread that reads the car: it reads the phone's storage.
+            held = ClusterCars.record(car).held
             while (running && !ended) {
                 val wait = runCatching { tick() }.getOrElse {
                     MyCarLog.w("cluster: ${it.message}")
@@ -93,16 +97,37 @@ class ClusterNav(
 
     /**
      * The car ended the session, by ByeBye with [byeBye] as its reason or by dropping the connection
-     * (null). Right after a navigation opened on its cluster, the cluster is the likely cause: this
-     * car gets no more turns.
+     * (null). Right after a navigation opened on its cluster, the cluster may be the cause: twice in
+     * a row, and this car gets no more turns ([ClusterRecord]).
      */
     fun carEnded(byeBye: Int?) {
         val after = blame.blame(SystemClock.elapsedRealtime(), byeBye) ?: return
-        ClusterCars.stopTurns(car)
-        MyCarLog.w(
-            "cluster: the car ended the session $after ms after myCar began showing it a navigation - " +
-                "it gets no more turns on its cluster (its Settings in the car can turn them back on)",
-        )
+        val what = "the car ended the session $after ms after a navigation opened on its cluster"
+        if (held) {
+            MyCarLog.i("cluster: $what - not counted: it has shown navigations there")
+            return
+        }
+        val record = ClusterCars.hungUp(car)
+        if (record.off) {
+            MyCarLog.w("cluster: $what, ${record.strikes} times in a row - it gets no more turns there (its Settings in the car can turn them back on)")
+        } else {
+            MyCarLog.w("cluster: $what - ${record.strikes} of ${ClusterRecord.TIMES} in a row before it gets no more turns")
+        }
+    }
+
+    /** What the clock says while the session is up ([ClusterBlame.check]), kept for the car. */
+    private fun noteTheTime() {
+        when (blame.check(SystemClock.elapsedRealtime())) {
+            ClusterBlame.Event.SURVIVED -> if (ClusterCars.tookIt(car)) {
+                MyCarLog.i("cluster: the car took the opening of a navigation - its hang-ups in a row start over")
+            }
+            ClusterBlame.Event.HELD -> if (!held) {
+                held = true
+                ClusterCars.showedIt(car)
+                MyCarLog.i("cluster: the car has shown a navigation on its cluster for a minute - a hang-up is never put down to it")
+            }
+            null -> Unit
+        }
     }
 
     /**
@@ -110,6 +135,7 @@ class ClusterNav(
      * of them together for every other one. How long until the next look.
      */
     private fun tick(): Long {
+        noteTheTime()
         // A car that hung up over its cluster stays at "not navigating".
         val turn = if (car in ClusterCars.off.value) null else NavTurn.current()
         val status = when {

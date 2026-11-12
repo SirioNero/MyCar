@@ -2,6 +2,7 @@ package io.github.sirionero.mycar.car
 
 import io.github.sirionero.mycar.car.ClusterNext.NAVIGATING
 import io.github.sirionero.mycar.car.ClusterNext.NOT_NAVIGATING
+import io.github.sirionero.mycar.car.ClusterBlame.Event
 import io.github.sirionero.mycar.car.ClusterNext.REROUTING
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -82,5 +83,59 @@ class ClusterBlameTest {
         assertNull(blame.blame(500, null))
         blame.turn(600)
         assertNull(blame.blame(700, null))
+    }
+
+    @Test
+    fun `a navigation called off at once isn't counted`() {
+        val blame = ClusterBlame()
+        blame.status(NOT_NAVIGATING, -30_000)
+        blame.status(NAVIGATING, 0)
+        blame.turn(1_000)
+        blame.status(NOT_NAVIGATING, 1_500)
+        assertNull(blame.blame(2_000, null))
+    }
+
+    @Test
+    fun `a reconnection that picks the route up again opens a navigation too`() {
+        // The map app still guides when the car comes back: navigating is the session's first status.
+        val blame = ClusterBlame()
+        blame.status(NAVIGATING, 0)
+        blame.turn(500)
+        assertEquals(700L, blame.blame(1_200, null))
+    }
+
+    @Test
+    fun `the clock says once when an opening went through`() {
+        val blame = opened()
+        assertNull(blame.check(5_000))
+        assertEquals(Event.SURVIVED, blame.check(5_001))
+        assertNull(blame.check(5_002))
+        // Gone through, it can't be blamed any more.
+        assertNull(blame.blame(5_100, null))
+    }
+
+    @Test
+    fun `the clock says once when the car has shown a navigation for a minute`() {
+        val blame = opened()
+        assertEquals(Event.SURVIVED, blame.check(5_001))
+        assertNull(blame.check(60_999))
+        assertEquals(Event.HELD, blame.check(61_000))
+        assertNull(blame.check(70_000))
+    }
+
+    @Test
+    fun `a navigation called off before a minute isn't held`() {
+        val blame = opened()
+        blame.status(NOT_NAVIGATING, 30_000)
+        assertNull(blame.check(30_001))
+        assertNull(blame.check(61_000))
+    }
+
+    @Test
+    fun `once the session is over the clock says nothing`() {
+        val blame = opened()
+        assertEquals(500L, blame.blame(2_500, null))
+        assertNull(blame.check(5_001))
+        assertNull(blame.check(61_000))
     }
 }

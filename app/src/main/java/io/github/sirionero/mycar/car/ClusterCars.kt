@@ -6,15 +6,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * The cars that get no turns on their instrument cluster, kept for each car as
+ * What myCar keeps of each car's cluster ([ClusterRecord]), for each car as
  * [io.github.sirionero.mycar.audio.CarRoutes] knows it (its Bluetooth address, or what its head
- * unit says it is): a car that ended the session right after myCar began showing it a navigation
- * ([ClusterBlame]). They still get "not navigating" when the channel opens. The car's Settings
- * say so, and can turn turns back on. Also lends [ClusterNav] the app, to draw turns as pictures.
+ * unit says it is): the cars that get no turns any more, having ended the session right after a
+ * navigation opened on their cluster twice in a row ([ClusterBlame]); the hang-ups in a row so far;
+ * the cars that have shown a navigation there. A car without turns still gets "not navigating" when
+ * the channel opens. The car's Settings say so, and can turn turns back on. Also lends [ClusterNav]
+ * the app, to draw turns as pictures.
  */
 internal object ClusterCars {
 
+    /** The cars without turns (each with when it lost them). */
     private const val PREFS = "mycar_cluster_no_turns"
+    private const val PREFS_STRIKES = "mycar_cluster_strikes"
+    private const val PREFS_HELD = "mycar_cluster_held"
 
     /** The app, once [init] has run: [ClusterImage] loads the map app's icons with it. */
     @Volatile var app: Context? = null
@@ -27,20 +32,53 @@ internal object ClusterCars {
 
     fun init(context: Context) {
         app = context.applicationContext
-        offFlow.value = runCatching { prefs()?.all?.keys?.toSet() }.getOrNull().orEmpty()
+        offFlow.value = runCatching { prefs(PREFS)?.all?.keys?.toSet() }.getOrNull().orEmpty()
     }
 
-    /** [car] gets no more turns. */
-    fun stopTurns(car: String) {
-        prefs()?.edit()?.putLong(car, System.currentTimeMillis())?.apply()
-        offFlow.value = offFlow.value + car
+    @Synchronized
+    fun record(car: String): ClusterRecord = ClusterRecord(
+        strikes = runCatching { prefs(PREFS_STRIKES)?.getInt(car, 0) }.getOrNull() ?: 0,
+        held = runCatching { prefs(PREFS_HELD)?.getBoolean(car, false) }.getOrNull() == true,
+        off = car in offFlow.value,
+    )
+
+    /** [car] hung up right after a navigation opened on its cluster: what that makes of it. */
+    @Synchronized
+    fun hungUp(car: String): ClusterRecord = save(car, record(car).hungUp())
+
+    /** A navigation's opening went through on [car]: true when that started a count over. */
+    @Synchronized
+    fun tookIt(car: String): Boolean {
+        val before = record(car)
+        save(car, before.tookIt())
+        return before.strikes > 0
+    }
+
+    /** [car] showed a navigation on its cluster for a while: never blamed again. */
+    @Synchronized
+    fun showedIt(car: String) {
+        save(car, record(car).showedIt())
     }
 
     /** From the car's Settings: [car] gets turns again, from now on. */
+    @Synchronized
     fun turnsAgain(car: String) {
-        prefs()?.edit()?.remove(car)?.apply()
-        offFlow.value = offFlow.value - car
+        save(car, record(car).turnsAgain())
     }
 
-    private fun prefs() = app?.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private fun save(car: String, record: ClusterRecord): ClusterRecord {
+        val strikes = prefs(PREFS_STRIKES)?.edit()
+        if (record.strikes > 0) strikes?.putInt(car, record.strikes) else strikes?.remove(car)
+        strikes?.apply()
+        if (record.held) prefs(PREFS_HELD)?.edit()?.putBoolean(car, true)?.apply()
+        if (record.off != (car in offFlow.value)) {
+            val off = prefs(PREFS)?.edit()
+            if (record.off) off?.putLong(car, System.currentTimeMillis()) else off?.remove(car)
+            off?.apply()
+            offFlow.value = if (record.off) offFlow.value + car else offFlow.value - car
+        }
+        return record
+    }
+
+    private fun prefs(name: String) = app?.getSharedPreferences(name, Context.MODE_PRIVATE)
 }

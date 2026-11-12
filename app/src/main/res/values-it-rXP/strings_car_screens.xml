@@ -26,7 +26,7 @@
     <string name="car_settings_info_vehicle">Nave</string>
     <string name="car_settings_unknown_vehicle">Nave senza nome</string>
     <string name="car_settings_cluster_no_turns">Nessuna svolta per questa nave</string>
-    <string name="car_settings_cluster_no_turns_note">Questa nave ha chiuso la connessione subito dopo una svolta mandata da myCar al suo quadro strumenti, quindi myCar non gliene manda più. La mappa su questo schermo le mostra ancora.</string>
+    <string name="car_settings_cluster_no_turns_note">Questa nave ha chiuso la connessione due volte di fila subito dopo una svolta mandata da myCar al suo quadro strumenti, quindi myCar non gliene manda più. La mappa su questo schermo le mostra ancora.</string>
     <string name="car_settings_about">Bandiera</string>
     <string name="car_settings_whats_new_after_updates">Bottino dopo gli aggiornamenti</string>
     <string name="car_settings_whats_new_after_updates_note">Mostra l\'elenco del bottino una volta, la prima volta che la nave si collega dopo un aggiornamento.</string>

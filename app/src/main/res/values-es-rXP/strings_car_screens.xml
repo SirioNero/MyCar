@@ -24,7 +24,7 @@
     <string name="car_settings_info_vehicle">Barco</string>
     <string name="car_settings_unknown_vehicle">Barco desconocido</string>
     <string name="car_settings_cluster_no_turns">Sin giros para este barco</string>
-    <string name="car_settings_cluster_no_turns_note">Este barco cerró la conexión justo después de que myCar enviara un giro a su cuadro de instrumentos, así que myCar ya no le envía ninguno. La carta de esta pantalla los sigue mostrando.</string>
+    <string name="car_settings_cluster_no_turns_note">Este barco cerró la conexión dos veces seguidas justo después de que myCar enviara un giro a su cuadro de instrumentos, así que myCar ya no le envía ninguno. La carta de esta pantalla los sigue mostrando.</string>
     <string name="car_settings_about">Bandera</string>
     <string name="car_settings_whats_new_after_updates">Nuevo botín tras actualizar</string>
     <string name="car_settings_whats_new_after_updates_note">Muestra la lista del nuevo botín una vez, la primera vez que el barco se conecta después de que zarpe una versión nueva.</string>

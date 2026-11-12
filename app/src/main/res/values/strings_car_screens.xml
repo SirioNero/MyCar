@@ -72,10 +72,10 @@
     <!-- The video sent to the car: its size and density -->
     <string name="car_settings_info_video">Video</string>
     <string name="car_settings_info_certificate">Certificate</string>
-    <!-- Under Connection, only for a car that ended the connection right after myCar began showing a navigation on its instrument cluster (the dials behind the steering wheel): myCar then sends that car no turns. A label and its value on one line, a note, a button -->
+    <!-- Under Connection, only for a car that ended the connection twice in a row right after myCar began showing a navigation on its instrument cluster (the dials behind the steering wheel): myCar then sends that car no turns. A label and its value on one line, a note, a button -->
     <string name="car_settings_info_cluster">Instrument cluster</string>
     <string name="car_settings_cluster_no_turns">No turns for this car</string>
-    <string name="car_settings_cluster_no_turns_note">This car ended the connection right after myCar sent its instrument cluster a turn, so myCar sends it none. The map on this screen still shows them.</string>
+    <string name="car_settings_cluster_no_turns_note">This car ended the connection twice in a row right after myCar sent its instrument cluster a turn, so myCar sends it none. The map on this screen still shows them.</string>
     <!-- Button: myCar sends turns to this car's instrument cluster again -->
     <string name="car_settings_cluster_turns_again">Send turns again</string>
     <!-- Shown as the certificate's value while it is read -->
