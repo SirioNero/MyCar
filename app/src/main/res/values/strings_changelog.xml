@@ -5,6 +5,12 @@
   "Settings >" are the app's own: translate them as the app's screens say them.
 -->
 <resources>
+    <!-- 0.7.5-alpha -->
+    <string-array name="changelog_51">
+        <item>Wireless: if a VPN on the phone keeps myCar off the car\'s Wi-Fi, myCar now says so within seconds, on Home and in its notification, and tells you how to fix it.</item>
+        <item>Apps that turn myCar away, such as ABRP, now say why in plain words, get a red X and no longer start by themselves.</item>
+    </string-array>
+
     <!-- 0.7.4-alpha -->
     <string-array name="changelog_50">
         <item>New Jolly key in the dock, above the microphone: one tap does what you choose: call a contact, talk to an AI, run something in Home Assistant (a scene, a light, the gate), go to a place, give the assistant a command or open an app. Hold it to change it, in the car or on the phone in Settings &gt; Car screen. Don\'t need it? Turn it off there and the dock is as before.</item>

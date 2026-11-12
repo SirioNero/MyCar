@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 0.7.5-alpha -->
+    <string-array name="changelog_51">
+        <item>Drahtlos: Hält ein VPN auf dem Telefon myCar vom WLAN des Autos fern, sagt myCar das jetzt innerhalb von Sekunden, auf dem Startbildschirm und in seiner Benachrichtigung, samt Lösung.</item>
+        <item>Apps, die myCar abweisen, etwa ABRP, sagen jetzt in einfachen Worten, warum, bekommen ein rotes X und starten nicht mehr von selbst.</item>
+    </string-array>
+
     <!-- 0.7.4-alpha -->
     <string-array name="changelog_50">
         <item>Neue Jolly-Taste im Dock, über dem Mikrofon: Ein Tippen macht, was du wählst: einen Kontakt anrufen, mit einer KI sprechen, etwas in Home Assistant starten (eine Szene, ein Licht, das Tor), einen Ort ansteuern, dem Assistenten einen Befehl geben oder eine App öffnen. Halte sie gedrückt, um sie zu ändern, im Auto oder auf dem Telefon unter Einstellungen &gt; Bildschirm des Autos. Brauchst du sie nicht? Schalte sie dort aus, und das Dock ist wie vorher.</item>

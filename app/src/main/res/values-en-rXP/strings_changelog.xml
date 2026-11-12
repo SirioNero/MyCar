@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>Boarding wirelessly: if a VPN on yer phone keeps myCar off the ship\'s Wi-Fi, myCar now says so within seconds, on Home and in its notification, and tells ye how to set it right.</item>
+        <item>Apps that won\'t let myCar aboard, such as ABRP, now say why in plain words, get a red X and no longer set sail by themselves.</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>New Jolly Roger flag on the mast, above the ship\'s parrot: one tap does what ye choose: hail a mate, parley with an AI, run something in Home Assistant (a scene, a light, the gate), set a course for a port, give the parrot an order or board an app. Hold it to change it, aboard or on the phone in Rigging &gt; Helm. Don\'t need it? Strike it there and the mast is as it was.</item>
         <item>A call under way is now a wee bubble bobbing over every screen until it ends, with the photo of who ye\'re talking to, how long it has lasted and a red button to hang up. Tap it for the Phone; hold it and drag it anywhere, and it drops anchor there for the next calls too.</item>

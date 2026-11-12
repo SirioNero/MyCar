@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>Kabelloses Entern: Hält ein VPN auf dem Telefon myCar vom WLAN des Schiffs fern, sagt myCar das jetzt innerhalb von Sekunden, auf dem Startbildschirm und in seiner Benachrichtigung, samt Kurs zur Lösung.</item>
+        <item>Apps, die myCar nicht an Bord lassen, etwa ABRP, sagen jetzt in einfachen Worten, warum, bekommen ein rotes X und stechen nicht mehr von selbst in See.</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>Neue Flagge „Jolly Roger“ am Mast, über dem Bordpapagei: Ein Tippen macht, was du wählst: einen Maat anfunken, mit einer KI palavern, etwas in Home Assistant starten (eine Szene, ein Licht, das Tor), Kurs auf einen Hafen setzen, dem Papagei einen Befehl geben oder eine App entern. Halte sie gedrückt, um sie zu ändern, an Bord oder auf dem Telefon unter Takelage &gt; Bordbildschirm. Brauchst du sie nicht? Hol sie dort ein, und der Mast ist wie vorher.</item>
         <item>Ein laufender Anruf ist jetzt eine kleine Blase, die über jedem Bildschirm treibt, bis er endet, mit dem Foto der Person, mit der du sprichst, seiner Dauer und einer roten Taste zum Auflegen. Tippe darauf, um „Telefon“ zu öffnen; halte sie gedrückt und zieh sie, wohin du willst: Dort wirft sie auch bei den nächsten Anrufen Anker.</item>

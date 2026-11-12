@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>Abbordaggio senza fili: se una VPN sul telefono tiene myCar fuori dal Wi-Fi della nave, ora myCar lo dice in pochi secondi, sulla Home e nella sua notifica, e spiega come rimettersi in rotta.</item>
+        <item>Le app che non accettano myCar a bordo, come ABRP, ora dicono perché in parole semplici, hanno la X rossa e non salpano più da sole.</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>Nuova bandiera Jolly Roger sul molo, sopra il pappagallo di bordo: un tocco fa quello che scegli tu: chiamare un compare, parlamentare con un\'IA, avviare qualcosa in Home Assistant (una scena, una luce, il cancello), fare rotta verso un porto, dare un ordine al pappagallo o abbordare un\'app. Tienila premuta per cambiarla, a bordo o sul telefono nel Timone &gt; Schermo di bordo. Non ti serve? Ammainala lì e il molo torna com\'era.</item>
         <item>Una chiamata in corso ora è una piccola nuvoletta che galleggia sopra ogni schermata finché non finisce, con la foto della persona con cui parli, da quanto dura e un tasto rosso per riattaccare. Toccala per aprire il Telefono; tienila premuta e trascinala dove vuoi: lì getta l\'àncora anche per le prossime chiamate.</item>

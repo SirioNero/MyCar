@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 0.7.5-alpha -->
+    <string-array name="changelog_51">
+        <item>Sans fil : si un VPN du téléphone tient myCar à l’écart du Wi-Fi de la voiture, myCar le dit maintenant en quelques secondes, sur l’accueil et dans sa notification, avec la marche à suivre.</item>
+        <item>Les applis qui refusent myCar, comme ABRP, disent maintenant pourquoi avec des mots simples, reçoivent une croix rouge et ne se lancent plus toutes seules.</item>
+    </string-array>
+
     <!-- 0.7.4-alpha -->
     <string-array name="changelog_50">
         <item>Nouveau bouton Jolly dans le dock, au-dessus du micro : un appui fait ce que vous choisissez : appeler un contact, parler à une IA, lancer quelque chose dans Home Assistant (une scène, une lumière, le portail), aller quelque part, donner une commande à l’assistant ou ouvrir une app. Maintenez-le appuyé pour le changer, dans la voiture ou sur le téléphone dans Paramètres &gt; Écran de la voiture. Vous n’en avez pas besoin ? Désactivez-le là et le dock redevient comme avant.</item>

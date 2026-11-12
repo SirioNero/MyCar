@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>无线登船：如果手机上的 VPN 让 myCar 登不上船上的 Wi-Fi，myCar 现在会在几秒内于主屏和通知中说明，并告诉你如何调整航向。</item>
+        <item>不让 myCar 登船的应用（例如 ABRP）现在会用简单的话说明原因，显示红色 X，并且不再自行起航。</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>桅杆上新增 Jolly Roger 旗帜，就在随船鹦鹉上方：点一下即执行你选的命令：呼叫水手、与 AI 谈判、在 Home Assistant 中执行操作（场景、灯、大门）、驶向某个港口、给鹦鹉下命令或跳帮应用。长按即可更改，在船上或在手机的“舵轮 &gt; 船上屏幕”中都能改。用不着？在那里降下旗帜，桅杆就和以前一样。</item>
         <item>正在进行的通话现在会变成一个小气泡，漂浮在所有屏幕上方，直到通话结束，上面有对方的照片、通话时长和一个红色挂断按钮。点一下打开“电话”；按住可拖到任意位置，之后的通话也会在那里下锚。</item>

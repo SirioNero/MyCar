@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>Abordagem sem fio: se uma VPN no telefone deixa o myCar fora do Wi-Fi do navio, o myCar agora avisa em poucos segundos, na tela inicial e na notificação, e explica como acertar o rumo.</item>
+        <item>Os apps que não deixam o myCar subir a bordo, como o ABRP, agora dizem o porquê em palavras simples, ganham um X vermelho e não zarpam mais sozinhos.</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>Nova bandeira Jolly Roger no mastro, acima do papagaio de bordo: um toque faz o que você escolher: chamar um marujo, parlamentar com uma IA, acionar algo no Home Assistant (uma cena, uma luz, o portão), traçar rumo a um porto, dar uma ordem ao papagaio ou abordar um app. Mantenha-a pressionada para mudar, a bordo ou no telefone em Leme &gt; Tela de bordo. Não precisa dela? Arrie-a lá e o mastro fica como antes.</item>
         <item>Uma chamada em andamento agora é uma pequena bolha que flutua sobre todas as telas até terminar, com a foto da pessoa com quem você fala, a duração e um botão vermelho para desligar. Toque nela para abrir o Telefone; mantenha-a pressionada e arraste para onde quiser: ela lança âncora lá também nas próximas chamadas.</item>

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="changelog_51">
+        <item>Abordage sans fil : si un VPN du téléphone tient myCar à l’écart du Wi-Fi du navire, myCar le dit maintenant en quelques secondes, sur l’accueil et dans sa notification, avec le cap à suivre.</item>
+        <item>Les applis qui ne laissent pas monter myCar à bord, comme ABRP, disent maintenant pourquoi avec des mots simples, reçoivent une croix rouge et ne larguent plus les amarres toutes seules.</item>
+    </string-array>
+
     <string-array name="changelog_50">
         <item>Nouveau pavillon Jolly Roger au mât, au-dessus du perroquet de bord : un appui fait ce que vous choisissez : héler un contact, parlementer avec une IA, lancer quelque chose dans Home Assistant (une scène, une lumière, le portail), mettre le cap sur un port, donner un ordre au perroquet ou aborder une app. Maintenez-le appuyé pour le changer, à bord ou sur le téléphone dans Timonerie &gt; Écran de bord. Vous n’en avez pas besoin ? Affalez-le là et le mât redevient comme avant.</item>
         <item>Un appel en cours est maintenant une petite bulle qui flotte par-dessus chaque écran jusqu’à sa fin, avec la photo de votre interlocuteur, sa durée et un bouton rouge pour raccrocher. Appuyez dessus pour ouvrir le Téléphone ; maintenez-la appuyée et faites-la glisser où vous voulez : elle y jette l’ancre aussi pour les appels suivants.</item>
