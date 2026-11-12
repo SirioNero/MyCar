@@ -397,21 +397,29 @@ TV="--es tvList http://10.0.2.2:8001/tv.m3u"
 shoot cinema-videos 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
 EXTRA="$TV" shoot cinema-tv 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_SECOND;$WAIT;$WAIT;$GROUP_ALL;$WAIT;$CHANNEL_FIRST;$WAIT;$WAIT;$WAIT;$WAIT"
 EXTRA="--ez moving true" shoot cinema-videos-moving 1920 720 240 "$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$VIDEO_FIRST;$WAIT;$WAIT"
-# Cinema for other apps (car/OpenInCinemaActivity.kt), sent with adb 5 s into the shot, as another app sends it:
-# NewPipe's "play with an external player" (the stream's address, its type, its title in EXTRA_TITLE) turns the
-# car's screen to Cinema's player, playing; the same with the car moving, covered and still sounding; a stream
-# (HLS, NewPipe's type for a live one); YouTube's page shared, on Cinema's YouTube at that video; a page off
-# Cinema's list (the runner's), in Cinema's own browser, then the map, the grid and Cinema: "Continue" brings it
-# back. Last, the video sent before the car's screen is up, as with no car: not kept, Home stays as it was.
+# Cinema for other apps (car/OpenInCinemaActivity.kt), sent with adb 5 s into the shot, as another app sends it.
+# NewPipe's "play with an external player" (the stream's address, its type, its title in EXTRA_TITLE) with a stream
+# on the internet (Google's sample videos): the car's screen turns to Cinema's player at once, playing; the same
+# with the car moving, covered and still sounding. What could reach the home network waits for the driver's yes on
+# the car's screen (CinemaAskCard: the question, where it leads, "Not now" and "Open", here tapped): the runner's
+# video (10.0.2.2, a private address), its stream (HLS, NewPipe's type for a live one), YouTube's page shared (then
+# on Cinema's YouTube at that video), a page off Cinema's list (the runner's, in Cinema's own browser; then the map,
+# the grid and Cinema: "Continue" brings it back). Two pages shared one after the other: the card shows the second,
+# "Not now" drops it and nothing opens. Last, the video sent before the car's screen is up, as with no car: not
+# kept, Home stays as it was.
 OPEN_WITH="$PKG/io.github.sirionero.mycar.car.OpenInCinemaActivity"
 open_with() { adb shell "am start -n $OPEN_WITH -a android.intent.action.VIEW -t $1 -d $2 --es android.intent.extra.TITLE 'Test video'"; }
 share_with() { adb shell "am start -n $OPEN_WITH -a android.intent.action.SEND -t text/plain --es android.intent.extra.TEXT '$1'"; }
-SENT_VIDEO="open_with video/mp4 http://10.0.2.2:8001/test-video.mp4"
+SENT_VIDEO="open_with video/mp4 https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+OPEN_ASKED="1239,435"     # the card's "Open", at 1920x720
+NOT_NOW_ASKED="825,435"   # its "Not now"
 shoot open-with 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "$SENT_VIDEO"
 EXTRA="--ez moving true" shoot open-with-moving 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT" "$SENT_VIDEO"
-shoot open-with-stream 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "open_with application/x-mpegURL http://10.0.2.2:8001/tv/live.m3u8"
-shoot open-with-share 1920 720 240 "$WAIT;$WAIT;$WAIT;$WAIT;$WAIT;$WAIT" "share_with 'Big Buck Bunny https://www.youtube.com/watch?v=aqz-KE-bpKQ'"
-shoot open-with-page 1920 720 240 "$WAIT;$WAIT;$WAIT;$DOCK_MAP;$WAIT;$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT" "share_with 'On the runner: http://10.0.2.2:8001/'"
+shoot open-with-home 1920 720 240 "$WAIT;$WAIT;$OPEN_ASKED;$WAIT;$WAIT;$WAIT" "open_with video/mp4 http://10.0.2.2:8001/test-video.mp4"
+shoot open-with-stream 1920 720 240 "$WAIT;$WAIT;$OPEN_ASKED;$WAIT;$WAIT;$WAIT" "open_with application/x-mpegURL http://10.0.2.2:8001/tv/live.m3u8"
+shoot open-with-share 1920 720 240 "$WAIT;$WAIT;$OPEN_ASKED;$WAIT;$WAIT;$WAIT;$WAIT" "share_with 'Big Buck Bunny https://www.youtube.com/watch?v=aqz-KE-bpKQ'"
+shoot open-with-page 1920 720 240 "$WAIT;$WAIT;$OPEN_ASKED;$WAIT;$DOCK_MAP;$WAIT;$GRID_BUTTON;$(at cinema);$WAIT;$CINEMA_PHONE;$WAIT;$WAIT" "share_with 'On the runner: http://10.0.2.2:8001/'"
+shoot open-with-twice 1920 720 240 "$WAIT;$WAIT;$WAIT;$NOT_NOW_ASKED;$WAIT" "share_with 'https://www.example.org/first'; sleep 2; share_with 'http://10.0.2.2:8001/tv/'"
 BEFORE="$SENT_VIDEO; sleep 3" shoot open-with-no-car 1920 720 240 "$WAIT;$WAIT"
 case " ${ONLY:-open-with} " in *" open-with"*)
     echo "--- Cinema for other apps: who takes them on the emulator ---"
