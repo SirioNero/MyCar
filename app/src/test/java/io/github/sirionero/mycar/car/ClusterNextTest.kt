@@ -24,11 +24,12 @@ class ClusterNextTest {
         var status = -1
         var turn: String? = null
         var distance: String? = null
+        var last: Message? = null
         var t = 0L
         while (t <= untilMs) {
             val now = at(t)
             val round = if (oneAtATime) {
-                listOfNotNull(ClusterNext.of(now.status, status, now.turn, turn, now.distance, distance))
+                listOfNotNull(ClusterNext.of(now.status, status, now.turn, turn, now.distance, distance, last))
             } else {
                 ClusterNext.owed(now.status, status, now.turn, turn, now.distance, distance)
             }
@@ -42,6 +43,7 @@ class ClusterNextTest {
                     Message.DISTANCE -> distance = now.distance
                 }
                 sent += t to message
+                last = message
             }
             t += if (round.isNotEmpty()) intervalMs else 500
         }
@@ -88,6 +90,23 @@ class ClusterNextTest {
         assertEquals(listOf(Message.STATUS), ClusterNext.owed(REROUTING, NAVIGATING, "depart", "depart", "20 m", "300 m"))
         assertEquals(listOf(Message.STATUS), ClusterNext.owed(NOT_NAVIGATING, NAVIGATING, null, "depart", null, "300 m"))
         assertEquals(emptyList<Message>(), ClusterNext.owed(NOT_NAVIGATING, NOT_NAVIGATING, null, null, null, null))
+    }
+
+    @Test
+    fun `a turn whose words change every second doesn't starve the distance`() {
+        // No road name: the turn's words are the app's cue, which counts down the metres.
+        val sent = run(1000, 5000) { t -> Now(NAVIGATING, "in ${500 - t / 10} m turn right", "${500 - t / 10} m") }
+        assertEquals(
+            listOf(Message.STATUS, Message.TURN, Message.DISTANCE, Message.TURN, Message.DISTANCE, Message.TURN),
+            sent.map { it.second },
+        )
+    }
+
+    @Test
+    fun `right after a turn a waiting distance goes first, but never before a status`() {
+        assertEquals(Message.DISTANCE, ClusterNext.of(NAVIGATING, NAVIGATING, "b", "a", "20 m", "30 m", last = Message.TURN))
+        assertEquals(Message.TURN, ClusterNext.of(NAVIGATING, NAVIGATING, "b", "a", "20 m", "30 m", last = Message.DISTANCE))
+        assertEquals(Message.STATUS, ClusterNext.of(REROUTING, NAVIGATING, "b", "a", "20 m", "30 m", last = Message.TURN))
     }
 
     @Test

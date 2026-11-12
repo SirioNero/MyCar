@@ -36,7 +36,11 @@ internal object ClusterNext {
         }
     }
 
-    /** The one message that goes next, for a cluster that takes one at a time; null when none is owed. */
+    /**
+     * The one message that goes next, for a cluster that takes one at a time; null when none is owed.
+     * Right after a turn ([last]) a distance waiting goes before a newer turn: a turn whose words
+     * change every second (a cue that counts down the metres) would never let it through.
+     */
     fun of(
         status: Int,
         sentStatus: Int,
@@ -44,5 +48,10 @@ internal object ClusterNext {
         sentTurn: String?,
         distance: String?,
         sentDistance: String?,
-    ): Message? = owed(status, sentStatus, turn, sentTurn, distance, sentDistance).firstOrNull()
+        last: Message? = null,
+    ): Message? {
+        val owed = owed(status, sentStatus, turn, sentTurn, distance, sentDistance)
+        if (last == Message.TURN && Message.STATUS !in owed && Message.DISTANCE in owed) return Message.DISTANCE
+        return owed.firstOrNull()
+    }
 }

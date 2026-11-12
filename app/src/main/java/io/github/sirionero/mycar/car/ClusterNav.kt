@@ -7,6 +7,7 @@ import androidx.car.app.navigation.model.Maneuver
 import androidx.car.app.navigation.model.NavigationTemplate
 import androidx.car.app.navigation.model.RoutingInfo
 import androidx.car.app.navigation.model.Step
+import androidx.core.graphics.drawable.IconCompat
 import io.github.sirionero.mycar.MyCarLog
 import io.github.sirionero.mycar.Protobuf
 
@@ -41,6 +42,11 @@ class ClusterNav(
     private var sentStatus = -1
     private var sentTurn: String? = null
     private var sentDistance: String? = null
+    /** The message that went last, so a distance waiting behind a turn gets its turn ([ClusterNext.of]). */
+    private var lastSent: ClusterNext.Message? = null
+    /** The last turn's picture and what it shows: a turn whose words change, not its manoeuvre, keeps it. */
+    private var pictureKey: String? = null
+    private var lastPicture: ClusterImage.Picture? = null
     private val blame = ClusterBlame()
 
     fun onMessage(messageId: Int, body: ByteArray) {
@@ -116,12 +122,13 @@ class ClusterNav(
         val seconds = turn?.seconds
         val distanceKey = distance?.let { "${it.displayDistance}|${it.displayUnit}|${seconds ?: -1}" }
         val messages = if (spec.oneAtATime) {
-            listOfNotNull(ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance))
+            listOfNotNull(ClusterNext.of(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance, lastSent))
         } else {
             ClusterNext.owed(status, sentStatus, turnKey, sentTurn, distanceKey, sentDistance)
         }
         if (messages.isEmpty()) return TICK_MS
         for (message in messages) {
+            lastSent = message
             when (message) {
                 ClusterNext.Message.STATUS -> {
                     sendOnChannel(MSG_STATUS, Protobuf.varintField(1, status.toLong()))
@@ -165,13 +172,18 @@ class ClusterNav(
         var drawn = ""
         spec.pictureSize()?.let { (width, height) ->
             val started = SystemClock.elapsedRealtime()
-            val picture = drawTurn(maneuver, event, side, width, height) ?: run {
+            val key = pictureKeyOf(maneuver, event, side)
+            val same = lastPicture?.takeIf { key == pictureKey }
+            val picture = same ?: drawTurn(maneuver, event, side, width, height) ?: run {
                 MyCarLog.w("cluster: no picture for this turn - not sent, as this cluster wants one")
                 return false
             }
+            pictureKey = key
+            lastPicture = picture
             body += Protobuf.bytesField(4, picture.png)
             val what = if (picture.appIcon) "the app's icon" else "myCar's arrow"
-            drawn = ", ${width}x$height picture of $what (${picture.png.size / 1024} KB, ${SystemClock.elapsedRealtime() - started} ms)"
+            val made = if (same != null) "the one before" else "${SystemClock.elapsedRealtime() - started} ms"
+            drawn = ", ${width}x$height picture of $what (${picture.png.size / 1024} KB, $made)"
         }
         maneuver?.roundaboutExitNumber?.takeIf { it > 0 }?.let { body += Protobuf.varintField(5, it.toLong()) }
         maneuver?.roundaboutExitAngle?.takeIf { it > 0 }?.let { body += Protobuf.varintField(6, it.toLong()) }
@@ -179,6 +191,22 @@ class ClusterNav(
         // Not the road's name: it says where the driver is going.
         MyCarLog.i("cluster: -> turn event=$event side=$side${if (road.isEmpty()) ", no road name" else ""}$drawn")
         return true
+    }
+
+    /**
+     * What a turn's picture shows: its manoeuvre and the app's icon, not the words beside it. A bitmap
+     * icon says nothing about itself, so the manoeuvre tells one from the next.
+     */
+    private fun pictureKeyOf(maneuver: Maneuver?, event: Int, side: Int): String {
+        val icon = maneuver?.icon
+        val source = icon?.icon
+        val drawn = when (source?.type) {
+            null -> "none"
+            IconCompat.TYPE_RESOURCE -> "res:${source.resPackage}:${source.resId}"
+            IconCompat.TYPE_URI, IconCompat.TYPE_URI_ADAPTIVE_BITMAP -> "uri:${source.uri}"
+            else -> "type:${source.type}"
+        }
+        return "$event|$side|${maneuver?.type}|${maneuver?.roundaboutExitAngle}|$drawn|${icon?.tint?.type}"
     }
 
     /** The turn as the picture a cluster that wants one gets ([ClusterImage]); null if it can't be made. */
