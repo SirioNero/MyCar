@@ -91,7 +91,8 @@ fun CarSettingsScreen() {
     Column(
         Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            // Where the driver left it this drive, not the top, when the screen comes back.
+            .verticalScroll(rememberSettingsScroll())
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
