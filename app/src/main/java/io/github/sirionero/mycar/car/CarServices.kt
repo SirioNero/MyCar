@@ -186,6 +186,8 @@ object CarServices {
         speechWarm.removeCallbacks(warmFinal)
         // Which models there are, at once: a command before the loading finds them, as before.
         io.github.sirionero.mycar.speech.SpeechModels.init(appContext)
+        // Back within a couple of minutes of the last drive (a cable or Wi-Fi that dropped): its models stay.
+        io.github.sirionero.mycar.speech.SpeechEngine.keep()
         val phoneListens = CarSettings.systemSpeech.value && android.speech.SpeechRecognizer.isRecognitionAvailable(appContext)
         if (!phoneListens) {
             speechWarm.postDelayed(warmSpeech, SPEECH_WARM_AFTER_MS)
@@ -217,10 +219,10 @@ object CarServices {
         )
     }
 
-    /** How long after the car connects the live voice model (Kroko) starts loading. */
+    /** How long after the car connects the live voice model (Kroko) starts loading, with a small final model (Canary). */
     private const val SPEECH_WARM_AFTER_MS = 20_000L
 
-    /** How long a drive lasts before the model that rereads the phrase loads ahead of a command. */
+    /** How long a drive lasts before a big model that rereads the phrase (Parakeet, Whisper) loads ahead of a command. */
     private const val FINAL_WARM_AFTER_MS = 120_000L
 
     /**
@@ -877,10 +879,11 @@ object CarServices {
         xonosHeld = false
         // The way Plancia's page came through the Plancia app, this drive.
         io.github.sirionero.mycar.bridge.BridgeProxy.stop()
-        // About 900 MB that nothing needs once the car's gone - and not loaded after it either.
+        // Up to about 900 MB that nothing needs once the car's gone - not loaded after it, and what is
+        // loaded goes a couple of minutes later, unless the car is back by then (SpeechEngine).
         speechWarm.removeCallbacks(warmSpeech)
         speechWarm.removeCallbacks(warmFinal)
-        io.github.sirionero.mycar.speech.SpeechEngine.unload("at the end of the drive")
+        io.github.sirionero.mycar.speech.SpeechEngine.unloadAfterDrive()
         CarAudio.release()
         _mediaApp.value = null
         _mediaDecided.value = false
