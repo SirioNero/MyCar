@@ -151,6 +151,8 @@ object SpeechEngine {
      */
     private fun roomForFinal(context: Context, language: VoiceLanguage): Boolean {
         val model = SpeechModels.finalFor(context, language) ?: return false
+        // Already there (kept from a drive that just ended, or loaded earlier): nothing to weigh.
+        if (finalRecognizer != null && loadedFinal == model && loadedLanguage == language) return true
         val mem = memory(context) ?: return true
         if (SpeechRoom.ahead(mem.availMem, mem.threshold, mem.lowMemory, need(context, model))) return true
         MyCarLog.i("speech: ${model.label} waits for the first command, ${mem.availMem shr 20} MB free (Android's line ${mem.threshold shr 20} MB)")
