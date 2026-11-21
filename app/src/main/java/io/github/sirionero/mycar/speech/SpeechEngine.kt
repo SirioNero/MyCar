@@ -144,7 +144,7 @@ object SpeechEngine {
         val model = SpeechModels.finalFor(context, language) ?: return false
         val mem = memory(context) ?: return true
         if (SpeechRoom.ahead(mem.availMem, mem.threshold, mem.lowMemory, need(context, model))) return true
-        MyCarLog.i("speech: ${model.label} waits for the first command, ${mem.availMem shr 20} MB free")
+        MyCarLog.i("speech: ${model.label} waits for the first command, ${mem.availMem shr 20} MB free (Android's line ${mem.threshold shr 20} MB)")
         return false
     }
 
@@ -163,12 +163,12 @@ object SpeechEngine {
         val held = loadedFinal?.takeIf { finalRecognizer != null }?.let { need(context, it) } ?: 0L
         val need = (need(context, model) - held).coerceAtLeast(0L)
         val press = SpeechRoom.atPress(mem.availMem, mem.threshold, mem.lowMemory, need, language == VoiceLanguage.EN)
-        val free = mem.availMem shr 20
+        val free = "${mem.availMem shr 20} MB free (Android's line ${mem.threshold shr 20} MB, ${model.label} needs ${need shr 20} MB)"
         when {
-            press == SpeechRoom.Press.LIVE_WORDS -> MyCarLog.i("speech: ${model.label} stays out, $free MB free - the live words only")
-            press == SpeechRoom.Press.NONE -> MyCarLog.w("speech: no room for ${model.label}, $free MB free - nothing hears ${language.code}")
+            press == SpeechRoom.Press.LIVE_WORDS -> MyCarLog.i("speech: ${model.label} stays out, $free - the live words only")
+            press == SpeechRoom.Press.NONE -> MyCarLog.w("speech: no room for ${model.label}, $free - nothing hears ${language.code}")
             !SpeechRoom.ahead(mem.availMem, mem.threshold, mem.lowMemory, need) ->
-                MyCarLog.i("speech: ${model.label} loads at the press under the margin for loading ahead, $free MB free - the only model for ${language.code}")
+                MyCarLog.i("speech: ${model.label} loads at the press under the margin for loading ahead, $free - the only model for ${language.code}")
         }
         return press
     }
