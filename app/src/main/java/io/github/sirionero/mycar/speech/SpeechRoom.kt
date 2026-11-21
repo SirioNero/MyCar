@@ -12,6 +12,11 @@ package io.github.sirionero.mycar.speech
  * 2.5 GB free, under the margin for loading ahead - and Kroko doesn't hear Italian at all. So at a
  * press another language gets a smaller margin than ahead of a command, but still one: never the
  * 1.2-1.6 GB of those evenings.
+ *
+ * Those margins were sized on Parakeet (~800 MB in memory). A small model (Canary, ~250 MB; Parakeet
+ * small, ~165 MB: [SMALL_MODEL]) gets a smaller one, ahead and at a press: twice Android's line and
+ * at least [SMALL_SPARE] left after it. Under the big margins Canary stayed out on a Pixel 8 with
+ * 1.5 GB free (GrapheneOS, 17 November), where Gearslip, which never looked, loaded it fine.
  */
 internal object SpeechRoom {
 
@@ -27,9 +32,15 @@ internal object SpeechRoom {
         NONE,
     }
 
-    /** Ahead of any command: only with room to spare after it, over 4 times Android's line and 2 GB. */
+    /**
+     * Ahead of any command: only with room to spare after it, over 4 times Android's line and 2 GB;
+     * for a small model, over twice the line and [SMALL_SPARE].
+     */
     fun ahead(avail: Long, threshold: Long, low: Boolean, need: Long): Boolean =
-        !low && avail - need > maxOf(4 * threshold, AHEAD_SPARE)
+        !low && avail - need > spareAhead(threshold, need)
+
+    private fun spareAhead(threshold: Long, need: Long): Long =
+        if (need <= SMALL_MODEL) maxOf(2 * threshold, SMALL_SPARE) else maxOf(4 * threshold, AHEAD_SPARE)
 
     /**
      * At a press, the same room as [ahead]. Without it, English has Kroko's words; another language
@@ -45,6 +56,12 @@ internal object SpeechRoom {
     }
 
     private const val AHEAD_SPARE = 2L shl 30
+
+    /** A model this size or under, in memory, is small (Canary, Parakeet small; not Whisper or Parakeet large). */
+    const val SMALL_MODEL = 300L shl 20
+
+    /** Left after a small model, at the least (see [ahead]). */
+    private const val SMALL_SPARE = 512L shl 20
 
     /** Left after the only model that hears the language, loaded at a press (see [atPress]). */
     private const val PRESS_SPARE = 1L shl 30

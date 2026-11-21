@@ -73,6 +73,12 @@ object SpeechEngine {
     private const val ALONE_END_MS = 1_200
     private const val CUE_VOLUME = 80
     private const val IDLE_UNLOAD_MS = 5 * 60_000L
+    /**
+     * How long the models stay after the car goes away: a cable or Wi-Fi that drops and comes back
+     * finds them ready, instead of loading them again at the next press (a Pixel 8 on a flaky cable,
+     * 17 November: sessions of 4-80 s, Kroko and Canary loaded from cold at every press).
+     */
+    private const val AFTER_DRIVE_MS = 2 * 60_000L
     /** How long the car gets to start sending once asked, before the phone's microphone takes over. */
     private const val CAR_FIRST_AUDIO_MS = 1_500L
     private const val CAR_GAP_MS = 1_000L
@@ -103,6 +109,7 @@ object SpeechEngine {
      * minutes without a command. Kroko stays: it's small, and keeps listening instant.
      */
     private val idleUnload = Runnable { unloadFinal("after ${IDLE_UNLOAD_MS / 60_000} minutes without use") }
+    private val driveEndUnload = Runnable { unload("${AFTER_DRIVE_MS / 60_000} minutes after the end of the drive") }
     @Volatile private var run = 0
 
     /** Bumped by [unload]: a warm-up whose loads haven't started yet doesn't start them after it. */
@@ -110,18 +117,20 @@ object SpeechEngine {
 
     /**
      * Loads the models ahead of time, so the first command doesn't wait for them; [language] is the one
-     * the assistant will listen in. Without [final], only the live model (Kroko): the drive's warm-up
-     * loads the final one later (see CarServices), as a short session doesn't need its ~950 MB.
+     * the assistant will listen in. Without [final], only the live model (Kroko) and a small final one
+     * (Canary, see [SpeechRoom.SMALL_MODEL]): the drive's warm-up loads a big one later (see
+     * CarServices), as a short session doesn't need its ~950 MB.
      */
     fun warm(context: Context, language: VoiceLanguage = VoiceLanguage.EN, final: Boolean = true) {
         val app = context.applicationContext
+        main.removeCallbacks(driveEndUnload)
         SpeechModels.init(app)
         val gen = generation.get()
         // Kroko first, alone: loading both at once slowed it from a fraction of a second to six.
         worker.execute {
             if (gen != generation.get()) return@execute
             ensureLoaded(app)
-            if (!final) return@execute
+            if (!final && !smallFinal(app, language)) return@execute
             finalWorker.execute {
                 // The car went away (or the models changed) while Kroko loaded: no ~800 MB for nobody,
                 // held five minutes after the drive. And ahead of any command only with memory to spare.
@@ -142,9 +151,11 @@ object SpeechEngine {
      */
     private fun roomForFinal(context: Context, language: VoiceLanguage): Boolean {
         val model = SpeechModels.finalFor(context, language) ?: return false
+        // Already there (kept from a drive that just ended, or loaded earlier): nothing to weigh.
+        if (finalRecognizer != null && loadedFinal == model && loadedLanguage == language) return true
         val mem = memory(context) ?: return true
         if (SpeechRoom.ahead(mem.availMem, mem.threshold, mem.lowMemory, need(context, model))) return true
-        MyCarLog.i("speech: ${model.label} waits for the first command, ${mem.availMem shr 20} MB free")
+        MyCarLog.i("speech: ${model.label} waits for the first command, ${mem.availMem shr 20} MB free (Android's line ${mem.threshold shr 20} MB)")
         return false
     }
 
@@ -163,12 +174,12 @@ object SpeechEngine {
         val held = loadedFinal?.takeIf { finalRecognizer != null }?.let { need(context, it) } ?: 0L
         val need = (need(context, model) - held).coerceAtLeast(0L)
         val press = SpeechRoom.atPress(mem.availMem, mem.threshold, mem.lowMemory, need, language == VoiceLanguage.EN)
-        val free = mem.availMem shr 20
+        val free = "${mem.availMem shr 20} MB free (Android's line ${mem.threshold shr 20} MB, ${model.label} needs ${need shr 20} MB)"
         when {
-            press == SpeechRoom.Press.LIVE_WORDS -> MyCarLog.i("speech: ${model.label} stays out, $free MB free - the live words only")
-            press == SpeechRoom.Press.NONE -> MyCarLog.w("speech: no room for ${model.label}, $free MB free - nothing hears ${language.code}")
+            press == SpeechRoom.Press.LIVE_WORDS -> MyCarLog.i("speech: ${model.label} stays out, $free - the live words only")
+            press == SpeechRoom.Press.NONE -> MyCarLog.w("speech: no room for ${model.label}, $free - nothing hears ${language.code}")
             !SpeechRoom.ahead(mem.availMem, mem.threshold, mem.lowMemory, need) ->
-                MyCarLog.i("speech: ${model.label} loads at the press under the margin for loading ahead, $free MB free - the only model for ${language.code}")
+                MyCarLog.i("speech: ${model.label} loads at the press under the margin for loading ahead, $free - the only model for ${language.code}")
         }
         return press
     }
@@ -188,6 +199,29 @@ object SpeechEngine {
         val mem = ActivityManager.MemoryInfo()
         context.getSystemService(ActivityManager::class.java)?.getMemoryInfo(mem) ?: return -1
         return mem.availMem shr 20
+    }
+
+    /** Whether the final model for [language] is downloaded and small enough to load with Kroko (see [SpeechRoom.SMALL_MODEL]). */
+    private fun smallFinal(context: Context, language: VoiceLanguage): Boolean {
+        val model = SpeechModels.finalFor(context, language) ?: return false
+        return SpeechModels.isReady(context, model) && need(context, model) <= SpeechRoom.SMALL_MODEL
+    }
+
+    /**
+     * The car went away: nothing more starts loading for it, but what is loaded stays [AFTER_DRIVE_MS]
+     * in case it comes back (a new drive's [keep], [warm] or press keeps it), then goes ([unload]).
+     */
+    fun unloadAfterDrive() {
+        generation.incrementAndGet()
+        // A phrase still being heard belongs to the drive that ended, as with [unload].
+        run++
+        main.removeCallbacks(driveEndUnload)
+        main.postDelayed(driveEndUnload, AFTER_DRIVE_MS)
+    }
+
+    /** A car is here again: the models left from the drive before stay. */
+    fun keep() {
+        main.removeCallbacks(driveEndUnload)
     }
 
     private fun unloadFinal(why: String) {
@@ -210,6 +244,7 @@ object SpeechEngine {
     fun unload(why: String? = null) {
         generation.incrementAndGet()
         main.removeCallbacks(idleUnload)
+        main.removeCallbacks(driveEndUnload)
         run++
         worker.execute {
             val model = loadedModel.takeIf { recognizer != null }
@@ -259,6 +294,7 @@ object SpeechEngine {
         val id = ++run
         fun post(block: () -> Unit) { main.post { if (id == run) block() } }
         main.removeCallbacks(idleUnload)
+        main.removeCallbacks(driveEndUnload)
         worker.execute {
             if (id != run) return@execute
             if (!SpeechModels.isReady(app, SpeechModels.selected.value)) return@execute post { onError(NOT_DOWNLOADED) }

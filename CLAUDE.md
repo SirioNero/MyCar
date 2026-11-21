@@ -1128,7 +1128,16 @@ Tutti i token in un solo posto, `car/design/`:
   caricamenti in attesa), e prima del primo comando (`warm`) il finale solo se resta memoria
   abbondante (`roomForFinal`: libera meno 5/4 del modello sopra 4 volte la soglia di Android e 2 GB).
   Dalla 0.7.4 il finale si precarica solo dopo 2 minuti di viaggio, e alla pressione decide `SpeechRoom`
-  (vedi "Viaggio 0.7.4"). Ogni caricamento scrive la memoria libera e l'heap nativo. L'anteprima dell'auto sul telefono, senza
+  (vedi "Viaggio 0.7.4"). Dalla 0.7.7 (`fix/speech-room`) un modello piccolo (fino a 300 MB in memoria,
+  `SpeechRoom.SMALL_MODEL`: Canary, Parakeet small) ha un margine suo, prima e alla pressione: dopo di lui il
+  doppio della soglia di Android e almeno 512 MB; i margini da 2 GB / 1 GB restano a Parakeet large e
+  multilingue e a Whisper. Nato dal log di un Pixel 8 con GrapheneOS (17/11, Hyundai col cavo): "Canary stays
+  out" con 1522 e 914 MB liberi, dove Gearslip, che non guardava la memoria, lo caricava. Le righe "stays
+  out" / "no room" scrivono anche la soglia di Android e quanto chiede il modello. Un finale piccolo si precarica con Kroko,
+  20 s dopo il collegamento (`SpeechEngine.smallFinal`), non dopo 2 minuti; i grandi restano a 2 minuti. A fine
+  viaggio non parte più nessun caricamento, ma i modelli caricati restano 2 minuti (`unloadAfterDrive`,
+  `AFTER_DRIVE_MS`): un'auto che torna entro allora li trova (`keep` in `CarServices.init`). Stesso log: Kroko
+  8 s e Canary 13 s, caricati da zero a ogni pressione perché il cavo cadeva ogni 4-80 s. Ogni caricamento scrive la memoria libera e l'heap nativo. L'anteprima dell'auto sul telefono, senza
   viaggio, non li carica.
 - **Motore da Gearslip** (0.5.18, branch `fix/engine`): delle 116 modifiche di Gearslip dopo il fork
   (0.3.01 → 0.3.31) si portano solo quelle che non possono cambiare come si collega un'auto che oggi va

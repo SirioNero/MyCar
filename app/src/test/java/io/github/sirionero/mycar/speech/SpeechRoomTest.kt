@@ -62,4 +62,41 @@ class SpeechRoomTest {
         assertEquals(Press.NONE, SpeechRoom.atPress(mb(900), line, low = false, need = parakeet, english = false))
         assertEquals(Press.NONE, SpeechRoom.atPress(mb(3_000), line, low = true, need = parakeet, english = false))
     }
+
+    /** Canary: 198 MB on disk, 5/4 of it in memory. */
+    private val canary = mb(248)
+
+    /** Whisper small: 358 MB on disk - not a small model. */
+    private val whisper = mb(447)
+
+    @Test
+    fun `Canary on a Pixel 8 - loads with the free memory of the 17 November log`() {
+        // 17:28: 1522 MB free; 17:32: 914 MB free. Both stayed out under the margins sized on Parakeet.
+        for (free in listOf(1_522L, 914L)) {
+            assertTrue("$free MB free", SpeechRoom.ahead(mb(free), line, low = false, need = canary))
+            assertEquals("$free MB free", Press.LOAD, SpeechRoom.atPress(mb(free), line, low = false, need = canary, english = true))
+        }
+    }
+
+    @Test
+    fun `Canary - still twice Android's line left after it`() {
+        // 914 MB free with a 400 MB line: 666 MB left, under 800.
+        assertEquals(Press.LIVE_WORDS, SpeechRoom.atPress(mb(914), mb(400), low = false, need = canary, english = true))
+        assertEquals(Press.LOAD, SpeechRoom.atPress(mb(1_522), mb(400), low = false, need = canary, english = true))
+    }
+
+    @Test
+    fun `Canary - never with too little left, nor with the phone already low`() {
+        // 700 MB free: 452 MB left, under the 512 MB floor.
+        assertEquals(Press.LIVE_WORDS, SpeechRoom.atPress(mb(700), line, low = false, need = canary, english = true))
+        assertEquals(Press.NONE, SpeechRoom.atPress(mb(700), line, low = false, need = canary, english = false))
+        assertEquals(Press.LIVE_WORDS, SpeechRoom.atPress(mb(3_000), line, low = true, need = canary, english = true))
+    }
+
+    @Test
+    fun `bigger models keep the margins sized on Parakeet`() {
+        assertFalse(SpeechRoom.ahead(mb(1_522), line, low = false, need = whisper))
+        assertFalse(SpeechRoom.ahead(mb(1_522), line, low = false, need = parakeet))
+        assertEquals(Press.LIVE_WORDS, SpeechRoom.atPress(mb(1_522), line, low = false, need = parakeet, english = true))
+    }
 }
